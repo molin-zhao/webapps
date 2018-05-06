@@ -1,0 +1,70 @@
+.row-footer{
+  background-color: #AfAfAf;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  padding:20px 0px 20px 0px;
+}
+
+.jumbotron{
+  padding:70px 30px 70px 30px;
+  margin:0px auto;
+  margin-bottom: 20px;
+  /*background:#7986CB;*/
+  background-image: url(../webImage/man-dog.jpg);
+  background-size: cover;
+  background-position: 0% 30%;
+  color:floralwhite;
+}
+
+.jumbotron > div{
+  padding:60px;
+}
+
+address{
+  font-size:80%;
+  margin:0px;
+  color:#0f0f0f;
+}
+
+#websiteLogo{
+  max-width: auto;
+  max-height: 100%;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+
+body{
+    padding:0px 0px 0px 0px;
+    z-index:0;
+}
+
+#navigationBar{
+  margin-bottom: 0px;
+}
+
+
+.tab-pane{
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.dropzone{
+  height:250px;
+  border:2px dashed #ccc;
+  color:#ccc;
+  line-height: 0px;
+  text-align: center;
+}
+
+
+.dropzone.dragover{
+  border-color:#000;
+  color:#000;
+}
+
+.dropzoneWithImage{
+  height:250px;
+  visibility: hidden;
+}
