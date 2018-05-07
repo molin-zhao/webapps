@@ -44,10 +44,11 @@
                          aria-hidden="true"></span> Contact</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <!-- <li><a href="#" data-toggle="modal" data-target="#signUpModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-          <li><a href="#" data-toggle="modal" data-target="#loginModal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li> -->
-          <li><a href="signup.html" type="button"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-          <li><a href="login.html" type="button"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#signUpModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#loginModal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+          <!-- <li><a href="signup.html" type="button"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="login.html" type="button"><span class="glyphicon glyphicon-log-in"></span> Login</a></li> -->
+
           <!-- Modal -->
           <div id="signUpModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -60,18 +61,18 @@
                 <div class="modal-body">
 
                   <div>
-                  <form role="form" action="/signup" method="post" id="signUp">
-                    <div class="form-group">
-                      <label for="usr">Email:</label>
-                      <input type="text" class="form-control" name="email" id="email">
-                    </div>
-                    <div class="form-group">
-                      <label for="pwd">Password:</label>
-                      <input type="password" class="form-control" name="password" id="pwd">
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-dismiss="modal">Sign Up</button>
-                  </form>
-                </div>
+                    <form role="form" action="/signup" method="post" id="signUp">
+                      <div class="form-group">
+                        <label for="usr">Email:</label>
+                        <input type="text" class="form-control" name="email" id="email">
+                      </div>
+                      <div class="form-group">
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" name="password" id="pwd">
+                      </div>
+                      <button type="submit" class="btn btn-primary">Sign Up</button>
+                    </form>
+                  </div>
 
                 </div>
                 <div class="modal-footer" style="vertical-align: middle">
@@ -99,22 +100,26 @@
                   <h4 class="modal-title">Sign Up</h4>
                 </div>
                 <div class="modal-body">
-                  <div class="form-group">
-                    <label for="usr">Email:</label>
-                    <input type="text" class="form-control" id="email">
-                  </div>
-                  <div class="form-group">
-                    <label for="pwd">Password:</label>
-                    <input type="password" class="form-control" id="pwd" style="margin-bottom:10px;">
-                    <span style="text-decoration: underline;">forgot your password?</span>
-                  </div>
-                </div>
-                <div class="modal-footer" style="vertical-align: middle">
-                  <button type="button" class="btn btn-primary" data-dismiss="modal">Login</button>
+
+                  <form role="form" action="/login" method="post" id="signUp">
+                    <div class="form-group">
+                      <label for="usr">Email:</label>
+                      <input type="text" class="form-control" name="email" id="email">
+                    </div>
+                    <div class="form-group">
+                      <label for="pwd">Password:</label>
+                      <input type="password" class="form-control" name="password" id="pwd" style="margin-bottom:10px;">
+                      <a>fogot your password?</a>
+                    </div>
+                    <div>
+                      <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
           </div>
+
         </ul>
       </div>
     </div>
