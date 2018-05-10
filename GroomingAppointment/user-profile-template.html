@@ -11,29 +11,17 @@
   <link href="assets/bootstrap3/css/bootstrap-social.css" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-2.1.3.js"></script>
   <script src="assets/bootstrap3/js/bootstrap.js"></script>
-  <script src="ajax.js"></script>
+  <script type="text/javascript" src="ajax.js"></script>
+  <!-- <script type="text/jscript" src="getuserinfo.js"></script> -->
   <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
   <link rel="shortcut icon" href="assets/webImage/titleImage.jpg" />
   <title>Grooming</title>
-  <!-- <script>
-    window.onload = function() {
-      var files = document.querySelectorAll("input[type=file]");
-      files[0].addEventListener("change", function(e) {
-        if(this.files && this.files[0]) {
-          var reader = new FileReader();
-          reader.onload = function(e) { document.getElementById("preview").setAttribute("src", e.target.result); }
-          reader.readAsDataURL(this.files[0]);
-        }
-      });
-    }
-  </script> -->
-
 
 </head>
-<body onload="getUserInfo()">
+<body>
 
   <!-- navigation bar -->
   <nav id="navigationBar" class="navbar navbar-default">
@@ -49,34 +37,117 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="index.html"><span class="glyphicon glyphicon-home"
+          <li class="active"><a href="index.html"><span class="glyphicon glyphicon-home"
                          aria-hidden="true"></span> Home</a></li>
           <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
                          aria-hidden="true"></span> About</a></li>
-          <li class="active"><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
+          <li><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
                          aria-hidden="true"></span> User Profile</a></li>
           <li><a href="contact.html"><span class="glyphicon glyphicon-phone"
                          aria-hidden="true"></span> Contact</a></li>
         </ul>
+
+        <!--  if user login, change the navbar right items to user image and role -->
+        <ul id="isLogin" style="display: block; margin-top: 5px;" class="nav navbar-nav navbar-right">
+          <li>
+            <div style="display: inline;">
+              <img id="isLoginImage" class="img-circle" style="height:40px; width:40px;" src=''/>
+              <!-- <span style="font-size: 8px;" class="label label-warning">VIP</span> -->
+            </div>
+            <div style="display: inline;">
+              <span>Welcome!</span>
+            </div>
+          </li>
+          <li>
+            <button id="logoutButton" style="height: 35px; margin-top: 3px; margin-left:5px;" class="btn btn-danger" type="button"> Logout </button>
+          </li>
+        </ul>
+
+        <ul id="notLogin" style="display: none;" class="nav navbar-nav navbar-right">
+          <li><a href="#" data-toggle="modal" data-target="#signUpModal"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#loginModal"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+          <!-- <li><a href="signup.html" type="button"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+          <li><a href="login.html" type="button"><span class="glyphicon glyphicon-log-in"></span> Login</a></li> -->
+
+          <!-- Modal -->
+          <div id="signUpModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <!-- Modal contents -->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title">Sign Up</h4>
+                </div>
+                <div class="modal-body">
+
+                  <div>
+                    <form role="form">
+                      <div class="form-group">
+                        <label for="usr">Email:</label>
+                        <input type="text" class="form-control" name="signUpEmail" id="signUpEmail">
+                      </div>
+                      <div class="form-group">
+                        <label for="pwd">Password:</label>
+                        <input type="password" class="form-control" name="signUpPassword" id="signUpPassword">
+                      </div>
+                      <div>
+                        <button type="button" id="signUpBtn" class="btn btn-primary"><span id="signUpBtnIcon" class="glyphicon"></span> Sign Up </button>
+                      </div>
+                    </form>
+                  </div>
+
+                </div>
+                <div class="modal-footer" style="vertical-align: middle">
+                  <div class="nav navbar-nav" style="padding: 10px 10px;">
+                    <p>
+                    <span style="font-weight: bold;">Or login with:  </span>
+                    <a class="btn btn-social-icon btn-google-plus" href="http://google.com/+"><i class="fab fa-google-plus"></i></a>
+                    <a class="btn btn-social-icon btn-facebook" href="http://www.facebook.com/profile.php?id="><i class="fab fa-facebook"></i></a>
+                    <a class="btn btn-social-icon btn-linkedin" href="http://www.linkedin.com/in/"><i class="fab fa-linkedin"></i></a>
+                    <a class="btn btn-social-icon btn-twitter" href="http://twitter.com/"><i class="fab fa-twitter"></i></a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- loginModal -->
+          <div id="loginModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+              <!-- Modal contents -->
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                  <h4 class="modal-title"> Login </h4>
+                </div>
+                <div class="modal-body">
+
+                  <form role="form">
+                    <div class="form-group">
+                      <label for="usr">Email:</label>
+                      <input type="text" class="form-control" name="loginEmail" id="loginEmail">
+                    </div>
+                    <div class="form-group">
+                      <label for="pwd">Password:</label>
+                      <input type="password" class="form-control" name="loginPassword" id="loginPassword" style="margin-bottom:10px;">
+                    </div>
+                    <div>
+                      <button type="button" id="loginBtn" class="btn btn-primary"><span id="loginBtnIcon" class="glyphicon"></span> Login </button>
+                    </div>
+                    <div style="margin-top:10px; margin-left:5px;">
+                      <a>fogot your password?</a>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </ul>
       </div>
     </div>
   </nav>
-
-
-  <!-- header for marketing information -->
-  <!-- <header class="jumbotron" style="background-color:#7986CB; background-image: none">
-    <div class="container">
-      <div class="row">
-        <div>
-          <h1>Dogs Grooming Appointment Website</h1>
-          <p style="padding:40px;"></p>
-          <p>A good place for grooming! you can groom dogs and get your dog groomed</p>
-        </div>
-        <div>
-        </div>
-      </div>
-    </div>
-  </header> -->
 
   <!-- page header -->
   <!-- bewlow part is for display dogs in the database -->
@@ -87,8 +158,12 @@
     </div>
 
     <div class="container">
+
       <div class="col-xs-3">
-        <img src="data/clients/client1.jpg" class="img-thumbnail" style="width:100%;margin-bottom:20px;"/>
+        <img id="myImage" data-placement='right' title="change your image" src="data/clients/client-default.jpg" class="img-thumbnail" style="width:100%;margin-bottom:20px;"/>
+        <div style="height:100px;">
+          <p id="selfIntro"></p>
+        </div>
       </div>
 
       <div class="col-xs-9">
@@ -96,14 +171,14 @@
           <li class="dropdown active">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">My Profile<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a data-toggle="tab" href="#myProfile">view my profile</a></li>
+              <li><a data-toggle="tab" onclick="getUserInfo('$(#thisUser).val()')" href="#myProfile">view my profile</a></li>
               <li><a data-toggle="tab" href="#editMyProfile">edit my profile</a></li>
             </ul>
           </li>
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">My dogs<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a data-toggle="tab" href="#viewMyDogs">view my dogs</a></li>
+              <li><a data-toggle="tab" onclick="getDogInfo('$(#thisUser).val()')" href="#viewMyDogs">view my dogs</a></li>
               <li><a data-toggle="tab" href="#editMyDogProfile">add a dog</a></li>
             </ul>
           </li>
@@ -111,6 +186,7 @@
           <li><a data-toggle="tab" href="#myBookingHistory">Appointment history</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
+          <input id="thisUser" type="hidden" value="">
           <!-- My profile -->
             <!-- View my profile -->
             <!-- Edit my profile -->
@@ -119,7 +195,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="name">Name:</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">Mike</p>
+                  <p id="myName" class="form-control-static"></p>
                 </div>
               </div>
             </form>
@@ -127,7 +203,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="email">Email:</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">mike@gmail.com</p>
+                  <p id="myEmail" class="form-control-static"></p>
                 </div>
               </div>
             </form>
@@ -135,7 +211,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="mobilephone">Mobile number:</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">+61 485732341</p>
+                  <p id="myMobileNumber" class="form-control-static"></p>
                 </div>
               </div>
             </form>
@@ -144,7 +220,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="homephone">Home number:</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">+61 485732341</p>
+                  <p id="myHomeNumber" class="form-control-static"></p>
                 </div>
               </div>
             </form>
@@ -153,7 +229,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="workphone">Work number:</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">+61 485732341</p>
+                  <p id="myWorkNumber" class="form-control-static"></p>
                 </div>
               </div>
             </form>
@@ -161,7 +237,7 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="address">Home address:</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">740 Swanston St, Carlton, 3053</p>
+                  <p id="myAddress" class="form-control-static"></p>
                 </div>
               </div>
             </form>
@@ -170,25 +246,17 @@
               <div class="form-group">
                 <label class="control-label col-sm-2" for="dognumber">Number of dog(s):</label>
                 <div class="col-sm-10">
-                  <p class="form-control-static">2</p>
+                  <p id="MyNumberOfDogs" class="form-control-static"></p>
                 </div>
               </div>
             </form>
-            <!-- <a data-toggle="" href="#editMyProfile" class="btn btn-info" role="button">Edit My Profile</a> -->
           </div>
 
           <div class="tab-pane fade" id="editMyProfile">
-
             <form method="post" enctype="multipart/form-data">
-
               <div class="form-group ">
                 <label class="control-label " for="name">Name</label>
                 <input class="form-control" id="editName" name="editName" type="text"/>
-              </div>
-
-              <div class="form-group ">
-                <label class="control-label " for="email">Email</label>
-                <input class="form-control" id="editEmail" name="editEmail" type="text"/>
               </div>
 
               <div class="form-group ">
@@ -226,17 +294,58 @@
                 <input class="form-control" id="editAddress" name="editAddress" type="text"/>
               </div>
 
-              <div class="form-group">
-                  <div style="text-align:center; width:200px;">
-                    <label class="control-label " for="image">Your Image</label>
-                    <div class="dropzone" id="dropzone">
-                      <!-- <p>Drop here to view your image</p> -->
-                      <img id="editSelfImg" name="editSelfImg" src='' style="visibility: hidden; width:100%; height:100%;"/>
-                      <p>Drop here to view your image</p>
-                    </div>
-                    <div>
-                      <a class="btn btn-danger btn-sm" onclick="withdrawImage()" id="cancelImage" name="cancelImage" style="margin-top:10px;">Withdraw Image</a>
-                    </div>
+
+              <!-- for upload image -->
+              <div id="popoverContentWrapper" class="form-group" style="width:300px; display:none">
+                  <div class="container" style="text-align:center; width:200px;">
+                    <form id="uploadImageForm" role="form">
+                      <label class="control-label " for="image">Your Image</label>
+                      <div class="dropzone" id="dropzone">
+                        <!-- <p>Drop here to view your image</p> -->
+                        <img id="editSelfImg" name="editSelfImg" src='' style="visibility: hidden; width:100%; height:100%;"/>
+                        <p>Drop here to view your image</p>
+                      </div>
+                      <div>
+                        <a class="btn btn-danger btn-sm" onclick="withdrawImage()" id="cancelImage" name="cancelImage" style="margin-top:10px;">Withdraw Image</a>
+                        <a class="btn btn-info btn-sm" onclick="uploadMyImage()" id="uploadMyImage" name="uploadMyImage" style="margin-top:10px;">Upload Image</a>
+                      </div>
+                    </form>
+                    <script>
+                      var imageUploaded;
+                      var dropzone = document.getElementById('dropzone');
+                      dropzone.ondragover = function(){
+                        this.className = 'dropzone dragover';
+                        return false;
+                      }
+                      dropzone.ondragleave = function(){
+                        this.className = 'dropzone';
+                        return false;
+                      }
+
+                      dropzone.ondrop = function(e){
+                        e.preventDefault();
+                        this.className = 'dropzoneWithImage';
+                        imageUploaded = e.dataTransfer.files[0];
+                        var reader = new FileReader();
+                        reader.readAsDataURL(imageUploaded);
+                        reader.onload = function(){
+                          var dragImage = dropzone.getElementsByTagName('img')[0];
+                          dragImage.src = this.result;
+                          console.log(document.getElementById("editSelfImg").src);
+                          dragImage.style.visibility = "visible";
+                        };
+                      }
+
+                      function withdrawImage(){
+                        var dropzone = document.getElementById('dropzone');
+                        dropzone.className = 'dropzone';
+                        var dragImage = dropzone.getElementsByTagName('img')[0];
+                        dragImage.src = '';
+                        dragImage.style.visibility = "hidden";
+                        imageUploaded = null;
+                      }
+
+                    </script>
                   </div>
               </div>
 
@@ -258,52 +367,126 @@
             <!-- View my dogs -->
             <!-- Edit my dog profile -->
           <div class="tab-pane fade" id="viewMyDogs">
-            <div class="col-sm-6 col-md-4">
+            <div id="dogCell" class="col-sm-6 col-md-4" style="display:none;">
               <div class="thumbnail">
-                <img src="data/dogs/dog5.jpg" alt="Dog1" style="width:100%; height:200px;">
+                <img id="dogCellImage" src="data/dogs/dog-default.jpg" alt="Dog" style="width:100%; height:200px;">
                 <div class="caption">
-                  <p>Name...<span class="label label-success">deluxe grooming</span></p>
-                  <p>Description...</p>
+                  <label for="dogCellName">Dog's Name: </label>
+                  <p id="dogCellName"></p><span id="dogCellGroomOption" class="label"></span>
+                  <label for="dogCellDescription">Description: </label>
+                  <p id="dogCellDescription"></p>
+                  <input type="hidden" id="dogCellBread">
+                  <input type="hidden" id="dogCellDoB">
                 </div>
                 <div style="text-align:center; margin-bottom:10px;">
-                  <button style="width:30%;" class="btn btn-primary">Groom</button>
-                  <button style="width:30%;" class="btn btn-success">Edit</button>
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-6 col-md-4">
-              <div class="thumbnail">
-                <img src="data/dogs/dog4.jpg" alt="Dog2" style="width:100%; height:200px;">
-                <div class="caption">
-                  <p>Name...<span class="label label-danger">Wash Only</span></p>
-                  <p>Description...</p>
-                </div>
-                <div style="text-align:center; margin-bottom:10px;">
-                  <button style="width:30%;" class="btn btn-primary">Groom</button>
-                  <button style="width:30%;" class="btn btn-success">Edit</button>
+                  <button style="text-align: center; padding-right: 5px;padding-left: 5px; width:30%;" class="btn btn-primary">Groom</button>
+                  <button style="text-align: center; padding-right: 5px;padding-left: 5px; width:30%; margin-left:10px;" class="btn btn-success">Edit</button>
                 </div>
               </div>
             </div>
           </div>
+          <script>
+            function renderDogProfile(feedback){
+              if(feedback == null || feedback === undefined){
+                return;
+              }
+              var viewDogPanel = document.getElementById('viewMyDogs');
+              for(var i = 0; i < feedback.length; i++){
+                var tempCard = document.querySelector('#dogCell');
+                var dogCard = tempCard.cloneNode(true);
+                var name = feedback[i].d_name;
+                var bread = feedback[i].d_bread;
+                var preferedGroomOption = feedback[i].d_dogPreferedGroomOption;
+                var description = feedback[i].d_description;
+                var imagePath = feedback[i].d_imagePath;
+                var doB = feedback[i].d_dateOfBirth;
+
+                var dogCellImage = viewDogPanel.querySelector('#dogCellImage');
+                var dogCellName = viewDogPanel.querySelector('#dogCellName');
+                var dogCellGroomOption = viewDogPanel.querySelector('#dogCellGroomOption');
+                var dogCellDescription = viewDogPanel.querySelector('#dogCellDescription')
+                var dogCellBread = viewDogPanel.querySelector('#dogCellBread');
+                var dogCellDoB = viewDogPanel.querySelector('#dogCellDoB');
+
+                dogCellBread.value = bread;
+                dogCellDoB.value = doB;
+                if(description === undefined || description == null || description === ''){
+                  dogCellDescription.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                }else{
+                  dogCellDescription.innerHTML = description;
+                }
+
+                if(name === undefined || name == null || name === ''){
+                  dogCellName.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                }else{
+                  dogCellName.innerHTML = name;
+                }
+
+                if(preferedGroomOption === undefined || preferedGroomOption == null || preferedGroomOption === ''){
+                  dogCellGroomOption.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                  dogCellGroomOption.classList.add("label-warning");
+                }else if(preferedGroomOption == "deluxe grooming"){
+                  dogCellGroomOption.innerHTML = preferedGroomOption;
+                  dogCellGroomOption.classList.add("label-success");
+                }else if(preferedGroomOption == "wash only"){
+                  dogCellGroomOption.innerHTML = preferedGroomOption;
+                  dogCellGroomOption.classList.add("label-danger");
+                }else{
+                  dogCellGroomOption.innerHTML = preferedGroomOption;
+                  dogCellGroomOption.classList.add("label-info");
+                }
+
+                if(imagePath === undefined || imagePath == null || imagePath === ''){
+                  dogCellImage.src = "data/dogs/dog-default.jpg";
+                }else{
+                  dogCellImage.src = imagePath;
+                }
+
+                dogCard.style.display = 'initail';
+                console.log(dogCard);
+                viewDogPanel.appendChild(dogCard);
+              }
+            }
+          </script>
 
           <div class="tab-pane fade" id="editMyDogProfile">
-            <div class="form-group">
-              <label for="usr">Dog's Name: </label>
-              <input type="text" class="form-control" id="usr">
-            </div>
-            <div class="form-group">
-              <label for="pwd">Bread: </label>
-              <input type="password" class="form-control" id="pwd">
-            </div>
-            <div class="form-group">
-              <label class="control-label " for="date">Date of Birth: </label>
-              <div class="input-group">
-                <div class="input-group-addon">
-                  <i class="fa fa-calendar"></i>
+              <form role="form" id="editMyDogProfileForm">
+                <div class="form-group">
+                  <label for="editDogName">Dog's Name: </label>
+                  <input type="text" class="form-control" id="editDogName" name="editDogName">
                 </div>
-                <input class="form-control" id="date" name="date" placeholder="MM/DD/YYYY" type="text"/>
-              </div>
-            </div>
+                <div class="form-group">
+                  <label for="editDogBread">Bread: </label>
+                  <input type="text" class="form-control" id="editDogBread" name="editDogBread">
+                </div>
+                <div class="form-group">
+                  <label class="control-label " for="editDogDateOfBirth">Date of Birth: </label>
+                  <div class="input-group">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input class="form-control" id="editDogDateOfBirth" name="editDogDateOfBirth" placeholder="MM/DD/YYYY" type="text"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="groomingOptions">Preferred Grooming Option: </label>
+                  <select id="editDogGroomOption" class="form-control" id="groomingOptions" name="groomingOptions">
+                    <option>deluxe grooming</option>
+                    <option>wash only</option>
+                    <option>nail clipping</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="description">Description: </label>
+                  <textarea id="editDogDescription" class="form-control" rows="3" id="description" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                  <input id="editDogImage" name="editDogImage" type="file" class="form-control">
+                </div>
+                <div style="margin-top: 10px;" class="form-group">
+                  <button id="editMyDogProfileButton" class="btn btn-primary btn-sm" type="button"> confirm </button>
+                </div>
+            </form>
           </div>
 
           <!-- My booking list -->
@@ -370,13 +553,13 @@
       </div>
     </div>
   </footer>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 <!-- Include Date Range Picker -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 <script>
     $(document).ready(function(){
-        var date_input=$('input[name="date"]'); //our date input has the name "date"
+        var date_input=$('input[name="editDogDateOfBirth"]'); //our date input has the name "date"
         var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
         date_input.datepicker({
             format: 'mm/dd/yyyy',
@@ -385,57 +568,194 @@
             autoclose: true,
         })
     })
+
+    $(document).ready(function(){
+      $('#myImage').popover({
+        html : true,
+        content: function() {
+          return $('#popoverContentWrapper').html();
+        }
+      });
+    })
 </script>
 <script>
-  // for dragzone
-  (function dropzoneOnload(){
-    var dropzone = document.getElementById('dropzone');
-    dropzone.ondragover = function(){
-      this.className = 'dropzone dragover';
-      return false;
-    }
-    dropzone.ondragleave = function(){
-      this.className = 'dropzone';
-      return false;
 
-    }
+  var editSubmitButton = document.getElementById('editSubmitButton');
+  var editMyDogProfileButton = document.getElementById('editMyDogProfileButton');
 
-    dropzone.ondrop = function(e){
-      e.preventDefault();
-      this.className = 'dropzoneWithImage';
-      var imageUploaded = e.dataTransfer.files[0];
-      var reader = new FileReader();
-      reader.readAsDataURL(imageUploaded);
-      reader.onload = function(){
-        var dragImage = dropzone.getElementsByTagName('img')[0];
-        dragImage.src = this.result;
-        dragImage.style.visibility = "visible";
-      };
-    }
-  }());
-
-  function withdrawImage(){
-    var dropzone = document.getElementById('dropzone');
-    dropzone.className = 'dropzone';
-    var dragImage = dropzone.getElementsByTagName('img')[0];
-    dragImage.src = '';
-    dragImage.style.visibility = "hidden";
+  window.onload = function(){
+    var isLogin = document.getElementById('isLogin');
+    var notLogin = document.getElementById('notLogin');
+    var isLoginImage = document.getElementById('isLoginImage');
+    ajax({
+      trigger: null,
+      method: 'get',
+      url: '/iflogin',
+      data: null,
+      contentType: "",
+      callbackFunction: function(trigger, feedback){
+        if(feedback.status === 0){
+          // didn't login
+          isLoginImage.src = "data/clients/client-default.jpg";
+          isLogin.style.display = 'none';
+          notLogin.style.display = 'block';
+        }else{
+          // already login
+          notLogin.style.display = 'none';
+          isLogin.style.display = 'block';
+          var userImg = feedback.message.user_imgpath;
+          var userEmail = document.getElementById('thisUser');
+          userEmail.value = feedback.message.user_email;
+          if(userImg === undefined || userImg == '' || userImg == null){
+            isLoginImage.src = "data/clients/client-default.jpg";
+          }else{
+            isLoginImage.src = "userImg";
+          }
+          getUserInfo(userEmail.value);
+          getDogInfo(userEmail.value);
+        }
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
   }
 
-  function getUserInfo(){
-    window.alert("get Info!");
+  function renderProfile(feedback){
+    // dom nodes
+    var myName = document.getElementById('myName');
+    var myEmail = document.getElementById('myEmail');
+    var myMobileNumber = document.getElementById('myMobileNumber');
+    var myWorkNumber = document.getElementById('myWorkNumber');
+    var myHomeNumber = document.getElementById('myHomeNumber');
+    var myAddress = document.getElementById('myAddress');
+    var myNumberOfDogs = document.getElementById('MyNumberOfDogs');
+    var myImage = document.getElementById('myImage');
+    var selfItd = document.getElementById('selfIntro');
+    // data from database
+    var name = feedback.name;
+    var email = feedback.email;
+    var mobileNum = feedback.mobileNumber;
+    var workNum = feedback.workNumber;
+    var homeNum = feedback.homeNumber;
+    var address = feedback.address;
+    var numOfDogs = feedback.numberOfDogs;
+    var img = feedback.imagePath;
+    var intro = feedback.selfIntro;
+
+    // link them together
+    if(name === undefined || name == null || name === ''){
+      myName.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myName.innerHTML = name;
+    }
+
+    if(email === undefined || email == null || email === ''){
+      myEmail.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myEmail.innerHTML = email;
+    }
+
+    if(mobileNum === undefined || mobileNum == null || mobileNum === ''){
+      myMobileNumber.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myMobileNumber.innerHTML = mobileNum;
+    }
+
+    if(workNum === undefined || workNum == null || workNum === ''){
+      myWorkNumber.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myWorkNumber.innerHTML = workNum;
+    }
+
+    if(homeNum === undefined || homeNum == null || homeNum === ''){
+      myHomeNumber.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myHomeNumber.innerHTML = homeNum;
+    }
+
+    if(address === undefined || address == null || address === ''){
+      myAddress.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myAddress.innerHTML = address;
+    }
+
+    if(numOfDogs === undefined || numOfDogs == null || numOfDogs === ''){
+      myNumberOfDogs.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+    }else{
+      myNumberOfDogs.innerHTML = numOfDogs;
+    }
+
+    if(img == null || img === undefined || img === ''){
+      myImage.src = "data/clients/client-default.jpg";
+    }else{
+      myImage.src = feedback.imagePath;
+    }
+
+    if(intro == null || intro === undefined || intro === ''){
+      selfItd.innerHTML = "nothing to say...";
+    }else{
+      selfItd.innerHTML = intro;
+    }
+
+
+  }
+
+  function getUserInfo(userId){
+    var urlData = "email=" + userId;
+    ajax({
+      trigger: null,
+      method: 'get',
+      url: '/getinfo',
+      data: urlData,
+      contentType: null,
+      callbackFunction: function(feedback){
+        renderProfile(feedback.message);
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        if(feedback.status === 1){
+          callbackFunction(feedback);
+        }else{
+          console.log(feedback.message);
+        }
+      }
+    });
+  }
+
+  function getDogInfo(userId){
+    var urlData = "email=" + userId;
+    ajax({
+      trigger: null,
+      method: 'get',
+      url: '/getdoginfo',
+      data: urlData,
+      contentType: null,
+      callbackFunction: function(feedback){
+        renderDogProfile(feedback.message);
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        if(feedback.status === 1){
+          callbackFunction(feedback);
+        }else{
+          console.log(feedback.message);
+        }
+      }
+    });
   }
 
 
   // data processing
-  var editSubmitButton = document.getElementById('editSubmitButton');
-  editSubmitButton.onclick = {
+  editSubmitButton.onclick = function(){
+    var userId = document.getElementById('thisUser').value;
     var userJson = {};
+    userJson.email = userId;
     userJson.editName = document.getElementById('editName').value;
-    userJson.editEmail = document.getElementById('editEmail').value;
     userJson.editHomeNumber = document.getElementById('editHomeNumber').value;
     userJson.editWorkNumber = document.getElementById('editWorkNumber').value;
-    userJson.editMobileNumber = document.getElementById('editMobileNumber');.value
+    userJson.editMobileNumber = document.getElementById('editMobileNumber').value;
     userJson.editAddress = document.getElementById('editAddress').value;
     userJson.editSelfIntro = document.getElementById('editSelfIntro').value;
     ajax({
@@ -443,33 +763,99 @@
       method: 'post',
       url: '/uploadprofile',
       data: JSON.stringify(userJson),
-      contentType:,
-      callbackFunction:,
-      sendListener:,
-      receiverListener:,
+      contentType: "application/json",
+      callbackFunction: function(feedback){
+        console.log(feedback.message);
+      },
+      sendListener: null,
+      receiverListener:function(trigger, feedback, callbackFunction){
+        if(feedback.status === 1){
+          return callbackFunction(feedback);
+        }else{
+          console.log(feedback.message);
+        }
+      }
     });
-
-    // if user selected image, then upload image.
-    var imgNode = document.getElementById('editSelfImg');
-    if(imgNode.src === ''){
-      console.log("no image uploading");
-    }else{
-      console.log("uploading image: " + imgNode.src);
-      var formData = new FormData();
-      formData.append('editSelfImg', imgNode);
-      ajax({
-        trigger:,
-        method: 'post',
-        url: '/uploadimg',
-        data: formData,
-        contentType:,
-        callbackFunction:,
-        sendListener:,
-        receiverListener:,
-      });
-
-    }
   }
+
+  editMyDogProfileButton.onclick = function(){
+    var oData = new FormData(document.getElementById("editMyDogProfileForm"));
+    var userId = document.getElementById('thisUser').value;
+    oData.append('email', userId);
+    $.ajax({ // JQuery Ajax
+      type: 'post',
+      url: '/uploaddogprofile',
+      data: oData,
+      processData: false,
+      contentType: false,
+      success: function(feedback) {
+        feedback = JSON.parse(feedback);
+        console.log(feedback.message);
+      }
+    });
+  }
+
+
+
+  function uploadMyImage(){
+    // if user selected image, then upload image.
+    if(imageUploaded === undefined || imageUploaded == null){
+      console.log("no image uploading");
+      return;
+    }
+    var userId = document.getElementById('thisUser').value;
+    var imgData = new FormData;
+    imgData.append('selfImage', imageUploaded);
+    imgData.append('userId', userId);
+    $.ajax({ // JQuery Ajax
+			type: 'post',
+			url: '/uploadimg',
+			data: imgData,
+			processData: false,
+			contentType: false,
+			success: function(feedback) {
+        feedback = JSON.parse(feedback);
+        if(feedback.status === 1){
+          var myImage = document.getElementById('myImage');
+          myImage.src = feedback.message;
+        }else{
+          console.log(feedback.message);
+        }
+			}
+		});
+  }
+
+  logoutButton.onclick = function(){
+    ajax({
+      trigger: null,
+      method: 'get',
+      url: '/logout',
+      data: "",
+      contentType: "",
+      callbackFunction: function(trigger, feedback){
+        if(feedback.status === 0){
+          // cannot logout
+          console.log(feedback.message);
+        }else if(feedback.status === 1){
+          // logout
+          console.log(feedback.message);
+          var isLogin = document.getElementById('isLogin');
+          var notLogin = document.getElementById('notLogin');
+          var isLoginImage = document.getElementById('isLoginImage');
+          isLoginImage.src = "data/clients/client-default.jpg";
+          isLogin.style.display = 'none';
+          notLogin.style.display = 'block';
+        }
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
+  }
+
+
+
 </script>
 </body>
 </html>

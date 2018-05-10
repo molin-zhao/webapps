@@ -6,5 +6,5 @@ for(var i=0;i<os.networkInterfaces().en0.length;i++){
     IPv4=os.networkInterfaces().en0[i].address;
   }
 }
-
+console.log(IPv4);
 module.exports = IPv4;

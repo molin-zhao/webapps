@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const fs = require('fs');
 const my_ip = require('./ipaddress.js');
-const config = JSON.parse(fs.readFileSync("./config.json"));
+const config = JSON.parse(fs.readFileSync("./emailconfig.json"));
 
 let transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -13,7 +13,7 @@ let transporter = nodemailer.createTransport({
     pass: config.password
   },
   tls: {
-    rejectUnauthorized: false;
+    rejectUnauthorized: false,
   }
 });
 
@@ -36,11 +36,11 @@ module.exports = function(toWhom, subCode){
     subject: sub,
     text: content
   }
-  transporter.sendMail(mailOptions, function(err, res)){
+  transporter.sendMail(mailOptions, function(err, res){
     if(err){
       console.log("sending mail error, cannot send to " + toWhom);
     }else{
       console.log("sent mail to " + toWhom);
     }
-  }
+  });
 }
