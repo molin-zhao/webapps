@@ -144,7 +144,16 @@ app.get('/active', urlencodeParser, function(req, res){
 
 app.get('/getdoginfo', urlencodeParser, function(req, res){
 	if(!req.body) return res.sendStatus(400);
-	var req_email = req.query.email;
+	var req_email;
+	if(req.session.user_email){
+		req_email = req.session.user_email;
+	}else if(req.query.email){
+		req_email = req.query.email;
+	}else{
+		res.send(JSON.stringify({'status':0,'message': "Cannot get dog information."}));
+		res.end();
+		return;
+	}
 	// connect to database
 	MongoClient.connect(url, function(err, client){
 		assert.equal(null, err);
@@ -170,7 +179,17 @@ app.get('/getdoginfo', urlencodeParser, function(req, res){
 
 app.get('/getinfo', urlencodeParser, function(req, res){
 	if(!req.body) return res.sendStatus(400);
-	var req_email = req.query.email;
+	var req_email;
+	if(req.session.user_email){
+		req_email = req.session.user_email;
+	}else if(req.query.email){
+		req_email = req.query.email;
+	}else{
+		res.send(JSON.stringify({'status':0,'message': "Cannot get user information."}));
+		res.end();
+		return;
+	}
+
 	// connect to database
 	MongoClient.connect(url, function(err, client){
 		assert.equal(null, err);

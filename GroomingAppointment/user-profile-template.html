@@ -37,12 +37,14 @@
       </div>
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="index.html"><span class="glyphicon glyphicon-home"
+          <li><a href="index.html"><span class="glyphicon glyphicon-home"
                          aria-hidden="true"></span> Home</a></li>
           <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
                          aria-hidden="true"></span> About</a></li>
-          <li><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
+          <li class="active"><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
                          aria-hidden="true"></span> User Profile</a></li>
+          <li><a href="appointment.html"><span class="glyphicon glyphicon-th"
+                         aria-hidden="true"></span> Appointment</a></li>
           <li><a href="contact.html"><span class="glyphicon glyphicon-phone"
                          aria-hidden="true"></span> Contact</a></li>
         </ul>
@@ -171,14 +173,14 @@
           <li class="dropdown active">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">My Profile<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a data-toggle="tab" onclick="getUserInfo('$(#thisUser).val()')" href="#myProfile">view my profile</a></li>
+              <li><a data-toggle="tab" onclick='getUserInfo($("#thisUser").val())' href="#myProfile">view my profile</a></li>
               <li><a data-toggle="tab" href="#editMyProfile">edit my profile</a></li>
             </ul>
           </li>
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">My dogs<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a data-toggle="tab" onclick="getDogInfo('$(#thisUser).val()')" href="#viewMyDogs">view my dogs</a></li>
+              <li><a data-toggle="tab" onclick='getDogInfo($("#thisUser").val())' href="#viewMyDogs">view my dogs</a></li>
               <li><a data-toggle="tab" href="#editMyDogProfile">add a dog</a></li>
             </ul>
           </li>
@@ -367,6 +369,53 @@
             <!-- View my dogs -->
             <!-- Edit my dog profile -->
           <div class="tab-pane fade" id="viewMyDogs">
+            <table id="dogTable" class="table" style="display:none; ">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Breed</th>
+                  <th>Date of Birth</th>
+                </tr>
+              </thead>
+              <tbody id="dogTableBody">
+              </tbody>
+            </table>
+          </div>
+          <script>
+            function renderDogProfile(feedback){
+              var dogTable = document.getElementById('dogTable');
+              if(feedback == null || feedback === undefined){
+                dogTable.style.display = 'none';
+                return;
+              }
+              var dogTableBody = document.getElementById('dogTableBody');
+              while (dogTableBody.firstChild) {
+                dogTableBody.removeChild(dogTableBody.firstChild);
+              }
+              for(var i = 0; i < feedback.length; i++){
+                var name = feedback[i].d_name;
+                var bread = feedback[i].d_bread;
+                var doB = feedback[i].d_dateOfBirth;
+                if(bread === undefined || bread == null || bread === ''){
+                  bread = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                }
+
+                if(name === undefined || name == null || name === ''){
+                  name = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                }
+
+                if(doB === undefined || doB == null || doB === ''){
+                  doB = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                }
+
+                var dogTableRow = document.createElement('TR');
+                dogTableRow.innerHTML = "<td>"+name+"</td><td>"+bread+"</td><td>"+doB+"</td>";
+                dogTableBody.appendChild(dogTableRow);
+              }
+              dogTable.style.display = 'initial';
+            }
+          </script>
+          <!-- <div class="tab-pane fade" id="viewMyDogs">
             <div id="dogCell" class="col-sm-6 col-md-4" style="display:none;">
               <div class="thumbnail">
                 <img id="dogCellImage" src="data/dogs/dog-default.jpg" alt="Dog" style="width:100%; height:200px;">
@@ -447,7 +496,7 @@
                 viewDogPanel.appendChild(dogCard);
               }
             }
-          </script>
+          </script> -->
 
           <div class="tab-pane fade" id="editMyDogProfile">
               <form role="form" id="editMyDogProfileForm">
