@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient, assert = require('assert');
 const urlencodeParser = bodyParser.urlencoded({extended: false});
 const ejs = require('ejs');
+const ObjectId = require('mongodb').ObjectId;
 // const URL = require('url');
 const multer = require('multer');
 const multipart = require('connect-multiparty');
@@ -13,9 +14,11 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const mongoStore = require('connect-mongo')(session);
 
-var my_ip = require('./ipaddress.js');
+// var my_ip = require('./ipaddress.js');
 var checkFileType = require('./checkfiletype.js');
-var sendEmailForActivation = require('./sendemail.js');
+// var sendEmailForActivation = require('./sendemail.js');
+var greaterThan = require('./datesort.js');
+var sortDate = require('./swap.js');
 var identityKey = 'groomkey';
 
 // set server address and other information
@@ -213,6 +216,143 @@ app.get('/getinfo', urlencodeParser, function(req, res){
 		});
 	});
 
+});
+
+app.get('/getappointment', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	if(!req.session.user_email){
+		res.send(JSON.stringify({'status': 0, 'message': "You need to login to view your appointment."}));
+		res.end();
+		return;
+	}else{
+		var req_email = req.session.user_email;
+		MongoClient.connect(url, function(err, client){
+			assert.equal(null, err);
+			if(err){
+				console.log("Connot connect correctly to the database");
+				res.sendStatus(500);
+				return;
+			}
+			var db = client.db("groomingAppointment");
+			db.collection("appointment").find({"userEmail": req_email}).toArray(function(err, result){
+				if(err)throw err;
+				if(result.length != 0){
+					res.send(JSON.stringify({'status': 1, 'message': result}));
+				}else{
+					res.send(JSON.stringify({'status': 2, 'message': "You currently have no appointments."}));
+				}
+				res.end();
+				client.close();
+			});
+		});
+	}
+});
+
+app.get('/requestbooking', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var req_email;
+	if(req.session.user_email){
+		// user already login
+		req_email = req.session.user_email;
+	}else{
+		res.send(JSON.stringify({'status':0,'message': "User haven't login, or a new user."}));
+		res.end();
+		return;
+	}
+
+	// connect to database
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			res.sendStatus(500);
+			return;
+		}
+		// correctly connected to the database.
+		var db = client.db("groomingAppointment");
+		db.collection("client").find({"email":req_email}).toArray(function(err, result){
+			if(err) throw err;
+			if(result.length != 0){
+				res.send(JSON.stringify({'status':1, 'message': result[0]}));
+				console.log(result[0]);
+			}else{
+				res.send(JSON.stringify({'status':0,'message': "Cannot get user information."}));
+			}
+			client.close();
+			res.end();
+		});
+	});
+
+});
+
+
+
+app.post('/getcalendar', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var c_year = req.body.year;
+	var c_month = req.body.month;
+	// connect to database
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			res.sendStatus(500);
+			return;
+		}
+		// correctly connected to the database.
+		var db = client.db("groomingAppointment");
+		db.collection("timetable").find({"year":{$gte: c_year}},{year:1,month:1}).toArray(function(err, result){
+			if(err) throw err;
+			if(result.length != 0){
+				// sort result
+				var sortedResult = sortDate(result);
+				var calendar = new Array();
+				for(var i in sortedResult){
+					if(greaterThan(sortedResult[i], req.body)){
+						var date = {};
+						date.year = sortedResult[i].year;
+						date.month = sortedResult[i].month;
+						calendar.push(date);
+					}
+				}
+				res.send(JSON.stringify({'status':1, 'message': calendar}));
+			}else{
+				res.send(JSON.stringify({'status':0,'message': "Cannot get calendar information."}));
+			}
+			client.close();
+			res.end();
+		});
+	});
+});
+
+app.post('/gettimetable', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var c_year = req.body.year;
+	var c_month = req.body.month;
+	var c_day = req.body.day;
+	// connect to database
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			res.sendStatus(500);
+			return;
+		}
+		// correctly connected to the database.
+		var db = client.db("groomingAppointment");
+		db.collection("timetable").find({"year":c_year, "month": c_month}).toArray(function(err, result){
+			if(err) throw err;
+			if(result.length != 0){
+				// create timetable
+				var timetable = result[0].dayList[c_day-1];
+				console.log('send back');
+				console.log(timetable);
+				res.send(JSON.stringify({'status':1, 'message': timetable}));
+			}else{
+				res.send(JSON.stringify({'status':0,'message': "Cannot get timetable information."}));
+			}
+			client.close();
+			res.end();
+		});
+	});
 });
 
 app.post('/signup', urlencodeParser, function(req, res){
@@ -417,14 +557,14 @@ app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 					}
 				}
 				// if not return, that means no dog is matched in the database, insert it.
-				var dogBread = req.body.editDogBread;
+				var dogBreed = req.body.editDogBreed;
 				var dogDateOfBirth = req.body.editDogDateOfBirth;
 				var dogPreferredGroomOption = req.body.groomingOptions;
 				var dogDescription = req.body.description;
 				var dogImagePath = req.file.path;
 				var newDog = {
 					d_name : dogName,
-					d_bread : dogBread,
+					d_breed : dogBreed,
 					d_dateOfBirth : dogDateOfBirth,
 					d_dogPreferedGroomOption : dogPreferredGroomOption,
 					d_description : dogDescription,
@@ -442,6 +582,172 @@ app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 				res.send(JSON.stringify({'status': 1,'message': "Dog profile uploaded successfully."}));
 			}else{
 				res.send(JSON.stringify({'status': 2, 'message': "Failed to update dog profile, no user found."}));
+			}
+			res.end();
+			client.close();
+		});
+	});
+});
+
+
+app.post('/booking', multipartMiddleware, function(req, res){
+	var userEmail;
+	if(req.session.user_email){
+		userEmail = req.session.user_email;
+	}else{
+		userEmail = req.body.bookUserEmail;
+	}
+	var contactEmail = req.body.bookUserEmail;
+	var contactName = req.body.bookUserName;
+	var contactMobileNum = req.body.bookMobileNum;
+	var contactAddress = req.body.bookAddress;
+	var groomOption = req.body.bookGroomOption;
+	var additionalDescription = req.body.bookDescription;
+	var dogName = req.body.bookDogName;
+	var dogBreed = req.body.bookDogBreed;
+	var bookTime = req.body.bookTime;
+	var bookTimeForQuery = req.body.bookTimeForQuery;
+	var bookTimeQueryArr = bookTimeForQuery.split(' ');
+
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			return;
+		}
+		var bookYear = parseInt(bookTimeQueryArr[0]);
+		var bookMonth = parseInt(bookTimeQueryArr[1]);
+		var bookDayAndPeriod = "dayList." + (bookTimeQueryArr[2]-1) + "." + bookTimeQueryArr[3];
+		var db = client.db("groomingAppointment");
+		db.collection("timetable").find({"year": bookYear, "month": bookMonth, [bookDayAndPeriod]: true}).toArray(function(err, result){
+			if(err) throw err;
+			if(result.length != 0){
+				// date found and is available
+				db.collection("timetable").updateOne(
+					{"year": bookYear, "month": bookMonth},
+					{$set:{[bookDayAndPeriod]:false}}
+				);
+
+				var appointment = {};
+				appointment.userEmail = userEmail;
+				appointment.contactEmail = contactEmail;
+				appointment.contactMobileNum = contactMobileNum;
+				appointment.contactAddress = contactAddress;
+				appointment.contactName = contactName;
+				appointment.dogName = dogName;
+				appointment.dogBreed = dogBreed;
+				appointment.groomOption = groomOption;
+				appointment.additionalDescription = additionalDescription;
+				appointment.bookTime = bookTime;
+				appointment.creatTime = Date.now();
+				appointment.status = "booked";
+				appointment.bookTimeForQuery = bookTimeForQuery;
+				db.collection("appointment").insertOne(appointment, function(err){
+					if(err) throw err;
+				});
+				res.send(JSON.stringify({'status': 1, 'message': "Booking success."}))
+			}else{
+				res.send(JSON.stringify({'status': 0, 'message': "Date you selected is temporarily unavailable, please try again later."}));
+				res.end();
+			}
+			client.close();
+		});
+	});
+});
+
+
+app.post('/cancelappointment', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var req_bookId = req.body.bookId;
+	var req_bookTimeForQuery = req.body.bookTimeForQuery;
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			return;
+		}
+		var bookTimeQueryArr = req_bookTimeForQuery.split(' ');
+		var bookYear = parseInt(bookTimeQueryArr[0]);
+		var bookMonth = parseInt(bookTimeQueryArr[1]);
+		var bookDayAndPeriod = "dayList." + (bookTimeQueryArr[2]-1) + "." + bookTimeQueryArr[3];
+		var db = client.db("groomingAppointment");
+		try{
+			db.collection("timetable").updateOne(
+				{"year": bookYear, "month": bookMonth},
+				{
+					$set: {[bookDayAndPeriod]: true}
+				}
+			);
+			db.collection("appointment").deleteOne({'_id': ObjectId(req_bookId)});
+			res.send(JSON.stringify({'status': 1, 'message': "Cancel success."}));
+		}catch(e){
+			console.log(e);
+			res.send(JSON.stringify({'status': 0, 'message': "Cannot cancel your appointment temporarily."}));
+			res.end();
+			return;
+		}
+		res.end();
+		client.close();
+	});
+});
+
+app.post('/rescheduleappointment', multipartMiddleware, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var req_bookId = req.body.bookId;
+	var req_ogBookTimeForQuery = req.body.ogBookTimeForQuery;
+	var req_bookTimeForQuery = req.body.newBookTimeForQuery;
+	var req_bookTime = req.body.newBookTime
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			return;
+		}
+		var bookTimeQueryArr = req_bookTimeForQuery.split(' ');
+		var bookYear = parseInt(bookTimeQueryArr[0]);
+		var bookMonth = parseInt(bookTimeQueryArr[1]);
+		var bookDayAndPeriod = "dayList." + (bookTimeQueryArr[2]-1) + "." + bookTimeQueryArr[3];
+		var db = client.db("groomingAppointment");
+		db.collection("timetable").find({"year": bookYear, "month": bookMonth, [bookDayAndPeriod]: true}).toArray(function(err, result){
+			if(err) throw err;
+			if(result.length != 0){
+				// date found and is available;
+				try{
+					// release og book time
+					var ogBookTimeQueryArr = req_ogBookTimeForQuery.split(' ');
+					var ogBookYear = parseInt(ogBookTimeQueryArr[0]);
+					var ogBookMonth = parseInt(ogBookTimeQueryArr[1]);
+					var ogBookDayAndPeriod = "dayList." + (ogBookTimeQueryArr[2]-1) + "." + ogBookTimeQueryArr[3];
+					db.collection("timetable").updateOne(
+						{"year": ogBookYear, "month": ogBookMonth},
+						{
+							$set:{[ogBookDayAndPeriod]:true}
+						}
+					);
+					// update new book time
+					db.collection("timetable").updateOne(
+						{"year": bookYear, "month": bookMonth},
+						{
+							$set:{[bookDayAndPeriod]:false}
+						}
+					);
+
+					// update appointment information
+					db.collection("appointment").updateOne(
+						{"_id": ObjectId(req_bookId)},
+						{
+							$set: {"bookTime": req_bookTime, "bookTimeForQuery": req_bookTimeForQuery, 'status': "rescheduled"}
+						}
+					);
+					res.send(JSON.stringify({'status': 1, 'message': "Reschedule success."}));
+				}catch(e){
+					console.log(e);
+					res.send(JSON.stringify({'status': 0, 'message': "Error. Cannot complete re-schedule operation temporarily."}));
+					res.end();
+					return;
+				}
+			}else{
+				res.send(JSON.stringify({'status': 0, 'message': "Date you selected is temporarily unavailable, please try again later."}));
 			}
 			res.end();
 			client.close();

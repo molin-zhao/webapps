@@ -184,7 +184,7 @@
               <li><a data-toggle="tab" href="#editMyDogProfile">add a dog</a></li>
             </ul>
           </li>
-          <li><a data-toggle="tab" href="#myBookingList">Current appointments</a></li>
+          <li><a data-toggle="tab" href="#myBookingList" onclick="getAppointmentInfo()">Current appointments</a></li>
           <li><a data-toggle="tab" href="#myBookingHistory">Appointment history</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
@@ -394,10 +394,10 @@
               }
               for(var i = 0; i < feedback.length; i++){
                 var name = feedback[i].d_name;
-                var bread = feedback[i].d_bread;
+                var breed = feedback[i].d_breed;
                 var doB = feedback[i].d_dateOfBirth;
-                if(bread === undefined || bread == null || bread === ''){
-                  bread = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
+                if(!breed){
+                  breed = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
                 }
 
                 if(name === undefined || name == null || name === ''){
@@ -409,7 +409,7 @@
                 }
 
                 var dogTableRow = document.createElement('TR');
-                dogTableRow.innerHTML = "<td>"+name+"</td><td>"+bread+"</td><td>"+doB+"</td>";
+                dogTableRow.innerHTML = "<td>"+name+"</td><td>"+breed+"</td><td>"+doB+"</td>";
                 dogTableBody.appendChild(dogTableRow);
               }
               dogTable.style.display = 'initial';
@@ -424,7 +424,7 @@
                   <p id="dogCellName"></p><span id="dogCellGroomOption" class="label"></span>
                   <label for="dogCellDescription">Description: </label>
                   <p id="dogCellDescription"></p>
-                  <input type="hidden" id="dogCellBread">
+                  <input type="hidden" id="dogCellbreed">
                   <input type="hidden" id="dogCellDoB">
                 </div>
                 <div style="text-align:center; margin-bottom:10px;">
@@ -433,71 +433,7 @@
                 </div>
               </div>
             </div>
-          </div>
-          <script>
-            function renderDogProfile(feedback){
-              if(feedback == null || feedback === undefined){
-                return;
-              }
-              var viewDogPanel = document.getElementById('viewMyDogs');
-              for(var i = 0; i < feedback.length; i++){
-                var tempCard = document.querySelector('#dogCell');
-                var dogCard = tempCard.cloneNode(true);
-                var name = feedback[i].d_name;
-                var bread = feedback[i].d_bread;
-                var preferedGroomOption = feedback[i].d_dogPreferedGroomOption;
-                var description = feedback[i].d_description;
-                var imagePath = feedback[i].d_imagePath;
-                var doB = feedback[i].d_dateOfBirth;
-
-                var dogCellImage = viewDogPanel.querySelector('#dogCellImage');
-                var dogCellName = viewDogPanel.querySelector('#dogCellName');
-                var dogCellGroomOption = viewDogPanel.querySelector('#dogCellGroomOption');
-                var dogCellDescription = viewDogPanel.querySelector('#dogCellDescription')
-                var dogCellBread = viewDogPanel.querySelector('#dogCellBread');
-                var dogCellDoB = viewDogPanel.querySelector('#dogCellDoB');
-
-                dogCellBread.value = bread;
-                dogCellDoB.value = doB;
-                if(description === undefined || description == null || description === ''){
-                  dogCellDescription.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
-                }else{
-                  dogCellDescription.innerHTML = description;
-                }
-
-                if(name === undefined || name == null || name === ''){
-                  dogCellName.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
-                }else{
-                  dogCellName.innerHTML = name;
-                }
-
-                if(preferedGroomOption === undefined || preferedGroomOption == null || preferedGroomOption === ''){
-                  dogCellGroomOption.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
-                  dogCellGroomOption.classList.add("label-warning");
-                }else if(preferedGroomOption == "deluxe grooming"){
-                  dogCellGroomOption.innerHTML = preferedGroomOption;
-                  dogCellGroomOption.classList.add("label-success");
-                }else if(preferedGroomOption == "wash only"){
-                  dogCellGroomOption.innerHTML = preferedGroomOption;
-                  dogCellGroomOption.classList.add("label-danger");
-                }else{
-                  dogCellGroomOption.innerHTML = preferedGroomOption;
-                  dogCellGroomOption.classList.add("label-info");
-                }
-
-                if(imagePath === undefined || imagePath == null || imagePath === ''){
-                  dogCellImage.src = "data/dogs/dog-default.jpg";
-                }else{
-                  dogCellImage.src = imagePath;
-                }
-
-                dogCard.style.display = 'initail';
-                console.log(dogCard);
-                viewDogPanel.appendChild(dogCard);
-              }
-            }
-          </script> -->
-
+          </div> -->
           <div class="tab-pane fade" id="editMyDogProfile">
               <form role="form" id="editMyDogProfileForm">
                 <div class="form-group">
@@ -505,8 +441,8 @@
                   <input type="text" class="form-control" id="editDogName" name="editDogName">
                 </div>
                 <div class="form-group">
-                  <label for="editDogBread">Bread: </label>
-                  <input type="text" class="form-control" id="editDogBread" name="editDogBread">
+                  <label for="editDogbreed">Breed: </label>
+                  <input type="text" class="form-control" id="editDogbreed" name="editDogbreed">
                 </div>
                 <div class="form-group">
                   <label class="control-label " for="editDogDateOfBirth">Date of Birth: </label>
@@ -516,18 +452,6 @@
                     </div>
                     <input class="form-control" id="editDogDateOfBirth" name="editDogDateOfBirth" placeholder="MM/DD/YYYY" type="text"/>
                   </div>
-                </div>
-                <div class="form-group">
-                  <label for="groomingOptions">Preferred Grooming Option: </label>
-                  <select id="editDogGroomOption" class="form-control" id="groomingOptions" name="groomingOptions">
-                    <option>deluxe grooming</option>
-                    <option>wash only</option>
-                    <option>nail clipping</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="description">Description: </label>
-                  <textarea id="editDogDescription" class="form-control" rows="3" id="description" name="description"></textarea>
                 </div>
                 <div class="form-group">
                   <input id="editDogImage" name="editDogImage" type="file" class="form-control">
@@ -540,15 +464,103 @@
 
           <!-- My booking list -->
           <div class="tab-pane fade" id="myBookingList">
-            <h1>Booking List</h1>
           </div>
-
           <!-- My booking history -->
           <div class="tab-pane fade" id="myBookingHistory">
             <h1>Booking History</h1>
           </div>
+
         </div>
       </div>
+
+
+      <div id="rescheduleModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Reschedule your appointment</h4>
+              <input id="bookId" type="hidden" value="">
+              <input id="bookTimeForQuery" type="hidden" value="">
+            </div>
+            <div class="modal-body">
+                <div class="calendar-reschedule">
+                  <div class="title">
+                    <div style="position:relative;">
+                      <a type="button" class="btn btn-info" id="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                      <h1 style="display: inline-block;" class="blue" id="calendar-month">Month</h1>
+                      <a type="button" class="btn btn-info" id="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
+                    </div>
+                    <h2 class="blue small" id="calendar-year">Year</h2>
+                  </div>
+                  <div class="calendarBody">
+                    <div class="body-list">
+                      <ul>
+                        <li>MON</li>
+                        <li>TUE</li>
+                        <li>WED</li>
+                        <li>THU</li>
+                        <li>FRI</li>
+                        <li>SAT</li>
+                        <li>SUN</li>
+                      </ul>
+                    </div>
+                    <div class="darkgrey body-list">
+                      <ul id="days">
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="timetable-reschedule">
+                  <label for="time">choose a time:</label>
+                  <select id="timeTableOptions" class="form-control">
+                    <option id="0" value="0">09:00~10:30</option>
+                    <option id="1" value="1">10:30~12:00</option>
+                    <option id="2" value="2">12:00~13:30</option>
+                    <option id="3" value="3">13:30~15:00</option>
+                    <option id="4" value="4">15:00~16:30</option>
+                    <option id="5" value="5">16:30~18:00</option>
+                  </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="rescheduleButton" data-toggle="modal" style="margin-top:15px;" class="btn btn-info">Reschedule</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="successModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header bg-success">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title text-white"> Success! </h4>
+            </div>
+            <div class="modal-body text-success">
+              <p id="successMessage"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="failedModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title bg-danger"> Failed </h4>
+            </div>
+            <div class="modal-body text-danger">
+              <p id="failedMessage"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
     </div>
   </div>
 
@@ -559,10 +571,10 @@
         <div class="col-xs-5 col-xs-offset-1 col-sm-2 col-sm-offset-1">
           <h5>Links</h5>
             <ul class="list-unstyled">
-              <li><a href="#">Home</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">User Profile</a></li>
-              <li><a href="#">Contact</a></li>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="user-profile-template.html">User Profile</a></li>
+              <li><a href="contact.html">Contact</a></li>
             </ul>
         </div>
         <div class="col-xs-6 col-sm-5">
@@ -586,14 +598,6 @@
             <a class="btn btn-social-icon btn-youtube" href="http://youtube.com/"><i class="fab fa-youtube"></i></a>
             <a class="btn btn-social-icon" href="mailto:"><i class="fa fa-envelope-o"></i></a>
           </div>
-          <!-- <div style="padding: 40px 10px;">
-            <a href="http://google.com/+">Google+</a>
-            <a href="http://www.facebook.com/profile.php?id=">Facebook</a>
-            <a href="http://www.linkedin.com/in/">LinkedIn</a>
-            <a href="http://twitter.com/">Twitter</a>
-            <a href="http://youtube.com/">YouTube</a>
-            <a href="mailto:">Mail</a>
-          </div> -->
         </div>
         <div class="col-xs-12">
           <p style="padding:10px;"></p>
@@ -602,7 +606,6 @@
       </div>
     </div>
   </footer>
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script> -->
 <!-- Include Date Range Picker -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
@@ -631,6 +634,72 @@
 
   var editSubmitButton = document.getElementById('editSubmitButton');
   var editMyDogProfileButton = document.getElementById('editMyDogProfileButton');
+
+
+  var month_olympic = [31,29,31,30,31,30,31,31,30,31,30,31];
+  var month_normal = [31,28,31,30,31,30,31,31,30,31,30,31];
+  var month_name = ["January","Febrary","March","April","May","June","July","Auguest","September","October","November","December"];
+
+  var holder = document.getElementById("days");
+  var prev = document.getElementById("prev");
+  var next = document.getElementById("next");
+  var cmonth = document.getElementById("calendar-month");
+  var cyear = document.getElementById("calendar-year");
+  var dateSelected;
+
+  var my_date;
+  var my_year;
+  var my_month;
+  var my_day;
+  var index;
+
+  reset = function(){
+    my_date = new Date();
+    my_year = new Array();
+    my_month = new Array();
+    my_day = my_date.getDate();
+    index = 0;
+    dateSelected = null;
+  }
+
+  $(document).ready(function(){
+    $('#rescheduleButton').click(function(){
+      if(!dateSelected){
+        showSelectDateAlertMessage();
+        return;
+      }
+      var bookId = document.getElementById("bookId").value;
+      var ogBookTimeForQuery = document.getElementById("bookTimeForQuery").value;
+      var date = dateSelected.innerText;
+      var timeTable = document.getElementById('timeTableOptions');
+      var time = timeTable.options[timeTable.value].innerText;
+      var newBookTime = my_year[index] + "." + my_month[index] + "." + date + " " + time;
+      var newBookTimeForQuery = my_year[index]+" "+my_month[index]+" "+date+" "+timeTable.value;
+      var oData = new FormData();
+      oData.append('bookId', bookId);
+      oData.append('ogBookTimeForQuery', ogBookTimeForQuery);
+      oData.append('newBookTime', newBookTime);
+      oData.append('newBookTimeForQuery', newBookTimeForQuery);
+      $.ajax({ // JQuery Ajax
+        type: 'post',
+        url: '/rescheduleappointment',
+        data: oData,
+        processData: false,
+        contentType: false,
+        success: function(feedback){
+          var feedback = JSON.parse(feedback);
+          if(feedback.status == 1){
+            // success modal
+            popUpSuccessModal(feedback.message);
+          }else{
+            // failed modal
+            popUpFailedModal(feedback.message);
+          }
+          getAppointmentInfo();
+        }
+      });
+    });
+  });
 
   window.onload = function(){
     var isLogin = document.getElementById('isLogin');
@@ -689,7 +758,7 @@
     var workNum = feedback.workNumber;
     var homeNum = feedback.homeNumber;
     var address = feedback.address;
-    var numOfDogs = feedback.numberOfDogs;
+    var numOfDogs = feedback.dogs.length;
     var img = feedback.imagePath;
     var intro = feedback.selfIntro;
 
@@ -730,7 +799,7 @@
       myAddress.innerHTML = address;
     }
 
-    if(numOfDogs === undefined || numOfDogs == null || numOfDogs === ''){
+    if(numOfDogs === undefined || numOfDogs == null || numOfDogs === 0){
       myNumberOfDogs.innerHTML = "<span class=\"glyphicon glyphicon-question-sign\"></span>";
     }else{
       myNumberOfDogs.innerHTML = numOfDogs;
@@ -844,8 +913,6 @@
     });
   }
 
-
-
   function uploadMyImage(){
     // if user selected image, then upload image.
     if(imageUploaded === undefined || imageUploaded == null){
@@ -903,8 +970,304 @@
     });
   }
 
+  function getAppointmentInfo(){
+    $.ajax({ // JQuery Ajax
+      type: 'get',
+      url: '/getappointment',
+      data: null,
+      processData: false,
+      contentType: false,
+      success: function(feedback) {
+        feedback = JSON.parse(feedback);
+        if(feedback.status == 1){
+          renderAppointmentPanel(feedback.message);
+        }else if(feedback.status == 2){
+          renderAppointmentPanelEmpty(feedback.message);
+        }else{
+          console.log(feedback.message);
+        }
 
+      }
+    });
+  }
 
+  function renderAppointmentPanelEmpty(message){
+    var myBookingList = document.getElementById('myBookingList');
+    while(myBookingList.firstChild){
+      myBookingList.removeChild(myBookingList.firstChild);
+    }
+    var messageNode = document.createElement("H1");
+    messageNode.innerText = message;
+    myBookingList.appendChild(messageNode);
+
+  }
+
+  function renderAppointmentPanel(result){
+    var myBookingList = document.getElementById('myBookingList');
+    while(myBookingList.firstChild){
+      myBookingList.removeChild(myBookingList.firstChild);
+    }
+    for(var i=0; i<result.length; i++){
+      var head = ['Name', 'Breed', 'Groom Option', 'status'];
+  	  var tr_1 = document.createElement('TR');
+  	  for(var j=0; j<head.length; j++){
+        var th = document.createElement('TH');
+  		  th.innerText = head[j];
+  		  tr_1.appendChild(th);
+  	  }
+  	  var thead = document.createElement('THEAD');
+      thead.appendChild(tr_1);
+
+  	  var body = [result[i].dogName, result[i].dogBreed, result[i].groomOption, result[i].status];
+      var tr_2 = document.createElement('TR');
+      for(var k=0; k<body.length; k++){
+        var th = document.createElement('TH');
+        th.innerText = body[k];
+        tr_2.appendChild(th);
+  	  }
+      var tbody = document.createElement('TBODY');
+      tbody.appendChild(tr_2);
+      var table = document.createElement("TABLE");
+      table.classList.add("table");
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      var buttonCancel = document.createElement("BUTTON");
+      var buttonReSchedule = document.createElement("BUTTON");
+      buttonCancel.classList.add("btn");
+      buttonCancel.classList.add("btn-danger");
+      buttonCancel.classList.add("btn-sm");
+      buttonReSchedule.classList.add("btn");
+      buttonReSchedule.classList.add("btn-primary");
+      buttonReSchedule.classList.add("btn-sm");
+      buttonCancel.style = "float: right; margin-right: 5px;";
+      buttonReSchedule.style = "float: right;";
+      buttonCancel.innerText = " Cancel ";
+      buttonReSchedule.innerText = "Reschedule";
+      buttonCancel.setAttribute('bookId', result[i]._id);
+      buttonCancel.setAttribute('bookTimeForQuery', result[i].bookTimeForQuery);
+      buttonCancel.onclick = function(){
+        var cancelAppointment = {};
+        cancelAppointment.bookId = this.getAttribute('bookId');
+        cancelAppointment.bookTimeForQuery = this.getAttribute('bookTimeForQuery');
+        $.ajax({ // JQuery Ajax
+          type: 'post',
+          url: '/cancelappointment',
+          data: JSON.stringify(cancelAppointment),
+          processData: false,
+          contentType: "application/json",
+          success: function(feedback) {
+            var feedback = JSON.parse(feedback);
+            if(feedback.status == 1){
+              // success modal
+              popUpSuccessModal(feedback.message);
+            }else{
+              // failed modal
+              popUpFailedModal(feedback.message);
+            }
+            getAppointmentInfo();
+          }
+        });
+      }
+      buttonReSchedule.setAttribute('bookId', result[i]._id);
+      buttonReSchedule.setAttribute('bookTimeForQuery', result[i].bookTimeForQuery);
+      buttonReSchedule.addEventListener('click', function(){
+        showTimeTable(this.getAttribute('bookId'), this.getAttribute('bookTimeForQuery'));
+      });
+      var div_1 = document.createElement("DIV");
+      div_1.classList.add("col-xs-12");
+      div_1.appendChild(table);
+      div_1.appendChild(buttonReSchedule);
+      div_1.appendChild(buttonCancel);
+      var div_2 = document.createElement("DIV");
+      div_2.classList.add("row");
+      div_2.appendChild(div_1);
+      var div_3 = document.createElement("DIV");
+      div_3.classList.add("panel-body");
+      div_3.appendChild(div_2);
+      var div_4 = document.createElement("DIV");
+      div_4.classList.add("panel");
+      var timeAndId = document.createElement("DIV");
+      timeAndId.classList.add("panel-heading");
+      timeAndId.innerText = "Book time: " + result[i].bookTime + "  ID: " + result[i]._id;
+      if(result[i].status === "booked"){
+        div_4.classList.add("panel-primary");
+      }else if(result[i].status === "inprogress"){
+        div_4.classList.add("panel-success");
+      }else{
+        div_4.classList.add("panel-info");
+      }
+      div_4.appendChild(timeAndId);
+      div_4.appendChild(div_3);
+      myBookingList.appendChild(div_4);
+    }
+
+  }
+
+  function dayStart(month, year) {
+    var tmpDate = new Date(year, month, 1);
+    return (tmpDate.getDay());
+  }
+
+  function daysMonth(month, year) {
+    if((year%4==0&&year%100!=0) || (year%100==0&&year%400==0)){
+      return month_olympic[month];
+    }
+    return month_normal[month];
+  }
+
+  function renderTimeTable(timetable){
+    var timeTableOptions = document.getElementById('timeTableOptions');
+    for(var i=0; i<timeTableOptions.childNodes.length; i++){
+      if(timetable[i] === false){
+        timeTableOptions.childNodes[i].innerText = "----------";
+      }
+    }
+  }
+
+  function selectDate(tag){
+    $(tag).siblings().removeClass("dateselected");
+    $(tag).addClass("dateselected");
+    getTimeTable(tag);
+    dateSelected = tag;
+  }
+
+  function refreshDate(index){
+    var str = "";
+    var totalDay = daysMonth(my_month[index]-1, my_year[index]);
+    var firstDay = dayStart(my_month[index]-1, my_year[index]);
+    var myclass;
+    for(var i=1; i<firstDay; i++){
+      str += "<li></li>";
+    }
+    for(var i=1; i<=totalDay; i++){
+      if((i<my_day && my_year[index]==my_date.getFullYear() && (my_month[index]-1)==my_date.getMonth()) || my_year[index]<my_date.getFullYear() || ( my_year[index]==my_date.getFullYear() && (my_month[index]-1)<my_date.getMonth())){
+        myclass = " class='lightgrey'";
+      }else if (i==my_day && my_year[index]==my_date.getFullYear() && (my_month[index]-1)==my_date.getMonth()){
+        myclass = " class='blue bluebox datehover'";
+      }else{
+        myclass = " class='darkgrey datehover' onclick=selectDate(this)";
+      }
+      str += "<li"+myclass+">"+i+"</li>";
+    }
+    holder.innerHTML = str;
+    cmonth.innerHTML = month_name[my_month[index]-1];
+    cyear.innerHTML = my_year[index];
+  }
+
+  function showSelectDateAlertMessage(){
+    removeSelectDateAlertMessage();
+    var rescheduleButton = document.getElementById('rescheduleButton');
+    var messageNode = document.createElement("SPAN");
+    messageNode.innerText = "Please select a time from timetable.";
+    messageNode.style.paddingRight = "10px";
+    messageNode.style.color = "red"
+    rescheduleButton.parentNode.insertBefore(messageNode, rescheduleButton);
+  }
+
+  function removeSelectDateAlertMessage(){
+    var rescheduleButton = document.getElementById('rescheduleButton');
+    if(rescheduleButton.previousSibling){
+      rescheduleButton.parentNode.removeChild(rescheduleButton.previousSibling);
+    }
+    return;
+  }
+
+  prev.onclick = function(e){
+    e.preventDefault();
+    if(index > 0){
+      index--;
+      refreshDate(index);
+    }
+    removeSelectDateAlertMessage();
+
+  }
+
+  next.onclick = function(e){
+    e.preventDefault();
+    if(index < my_year.length - 1){
+      index++;
+      refreshDate(index);
+    }
+    removeSelectDateAlertMessage();
+
+  }
+
+  function getCalendar(){
+    var current_time = new Date();
+    var current_year = current_time.getFullYear();
+    var current_month = current_time.getMonth() + 1;
+    var date = {};
+    date.year = current_year;
+    date.month = current_month;
+    ajax({
+      trigger: null,
+      method: 'post',
+      url: '/getcalendar',
+      data: JSON.stringify(date),
+      contentType: "application/json",
+      callbackFunction: function(trigger, feedback){
+        // feedback should be {"year": someyear, "month": somemonth}
+        var dateArray = feedback.message;
+        for(var i in dateArray){
+          my_year.push(dateArray[i].year);
+          my_month.push(dateArray[i].month);
+        }
+        index = 0;
+        refreshDate(index);
+        removeSelectDateAlertMessage();
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
+
+  }
+
+  function getTimeTable(tag){
+    var date = {};
+    date.year = my_year[index];
+    date.month = my_month[index];
+    date.day = tag.innerText;
+    ajax({
+      trigger: null,
+      method: 'post',
+      url: '/gettimetable',
+      data: JSON.stringify(date),
+      contentType: "application/json",
+      callbackFunction: function(trigger, feedback){
+        // 0-5 with true and false
+        renderTimeTable(feedback.message);
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
+  }
+
+  function popUpSuccessModal(message){
+    var successMessage = document.getElementById('successMessage');
+    successMessage.innerText = message;
+    $('#successModal').modal('show');
+  }
+
+  function popUpFailedModal(message){
+    var failedMessage = document.getElementById('failedMessage');
+    failedMessage.innerText = message;
+    $('#failedModal').modal('show');
+  }
+
+  function showTimeTable(id, timeForQuery){
+    reset();
+    getCalendar();
+    refreshDate(index);
+    var bookId = document.getElementById("bookId");
+    bookId.value = id;
+    var bookTimeForQuery = document.getElementById("bookTimeForQuery");
+    bookTimeForQuery.value = timeForQuery;
+    $('#rescheduleModal').modal("show");
+  }
 </script>
 </body>
 </html>

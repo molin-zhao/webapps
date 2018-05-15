@@ -189,17 +189,154 @@
       </div>
       <div class="timetable">
         <label for="time">choose a time:</label>
-        <select class="form-control">
-          <option value="0">09:00~10:30</option>
-          <option value="1">10:30~12:00</option>
-          <option value="2">12:00~13:30</option>
-          <option value="3">13:30~15:00</option>
-          <option value="4">15:00~16:30</option>
-          <option value="5">16:30~18:00</option>
-    </select>
+        <select id="timeTableOptions" class="form-control">
+          <option id="0" value="0">09:00~10:30</option>
+          <option id="1" value="1">10:30~12:00</option>
+          <option id="2" value="2">12:00~13:30</option>
+          <option id="3" value="3">13:30~15:00</option>
+          <option id="4" value="4">15:00~16:30</option>
+          <option id="5" value="5">16:30~18:00</option>
+        </select>
       </div>
-      <button style="margin-top:15px;"class="btn btn-primary"> confirm </button>
+      <button id="confirmButton" data-toggle="modal" style="margin-top:15px;" class="btn btn-primary"> confirm </button>
     </div>
+
+
+    <div id="confirmModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal contents -->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 id="confirmModalTitle" class="modal-title"></h4>
+            <input type="hidden" id="confirmModalTitleForQuery" value="">
+            <input type="hidden" id="confirmModalTitleTime" value="">
+          </div>
+          <div class="modal-body">
+            <form role="form" enctype="multipart/form-data" method="post">
+            <div class="form-group ">
+              <label class="control-label requiredField" for="name">Name<span style="color:red;" class="asteriskField">*</span></label>
+              <input class="form-control" id="editName" name="editName" type="text"/>
+            </div>
+
+            <div class="form-group ">
+              <label class="control-label requiredField" for="email">Email<span style="color:red;" class="asteriskField">*</span></label>
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-envelope"></i>
+                </div>
+                <input class="form-control" id="editEmail" name="editEmail" type="text"/>
+              </div>
+            </div>
+
+            <div class="form-group ">
+              <label class="control-label requiredField" for="mobileNumber">Mobile Number<span style="color:red;" class="asteriskField">*</span></label>
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-phone"></i>
+                </div>
+                <input class="form-control" id="editMobileNumber" name="editMobileNumber" type="text"/>
+              </div>
+            </div>
+
+            <div class="form-group ">
+              <label class="control-label" for="mobileNumber">Address</label>
+              <input class="form-control" id="editAddress" name="editAddress" type="text"/>
+            </div>
+
+            <div class="form-group">
+              <div id="foundDog" style="display:none">
+                <div class="radio">
+                  <label><input name="foundDogRadioOption" type="radio" checked="true" id="alreadyDog">Select a dog from your dog list: </label>
+                  <select style="margin-top:5px" id="editDogOptions" class="form-control" id="dogOptions" name="groomingOptions">
+                    <option value="-- --">------</option>
+                  </select>
+                  <div style="margin-top:10px;" class="form-group">
+                    <label class="control-label" style="width: 30%;" for="name">Dog's Name: </label>
+                    <span id="dogNameSelected" class="form-control-static"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" style="width: 30%;" for="name">Breed: </label>
+                    <span id="dogBreedSelected" class="form-control-static"></span>
+                  </div>
+                </div>
+                <script>
+                </script>
+                <div class="radio">
+                  <label><input name="foundDogRadioOption" type="radio" id="newDog">Choose a new dog: </label>
+                  <div style="margin-top:10px; margin-left: 0px;"class="form-group">
+                    <label for="editDogName">Dog's Name: </label>
+                    <input type="text" class="form-control" id="editDogNameNew" name="editDogName">
+                    <label for="editDogBreed">Breed: </label>
+                    <input type="text" class="form-control" id="editDogBreedNew" name="editDogBreed">
+                  </div>
+                </div>
+              </div>
+              <div id="noDogFound" style="display:initial">
+                <label for="editDogName">Dog's Name: </label>
+                <input type="text" class="form-control" id="editDogNameNotFound" name="editDogName">
+                <label for="editDogBreed">Breed: </label>
+                <input type="text" class="form-control" id="editDogBreedNotFound" name="editDogBreed">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="groomingOptions">Preferred Grooming Option: </label>
+              <select id="editDogGroomOption" class="form-control" id="groomingOptions" name="groomingOptions">
+                <option>deluxe grooming</option>
+                <option>wash only</option>
+                <option>nail clipping</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description: </label>
+              <textarea id="editDogDescription" class="form-control" rows="3" id="description" name="description"></textarea>
+            </div>
+            <div>
+              <button type="button" id="bookingButton" onclick="booking()" class="btn btn-primary"><span id="bookingBtnIcon" class="glyphicon"></span> Book </button>
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer" style="vertical-align: middle">
+            <input id="ifVisited" type="hidden" value="false">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="bookingSuccessModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header bg-success">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title text-white"> Booking Success! </h4>
+          </div>
+          <div class="modal-body text-success">
+            <p>Thank you for your booking, you will get an auto reminder 24 hours prior to the appointment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="bookingFailedModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title bg-danger"> Booking Faild </h4>
+          </div>
+          <div class="modal-body text-danger">
+            <p id="failedMessage"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 
   </div>
 
@@ -237,14 +374,6 @@
             <a class="btn btn-social-icon btn-youtube" href="http://youtube.com/"><i class="fab fa-youtube"></i></a>
             <a class="btn btn-social-icon" href="mailto:"><i class="fa fa-envelope-o"></i></a>
           </div>
-          <!-- <div style="padding: 40px 10px;">
-            <a href="http://google.com/+">Google+</a>
-            <a href="http://www.facebook.com/profile.php?id=">Facebook</a>
-            <a href="http://www.linkedin.com/in/">LinkedIn</a>
-            <a href="http://twitter.com/">Twitter</a>
-            <a href="http://youtube.com/">YouTube</a>
-            <a href="mailto:">Mail</a>
-          </div> -->
         </div>
         <div class="col-xs-12">
           <p style="padding:10px;"></p>
@@ -254,11 +383,42 @@
     </div>
   </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script>
+
+  var signUpButton = document.getElementById('signUpBtn');
+  var loginButton = document.getElementById('loginBtn');
+  var signUpEmail = document.getElementById('signUpEmail');
+  var signUpBtnIcon = document.getElementById('signUpBtnIcon');
+  var loginEmail = document.getElementById('loginEmail');
+  var loginBtnIcon = document.getElementById('loginBtnIcon');
+  var loginPassword = document.getElementById('loginPassword');
+  var logoutButton = document.getElementById('logoutButton');
+  var editDogOptions = document.getElementById('editDogOptions');
+
+  var month_olympic = [31,29,31,30,31,30,31,31,30,31,30,31];
+  var month_normal = [31,28,31,30,31,30,31,31,30,31,30,31];
+  var month_name = ["January","Febrary","March","April","May","June","July","Auguest","September","October","November","December"];
+
+  var holder = document.getElementById("days");
+  var prev = document.getElementById("prev");
+  var next = document.getElementById("next");
+  var cmonth = document.getElementById("calendar-month");
+  var cyear = document.getElementById("calendar-year");
+  var dateSelected;
+
+  var my_date;
+  var my_year;
+  var my_month;
+  var my_day;
+  var index;
+
   window.onload = function(){
     var isLogin = document.getElementById('isLogin');
     var notLogin = document.getElementById('notLogin');
     var isLoginImage = document.getElementById('isLoginImage');
+    var ifVisited = document.getElementById('ifVisited');
+    ifVisited.value = "false";
     ajax({
       trigger: null,
       method: 'get',
@@ -288,7 +448,105 @@
         return callbackFunction(trigger, feedback);
       }
     });
+    reset();
+    getCalendar();
   }
+
+  reset = function(){
+    my_date = new Date();
+    my_year = new Array();
+    my_month = new Array();
+    my_day = my_date.getDate();
+    index = 0;
+    dateSelected = null;
+  }
+
+  $(document).ready(function(){
+    $('#confirmButton').click(function(){
+      if(!dateSelected){
+        showSelectDateAlertMessage();
+        return;
+      }
+
+      var ifVisited = document.getElementById('ifVisited');
+
+      if(ifVisited.value == "false"){
+        ifVisited.value = "true";
+        // set booking time confirmation
+        var date = dateSelected.innerText;
+        var timeTable = document.getElementById('timeTableOptions');
+        var time = timeTable.options[timeTable.value].innerText;
+        var title = document.getElementById('confirmModalTitle');
+        var queryTime = document.getElementById('confirmModalTitleForQuery');
+        var titleTime = document.getElementById('confirmModalTitleTime');
+        titleTime.value = my_year[index] + "." + my_month[index] + "." + date + " " + time;
+        queryTime.value = my_year[index]+" "+my_month[index]+" "+date+" "+timeTable.value;
+        title.innerText = "Confirm your appointment on - " + titleTime.value;
+
+        // check if login and if there is dog aready in the database
+        // if it does, then render the booking page with user information
+        // otherwise let the users input their information
+
+        $.ajax({ // JQuery Ajax
+          type: 'get',
+          url: '/requestbooking',
+          data: null,
+          processData: false,
+          contentType: false,
+          success: function(feedback) {
+            feedback = JSON.parse(feedback);
+            var foundDog = document.getElementById('foundDog');
+            var noDogFound = document.getElementById('noDogFound');
+            if(feedback.status == 1){
+              // render the page with user information
+              var editName = document.getElementById('editName');
+              var editEmail = document.getElementById('editEmail');
+              var editMobileNumber = document.getElementById('editMobileNumber');
+              var editAddress = document.getElementById('editAddress');
+              var email = feedback.message.email;
+              var mobileNumber = feedback.message.mobileNumber;
+              var name = feedback.message.name;
+              var address = feedback.message.address;
+              var dogList = feedback.message.dogs;
+              if(email){
+                editEmail.value = email;
+              }
+              if(name){
+                editName.value = name;
+              }
+              if(mobileNumber){
+                editMobileNumber.value = mobileNumber;
+              }
+              if(address){
+                editAddress.value = address;
+              }
+              if(dogList && dogList.length != 0){
+                // dog found in the database, use select.
+                var editDogOptions = document.getElementById('editDogOptions');
+                for(var i=0; i<dogList.length; i++){
+                  var dogOptionNode = document.createElement("OPTION");
+                  var optionValue = dogList[i].d_name + ' ' + dogList[i].d_bread;
+                  dogOptionNode.value = optionValue;
+                  dogOptionNode.innerText = dogList[i].d_name;
+                  editDogOptions.appendChild(dogOptionNode);
+                }
+                foundDog.style.display = "initial";
+                noDogFound.style.display = "none";
+              }else{
+                foundDog.style.display = "none";
+                noDogFound.style.display = "initial";
+              }
+            }else{
+              // empty form, let the user input
+              foundDog.style.display = "none";
+              noDogFound.style.display = "initial";
+            }
+          }
+        });
+      }
+      $('#confirmModal').modal("show");
+    });
+  });
 
   logoutButton.onclick = function(){
     ajax({
@@ -317,23 +575,8 @@
         return callbackFunction(trigger, feedback);
       }
     });
+    removeSelectDateAlertMessage();
   }
-
-  var month_olympic = [31,29,31,30,31,30,31,31,30,31,30,31];
-  var month_normal = [31,28,31,30,31,30,31,31,30,31,30,31];
-  var month_name = ["January","Febrary","March","April","May","June","July","Auguest","September","October","November","December"];
-
-  var holder = document.getElementById("days");
-  var prev = document.getElementById("prev");
-  var next = document.getElementById("next");
-  var cmonth = document.getElementById("calendar-month");
-  var cyear = document.getElementById("calendar-year");
-
-  var my_date = new Date();
-  var my_year = my_date.getFullYear();
-  var my_month = my_date.getMonth();
-  var my_day = my_date.getDate();
-  var flag_month = my_month;
 
   function dayStart(month, year) {
     var tmpDate = new Date(year, month, 1);
@@ -347,56 +590,406 @@
     return month_normal[month];
   }
 
-  function dateSelected(tag){
-    // console.log(my_year+'.'+(my_month+1)+'.'+tag.innerText);
-    $(tag).siblings().removeClass("dateselected");
-    $(tag).addClass("dateselected");
+  function renderTimeTable(timetable){
+    var timeTableOptions = document.getElementById('timeTableOptions');
+    for(var i=0; i<timeTableOptions.childNodes.length; i++){
+      if(timetable.i === false){
+        timeTableOptions.childNodes[i].innerText = "----";
+      }
+    }
   }
 
-  function refreshDate(){
+  function selectDate(tag){
+    $(tag).siblings().removeClass("dateselected");
+    $(tag).addClass("dateselected");
+    getTimeTable(tag);
+    dateSelected = tag;
+  }
+
+  function refreshDate(index){
     var str = "";
-	  var totalDay = daysMonth(my_month, my_year);
-    var firstDay = dayStart(my_month, my_year);
+	  var totalDay = daysMonth(my_month[index]-1, my_year[index]);
+    var firstDay = dayStart(my_month[index]-1, my_year[index]);
 	  var myclass;
 	  for(var i=1; i<firstDay; i++){
       str += "<li></li>";
     }
     for(var i=1; i<=totalDay; i++){
-      if((i<my_day && my_year==my_date.getFullYear() && my_month==my_date.getMonth()) || my_year<my_date.getFullYear() || ( my_year==my_date.getFullYear() && my_month<my_date.getMonth())){
+      if((i<my_day && my_year[index]==my_date.getFullYear() && (my_month[index]-1)==my_date.getMonth()) || my_year[index]<my_date.getFullYear() || ( my_year[index]==my_date.getFullYear() && (my_month[index]-1)<my_date.getMonth())){
         myclass = " class='lightgrey'";
-      }else if (i==my_day && my_year==my_date.getFullYear() && my_month==my_date.getMonth()){
-        myclass = " class='blue bluebox datehover' onclick=dateSelected(this)";
+      }else if (i==my_day && my_year[index]==my_date.getFullYear() && (my_month[index]-1)==my_date.getMonth()){
+        myclass = " class='blue bluebox datehover'";
       }else{
-        myclass = " class='darkgrey datehover' onclick=dateSelected(this)";
+        myclass = " class='darkgrey datehover' onclick=selectDate(this)";
       }
       str += "<li"+myclass+">"+i+"</li>";
     }
     holder.innerHTML = str;
-    cmonth.innerHTML = month_name[my_month];
-    cyear.innerHTML = my_year;
+    cmonth.innerHTML = month_name[my_month[index]-1];
+    cyear.innerHTML = my_year[index];
   }
-  refreshDate();
+
+  function showSelectDateAlertMessage(){
+    removeSelectDateAlertMessage();
+    var confirmButton = document.getElementById('confirmButton');
+    var messageNode = document.createElement("SPAN");
+    messageNode.innerText = "Please select a time from timetable.";
+    messageNode.style.paddingLeft = "10px";
+    messageNode.style.color = "red"
+    confirmButton.parentNode.appendChild(messageNode);
+  }
+
+  function removeSelectDateAlertMessage(){
+    var confirmButton = document.getElementById('confirmButton');
+    if(confirmButton.nextSibling){
+      confirmButton.parentNode.removeChild(confirmButton.nextSibling);
+    }
+    return;
+  }
 
   prev.onclick = function(e){
     e.preventDefault();
-    my_month--;
-    if(my_month<0){
-      my_year--;
-      my_month = 11;
+    if(index > 0){
+      index--;
+      refreshDate(index);
     }
-    refreshDate();
+    removeSelectDateAlertMessage();
+
   }
 
   next.onclick = function(e){
 	  e.preventDefault();
-	  my_month++;
-	  if(my_month>11){
-      my_year++;
-      my_month = 0;
+    if(index < my_year.length - 1){
+      index++;
+      refreshDate(index);
     }
-    refreshDate();
+    removeSelectDateAlertMessage();
+
   }
 
+  function getCalendar(){
+    var current_time = new Date();
+    var current_year = current_time.getFullYear();
+    var current_month = current_time.getMonth() + 1;
+    var date = {};
+    date.year = current_year;
+    date.month = current_month;
+    ajax({
+      trigger: null,
+      method: 'post',
+      url: '/getcalendar',
+      data: JSON.stringify(date),
+      contentType: "application/json",
+      callbackFunction: function(trigger, feedback){
+        // feedback should be {"year": someyear, "month": somemonth}
+        var dateArray = feedback.message;
+        for(var i in dateArray){
+          my_year.push(dateArray[i].year);
+          my_month.push(dateArray[i].month);
+        }
+        index = 0;
+        refreshDate(index);
+        removeSelectDateAlertMessage();
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
+
+  }
+
+  function getTimeTable(tag){
+    var date = {};
+    date.year = my_year[index];
+    date.month = my_month[index];
+    date.day = tag.innerText;
+    ajax({
+      trigger: null,
+      method: 'post',
+      url: '/gettimetable',
+      data: JSON.stringify(date),
+      contentType: "application/json",
+      callbackFunction: function(trigger, feedback){
+        // 0-5 with true and false
+        renderTimeTable(feedback.message);
+
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
+  }
+
+  function booking(){
+    var bookTime = document.getElementById('confirmModalTitleTime').value;
+    var bookTimeForQuery = document.getElementById('confirmModalTitleForQuery').value;
+    var bookName = document.getElementById('editName').value;
+    var bookEmail = document.getElementById('editEmail').value;
+    var bookMobileNum = document.getElementById('editMobileNumber').value;
+    var bookAddress = document.getElementById('editAddress').value;
+    var bookGroomOption = document.getElementById('editDogGroomOption').value;
+    var bookDescription = document.getElementById('editDogDescription').value;
+    var isFoundDog = document.getElementById('foundDog');
+    var bookDogName;
+    var bookDogBreed;
+    if(isFoundDog.style.display == 'none'){
+      // no dog found
+      bookDogName = document.getElementById('editDogNameNotFound').value;
+      bookDogBreed = document.getElementById('editDogBreedNotFound').value;
+    }else{
+      // already found dog in the database
+      if(document.getElementById('alreadyDog').checked){
+        bookDogName = document.getElementById('dogNameSelected').innerText;
+        bookDogBreed = document.getElementById('dogBreedSelected').innerText;
+      }else{
+        bookDogName = document.getElementById('editDogNameNew').value;
+        bookDogBreed = document.getElementById('editDogBreedNew').value;
+      }
+    }
+    // var bookDataObj = {};
+    // bookDataObj.bookTime = bookTime;
+    // bookDataObj.bookTimeForQuery = bookTimeForQuery;
+    // bookDataObj.bookUserName = bookName;
+    // bookDataObj.bookUserEmail = bookEmail;
+    // bookDataObj.bookMobileNum = bookMobileNum;
+    // bookDataObj.bookAddress = bookAddress;
+    // bookDataObj.bookGroomOption = bookGroomOption;
+    // bookDataObj.bookDescription = bookDescription;
+    // bookDataObj.bookDogName = bookDogName;
+    // bookDataObj.bookDogBreed = bookDogBreed;
+    // console.log(bookDataObj);
+
+    var bookData = new FormData();
+    bookData.append('bookTime', bookTime);
+    bookData.append('bookTimeForQuery', bookTimeForQuery);
+    bookData.append('bookUserName', bookName);
+    bookData.append('bookUserEmail', bookEmail);
+    bookData.append('bookMobileNum', bookMobileNum);
+    bookData.append('bookAddress', bookAddress);
+    bookData.append('bookGroomOption', bookGroomOption);
+    bookData.append('bookDescription', bookDescription);
+    bookData.append('bookDogName', bookDogName);
+    bookData.append('bookDogBreed', bookDogBreed);
+
+
+    $.ajax({ // JQuery Ajax
+      type: 'post',
+      url: '/booking',
+      data: bookData,
+      processData: false,
+      contentType: false,
+      success: function(feedback) {
+        var feedback = JSON.parse(feedback);
+        if(feedback.status == 1){
+          // success modal
+          popUpSuccessModal(feedback.message);
+        }else{
+          // failed modal
+          popUpFailedModal(feedback.message);
+        }
+      }
+    });
+
+  }
+
+  function popUpSuccessModal(message){
+    $('#bookingSuccessModal').modal('show');
+  }
+
+  function popUpFailedModal(message){
+    var failedMessage = document.getElementById('failedMessage');
+    failedMessage.innerText = message;
+    $('#bookingFailedModal').modal('show');
+  }
+
+  function inputFieldOnchange(someInputField, someButton){
+    someInputField.parentNode.classList.remove("has-error");
+    if(someInputField.nextSibling){
+      someInputField.parentNode.removeChild(someInputField.nextSibling);
+    }
+    if(someButton.nextSibling){
+      someButton.classList.remove("glyphicon-ok");
+      someButton.classList.add("btn-primary");
+      someButton.classList.remove("btn-success");
+      someButton.parentNode.removeChild(someButton.nextSibling);
+      someButton.disabled = false;
+    }
+  }
+
+  signUpEmail.onchange = function(){
+    inputFieldOnchange(signUpEmail, signUpButton);
+  }
+
+  loginEmail.onchange = function(){
+    inputFieldOnchange(loginEmail, loginButton);
+  }
+
+  loginPassword.onchange = function(){
+    inputFieldOnchange(loginPassword, loginButton);
+  }
+
+  logoutButton.onclick = function(){
+    ajax({
+      trigger: null,
+      method: 'get',
+      url: '/logout',
+      data: "",
+      contentType: "",
+      callbackFunction: function(trigger, feedback){
+        if(feedback.status === 0){
+          // cannot logout
+          console.log(feedback.message);
+        }else if(feedback.status === 1){
+          // logout
+          console.log(feedback.message);
+          var isLogin = document.getElementById('isLogin');
+          var notLogin = document.getElementById('notLogin');
+          var isLoginImage = document.getElementById('isLoginImage');
+          isLoginImage.src = "data/clients/client-default.jpg";
+          isLogin.style.display = 'none';
+          notLogin.style.display = 'block';
+        }
+      },
+      sendListener: null,
+      receiverListener: function(trigger, feedback, callbackFunction){
+        return callbackFunction(trigger, feedback);
+      }
+    });
+  }
+
+
+  /*
+    below functions will give user instructions when get feedback from server
+  */
+  function inputFieldValid(someTrigger, feedback){
+    someTrigger.parentNode.classList.add("has-error");
+    var messageNode = document.createElement("SPAN");
+    messageNode.style.paddingLeft = "5px";
+    messageNode.style.color = "red";
+    messageNode.innerText = feedback.message;
+    someTrigger.parentNode.appendChild(messageNode);
+  }
+
+  function optSuccess(someTrigger, someBtnIcon, feedback){
+    someBtnIcon.classList.add("glyphicon-ok");
+    someTrigger.classList.remove("btn-primary");
+    someTrigger.classList.add("btn-success");
+    var messageNode = document.createElement("SPAN");
+    messageNode.style.paddingLeft = "10px";
+    messageNode.style.color = "green";
+    messageNode.innerText = feedback.message;
+    someTrigger.parentNode.appendChild(messageNode);
+    // someTrigger.disabled = true;
+  }
+
+
+  function resendEmail(btn, userEmail){
+    var messageNode = document.createElement("A");
+    messageNode.style.paddingLeft = "10px";
+    messageNode.innerText = "click here to resend email activation link.";
+    btn.parentNode.appendChild(messageNode);
+    messageNode.onclick = function(){
+      messageNode.disabled = true;
+      messageNode.innerText = "resend activation link after 60 seconds."
+      ajax({
+        trigger:[],
+        method: 'get',
+        url: '/resend',
+        data: "email=" + userEmail,
+        contentType: '',
+        callbackFunction:null,
+        sendListener:null,
+        receiverListener:null,
+      })
+      setTimeout(function(){
+        messageNode.disabled = false;
+        messageNode.innerText = "click here to resend email activation link."
+      }, 60000);
+    }
+  }
+
+  signUpButton.onclick = function(){
+    var userJson = {};
+    userJson.signUpEmail = document.getElementsByName('signUpEmail')[0].value;
+    userJson.signUpPassword = document.getElementsByName('signUpPassword')[0].value;
+    ajax({
+      trigger: [signUpButton, signUpEmail, signUpBtnIcon],
+      method: 'post',
+      url: '/signup',
+      data: JSON.stringify(userJson),
+      contentType: "application/json",
+      callbackFunction: function(trigger, feedback){
+        if(feedback.status === 0){
+          //already taken
+          console.log(feedback.message);
+          inputFieldValid(trigger[1], feedback);
+        }else if(feedback.status === 1){
+          //register successfully, but not active
+          console.log(feedback.message);
+          optSuccess(trigger[0], trigger[2], feedback);
+        }
+      },
+      sendListener: function(trigger, data){
+        trigger[0].disabled = true;
+      },
+      receiverListener: function(trigger, feedback, callbackFunction){
+        trigger[0].disabled = false;
+        return callbackFunction(trigger, feedback);
+      }
+    });
+  }
+
+  loginButton.onclick = function(){
+    var userJson = {};
+    userJson.loginEmail = document.getElementsByName('loginEmail')[0].value;
+    userJson.loginPassword = document.getElementsByName('loginPassword')[0].value;
+    ajax({
+      trigger: [loginButton, loginEmail, loginPassword, loginBtnIcon],
+      method: 'post',
+      url: '/login',
+      data: JSON.stringify(userJson),
+      contentType: "application/json",
+      callbackFunction: function(trigger, feedback){
+        if(feedback.status === 0){
+          // didn't match password or email address
+          console.log(feedback.message);
+          inputFieldValid(trigger[1], feedback);
+          inputFieldValid(trigger[2], feedback);
+        }else if(feedback.status === 1){
+          //register successfully, but not active
+          console.log(feedback.message);
+          optSuccess(trigger[0], trigger[3], feedback);
+          setTimeout("javascript:location.reload(true)", 2000);
+        }else if(feedback.status === 2){
+          console.log(feedback.message);
+          inputFieldValid(trigger[1], feedback);
+          resendEmail(trigger[0], userJson.loginEmail);
+        }
+      },
+      sendListener: function(trigger, data){
+        trigger[0].disabled = true;
+      },
+      receiverListener: function(trigger, feedback, callbackFunction){
+        trigger[0].disabled = false;
+        return callbackFunction(trigger, feedback);
+      }
+    });
+  }
+
+  editDogOptions.onchange = function(){
+    var index = editDogOptions.selectedIndex;
+    // get the value of selected dog, name + breed
+    var selectedDogValue = editDogOptions.options[index].value;
+    var valueArr = selectedDogValue.split(' ');
+    var dogName = valueArr[0];
+    var dogBreed = valueArr[1];
+    var dogNameSelected = document.getElementById('dogNameSelected');
+    var dogBreedSelected = document.getElementById('dogBreedSelected');
+    dogNameSelected.innerText = dogName;
+    dogBreedSelected.innerText = dogBreed;
+  }
 </script>
 </body>
 </html>
