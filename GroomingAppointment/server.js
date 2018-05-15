@@ -540,15 +540,15 @@ app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 			if(err) throw err;
 			if(result.length != 0){
 				// insert dog
-				var dogName = req.body.editDogName.toLowerCase();
+				var dogName = req.body.editDogName;
+				var dogNameForCompare = dogName.toLowerCase();
 				// make comparision with the dog already in the database,
 				//if their name are same, fail to add a dog and show user message to change a name
 				var dogList = result.dogs;
-				if(dogList === undefined || dogList == null){
-					dogList = new Array();
-				}else{
-					for(var dog in dogList){
-						if(dog.d_name == dogName){
+				// check if the dog name is already being used
+				if(dogList){
+					for(var i=0; i<dogList.length; i++){
+						if(dogList[i].d_name.toLowerCase() == dogNameForCompare){
 							res.send(JSON.stringify({'status': 0, 'message': "Dog name already registered. Please try another name."}));
 							res.end();
 							client.close();
@@ -559,23 +559,18 @@ app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 				// if not return, that means no dog is matched in the database, insert it.
 				var dogBreed = req.body.editDogBreed;
 				var dogDateOfBirth = req.body.editDogDateOfBirth;
-				var dogPreferredGroomOption = req.body.groomingOptions;
-				var dogDescription = req.body.description;
 				var dogImagePath = req.file.path;
 				var newDog = {
 					d_name : dogName,
 					d_breed : dogBreed,
 					d_dateOfBirth : dogDateOfBirth,
-					d_dogPreferedGroomOption : dogPreferredGroomOption,
-					d_description : dogDescription,
 					d_imagePath : dogImagePath
 				}
-				dogList.push(newDog);
 				db.collection("client").updateOne(
 					{email: userEmail},
 					{
-						$set: {
-							dogs: dogList
+						$addToSet: {
+							"dogs": newDog
 						}
 					}
 				);

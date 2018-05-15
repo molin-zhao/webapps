@@ -442,7 +442,7 @@
                 </div>
                 <div class="form-group">
                   <label for="editDogbreed">Breed: </label>
-                  <input type="text" class="form-control" id="editDogbreed" name="editDogbreed">
+                  <input type="text" class="form-control" id="editDogbreed" name="editDogBreed">
                 </div>
                 <div class="form-group">
                   <label class="control-label " for="editDogDateOfBirth">Date of Birth: </label>
@@ -758,7 +758,7 @@
     var workNum = feedback.workNumber;
     var homeNum = feedback.homeNumber;
     var address = feedback.address;
-    var numOfDogs = feedback.dogs.length;
+    var numOfDogs = feedback.dogs? feedback.dogs.length : undefined;
     var img = feedback.imagePath;
     var intro = feedback.selfIntro;
 

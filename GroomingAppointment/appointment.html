@@ -525,7 +525,7 @@
                 var editDogOptions = document.getElementById('editDogOptions');
                 for(var i=0; i<dogList.length; i++){
                   var dogOptionNode = document.createElement("OPTION");
-                  var optionValue = dogList[i].d_name + ' ' + dogList[i].d_bread;
+                  var optionValue = dogList[i].d_name + ' ' + dogList[i].d_breed;
                   dogOptionNode.value = optionValue;
                   dogOptionNode.innerText = dogList[i].d_name;
                   editDogOptions.appendChild(dogOptionNode);
