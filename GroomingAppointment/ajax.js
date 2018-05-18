@@ -26,7 +26,4 @@ function ajax(options){
       options.sendListener && options.sendListener(options.trigger, options.data);
     }
   }
-
-
-
 }

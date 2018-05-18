@@ -6,7 +6,6 @@ const MongoClient = require('mongodb').MongoClient, assert = require('assert');
 const urlencodeParser = bodyParser.urlencoded({extended: false});
 const ejs = require('ejs');
 const ObjectId = require('mongodb').ObjectId;
-// const URL = require('url');
 const multer = require('multer');
 const multipart = require('connect-multiparty');
 const path = require('path');
@@ -14,9 +13,13 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const mongoStore = require('connect-mongo')(session);
 
-// var my_ip = require('./ipaddress.js');
+try{
+	var my_ip = require('./ipaddress.js');
+}catch(e){
+	console.log("Temporarily not connected to the intranet, cannot get public ip address.");
+}
 var checkFileType = require('./checkfiletype.js');
-// var sendEmailForActivation = require('./sendemail.js');
+var sendEmail = require('./sendemail.js');
 var greaterThan = require('./datesort.js');
 var sortDate = require('./swap.js');
 var identityKey = 'groomkey';
@@ -53,6 +56,10 @@ app.set('views', '/');
 app.set('view engine', 'html');
 app.engine('html', ejs.renderFile);
 
+
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+server.listen(3001);
 // set storage engine
 const storage = multer.diskStorage({
 	destination: './public/upload/',
@@ -80,10 +87,27 @@ app.listen(port, function(){
 	console.log('Server running at http://' + hostname + ':' + port);
 });
 
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on("disconnect", () => {
+    console.log("a user go out");
+  });
+});
+
+
+app.get('/user-profile', function(req, res){
+	if(!req.session || !req.session.user_email){
+		res.render('login');
+		res.end();
+	}
+});
+
 
 // set up routers
 app.get('/', function(req, res){
 	res.render('index');
+	res.end();
 });
 
 app.get('/logout', function(req, res, next){
@@ -94,12 +118,14 @@ app.get('/logout', function(req, res, next){
 			}
       res.clearCookie(identityKey);
 			res.send(JSON.stringify({'status': 1, 'message': "Logout successfully."}));
+			// return index.html
       res.redirect('/');
+			res.end();
   });
 });
 
 app.get('/iflogin', function(req, res){
-	if(!req.session.user_email){
+	if(!req.session || !req.session.user_email){
 		// didn't login
 		res.send(JSON.stringify({'status': 0, 'message': null}));
 	}else{
@@ -110,7 +136,19 @@ app.get('/iflogin', function(req, res){
 
 app.get('/resend', urlencodeParser, function(req, res){
 	var req_email = req.query.email;
-	sendEmailForActivation(req_email, "Activation Your Email");
+	try{
+		const sendTime = Date.now();
+		const to = req_email;
+		var activationLink = "http://"+my_ip+":3000/active?email="+to+"&time="+sendTime;
+		const content = 'Please activate your email account via following link: \n' + activationLink;
+		sendEmail({
+			to: req_email,
+			subject: "Activate Your Email",
+			text: content
+		});
+	}catch(e){
+		console.log("Error, cannot send email to " + req_email);
+	}
 });
 
 app.get('/active', urlencodeParser, function(req, res){
@@ -134,16 +172,28 @@ app.get('/active', urlencodeParser, function(req, res){
 			db.collection("client").find({"email":req_email}).toArray(function(err, result){
 				if(err) throw err;
 				if(result.length != 0){
-					res.send(JSON.stringify({'status':1, 'message': "Email for activation not found."}));
+					if(result[0].active){
+						res.send("Your account has been activated. You can login and make appointments!")
+					}else{
+						db.collection("client").updateOne(
+							{"email": req_email},
+							{
+								$set: {"active": true}
+							}
+						);
+						res.send("Email account activated.");
+					}
 				}else{
-					res.send(JSON.stringify({'status':0,'message': "Email account activated."}));
+					res.send("Error on activating your email.");
 				}
-				client.close();
 				res.end();
+				client.close();
 			});
 		});
 	}
 });
+
+
 
 app.get('/getdoginfo', urlencodeParser, function(req, res){
 	if(!req.body) return res.sendStatus(400);
@@ -246,6 +296,30 @@ app.get('/getappointment', urlencodeParser, function(req, res){
 			});
 		});
 	}
+});
+
+
+app.get('/adminappointment', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			res.sendStatus(500);
+			return;
+		}
+		var db = client.db("groomingAppointment");
+		db.collection("appointment").find().toArray(function(err, result){
+		if(err)throw err;
+		if(result.length != 0){
+			res.send(JSON.stringify({'status': 1, 'message': result}));
+		}else{
+			res.send(JSON.stringify({'status': 2, 'message': "You currently have no appointments."}));
+		}
+		res.end();
+		client.close();
+		});
+	});
 });
 
 app.get('/requestbooking', urlencodeParser, function(req, res){
@@ -386,17 +460,29 @@ app.post('/signup', urlencodeParser, function(req, res){
 					if(err) throw err;
 				});
 				// 2. send email to user.
-				// sendEmailForActivation(req_email, "Activation Your Email");
-				db.collection("client").updateOne(
-					{email: req_email},
-					{
-						$set: {active: true}
-					}
-				);
+				try{
+					const sendTime = Date.now();
+					const to = req_email;
+					var activationLink = "http://"+my_ip+":3000/active?email="+to+"&time="+sendTime;
+					const content = 'Please activate your email account via following link: \n' + activationLink;
+					sendEmail({
+						to: req_email,
+						subject: "Activate Your Email",
+						text: content
+					});
+				}catch(e){
+					console.log("Error, cannot send email to " + req_email);
+				}
+				// db.collection("client").updateOne(
+				// 	{email: req_email},
+				// 	{
+				// 		$set: {active: true}
+				// 	}
+				// );
 				// 3. callback and notify user.
 				res.send(JSON.stringify(
 					{'status':1,
-					'message': "Register successfully, please active account within 24 hours via registered Email."}
+					'message': "Register successfully, please active your account within 24 hours via registered Email."}
 				));
 			}
 			client.close();
@@ -448,8 +534,15 @@ app.post('/login', urlencodeParser, function(req, res){
 
 
 app.post('/uploadimg', upload.single('selfImage'), function(req, res){
-	var userId = req.body.userId;//user email address, used for find user and update image path;
+	//user email address, used for find user and update image path;
+	var userId;
+	if(req.session.user_email){
+		userId = req.session.user_email;
+	}else{
+		userId = req.body.userId;
+	}
 	var imgPath = req.file.path;
+	req.session.user_imgpath = imgPath;
 	res.send(JSON.stringify({'status':1, 'message': imgPath}));
 	res.end();
 	MongoClient.connect(url, function(err, client){
@@ -524,7 +617,6 @@ app.post('/uploadprofile', urlencodeParser, function(req, res){
 	});
 });
 
-
 app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 	var userEmail = req.body.email;
 	MongoClient.connect(url, function(err, client){
@@ -559,7 +651,12 @@ app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 				// if not return, that means no dog is matched in the database, insert it.
 				var dogBreed = req.body.editDogBreed;
 				var dogDateOfBirth = req.body.editDogDateOfBirth;
-				var dogImagePath = req.file.path;
+				var dogImagePath;
+				if(req.file){
+					dogImagePath = req.file.path;
+				}else{
+					dogImagePath = "data/dogs/dog-default.jpg";
+				}
 				var newDog = {
 					d_name : dogName,
 					d_breed : dogBreed,
@@ -583,7 +680,6 @@ app.post('/uploaddogprofile', upload.single('editDogImage'), function(req, res){
 		});
 	});
 });
-
 
 app.post('/booking', multipartMiddleware, function(req, res){
 	var userEmail;
@@ -650,7 +746,6 @@ app.post('/booking', multipartMiddleware, function(req, res){
 	});
 });
 
-
 app.post('/cancelappointment', urlencodeParser, function(req, res){
 	if(!req.body) return res.sendStatus(400);
 	var req_bookId = req.body.bookId;
@@ -683,6 +778,97 @@ app.post('/cancelappointment', urlencodeParser, function(req, res){
 		}
 		res.end();
 		client.close();
+	});
+});
+
+app.post('/confirmappointment', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var req_bookId = req.body.bookId;
+	var req_bookTimeForQuery = req.body.bookTimeForQuery;
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			return;
+		}
+		var bookTimeQueryArr = req_bookTimeForQuery.split(' ');
+		var bookYear = parseInt(bookTimeQueryArr[0]);
+		var bookMonth = parseInt(bookTimeQueryArr[1]);
+		var bookDayAndPeriod = "dayList." + (bookTimeQueryArr[2]-1) + "." + bookTimeQueryArr[3];
+		var db = client.db("groomingAppointment");
+		try{
+			db.collection("appointment").updateOne(
+				{'_id': ObjectId(req_bookId)},
+				{
+					$set: {"status": "inProgress"}
+				}
+			);
+			res.send(JSON.stringify({'status': 1, 'message': "Appointment is in progress, you can view it under 'in progress' tab."}));
+		}catch(e){
+			console.log(e);
+			res.send(JSON.stringify({'status': 0, 'message': "Cannot confirm this appointment temporarily."}));
+			res.end();
+			return;
+		}
+		res.end();
+		client.close();
+	});
+});
+
+app.post('/finishappointment', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var req_bookId = req.body.bookId;
+	var req_bookTimeForQuery = req.body.bookTimeForQuery;
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			return;
+		}
+		var bookTimeQueryArr = req_bookTimeForQuery.split(' ');
+		var bookYear = parseInt(bookTimeQueryArr[0]);
+		var bookMonth = parseInt(bookTimeQueryArr[1]);
+		var bookDayAndPeriod = "dayList." + (bookTimeQueryArr[2]-1) + "." + bookTimeQueryArr[3];
+		var db = client.db("groomingAppointment");
+		try{
+			db.collection("appointment").updateOne(
+				{'_id': ObjectId(req_bookId)},
+				{
+					$set: {"status": "finished"}
+				}
+			);
+			res.send(JSON.stringify({'status': 1, 'message': "Appointment is finished, you can view it under 'in progress' tab."}));
+		}catch(e){
+			console.log(e);
+			res.send(JSON.stringify({'status': 0, 'message': "Cannot confirm this appointment temporarily."}));
+			res.end();
+			return;
+		}
+		res.end();
+		client.close();
+	});
+});
+
+app.post('/getappointmentdetail', urlencodeParser, function(req, res){
+	if(!req.body) return res.sendStatus(400);
+	var req_bookId = req.body.bookId;
+	MongoClient.connect(url, function(err, client){
+		assert.equal(null, err);
+		if(err){
+			console.log("Connot connect correctly to the database");
+			return;
+		}
+		var db = client.db("groomingAppointment");
+		db.collection("appointment").find({"_id": ObjectId(req_bookId)}).toArray(function(err, result){
+			if(err)throw err;
+			if(result.length!=0){
+				res.send(JSON.stringify({'status': 1, 'message': result[0]}));
+			}else{
+				res.send(JSON.stringify({'status': 0, 'message': "Cannot view appointment detail."}));
+			}
+			res.end();
+			client.close();
+		});
 	});
 });
 
@@ -731,7 +917,7 @@ app.post('/rescheduleappointment', multipartMiddleware, function(req, res){
 					db.collection("appointment").updateOne(
 						{"_id": ObjectId(req_bookId)},
 						{
-							$set: {"bookTime": req_bookTime, "bookTimeForQuery": req_bookTimeForQuery, 'status': "rescheduled"}
+							$set: {"bookTime": req_bookTime, "bookTimeForQuery": req_bookTimeForQuery, "status": "rescheduled"}
 						}
 					);
 					res.send(JSON.stringify({'status': 1, 'message': "Reschedule success."}));

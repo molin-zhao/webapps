@@ -35,10 +35,10 @@
         <ul class="nav navbar-nav">
           <li><a href="index.html"><span class="glyphicon glyphicon-home"
                          aria-hidden="true"></span> Home</a></li>
+          <li><a href="appointment.html"><span class="glyphicon glyphicon-th"
+                         aria-hidden="true"></span> Appointment</a></li>
           <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
                          aria-hidden="true"></span> About</a></li>
-          <li><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
-                         aria-hidden="true"></span> User Profile</a></li>
           <li><a href="contact.html"><span class="glyphicon glyphicon-phone"
                          aria-hidden="true"></span> Contact</a></li>
         </ul>
@@ -47,17 +47,17 @@
   </nav>
 
   <div class="container" style="width:50%; margin-top:20px;">
-    <form role="form" action="/login" method="post" id="signUp">
+    <form role="form" method="post">
       <div class="form-group">
         <label for="usr">Email:</label>
-        <input type="text" class="form-control" name="email" id="email">
+        <input type="text" class="form-control" name="email" id="loginEmail">
       </div>
       <div class="form-group">
         <label for="pwd">Password:</label>
-        <input type="password" class="form-control" name="password" id="pwd" style="margin-bottom:10px;">
+        <input type="password" class="form-control" name="password" id="loginPassword" style="margin-bottom:10px;">
         <span style="text-decoration: underline;">forgot your password?</span>
       </div>
-      <button type="submit" class="btn btn-primary" data-dismiss="modal">Login</button>
+      <button id="loginBtn" type="submit" class="btn btn-primary"><span id="loginBtnIcon" class="glyphicon"></span> Login </button>
     </form>
   <div>
 
@@ -71,5 +71,118 @@
       </p>
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script>
+    var loginButton = document.getElementById('loginBtn');
+    var loginEmail = document.getElementById('loginEmail');
+    var loginBtnIcon = document.getElementById('loginBtnIcon');
+    var loginPassword = document.getElementById('loginPassword');
+
+    loginButton.onclick = function(){
+      var userJson = {};
+      userJson.loginEmail = document.getElementsByName('loginEmail')[0].value;
+      userJson.loginPassword = document.getElementsByName('loginPassword')[0].value;
+      ajax({
+        trigger: [loginButton, loginEmail, loginPassword, loginBtnIcon],
+        method: 'post',
+        url: '/login',
+        data: JSON.stringify(userJson),
+        contentType: "application/json",
+        callbackFunction: function(trigger, feedback){
+          if(feedback.status === 0){
+            // didn't match password or email address
+            console.log(feedback.message);
+            inputFieldValid(trigger[1], feedback);
+            inputFieldValid(trigger[2], feedback);
+          }else if(feedback.status === 1){
+            //register successfully, but not active
+            console.log(feedback.message);
+            optSuccess(trigger[0], trigger[3], feedback);
+            setTimeout("javascript:location.href='index.html'", 2000);
+          }else if(feedback.status === 2){
+            console.log(feedback.message);
+            inputFieldValid(trigger[1], feedback);
+            resendEmail(trigger[0], userJson.loginEmail);
+          }
+        },
+        sendListener: function(trigger, data){
+          trigger[0].disabled = true;
+        },
+        receiverListener: function(trigger, feedback, callbackFunction){
+          trigger[0].disabled = false;
+          return callbackFunction(trigger, feedback);
+        }
+      });
+    }
+
+
+    function resendEmail(btn, userEmail){
+      var messageNode = document.createElement("A");
+      messageNode.style.paddingLeft = "10px";
+      messageNode.innerText = "click here to resend email activation link.";
+      btn.parentNode.appendChild(messageNode);
+      messageNode.onclick = function(){
+        messageNode.disabled = true;
+        messageNode.innerText = "resend activation link after 60 seconds."
+        ajax({
+          trigger:[],
+          method: 'get',
+          url: '/resend',
+          data: "email=" + userEmail,
+          contentType: '',
+          callbackFunction:null,
+          sendListener:null,
+          receiverListener:null,
+        })
+        setTimeout(function(){
+          messageNode.disabled = false;
+          messageNode.innerText = "click here to resend email activation link."
+        }, 60000);
+      }
+    }
+
+
+    function inputFieldValid(someTrigger, feedback){
+      someTrigger.parentNode.classList.add("has-error");
+      var messageNode = document.createElement("SPAN");
+      messageNode.style.paddingLeft = "5px";
+      messageNode.style.color = "red";
+      messageNode.innerText = feedback.message;
+      someTrigger.parentNode.appendChild(messageNode);
+    }
+
+    function optSuccess(someTrigger, someBtnIcon, feedback){
+      someBtnIcon.classList.add("glyphicon-ok");
+      someTrigger.classList.remove("btn-primary");
+      someTrigger.classList.add("btn-success");
+      var messageNode = document.createElement("SPAN");
+      messageNode.style.paddingLeft = "10px";
+      messageNode.style.color = "green";
+      messageNode.innerText = feedback.message;
+      someTrigger.parentNode.appendChild(messageNode);
+      // someTrigger.disabled = true;
+    }
+
+    loginEmail.onchange = function(){
+      inputFieldOnchange(loginEmail, loginButton);
+    }
+
+    loginPassword.onchange = function(){
+      inputFieldOnchange(loginPassword, loginButton);
+    }
+
+    function inputFieldOnchange(someInputField, someButton){
+      someInputField.parentNode.classList.remove("has-error");
+      if(someInputField.nextSibling){
+        someInputField.parentNode.removeChild(someInputField.nextSibling);
+      }
+      if(someButton.nextSibling){
+        someButton.classList.remove("glyphicon-ok");
+        someButton.classList.add("btn-primary");
+        someButton.classList.remove("btn-success");
+        someButton.parentNode.removeChild(someButton.nextSibling);
+        someButton.disabled = false;
+      }
+    }
+  </script>
 </body>
 </html>

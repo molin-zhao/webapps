@@ -39,12 +39,10 @@
         <ul class="nav navbar-nav">
           <li><a href="index.html"><span class="glyphicon glyphicon-home"
                          aria-hidden="true"></span> Home</a></li>
-          <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
-                         aria-hidden="true"></span> About</a></li>
-          <li class="active"><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
-                         aria-hidden="true"></span> User Profile</a></li>
           <li><a href="appointment.html"><span class="glyphicon glyphicon-th"
                          aria-hidden="true"></span> Appointment</a></li>
+          <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
+                         aria-hidden="true"></span> About</a></li>
           <li><a href="contact.html"><span class="glyphicon glyphicon-phone"
                          aria-hidden="true"></span> Contact</a></li>
         </ul>
@@ -184,8 +182,8 @@
               <li><a data-toggle="tab" href="#editMyDogProfile">add a dog</a></li>
             </ul>
           </li>
-          <li><a data-toggle="tab" href="#myBookingList" onclick="getAppointmentInfo()">Current appointments</a></li>
-          <li><a data-toggle="tab" href="#myBookingHistory">Appointment history</a></li>
+          <li><a data-toggle="tab" href="#myBookingList" onclick="getAppointmentInfo('myBookingList')">Current appointments</a></li>
+          <li><a data-toggle="tab" href="#myBookingHistory" onclick="getAppointmentInfo('myBookingHistory')">Appointment history</a></li>
         </ul>
         <div id="myTabContent" class="tab-content">
           <input id="thisUser" type="hidden" value="">
@@ -467,7 +465,6 @@
           </div>
           <!-- My booking history -->
           <div class="tab-pane fade" id="myBookingHistory">
-            <h1>Booking History</h1>
           </div>
 
         </div>
@@ -690,12 +687,12 @@
           var feedback = JSON.parse(feedback);
           if(feedback.status == 1){
             // success modal
-            popUpSuccessModal(feedback.message);
+            popUpSuccessModal(feedback.message, 'myBookingList');
           }else{
             // failed modal
-            popUpFailedModal(feedback.message);
+            popUpFailedModal(feedback.message, 'myBookingList');
           }
-          getAppointmentInfo();
+          getAppointmentInfo('myBookingList');
         }
       });
     });
@@ -727,7 +724,7 @@
           if(userImg === undefined || userImg == '' || userImg == null){
             isLoginImage.src = "data/clients/client-default.jpg";
           }else{
-            isLoginImage.src = "userImg";
+            isLoginImage.src = userImg;
           }
           getUserInfo(userEmail.value);
           getDogInfo(userEmail.value);
@@ -970,7 +967,7 @@
     });
   }
 
-  function getAppointmentInfo(){
+  function getAppointmentInfo(parentNode){
     $.ajax({ // JQuery Ajax
       type: 'get',
       url: '/getappointment',
@@ -980,9 +977,9 @@
       success: function(feedback) {
         feedback = JSON.parse(feedback);
         if(feedback.status == 1){
-          renderAppointmentPanel(feedback.message);
+          renderAppointmentPanel(feedback.message, parentNode);
         }else if(feedback.status == 2){
-          renderAppointmentPanelEmpty(feedback.message);
+          renderAppointmentPanelEmpty(feedback.message, parentNode);
         }else{
           console.log(feedback.message);
         }
@@ -991,8 +988,8 @@
     });
   }
 
-  function renderAppointmentPanelEmpty(message){
-    var myBookingList = document.getElementById('myBookingList');
+  function renderAppointmentPanelEmpty(message, parentNode){
+    var myBookingList = document.getElementById(parentNode);
     while(myBookingList.firstChild){
       myBookingList.removeChild(myBookingList.firstChild);
     }
@@ -1002,12 +999,24 @@
 
   }
 
-  function renderAppointmentPanel(result){
-    var myBookingList = document.getElementById('myBookingList');
+  function renderAppointmentPanel(result, parentNode){
+    var myBookingList = document.getElementById(parentNode);
     while(myBookingList.firstChild){
       myBookingList.removeChild(myBookingList.firstChild);
     }
+
+    var flag = 0;
     for(var i=0; i<result.length; i++){
+      if(parentNode == "myBookingList"){
+        if(result[i].status == "finished"){
+          continue;
+        }
+      }else{
+        if(result[i].status != "finished"){
+          continue;
+        }
+      }
+      flag++;
       var head = ['Name', 'Breed', 'Groom Option', 'status'];
   	  var tr_1 = document.createElement('TR');
   	  for(var j=0; j<head.length; j++){
@@ -1031,53 +1040,87 @@
       table.classList.add("table");
       table.appendChild(thead);
       table.appendChild(tbody);
-      var buttonCancel = document.createElement("BUTTON");
-      var buttonReSchedule = document.createElement("BUTTON");
-      buttonCancel.classList.add("btn");
-      buttonCancel.classList.add("btn-danger");
-      buttonCancel.classList.add("btn-sm");
-      buttonReSchedule.classList.add("btn");
-      buttonReSchedule.classList.add("btn-primary");
-      buttonReSchedule.classList.add("btn-sm");
-      buttonCancel.style = "float: right; margin-right: 5px;";
-      buttonReSchedule.style = "float: right;";
-      buttonCancel.innerText = " Cancel ";
-      buttonReSchedule.innerText = "Reschedule";
-      buttonCancel.setAttribute('bookId', result[i]._id);
-      buttonCancel.setAttribute('bookTimeForQuery', result[i].bookTimeForQuery);
-      buttonCancel.onclick = function(){
-        var cancelAppointment = {};
-        cancelAppointment.bookId = this.getAttribute('bookId');
-        cancelAppointment.bookTimeForQuery = this.getAttribute('bookTimeForQuery');
-        $.ajax({ // JQuery Ajax
-          type: 'post',
-          url: '/cancelappointment',
-          data: JSON.stringify(cancelAppointment),
-          processData: false,
-          contentType: "application/json",
-          success: function(feedback) {
-            var feedback = JSON.parse(feedback);
-            if(feedback.status == 1){
-              // success modal
-              popUpSuccessModal(feedback.message);
-            }else{
-              // failed modal
-              popUpFailedModal(feedback.message);
-            }
-            getAppointmentInfo();
-          }
-        });
-      }
-      buttonReSchedule.setAttribute('bookId', result[i]._id);
-      buttonReSchedule.setAttribute('bookTimeForQuery', result[i].bookTimeForQuery);
-      buttonReSchedule.addEventListener('click', function(){
-        showTimeTable(this.getAttribute('bookId'), this.getAttribute('bookTimeForQuery'));
-      });
+
       var div_1 = document.createElement("DIV");
       div_1.classList.add("col-xs-12");
       div_1.appendChild(table);
-      div_1.appendChild(buttonReSchedule);
-      div_1.appendChild(buttonCancel);
+
+      if(result[i].status == "booked" || result[i].status == "rescheduled"){
+        var buttonCancel = document.createElement("BUTTON");
+        var buttonReSchedule = document.createElement("BUTTON");
+        buttonCancel.classList.add("btn");
+        buttonCancel.classList.add("btn-danger");
+        buttonCancel.classList.add("btn-sm");
+        buttonReSchedule.classList.add("btn");
+        buttonReSchedule.classList.add("btn-primary");
+        buttonReSchedule.classList.add("btn-sm");
+        buttonCancel.style = "float: right; margin-right: 5px;";
+        buttonReSchedule.style = "float: right;";
+        buttonCancel.innerText = " Cancel ";
+        buttonReSchedule.innerText = "Reschedule";
+        buttonCancel.setAttribute('bookId', result[i]._id);
+        buttonCancel.setAttribute('bookTimeForQuery', result[i].bookTimeForQuery);
+        buttonCancel.onclick = function(){
+          var cancelAppointment = {};
+          cancelAppointment.bookId = this.getAttribute('bookId');
+          cancelAppointment.bookTimeForQuery = this.getAttribute('bookTimeForQuery');
+          $.ajax({ // JQuery Ajax
+            type: 'post',
+            url: '/cancelappointment',
+            data: JSON.stringify(cancelAppointment),
+            processData: false,
+            contentType: "application/json",
+            success: function(feedback) {
+              var feedback = JSON.parse(feedback);
+              if(feedback.status == 1){
+                // success modal
+                popUpSuccessModal(feedback.message);
+              }else{
+                // failed modal
+                popUpFailedModal(feedback.message);
+              }
+              getAppointmentInfo();
+            }
+          });
+        }
+        buttonReSchedule.setAttribute('bookId', result[i]._id);
+        buttonReSchedule.setAttribute('bookTimeForQuery', result[i].bookTimeForQuery);
+        buttonReSchedule.addEventListener('click', function(){
+          showTimeTable(this.getAttribute('bookId'), this.getAttribute('bookTimeForQuery'));
+        });
+        div_1.appendChild(buttonReSchedule);
+        div_1.appendChild(buttonCancel);
+      }else if(result[i].status == 'finished'){
+        var buttonComment = document.createElement("BUTTON");
+        buttonComment.classList.add("btn");
+        buttonComment.classList.add("btn-primary");
+        buttonComment.classList.add("btn-sm");
+        buttonComment.style = "float: right;";
+        buttonComment.innerText = " Leave Comment ";
+        buttonComment.setAttribute('bookId', result[i]._id);
+        buttonComment.onclick = function(){
+          // $.ajax({ // JQuery Ajax
+          //   type: 'post',
+          //   url: '/cancelappointment',
+          //   data: JSON.stringify(cancelAppointment),
+          //   processData: false,
+          //   contentType: "application/json",
+          //   success: function(feedback) {
+          //     var feedback = JSON.parse(feedback);
+          //     if(feedback.status == 1){
+          //       // success modal
+          //       popUpSuccessModal(feedback.message);
+          //     }else{
+          //       // failed modal
+          //       popUpFailedModal(feedback.message);
+          //     }
+          //     getAppointmentInfo();
+          //   }
+          // });
+        }
+        div_1.appendChild(buttonComment);
+      }
+
       var div_2 = document.createElement("DIV");
       div_2.classList.add("row");
       div_2.appendChild(div_1);
@@ -1088,19 +1131,23 @@
       div_4.classList.add("panel");
       var timeAndId = document.createElement("DIV");
       timeAndId.classList.add("panel-heading");
-      timeAndId.innerText = "Book time: " + result[i].bookTime + "  ID: " + result[i]._id;
-      if(result[i].status === "booked"){
+      timeAndId.innerText = "Book time: " + result[i].bookTime + "\t ID: " + result[i]._id;
+      if(result[i].status == "booked"){
         div_4.classList.add("panel-primary");
-      }else if(result[i].status === "inprogress"){
+      }else if(result[i].status == "inProgress"){
         div_4.classList.add("panel-success");
-      }else{
+      }else if(result[i].status == "rescheduled"){
         div_4.classList.add("panel-info");
+      }else{
+        div_4.classList.add("panel-default");
       }
       div_4.appendChild(timeAndId);
       div_4.appendChild(div_3);
       myBookingList.appendChild(div_4);
     }
-
+    if(flag === 0){
+      renderAppointmentPanelEmpty("There is temporarily no appointment.", parentNode);
+    }
   }
 
   function dayStart(month, year) {

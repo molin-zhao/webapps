@@ -37,19 +37,17 @@
         <ul class="nav navbar-nav">
           <li><a href="index.html"><span class="glyphicon glyphicon-home"
                          aria-hidden="true"></span> Home</a></li>
-          <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
-                         aria-hidden="true"></span> About</a></li>
-          <li><a href="user-profile-template.html"><span class="glyphicon glyphicon-user"
-                         aria-hidden="true"></span> User Profile</a></li>
           <li class="active"><a href="appointment.html"><span class="glyphicon glyphicon-th"
                          aria-hidden="true"></span> Appointment</a></li>
+          <li><a href="about.html"><span class="glyphicon glyphicon-info-sign"
+                         aria-hidden="true"></span> About</a></li>
           <li><a href="contact.html"><span class="glyphicon glyphicon-phone"
                          aria-hidden="true"></span> Contact</a></li>
         </ul>
 
         <!--  if user login, change the navbar right items to user image and role -->
         <ul id="isLogin" style="display: block; margin-top: 5px;" class="nav navbar-nav navbar-right">
-          <li>
+          <li style="cursor: pointer;" onclick="javascript:location.href='/user-profile-template.html'">
             <div style="display: inline;">
               <img id="isLoginImage" class="img-circle" style="height:40px; width:40px;" src=''/>
               <!-- <span style="font-size: 8px;" class="label label-warning">VIP</span> -->
@@ -961,7 +959,7 @@
           //register successfully, but not active
           console.log(feedback.message);
           optSuccess(trigger[0], trigger[3], feedback);
-          setTimeout("javascript:location.reload(true)", 2000);
+          setTimeout("javascript:location.href='/appointment.html'", 2000);
         }else if(feedback.status === 2){
           console.log(feedback.message);
           inputFieldValid(trigger[1], feedback);
