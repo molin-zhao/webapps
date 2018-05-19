@@ -216,6 +216,15 @@
     }
 
     const socket = io('http://localhost:3001');
+    socket.on('connect', function(){
+      socket.emit('admin-login',{
+        socketId: socket.id,
+        adminId: new Date()
+      });
+      socket.on('update-appointment', function(data){
+        appendAppointmentPanel(data, 'bookingList');
+      });
+    });
 
 
     function getAppointmentInfo(parentNode){
@@ -422,7 +431,6 @@
       }
     }
 
-
     function popUpSuccessModal(message){
       var successMessage = document.getElementById('successMessage');
       successMessage.innerText = message;
@@ -474,6 +482,108 @@
           }
         }
       });
+    }
+
+    function appendAppointmentPanel(result, parentNode){
+      var myBookingList = document.getElementById(parentNode);
+      if(result == "refresh-appointment"){
+        getAppointmentInfo(parentNode);
+        return;
+      }
+      // booked appointment
+      var head = ['Contact Email', 'Dog\'s Name', 'Breed', 'Groom Option', 'status'];
+      var tr_1 = document.createElement('TR');
+      for(var j=0; j<head.length; j++){
+        var th = document.createElement('TH');
+        th.innerText = head[j];
+        tr_1.appendChild(th);
+      }
+      var thead = document.createElement('THEAD');
+      thead.appendChild(tr_1);
+
+      var body = [result.contactEmail, result.dogName, result.dogBreed, result.groomOption, result.status];
+      var tr_2 = document.createElement('TR');
+      for(var k=0; k<body.length; k++){
+        var th = document.createElement('TH');
+        th.innerText = body[k];
+        tr_2.appendChild(th);
+      }
+      var tbody = document.createElement('TBODY');
+      tbody.appendChild(tr_2);
+      var table = document.createElement("TABLE");
+      table.classList.add("table");
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      var div_1 = document.createElement("DIV");
+      div_1.classList.add("col-xs-12");
+      div_1.appendChild(table);
+      // set up button according to the tab view
+      var buttonConfirm = document.createElement("BUTTON");
+      var buttonViewDetail = document.createElement("BUTTON");
+      buttonConfirm.classList.add("btn");
+      buttonConfirm.classList.add("btn-success");
+      buttonConfirm.classList.add("btn-sm");
+      buttonViewDetail.classList.add("btn");
+      buttonViewDetail.classList.add("btn-info");
+      buttonViewDetail.classList.add("btn-sm");
+      buttonConfirm.style = "float: right; margin-right: 5px;";
+      buttonViewDetail.style = "float: right;";
+      buttonConfirm.innerText = " Confirm ";
+      buttonViewDetail.innerText = " View ";
+      buttonConfirm.setAttribute('bookId', result._id);
+      buttonConfirm.setAttribute('bookTimeForQuery', result.bookTimeForQuery);
+      buttonConfirm.onclick = function(){
+        var confirmAppointment = {};
+        confirmAppointment.bookId = this.getAttribute('bookId');
+        confirmAppointment.bookTimeForQuery = this.getAttribute('bookTimeForQuery');
+        $.ajax({ // JQuery Ajax
+          type: 'post',
+          url: '/confirmappointment',
+          data: JSON.stringify(confirmAppointment),
+          processData: false,
+          contentType: "application/json",
+          success: function(feedback) {
+            var feedback = JSON.parse(feedback);
+            if(feedback.status == 1){
+              // success modal
+              popUpSuccessModal(feedback.message);
+            }else{
+              // failed modal
+              popUpFailedModal(feedback.message);
+            }
+            getAppointmentInfo(parentNode);
+          }
+        });
+      }
+      buttonViewDetail.setAttribute('bookId', result._id);
+      buttonViewDetail.addEventListener('click', function(){
+        showDetail(this.getAttribute('bookId'));
+      });
+      div_1.appendChild(buttonViewDetail);
+      div_1.appendChild(buttonConfirm);
+      var div_2 = document.createElement("DIV");
+      div_2.classList.add("row");
+      div_2.appendChild(div_1);
+      var div_3 = document.createElement("DIV");
+      div_3.classList.add("panel-body");
+      div_3.appendChild(div_2);
+      var div_4 = document.createElement("DIV");
+      div_4.classList.add("panel");
+      var timeAndId = document.createElement("DIV");
+      timeAndId.classList.add("panel-heading");
+      timeAndId.innerText = "Book time: " + result.bookTime + "  ID: " + result._id;
+      if(result.status == "booked"){
+        div_4.classList.add("panel-primary");
+      }else if(result.status == "rescheduled"){
+        div_4.classList.add("panel-info");
+      }else if(result.status == "inProgress"){
+        div_4.classList.add("panel-success");
+      }else{
+        div_4.classList.add("panel-default");
+      }
+      div_4.appendChild(timeAndId);
+      div_4.appendChild(div_3);
+      myBookingList.appendChild(div_4);
     }
   </script>
 </body>

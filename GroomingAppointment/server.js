@@ -12,6 +12,8 @@ const path = require('path');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const mongoStore = require('connect-mongo')(session);
+const removeSocketFromArr = require('./removesocket.js');
+const sendSocketMsg = require('./socketmsg.js');
 
 try{
 	var my_ip = require('./ipaddress.js');
@@ -87,11 +89,16 @@ app.listen(port, function(){
 	console.log('Server running at http://' + hostname + ':' + port);
 });
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
 
+global.admin = [];
+io.on('connection', (socket) => {
+  console.log('admin connected');
+	socket.on('admin-login', function(data){
+		admin.push(data);
+	})
   socket.on("disconnect", () => {
-    console.log("a user go out");
+    console.log("admin disconnected");
+		removeSocketFromArr(admin, socket.id);
   });
 });
 
@@ -417,8 +424,6 @@ app.post('/gettimetable', urlencodeParser, function(req, res){
 			if(result.length != 0){
 				// create timetable
 				var timetable = result[0].dayList[c_day-1];
-				console.log('send back');
-				console.log(timetable);
 				res.send(JSON.stringify({'status':1, 'message': timetable}));
 			}else{
 				res.send(JSON.stringify({'status':0,'message': "Cannot get timetable information."}));
@@ -736,7 +741,8 @@ app.post('/booking', multipartMiddleware, function(req, res){
 				db.collection("appointment").insertOne(appointment, function(err){
 					if(err) throw err;
 				});
-				res.send(JSON.stringify({'status': 1, 'message': "Booking success."}))
+				res.send(JSON.stringify({'status': 1, 'message': "Booking success."}));
+				sendSocketMsg(io, admin, 'update-appointment', appointment);
 			}else{
 				res.send(JSON.stringify({'status': 0, 'message': "Date you selected is temporarily unavailable, please try again later."}));
 				res.end();
