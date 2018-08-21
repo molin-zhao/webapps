@@ -1,14 +1,14 @@
 {
   "name": "elab",
   "version": "1.0.0",
-  "description": "a project for lab and exprimental tools online sharing and booking appointment",
-  "author": "MolinZhao",
+  "description": "online lab and exprimental equipments sharing platform",
+  "author": "molin zhao",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node build/dev-server.js",
     "build": "node build/build.js",
-    "lint": "eslint --ext .js,.vue src"
+    "lint": "eslint --fix --ext .js,.vue src"
   },
   "dependencies": {
     "mpvue": "^1.0.11",

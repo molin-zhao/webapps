@@ -1,6 +1,6 @@
 # elab
 
-> a project for lab and exprimental tools online sharing and booking appointment
+> online lab and exprimental equipments sharing platform
 
 ## Build Setup
 
