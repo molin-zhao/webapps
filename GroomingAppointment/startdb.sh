@@ -1,3 +1,2 @@
 #!/bin/sh
-cd mongodb
-mongod --dbpath=data/db
+mongod -f mongod.conf

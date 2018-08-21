@@ -1,0 +1,24 @@
+extends ../layout/navbar.pug
+block loginModal
+    // loginModal
+    #loginModal.modal.fade(role='dialog')
+      .modal-dialog
+        // Modal contents
+        .modal-content
+          .modal-header
+            button.close(type='button' data-dismiss='modal') &times;
+            h4.modal-title  Login 
+          .modal-body
+            form(role='form')
+              .form-group
+                label(for='usr') Email:
+                input#loginEmail.form-control(type='text' name='loginEmail')
+              .form-group
+                label(for='pwd') Password:
+                input#loginPassword.form-control(type='password' name='loginPassword' style='margin-bottom:10px;')
+              div
+                button#loginBtn.btn.btn-primary(type='button')
+                  span#loginBtnIcon.glyphicon
+                  |  Login
+              div(style='margin-top:10px; margin-left:5px;')
+                a fogot your password?

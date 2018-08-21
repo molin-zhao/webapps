@@ -1,0 +1,35 @@
+extends ../layout/navbar.pug
+block signUpModal
+    // signUpModal
+    #signUpModal.modal.fade(role='dialog')
+      .modal-dialog
+        // Modal contents
+        .modal-content
+          .modal-header
+            button.close(type='button' data-dismiss='modal') &times;
+            h4.modal-title Sign Up
+          .modal-body
+            div
+              form(role='form')
+                .form-group
+                  label(for='usr') Email:
+                  input#signUpEmail.form-control(type='text' name='signUpEmail')
+                .form-group
+                  label(for='pwd') Password:
+                  input#signUpPassword.form-control(type='password' name='signUpPassword')
+                div
+                  button#signUpBtn.btn.btn-primary(type='button')
+                    span#signUpBtnIcon.glyphicon
+                    |  Sign Up
+          .modal-footer(style='vertical-align: middle')
+            .nav.navbar-nav(style='padding: 10px 10px;')
+              p
+                span(style='font-weight: bold;') Or login with:  
+                a.btn.btn-social-icon.btn-google-plus(href='http://google.com/+')
+                  i.fab.fa-google-plus
+                a.btn.btn-social-icon.btn-facebook(href='http://www.facebook.com/profile.php?id=')
+                  i.fab.fa-facebook
+                a.btn.btn-social-icon.btn-linkedin(href='http://www.linkedin.com/in/')
+                  i.fab.fa-linkedin
+                a.btn.btn-social-icon.btn-twitter(href='http://twitter.com/')
+                  i.fab.fa-twitter
