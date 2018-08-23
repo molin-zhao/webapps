@@ -1,11 +1,26 @@
 {
   "pages": [
-    "pages/index/main"
+    "pages/index/main",
+    "pages/labManagement/main",
+    "pages/myEquipments/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "E约实验",
     "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "selectedColor": "#EA5149",
+    "list": [
+      {
+        "text": "首页",
+        "pagePath": "pages/index/main"
+      },
+      {
+        "text": "实验管理",
+        "pagePath": "pages/labManagement/main"
+      }
+    ]
   }
 }
