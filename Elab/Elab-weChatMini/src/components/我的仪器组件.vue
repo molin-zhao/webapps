@@ -1,5 +1,6 @@
 <template>
-<div class="myEquipment">
+<div>
+  <div class="myEquipment">
     <div class="thumb">
         <img :src="equipment.image" class="image">
     </div>
@@ -18,7 +19,8 @@
             </div>
         </div>
     </div>
-    <div class="separator"></div>
+  </div>
+  <div class="separator"></div>
 </div>
 </template>
 <script>
@@ -36,19 +38,17 @@ export default {
 </script>
 <style>
 .myEquipment {
-  width: 95%;
-  height: 33vw;
-  padding: 5rpx;
+  width: 100%;
+  height: 30vw;
   margin-top: 5rpx;
-  margin-left: 5rpx;
 }
 
 .thumb {
-  width: 30vw;
-  height: 30vw;
-  margin: auto;
+  width: 28vw;
+  height: 28vw;
   float: left;
-  margin-left: 10rpx;
+  margin-left: 20rpx;
+  margin-top: 20rpx;
 }
 .image {
   width: 80%;
@@ -56,12 +56,15 @@ export default {
 }
 
 .equipment {
-  margin-left: 10rpx;
+  margin-left: 20rpx;
   display: flex;
   flex-direction: column;
+  margin-top: 20rpx;
+  margin-right: 20rpx;
 }
 
 .equipmentName {
+  margin-top: 20rpx;
   font-size: 30rpx;
 }
 
@@ -102,8 +105,8 @@ export default {
   width: 80rpx;
   height: 50rpx;
   float: right;
-  margin-right: 10rpx;
   margin-top: 20rpx;
+  margin-right: 20rpx;
 }
 
 .edit > img {
@@ -116,13 +119,5 @@ export default {
   color: #6cb7f1;
   font-size: 20rpx;
   float: right;
-}
-
-.separator {
-  margin-top: 30rpx;
-  width: 95%;
-  height: 3rpx;
-  background-color: lightgrey;
-  opacity: 0.2;
 }
 </style>

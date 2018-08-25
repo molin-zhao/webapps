@@ -17,6 +17,9 @@ export default {
   methods: {
     registerLab: function () {
       console.log('实验室注册')
+      wx.navigateTo({
+        url: '/pages/labRegisteration/main'
+      })
     },
     settleLab: function () {
       console.log('实验室入驻')

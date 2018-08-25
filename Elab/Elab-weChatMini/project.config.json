@@ -9,8 +9,8 @@
 	},
 	"miniprogramRoot": "./dist/",
 	"compileType": "miniprogram",
-	"appid": "touristappid",
-	"projectname": "elab",
+	"appid": "wx32ffb74017cd25a9",
+	"projectname": "%E6%98%93%E7%A0%94%E6%98%93%E8%A1%8CElab",
 	"condition": {
 		"search": {
 			"current": -1,

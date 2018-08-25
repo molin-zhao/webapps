@@ -20,7 +20,7 @@
             </div>
         </div>
     </div>
-    <div class="separator"></div>
+    <div class="separator-bold"></div>
     <div class="labManagement">
         <p>实验室管理</p>
         <div>
@@ -48,32 +48,32 @@
 <script>
 export default {
   methods: {
-    我的仪器: function() {
-      console.log("我的仪器");
+    我的仪器: function () {
+      console.log('我的仪器')
       wx.navigateTo({
-        url: "/pages/myEquipments/main"
-      });
+        url: '/pages/myEquipments/main'
+      })
     },
-    人员分配: function() {
-      console.log("人员分配");
+    人员分配: function () {
+      console.log('人员分配')
     },
-    人员审核: function() {
-      console.log("人员审核");
+    人员审核: function () {
+      console.log('人员审核')
     },
-    立即预约: function() {
-      console.log("立即预约");
+    立即预约: function () {
+      console.log('立即预约')
     },
-    实验室成员: function() {
-      console.log("实验室成员");
+    实验室成员: function () {
+      console.log('实验室成员')
     },
-    仪器审核: function() {
-      console.log("仪器审核");
+    仪器审核: function () {
+      console.log('仪器审核')
     },
-    基本信息设置: function() {
-      console.log("基本信息设置");
+    基本信息设置: function () {
+      console.log('基本信息设置')
     }
   }
-};
+}
 </script>
 <style>
 .card {
@@ -87,7 +87,7 @@ export default {
 
 .card > img {
   width: 30%;
-  height: 30%;
+  height: 28%;
   margin-left: auto;
   margin-right: auto;
   margin-top: 10rpx;
@@ -104,13 +104,14 @@ export default {
 .toolManagement {
   height: 20%;
   width: 100%;
+  margin-top: 20rpx;
 }
 
 .toolManagement > p {
   font-size: 35rpx;
   color: #6cb7f1;
   margin-left: 3%;
-  margin-top: -10rpx;
+  margin-top: 5rpx;
 }
 
 .labManagement > p {
@@ -131,16 +132,10 @@ export default {
   justify-content: space-around;
 }
 
-.separator {
-  background-color: lightgrey;
-  height: 2%;
-  width: 100%;
-  opacity: 0.4;
-}
-
 .labManagement {
   height: 40%;
   width: 100%;
+  margin-top: 20rpx;
 }
 .header {
   width: 95%;
