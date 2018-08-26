@@ -1,17 +1,18 @@
 <script>
 export default {
-  created() {
+  created () {
     // 调用API从本地缓存中获取数据
-    const logs = wx.getStorageSync("logs") || [];
-    logs.unshift(Date.now());
-    wx.setStorageSync("logs", logs);
+    const logs = wx.getStorageSync('logs') || []
+    logs.unshift(Date.now())
+    wx.setStorageSync('logs', logs)
 
-    console.log("app created and cache logs by setStorageSync");
+    console.log('app created and cache logs by setStorageSync')
   }
-};
+}
 </script>
 
 <style lang="scss">
+// wrap all contents in the container div
 .container {
   width: 100vw;
   height: 100vh;
@@ -20,31 +21,13 @@ export default {
   align-items: center;
 }
 
-.title {
-  width: 100%;
-  height: 50rpx;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 20rpx;
-  p {
-    font-size: 40rpx;
-    color: #6cb7f1;
-    margin-left: 20rpx;
-  }
-  img {
-    width: 40rpx;
-    height: 40rpx;
-    margin-left: 20rpx;
-  }
-}
-
 .separator-bold {
   width: 100%;
-  height: 20rpx;
+  height: 40rpx;
   background-color: lightgrey;
   opacity: 0.6;
-  margin-top: 10rpx;
+  margin-top: 5rpx;
+  margin-bottom: 20rpx;
 }
 
 .separator {
@@ -55,6 +38,24 @@ export default {
   margin-left: 20rpx;
   opacity: 0.6;
   margin-right: 20rpx;
+  margin-bottom: 10rpx;
+}
+
+// placeholder style for input field
+.pl {
+  font-size: 30rpx;
+  font-family: Arial, Helvetica, sans-serif;
+  color: lightgray;
+  opacity: 0.8;
+}
+
+// wrap input field and form in basicInfo div
+.basicInfo {
+  margin-top: 40rpx;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 /* this rule will be remove */

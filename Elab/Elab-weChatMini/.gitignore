@@ -2,6 +2,7 @@
 node_modules/
 dist/
 .vscode/
+migration.sh
 app-secret.json
 npm-debug.log*
 yarn-debug.log*

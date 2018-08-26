@@ -29,7 +29,7 @@ export default {
     settleLab: function () {
       console.log('实验室入驻')
       wx.navigateTo({
-        url: '/pages/labSettleIn/main'
+        url: '/pages/labGroupMemberRequest/main'
       })
     }
   }

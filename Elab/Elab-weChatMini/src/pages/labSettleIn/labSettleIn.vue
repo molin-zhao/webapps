@@ -17,34 +17,34 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       userInfo: {}
-    };
+    }
   },
-  created() {
-    this.userInfo = wx.getStorageSync("userInfo");
+  created () {
+    this.userInfo = wx.getStorageSync('userInfo')
   },
   methods: {
-    getUserInfo() {
+    getUserInfo () {
       // 判断小程序的API，回调，参数，组件等是否在当前版本可用。  为false 提醒用户升级微信版本
       // console.log(wx.canIUse('button.open-type.getUserInfo'))
-      if (!wx.canIUse("button.open-type.getUserInfo")) {
+      if (!wx.canIUse('button.open-type.getUserInfo')) {
         // 用户版本不可用
-        console.log("请升级微信版本");
+        console.log('请升级微信版本')
       }
     },
-    onGetUserInfo: function(e) {
+    onGetUserInfo: function (e) {
       if (e.mp.detail.rawData) {
-        console.log("用户允许授权");
-        console.log(e.mp.detail.userInfo);
-        this.userInfo = e.mp.detail.userInfo;
+        console.log('用户允许授权')
+        console.log(e.mp.detail.userInfo)
+        this.userInfo = e.mp.detail.userInfo
       } else {
-        console.log("用户取消授权");
+        console.log('用户取消授权')
       }
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .btn {
