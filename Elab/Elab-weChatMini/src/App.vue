@@ -11,7 +11,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 .container {
   width: 100vw;
   height: 100vh;
@@ -27,17 +27,16 @@ export default {
   flex-direction: row;
   align-items: center;
   margin-top: 20rpx;
-}
-.title > p {
-  font-size: 40rpx;
-  color: #6cb7f1;
-  margin-left: 20rpx;
-}
-
-.title > img {
-  width: 40rpx;
-  height: 40rpx;
-  margin-left: 20rpx;
+  p {
+    font-size: 40rpx;
+    color: #6cb7f1;
+    margin-left: 20rpx;
+  }
+  img {
+    width: 40rpx;
+    height: 40rpx;
+    margin-left: 20rpx;
+  }
 }
 
 .separator-bold {

@@ -36,38 +36,38 @@
 // var sendVerificationCode = false;
 // var btn_text = "获取验证码";
 export default {
-  data() {
+  data () {
     return {
       counter: 60,
       sendVerificationCode: false,
-      btn_text: "获取验证码"
-    };
+      btn_text: '获取验证码'
+    }
   },
   methods: {
-    counterStart: function() {
-      this.sendVerificationCode = true;
-      this.btn_text = "重新发送(" + this.counter + ")";
+    counterStart: function () {
+      this.sendVerificationCode = true
+      this.btn_text = '重新发送(' + this.counter + ')'
       let interval = setInterval(() => {
-        this.counter--;
-        this.btn_text = "重新发送(" + this.counter + ")";
-        console.log(this.counter);
+        this.counter--
+        this.btn_text = '重新发送(' + this.counter + ')'
+        console.log(this.counter)
         if (this.counter === 0) {
-          clearInterval(interval);
-          this.btn_text = "获取验证码";
-          this.counter = 60;
-          this.sendVerificationCode = false;
+          clearInterval(interval)
+          this.btn_text = '获取验证码'
+          this.counter = 60
+          this.sendVerificationCode = false
         }
-      }, 1000);
+      }, 1000)
     },
-    获取验证码: function() {
-      console.log("获取验证码");
-      this.counterStart();
+    获取验证码: function () {
+      console.log('获取验证码')
+      this.counterStart()
     },
-    点击下一步: function() {
-      console.log("下一步");
+    点击下一步: function () {
+      console.log('下一步')
     }
   }
-};
+}
 </script>
 <style>
 .basicInfo {

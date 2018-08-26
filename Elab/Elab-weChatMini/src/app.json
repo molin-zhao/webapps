@@ -3,7 +3,8 @@
     "pages/index/main",
     "pages/labManagement/main",
     "pages/myEquipments/main",
-    "pages/labRegisteration/main"
+    "pages/labRegisteration/main",
+    "pages/labSettleIn/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

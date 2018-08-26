@@ -1,6 +1,7 @@
 <template>
 <div class="container">
-    <div class="header" style="background-image: url('/static/images/切图/实验室管理的主菜单页面/tt_02.png')">
+    <div class="header">
+      <img src="/static/images/切图/实验室管理的主菜单页面/tt_02.png" mode="scaleToFill">
         <div class="header-description">
             <p class="description-header">仪器预约</p>
             <p class="description-content">使实验室的安排更加的高效</p>
@@ -75,7 +76,7 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss">
 .card {
   width: 30vw;
   height: 30vw;
@@ -140,25 +141,27 @@ export default {
 .header {
   width: 95%;
   height: 250rpx;
-  border-radius: 10rpx;
-  background-size: 100%;
-  background-repeat: no-repeat;
+  border-radius: 20rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
-}
-.header-description {
-  width: 50%;
-  margin-left: 5%;
-  margin-top: 5rpx;
-  margin-bottom: 5rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: left;
-}
-
-.header-description > p {
-  color: aliceblue;
+  img {
+    width: 100%;
+    height: 90%;
+  }
+  .header-description {
+    position: absolute;
+    width: 50%;
+    margin-left: 5%;
+    margin-top: 5rpx;
+    margin-bottom: 5rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    p {
+      color: aliceblue;
+    }
+  }
 }
 
 .description-header {

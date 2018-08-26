@@ -10,8 +10,14 @@
         </div>
         <div class="options">
             <div class="ifAvailable" @click="改变状态(equipment)">
-                <div class="available" style="background-image: url('/static/images/切图/个人仪器列表/dk.png')" v-if="equipment.available"><span>开放</span></div>
-                <div class="unavailable" style="background-image: url('/static/images/切图/个人仪器列表/gb.png')" v-else><span>关停</span></div>
+                <div class="available" v-if="equipment.available">
+                  <img src="/static/images/切图/个人仪器列表/dk.png" model="scaleToFill">
+                  <span>开放</span>
+                </div>
+                <div class="unavailable" v-else>
+                  <img src="/static/images/切图/个人仪器列表/gb.png" model="scaleToFill">
+                  <span>关停</span>
+                </div>
             </div>
             <div class="edit" @click="编辑我的仪器(equipment)">
                 <img src="/static/images/切图/个人仪器列表/bj.png" model="scaleToFill">
@@ -25,18 +31,18 @@
 </template>
 <script>
 export default {
-  props: ["equipment"],
+  props: ['equipment'],
   methods: {
-    改变状态: function(equipment) {
-      equipment.available = !equipment.available;
+    改变状态: function (equipment) {
+      equipment.available = !equipment.available
     },
-    编辑我的仪器: function(equipment) {
-      console.log("编辑我的仪器 " + equipment.name);
+    编辑我的仪器: function (equipment) {
+      console.log('编辑我的仪器 ' + equipment.name)
     }
   }
-};
+}
 </script>
-<style>
+<style lang="scss">
 .myEquipment {
   width: 100%;
   height: 30vw;
@@ -73,32 +79,33 @@ export default {
   height: 50rpx;
   float: left;
   margin-left: 10rpx;
+  div {
+    margin-top: 20rpx;
+    width: 100%;
+    height: 100%;
+    font-size: 20rpx;
+    color: aliceblue;
+    align-content: center;
+    align-items: center;
+    img {
+      width: 100%;
+      height: 70%;
+    }
+  }
 }
 
-.ifAvailable > div {
-  margin-top: 20rpx;
-  width: 100%;
-  height: 100%;
-  background-repeat: no-repeat;
-  background-size: 100%;
-  font-size: 20rpx;
-  color: aliceblue;
-  align-content: center;
-  align-items: center;
-}
-
-.ifAvailable > div > div {
-  align-content: center;
-  align-items: center;
-}
 .available > span {
-  margin: auto;
-  margin-left: 10rpx;
+  font-size: 18rpx;
+  position: absolute;
+  margin-top: 5rpx;
+  margin-left: -70rpx;
 }
 
 .unavailable > span {
-  margin: auto;
-  margin-left: 35rpx;
+  margin-top: 5rpx;
+  font-size: 18rpx;
+  position: absolute;
+  margin-left: -45rpx;
 }
 
 .edit {
