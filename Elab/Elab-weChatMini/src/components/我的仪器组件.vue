@@ -2,7 +2,7 @@
 <div>
   <div class="myEquipment">
     <div class="thumb">
-        <img :src="equipment.image" class="image">
+        <img model="aspectFit" :src="equipment.image" class="image">
     </div>
     <div class="equipment">
         <div class="equipmentName">

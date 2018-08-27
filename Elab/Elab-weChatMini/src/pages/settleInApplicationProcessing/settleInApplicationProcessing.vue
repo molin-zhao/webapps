@@ -11,22 +11,22 @@
     </div>
 </template>
 <script>
-import titleComponent from "@/components/Title";
-import subTitleComponent from "@/components/SubTitle";
+import titleComponent from '@/components/Title'
+import subTitleComponent from '@/components/SubTitle'
 export default {
-  data() {
+  data () {
     return {
-      title_src: "/static/images/切图/实验室成员列表/cl.png",
-      subTitle_src: "/static/images/切图/实验室成员列表/xt.png",
-      title_text: "材料实验室",
-      subTitle_text: "四川大学 高分子学院"
-    };
+      title_src: '/static/images/切图/实验室成员列表/cl.png',
+      subTitle_src: '/static/images/切图/实验室成员列表/xt.png',
+      title_text: '材料实验室',
+      subTitle_text: '四川大学 高分子学院'
+    }
   },
   components: {
     titleComponent,
     subTitleComponent
   }
-};
+}
 </script>
 <style lang="scss">
 .processing {

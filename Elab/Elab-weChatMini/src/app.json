@@ -6,7 +6,8 @@
     "pages/labRegisteration/main",
     "pages/labSettleIn/main",
     "pages/labGroupMemberRequest/main",
-    "pages/settleInApplicationProcessing/main"
+    "pages/settleInApplicationProcessing/main",
+    "pages/toolAppointment/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

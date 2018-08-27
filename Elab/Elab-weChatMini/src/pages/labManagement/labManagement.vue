@@ -63,6 +63,9 @@ export default {
     },
     立即预约: function () {
       console.log('立即预约')
+      wx.navigateTo({
+        url: '/pages/toolAppointment/main'
+      })
     },
     实验室成员: function () {
       console.log('实验室成员')

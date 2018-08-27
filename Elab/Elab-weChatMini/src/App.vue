@@ -58,6 +58,18 @@ export default {
   justify-content: flex-start;
 }
 
+.btn-wrapper {
+  margin-top: 60rpx;
+  width: 400rpx;
+  height: 100rpx;
+}
+
+.btn-wrapper-small {
+  margin-top: 20rpx;
+  width: 100;
+  height: 25rpx;
+}
+
 /* this rule will be remove */
 /* * {
   transition: width 2s;
