@@ -1,6 +1,8 @@
 <template>
     <div class="container">
-        <search-bar-component holder="搜索实验器材" :options=options></search-bar-component>
+        <div class="search-bar">
+            <search-bar-component holder="搜索实验器材" :options=options></search-bar-component>
+        </div>
         <div class="toolList">
             <tool-appointment-component :key='tool.id' v-for='tool in tools' :tool='tool'></tool-appointment-component>
         </div>
@@ -66,6 +68,9 @@ export default {
 };
 </script>
 <style lang="scss">
+.search-bar {
+  width: 100%;
+}
 .toolList {
   margin-top: 40rpx;
 }
