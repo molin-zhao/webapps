@@ -7,7 +7,8 @@
     "pages/labSettleIn/main",
     "pages/labGroupMemberRequest/main",
     "pages/settleInApplicationProcessing/main",
-    "pages/toolAppointment/main"
+    "pages/toolAppointment/main",
+    "pages/groupMemberAlloc/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

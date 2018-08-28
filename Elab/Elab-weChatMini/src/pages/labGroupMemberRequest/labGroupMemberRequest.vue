@@ -18,7 +18,7 @@
 import titleComponent from '@/components/Title'
 import subTitleComponent from '@/components/SubTitle'
 import simpleInputComponent from '@/components/简单输入框组件'
-import pickerInputComponent from '@/components/选择组件'
+import pickerInputComponent from '@/components/选择输入框组件'
 import simCodeComponent from '@/components/验证码输入框组件'
 import buttonComponent from '@/components/按钮组件'
 export default {

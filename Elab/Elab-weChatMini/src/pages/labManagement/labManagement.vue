@@ -57,6 +57,9 @@ export default {
     },
     人员分配: function () {
       console.log('人员分配')
+      wx.navigateTo({
+        url: '/pages/groupMemberAlloc/main'
+      })
     },
     人员审核: function () {
       console.log('人员审核')
