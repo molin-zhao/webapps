@@ -1,16 +1,16 @@
 <template>
-  <div class="subTitle">
-    <img mode="aspectFit" :src="subTitle_src">
-    <p>{{subTitle_text}}</p>
-  </div>
+    <div class="content-title">
+        <img mode="aspectFit" :src="contentTitle_src">
+        <p>{{contentTitle_text}}</p>
+    </div>
 </template>
 <script>
 export default {
-  props: ['subTitle_src', 'subTitle_text']
-}
+  props: ["contentTitle_src", "contentTitle_text"]
+};
 </script>
 <style lang="scss">
-.subTitle {
+.content-title {
   width: 100%;
   height: 40rpx;
   display: flex;
@@ -19,13 +19,12 @@ export default {
   margin-top: 20rpx;
   p {
     font-size: 30rpx;
-    color: black;
-    opacity: 0.4;
+    color: #6cb7f1;
     margin-left: 15rpx;
   }
   img {
-    width: 25rpx;
-    height: 25rpx;
+    width: 30rpx;
+    height: 30rpx;
     margin-left: 20rpx;
   }
 }

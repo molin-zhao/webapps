@@ -1,81 +1,86 @@
 <template>
-    <div class="container">
-        <button @click="showModal()">弹出Modal</button>
-        <modal-component ref="modalComponent">
-          <modal-header-component :separator="false">
-            <p style="font-size: 30rpx;">选择管理员身份</p>
-          </modal-header-component>
-          <modal-content-component :separator="false">
-            <option-controller-component ref="optionController" selection="single_notnull" :options="options">
-              <simple-selection-component :key='option.id' v-for='option in options' :option="option" :options='options' :click_fn="click_fn"></simple-selection-component>
-            </option-controller-component>
-          </modal-content-component>
-          <modal-footer-component>
-            <div class="btn-wrapper" style="margin-top:-30rpx; margin-bottom:20rpx;">
-              <btn-component btn_src="/static/images/切图/实验室人员入驻申请2-类别/b1.png" :btn_fn=btn_fn btn_label="确定" font_size="font-size:30rpx"></btn-component>
-            </div>
-          </modal-footer-component>
-        </modal-component>
+  <div class="container">
+    <titleComponent title_src="/static/images/切图/实验室成员列表/cl.png" title_text="材料实验室"></titleComponent>
+    <subTitleComponent subTitle_src="/static/images/切图/实验室成员列表/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
+    <searchBarComponent holder="请输入姓名" :options="options"></searchBarComponent>
+    <div class="table-view">
+      <slideTableCellComponent v-for="(item,index) in studentList" :key="index" :item="item" :index="index" :btns="null" height="180rpx" :frontLayerOnClickFn="frontLayerOnClickFn">
+        <studentCellComponent :item="item" titleFontSize="25rpx" subTitleFontSize="20rpx"></studentCellComponent>
+      </slideTableCellComponent>
     </div>
+  </div>
 </template>
 <script>
-import modalComponent from "@/components/Modal弹窗";
-import modalHeaderComponent from "@/components/Modal头";
-import modalContentComponent from "@/components/Modal内容";
-import modalFooterComponent from "@/components/Modal尾";
-import btnComponent from "@/components/按钮组件";
-import optionControllerComponent from "@/components/单复选控件";
-import simpleSelectionComponent from "@/components/简单选择Cell";
+import searchBarComponent from '@/components/搜索框组件'
+import titleComponent from '@/components/Title'
+import subTitleComponent from '@/components/SubTitle'
+import slideTableCellComponent from '@/components/可滑动TableCell'
+import studentCellComponent from '@/components/StudentCell'
 export default {
   components: {
-    modalComponent,
-    modalHeaderComponent,
-    modalContentComponent,
-    modalFooterComponent,
-    btnComponent,
-    optionControllerComponent,
-    simpleSelectionComponent
+    titleComponent,
+    subTitleComponent,
+    slideTableCellComponent,
+    studentCellComponent,
+    searchBarComponent
   },
   methods: {
-    showModal: function() {
-      this.$refs.modalComponent.showModal();
-    },
-    btn_fn: function() {
-      this.$refs.modalComponent.hideModal();
-    },
-    click_fn: function(option) {
-      this.$refs.optionController.choiceManager(option);
+    frontLayerOnClickFn: function (item) {
+      console.log('选择: ' + item.name)
+      wx.navigateTo({
+        url: `/pages/myPage/main?id=${item.id}`
+      })
     }
   },
-  data() {
+  data () {
     return {
-      options: [
+      options: {
+        option: []
+      },
+      studentList: [
         {
-          id: 0,
-          description: "老师",
-          checked: false
+          image: '/static/images/hou.png',
+          name: '侯小刚',
+          description: '2014级研究生',
+          id: '76498653'
         },
         {
-          id: 1,
-          description: "博士生",
-          checked: true
+          image: '/static/images/maozi.png',
+          name: '毛子',
+          description: '2014级博士生',
+          id: '76032653'
         },
         {
-          id: 2,
-          description: "研究生",
-          checked: false
+          image: '/static/images/xiaogang.png',
+          name: '侯大刚',
+          description: '2010级博导',
+          id: '76498487'
         },
         {
-          id: 3,
-          description: "本科生",
-          checked: false
+          image: '/static/images/weiyingluo.png',
+          name: '魏璎珞',
+          description: '2010级本科生',
+          id: '98798653'
+        },
+        {
+          image: '/static/images/mingyu.png',
+          name: '明玉小可爱',
+          description: '2013级本科生',
+          id: '67598653'
         }
       ]
-    };
+    }
   }
-};
+}
 </script>
 <style lang="scss">
+.table-view {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30rpx;
+}
 </style>
 
 

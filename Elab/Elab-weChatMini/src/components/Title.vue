@@ -1,8 +1,8 @@
 <template>
-    <div class="title">
-        <img mode="aspectFit" :src="title_src">
-        <p>{{title_text}}</p>
-    </div>
+  <div class="title">
+    <img mode="aspectFit" :src="title_src">
+    <p>{{title_text}}</p>
+  </div>
 </template>
 <script>
 export default {
@@ -21,6 +21,7 @@ export default {
     font-size: 40rpx;
     color: #6cb7f1;
     margin-left: 20rpx;
+    font-weight: bold;
   }
   img {
     width: 40rpx;

@@ -8,7 +8,10 @@
     "pages/labGroupMemberRequest/main",
     "pages/settleInApplicationProcessing/main",
     "pages/toolAppointment/main",
-    "pages/groupMemberAlloc/main"
+    "pages/groupMemberAlloc/main",
+    "pages/myPage/main",
+    "pages/labMemberApprovement/main",
+    "pages/labMemberManagement/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -6,8 +6,8 @@
 </template>
 <script>
 export default {
-  props: ["separator"]
-};
+  props: ['separator']
+}
 </script>
 <style lang="scss">
 .modal-header {

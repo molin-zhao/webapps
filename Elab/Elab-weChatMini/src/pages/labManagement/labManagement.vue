@@ -1,50 +1,50 @@
 <template>
-<div class="container">
+  <div class="container">
     <div class="header">
       <img src="/static/images/切图/实验室管理的主菜单页面/tt_02.png" mode="scaleToFill">
-        <div class="header-description">
-            <p class="description-header">仪器预约</p>
-            <p class="description-content">使实验室的安排更加的高效</p>
-            <button @click="立即预约()" class="description-button">立即预约</button>
-        </div>
+      <div class="header-description">
+        <p class="description-header">仪器预约</p>
+        <p class="description-content">使实验室的安排更加的高效</p>
+        <button @click="立即预约()" class="description-button">立即预约</button>
+      </div>
     </div>
     <div class="toolManagement">
-        <p>仪器管理</p>
-        <div>
-            <div class="card" @click="我的仪器()">
-                <img src="/static/images/切图/实验室管理的主菜单页面/yq.png">
-                <p>我的仪器</p>
-            </div>
-            <div class="card" @click="人员分配()">
-                <img src="/static/images/切图/实验室管理的主菜单页面/ry.png">
-                <p>人员分配</p>
-            </div>
+      <p>仪器管理</p>
+      <div>
+        <div class="card" @click="我的仪器()">
+          <img src="/static/images/切图/实验室管理的主菜单页面/yq.png">
+          <p>我的仪器</p>
         </div>
+        <div class="card" @click="人员分配()">
+          <img src="/static/images/切图/实验室管理的主菜单页面/ry.png">
+          <p>人员分配</p>
+        </div>
+      </div>
     </div>
     <div class="separator-bold"></div>
     <div class="labManagement">
-        <p>实验室管理</p>
-        <div>
-            <div class="card" @click="人员审核()">
-                <img src="/static/images/切图/实验室管理的主菜单页面/rs.png">
-                <p>人员审核</p>
-            </div>
-            <div class="card" @click="实验室成员()">
-                <img src="/static/images/切图/实验室管理的主菜单页面/syy.png">
-                <p>实验室成员</p>
-            </div>
-            <div class="card" @click="仪器审核()">
-                <img src="/static/images/切图/实验室管理的主菜单页面/ys.png">
-                <p>仪器审核</p>
-            </div>
-            <div class="card" @click="基本信息设置()">
-                <img src="/static/images/切图/实验室管理的主菜单页面/sz.png">
-                <p>基本信息设置</p>
-            </div>
+      <p>实验室管理</p>
+      <div>
+        <div class="card" @click="人员审核()">
+          <img src="/static/images/切图/实验室管理的主菜单页面/rs.png">
+          <p>人员审核</p>
         </div>
+        <div class="card" @click="实验室成员()">
+          <img src="/static/images/切图/实验室管理的主菜单页面/syy.png">
+          <p>实验室成员</p>
+        </div>
+        <div class="card" @click="仪器审核()">
+          <img src="/static/images/切图/实验室管理的主菜单页面/ys.png">
+          <p>仪器审核</p>
+        </div>
+        <div class="card" @click="基本信息设置()">
+          <img src="/static/images/切图/实验室管理的主菜单页面/sz.png">
+          <p>基本信息设置</p>
+        </div>
+      </div>
     </div>
-</div>
-    
+  </div>
+
 </template>
 <script>
 export default {
@@ -63,6 +63,9 @@ export default {
     },
     人员审核: function () {
       console.log('人员审核')
+      wx.navigateTo({
+        url: '/pages/labMemberApprovement/main'
+      })
     },
     立即预约: function () {
       console.log('立即预约')
@@ -72,6 +75,9 @@ export default {
     },
     实验室成员: function () {
       console.log('实验室成员')
+      wx.navigateTo({
+        url: '/pages/labMemberManagement/main'
+      })
     },
     仪器审核: function () {
       console.log('仪器审核')

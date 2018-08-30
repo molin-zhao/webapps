@@ -18,13 +18,11 @@ export default {
     hideModal: function () {
       if (this.ifShow === true) {
         this.ifShow = false
-        console.log('hide modal')
       }
     },
     showModal: function () {
       if (this.ifShow === false) {
         this.ifShow = true
-        console.log('show modal')
       }
     },
     remain: function () {}

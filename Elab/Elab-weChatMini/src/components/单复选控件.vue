@@ -1,7 +1,7 @@
 <template>
-    <div class="options">
-      <slot></slot>
-    </div>
+  <div class="options">
+    <slot></slot>
+  </div>
 </template>
 <script>
 export default {
@@ -37,32 +37,42 @@ export default {
   ]
 
   */
-  props: ["options", "selection"],
+  props: ['options', 'selection'],
   methods: {
-    choiceManager: function(option) {
-      let id = option.id;
-      var i = this.options.length;
-      let checkStatus = option.checked;
-      if (this.selection === "single") {
+    choiceManager: function (option) {
+      let id = option.id
+      var i = this.options.length
+      let checkStatus = option.checked
+      if (this.selection === 'single') {
         while (i--) {
-          this.options[i].checked = false;
+          this.options[i].checked = false
         }
         if (checkStatus === false) {
-          this.options[id].checked = true;
+          this.options[id].checked = true
         }
-      } else if (this.selection === "single_notnull") {
+      } else if (this.selection === 'single_notnull') {
         if (checkStatus === false) {
           while (i--) {
-            this.options[i].checked = false;
+            this.options[i].checked = false
           }
-          this.options[id].checked = true;
+          this.options[id].checked = true
         }
       } else {
-        this.options[id].checked = !this.options[id].checked;
+        this.options[id].checked = !this.options[id].checked
       }
+    },
+    getCheckedOptions: function () {
+      var checked = []
+      var i = this.options.length
+      while (i--) {
+        if (this.options[i].checked === true) {
+          checked.push(this.options[i])
+        }
+      }
+      return checked
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .options {

@@ -1,19 +1,19 @@
 <template>
-    <div class="search-bar-wrapper">
-        <div v-if="options.option.length > 0" class="search-bar" style="width:75%">
-            <img model="aspectFit" src="/static/images/切图/仪器负责人修改/ss.png">
-            <input placeholder-class="search-pl" :placeholder="holder">
-        </div>
-        <div v-else class="search-bar" style="width:95%">
-            <img model="aspectFit" src="/static/images/切图/仪器负责人修改/ss.png">
-            <input placeholder-class="search-pl" :placeholder="holder">
-        </div>
-        <div v-if="options.option.length > 0" class="filter">
-            <p>{{options.option[0]}}</p>
-            <img v-if="!showFilter" model="aspectFit" src="/static/images/切图/共享仪器预约页-按分钟预约1/xx.png">
-            <img v-else model="aspectFit" src="/static/images/切图/共享仪器预约页-按分钟预约1/xs.png">
-        </div>
+  <div class="search-bar-wrapper">
+    <div v-if="options.option.length > 0" class="search-bar" style="width:75%">
+      <img model="aspectFit" src="/static/images/切图/仪器负责人修改/ss.png">
+      <input placeholder-class="search-pl" :placeholder="holder">
     </div>
+    <div v-else class="search-bar" style="width:95%">
+      <img model="aspectFit" src="/static/images/切图/仪器负责人修改/ss.png">
+      <input placeholder-class="search-pl" :placeholder="holder">
+    </div>
+    <div v-if="options.option.length > 0" class="filter">
+      <p>{{options.option[0]}}</p>
+      <img v-if="!showFilter" model="aspectFit" src="/static/images/切图/共享仪器预约页-按分钟预约1/xx.png">
+      <img v-else model="aspectFit" src="/static/images/切图/共享仪器预约页-按分钟预约1/xs.png">
+    </div>
+  </div>
 </template>
 <script>
 export default {
@@ -31,7 +31,7 @@ export default {
 </script>
 <style lang="scss">
 .search-bar-wrapper {
-  margin-top: 30rpx;
+  margin-top: 50rpx;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -61,6 +61,7 @@ export default {
       height: 50rpx;
     }
     .search-pl {
+      color: #bbbbbb;
       font-size: 25rpx;
       opacity: 0.4;
     }
