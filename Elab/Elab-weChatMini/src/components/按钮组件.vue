@@ -1,18 +1,18 @@
 <template>
-    <div @click="点击事件()" class="btn">
-        <img mode="scaleToFill" :src="btn_src">
-        <p :style="font_size">{{btn_label}}</p>
-    </div>
+  <div @click="点击事件()" class="btn">
+    <img mode="scaleToFill" :src="btn_src">
+    <p :style="font_size">{{btn_label}}</p>
+  </div>
 </template>
 <script>
 export default {
-  props: ['btn_src', 'btn_label', 'btn_fn', 'font_size', 'data'],
+  props: ["btn_src", "btn_label", "btn_fn", "font_size", "data"],
   methods: {
-    点击事件: function () {
-      return this.btn_fn(this.data)
+    点击事件: function() {
+      return this.btn_fn(this.data);
     }
   }
-}
+};
 </script>
 <style lang="scss">
 .btn {

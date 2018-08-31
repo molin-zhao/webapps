@@ -5,23 +5,23 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       activeCells: []
-    };
+    }
   },
-  props: ["items"],
+  props: ['items'],
   methods: {
-    addActiveCell: function(index) {
-      this.activeCells.push(index);
+    addActiveCell: function (index) {
+      this.activeCells.push(index)
     },
-    recoverActiveCells: function(allCellsArr, index) {
+    recoverActiveCells: function (allCellsArr, index) {
       while (this.activeCells.length > 0) {
-        allCellsArr[this.activeCells.shift()].recover();
+        allCellsArr[this.activeCells.shift()].recover()
       }
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .table-view-controller {

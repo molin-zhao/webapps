@@ -81,6 +81,9 @@ export default {
     },
     仪器审核: function () {
       console.log('仪器审核')
+      wx.navigateTo({
+        url: '/pages/toolsPersonInCharge/main'
+      })
     },
     基本信息设置: function () {
       console.log('基本信息设置')

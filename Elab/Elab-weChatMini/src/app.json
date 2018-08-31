@@ -11,7 +11,8 @@
     "pages/groupMemberAlloc/main",
     "pages/myPage/main",
     "pages/labMemberApprovement/main",
-    "pages/labMemberManagement/main"
+    "pages/labMemberManagement/main",
+    "pages/toolsPersonInCharge/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
