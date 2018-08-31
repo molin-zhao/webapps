@@ -1,25 +1,27 @@
 <template>
-    <div class="table-view-cell" :style="{height: height}">
-        <div class="front-layer" :data-type="item.type" :style="slideEffect" @click="上层点击事件()" @touchstart="touchStart($event)" @touchend="touchEnd($event,index)" @touchmove="touchMove($event)">
-            <slot></slot>
-        </div>
-        <div v-if="btns" class="back-layer">
-            <div class="left-btn" :style="{width: leftBtnClickEffect, fontSize: btns.leftBtn.style.fontSize, backgroundColor: btnBackgroundColors.leftBtn}" @click="左按钮点击事件()">{{btnLabels.leftBtn}}</div>
-            <div v-if="btns.rightBtn" class="right-btn" :style="{width: rightBtnClickEffect, fontSize: btns.rightBtn.style.fontSize, backgroundColor: btnBackgroundColors.rightBtn}" @click="右按钮点击事件()">{{btnLabels.rightBtn}}</div>
-        </div>
+  <div class="table-view-cell" :style="{height: height}">
+    <div class="front-layer" :data-type="item.type" :style="slideEffect" @click="上层点击事件()" v-on:touchstart="touchStart($event)" v-on:touchend="touchEnd($event,index)" @touchmove="touchMove($event)">
+      <!-- 用于添加tableview上层的自定义样式 -->
+      <slot></slot>
     </div>
+    <div v-if="btns" class="back-layer">
+      <div class="left-btn" :style="{width: leftBtnClickEffect, fontSize: btns.leftBtn.style.fontSize, backgroundColor: btnBackgroundColors.leftBtn}" @click="左按钮点击事件()">{{btnLabels.leftBtn}}</div>
+      <div v-if="btns.rightBtn" class="right-btn" :style="{width: rightBtnClickEffect, fontSize: btns.rightBtn.style.fontSize, backgroundColor: btnBackgroundColors.rightBtn}" @click="右按钮点击事件()">{{btnLabels.rightBtn}}</div>
+    </div>
+  </div>
 </template>
 <script>
 export default {
   data() {
     return {
+      index: -1,
       startX: 0,
       moveX: 0,
       endX: 0,
       distX: 0,
       slideEffect: "", // 滑动的效果，用于添加style
-      leftBtnClickEffect: "",
-      rightBtnClickEffect: "",
+      leftBtnClickEffect: "", // 左面按钮点击的动画效果
+      rightBtnClickEffect: "", // 右面按钮点击的动画效果
       btnLabels: {
         leftBtn: "",
         rightBtn: ""
@@ -36,6 +38,8 @@ export default {
     };
   },
   mounted() {
+    // 得到cell的位置信息，index
+    this.index = this.$options.propsData.index;
     if (this.$options.propsData.btns != null) {
       let btns = this.$options.propsData.btns;
       this.backLayerBoundaryWidth = btns.boundaryWidth;
@@ -58,6 +62,10 @@ export default {
         // 等于1时表示只有一个手指触摸
         // 获得起始x轴位置
         this.startX = e.mp.changedTouches[0].clientX;
+        // 如果cell是可以向左滑动的，通知父组件它被touch了
+        if (this.item.type === 0) {
+          this.$emit("slide", this.index);
+        }
       }
     },
     touchEnd(e, index) {
@@ -74,6 +82,8 @@ export default {
               this.backLayerBoundaryWidth +
               "rpx,0,0)";
             this.item.type = 1;
+            // 告诉父控制器，此单元已经滑动到完全显示按钮状态，再父控件中记录该单元
+            this.$emit("active", this.index);
           }
         } else if (this.distX > 0 && this.item.type === 1) {
           // 手指向右滑动并且此时cell滑到了左面
@@ -117,10 +127,8 @@ export default {
     },
     上层点击事件: function() {
       if (this.item.type === 1) {
-        console.log("复原Cell");
         return this.recover();
       }
-      console.log("点击Cell");
       return this.frontLayerOnClickFn(this.item);
     },
 
@@ -130,7 +138,6 @@ export default {
         this.item.type = 0;
         this.slideEffect = "transform: translate3d(0,0,0)";
         this.recoverBtn();
-        console.log("复原了");
       }
     },
     // 回复按钮样式
@@ -244,6 +251,9 @@ export default {
     -webkit-transition: all 0.3s;
     transition: all 0.3s;
   }
+}
+div[data-type="0"] {
+  transform: translate3d(0, 0, 0);
 }
 </style>
 

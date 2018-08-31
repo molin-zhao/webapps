@@ -3,14 +3,15 @@
     <titleComponent title_src="/static/images/切图/实验室成员列表/cl.png" title_text="材料实验室"></titleComponent>
     <subTitleComponent subTitle_src="/static/images/切图/实验室成员列表/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
     <searchBarComponent holder="请输入姓名" :options="options"></searchBarComponent>
-    <div class="table-view">
-      <slideTableCellComponent v-for="(item,index) in studentList" :key="index" :item="item" :index="index" :btns="btns" height="180rpx" :frontLayerOnClickFn="frontLayerOnClickFn">
+    <tableViewControllerComponent :items="items" ref="tableViewController">
+      <slideTableCellComponent v-on:slide="滑动(index)" v-on:active="记录(index)" v-for="(item,index) in items" :key="index" :item="item" :index="index" :btns="btns" height="180rpx" :frontLayerOnClickFn="frontLayerOnClickFn">
         <studentCellComponent :item="item" titleFontSize="25rpx" subTitleFontSize="20rpx"></studentCellComponent>
       </slideTableCellComponent>
-    </div>
+    </tableViewControllerComponent>
   </div>
 </template>
 <script>
+import tableViewControllerComponent from "@/components/TableViewController";
 import searchBarComponent from "@/components/搜索框组件";
 import titleComponent from "@/components/Title";
 import subTitleComponent from "@/components/SubTitle";
@@ -22,11 +23,20 @@ export default {
     subTitleComponent,
     slideTableCellComponent,
     studentCellComponent,
-    searchBarComponent
+    searchBarComponent,
+    tableViewControllerComponent
   },
   methods: {
     frontLayerOnClickFn: function(item) {
       console.log("选择: " + item.name);
+    },
+    滑动: function(index) {
+      let controller = this.$refs.tableViewController;
+      controller.recoverActiveCells(controller.$children, index);
+    },
+    记录: function(index) {
+      let controller = this.$refs.tableViewController;
+      controller.addActiveCell(index);
     }
   },
   data() {
@@ -82,7 +92,7 @@ export default {
         },
         boundaryWidth: 280
       },
-      studentList: [
+      items: [
         {
           image: "/static/images/hou.png",
           name: "侯小刚",

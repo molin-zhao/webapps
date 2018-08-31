@@ -6,8 +6,8 @@
 </template>
 <script>
 export default {
-  props: ["contentTitle_src", "contentTitle_text"]
-};
+  props: ['contentTitle_src', 'contentTitle_text']
+}
 </script>
 <style lang="scss">
 .content-title {

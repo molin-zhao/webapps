@@ -18,8 +18,8 @@ export default {
   //     console.log("挂在StudentCell");
   //     console.log(this.$options.propsData.item);
   //   },
-  props: ["item", "titleFontSize", "subTitleFontSize"]
-};
+  props: ['item', 'titleFontSize', 'subTitleFontSize']
+}
 </script>
 
 <style lang="scss">
