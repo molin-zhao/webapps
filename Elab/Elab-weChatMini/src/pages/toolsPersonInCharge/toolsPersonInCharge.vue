@@ -1,9 +1,9 @@
 <template>
-    <div class="container">
-        <div class="bg">
-            <toolCardComponent v-for="(item, index) in items" :key="index" :item="item"></toolCardComponent>
-        </div>
+  <div class="container">
+    <div class="bg">
+      <toolCardComponent v-for="(item, index) in items" :key="index" :item="item" :deleteFn="deleteFn" :editFn="editFn"></toolCardComponent>
     </div>
+  </div>
 </template>
 <script>
 import toolCardComponent from "@/components/仪器卡";
@@ -15,8 +15,10 @@ export default {
     return {
       items: [
         {
+          id: 0,
           image: "/static/images/xwj.png",
           name: "电子秤 1000g 物理生物化学专用实验器材",
+          displayName: "电子秤",
           status: "open",
           person: {
             status: "pending",
@@ -24,8 +26,10 @@ export default {
           }
         },
         {
+          id: 1,
           image: "/static/images/xwj.png",
           name: "电子秤 1000g 物理生物化学专用实验器材",
+          displayName: "物理电子秤",
           status: "closed",
           person: {
             status: "active",
@@ -33,8 +37,10 @@ export default {
           }
         },
         {
+          id: 2,
           image: "/static/images/xwj.png",
           name: "电子秤 1000g 物理生物化学专用实验器材",
+          displayName: "生物电子秤",
           status: "closed",
           person: {
             status: "active",
@@ -42,8 +48,10 @@ export default {
           }
         },
         {
+          id: 3,
           image: "/static/images/xwj.png",
           name: "电子秤 1000g 物理生物化学专用实验器材",
+          displayName: "化学",
           status: "open",
           person: {
             status: "pending",
@@ -53,7 +61,18 @@ export default {
       ]
     };
   },
-  methods: {}
+  methods: {
+    editFn: function(item) {
+      wx.navigateTo({
+        url: `/pages/editPersonInCharge/main?id=${item.id}&displayName=${
+          item.displayName
+        }`
+      });
+    },
+    deleteFn: function(item) {
+      console.log("删除: " + item.name);
+    }
+  }
 };
 </script>
 <style lang="scss">

@@ -1,88 +1,94 @@
 <template>
-    <div class="card">
-        <div class="card-description">
-            <div class="thumb">
-                <img :src="item.image" model="aspectFit">
-            </div>
-            <div class="description">
-                <div class="title">
-                    <div class="label">
-                        <labelComponent v-if="item.status === 'open'" :label="labels.open.label" :src="labels.open.src" :fontSize="labels.open.fontSize" :color="labels.open.color"></labelComponent>
-                        <labelComponent v-else :label="labels.closed.label" :src="labels.closed.src" :fontSize="labels.closed.fontSize" :color="labels.closed.color"></labelComponent>
-                    </div>
-                    <p>{{item.name}}</p>
-                </div>
-                <div v-if="item.person.status" class="person-incharge">
-                    <div v-if="item.person.status === 'pending'" class="pending">
-                        <p class="person">{{item.person.name}}</p>
-                        <p>申请成为负责人</p>
-                    </div>
-                    <div v-else class="active">
-                        <img src="/static/images/切图/实验室管理的主菜单页面/rs.png" model="aspectFit">
-                        <p class="person">{{item.person.name}}</p>
-                    </div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-description">
+      <div class="thumb">
+        <img :src="item.image" model="aspectFit">
+      </div>
+      <div class="description">
+        <div class="title">
+          <div class="label">
+            <labelComponent v-if="item.status === 'open'" :label="labels.open.label" :src="labels.open.src" :fontSize="labels.open.fontSize" :color="labels.open.color"></labelComponent>
+            <labelComponent v-else :label="labels.closed.label" :src="labels.closed.src" :fontSize="labels.closed.fontSize" :color="labels.closed.color"></labelComponent>
+          </div>
+          <p>{{item.name}}</p>
         </div>
-        <div class="card-buttons">
-            <div v-if="item.person.status === 'pending'" class="pending">
-                <div class="btn-1" @click="同意申请()">
-                    <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sq.png" model="aspectFit">
-                    <p>同意申请</p>
-                </div>
-                <div class="btn-2">
-                    <img src="/static/images/切图/仪器负责人变更和仪器状态变更/bj.png" model="aspectFit">
-                    <p>编辑负责人</p>
-                </div>
-                <div class="btn-3">
-                    <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sc.png" model="aspectFit">
-                    <p>删除</p>
-                </div>
-            </div>
-            <div v-else class="active">
-                <div class="btn-1">
-                    <img src="/static/images/切图/仪器负责人变更和仪器状态变更/bj.png" model="aspectFit">
-                    <p>编辑负责人</p>
-                </div>
-                <div class="btn-2">
-                    <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sc.png" model="aspectFit">
-                    <p>删除</p>
-                </div>
-            </div>
+        <div v-if="item.person.status" class="person-incharge">
+          <div v-if="item.person.status === 'pending'" class="pending">
+            <p class="person">{{item.person.name}}</p>
+            <p>申请成为负责人</p>
+          </div>
+          <div v-else class="active">
+            <img src="/static/images/切图/实验室管理的主菜单页面/rs.png" model="aspectFit">
+            <p class="person">{{item.person.name}}</p>
+          </div>
         </div>
+      </div>
     </div>
+    <div class="card-buttons">
+      <div v-if="item.person.status === 'pending'" class="pending">
+        <div class="btn-1" @click="同意申请()">
+          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sq.png" model="aspectFit">
+          <p>同意申请</p>
+        </div>
+        <div class="btn-2" @click="编辑负责人()">
+          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/bj.png" model="aspectFit">
+          <p>编辑负责人</p>
+        </div>
+        <div class="btn-3" @click="删除()">
+          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sc.png" model="aspectFit">
+          <p>删除</p>
+        </div>
+      </div>
+      <div v-else class="active">
+        <div class="btn-1" @click="编辑负责人()">
+          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/bj.png" model="aspectFit">
+          <p>编辑负责人</p>
+        </div>
+        <div class="btn-2" @click="删除()">
+          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sc.png" model="aspectFit">
+          <p>删除</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 <script>
-import labelComponent from "@/components/标签组件";
+import labelComponent from '@/components/标签组件'
 export default {
-  props: ["item"],
+  props: ['item', 'editFn', 'deleteFn'],
   components: {
     labelComponent
   },
   methods: {
-    同意申请: function() {
-      this.item.person.status = "active";
+    同意申请: function () {
+      this.item.person.status = 'active'
+    },
+    编辑负责人: function () {
+      return this.editFn(this.item)
+    },
+    删除: function () {
+      return this.deleteFn(this.item)
     }
   },
-  data() {
+  data () {
     return {
       labels: {
         open: {
-          label: "开放",
-          fontSize: "20rpx",
-          src: "/static/images/切图/仪器负责人变更和仪器状态变更/bq1.png",
-          color: "#1dd069"
+          label: '开放',
+          fontSize: '20rpx',
+          src: '/static/images/切图/仪器负责人变更和仪器状态变更/bq1.png',
+          color: '#1dd069'
         },
         closed: {
-          label: "关停",
-          fontSize: "20rpx",
-          src: "/static/images/切图/仪器负责人变更和仪器状态变更/bq2.png",
-          color: "#ff686f"
+          label: '关停',
+          fontSize: '20rpx',
+          src: '/static/images/切图/仪器负责人变更和仪器状态变更/bq2.png',
+          color: '#ff686f'
         }
       }
-    };
+    }
   }
-};
+}
 </script>
 <style lang="scss">
 .card {
@@ -137,10 +143,6 @@ export default {
           width: 60rpx;
           height: 35rpx;
           margin-left: 10rpx;
-          //   display: flex;
-          //   flex-direction: row;
-          //   justify-content: flex-start;
-          //   align-items: center;
         }
         p {
           font-size: 30rpx;

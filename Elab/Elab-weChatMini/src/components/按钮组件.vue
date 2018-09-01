@@ -6,13 +6,13 @@
 </template>
 <script>
 export default {
-  props: ["btn_src", "btn_label", "btn_fn", "font_size", "data"],
+  props: ['btn_src', 'btn_label', 'btn_fn', 'font_size', 'data'],
   methods: {
-    点击事件: function() {
-      return this.btn_fn(this.data);
+    点击事件: function () {
+      return this.btn_fn(this.data)
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .btn {

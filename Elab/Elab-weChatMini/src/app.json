@@ -12,7 +12,8 @@
     "pages/myPage/main",
     "pages/labMemberApprovement/main",
     "pages/labMemberManagement/main",
-    "pages/toolsPersonInCharge/main"
+    "pages/toolsPersonInCharge/main",
+    "pages/editPersonInCharge/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

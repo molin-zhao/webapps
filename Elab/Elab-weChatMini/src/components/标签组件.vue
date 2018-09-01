@@ -6,8 +6,8 @@
 </template>
 <script>
 export default {
-  props: ["label", "fontSize", "color", "src"]
-};
+  props: ['label', 'fontSize', 'color', 'src']
+}
 </script>
 <style lang="scss">
 .label {
