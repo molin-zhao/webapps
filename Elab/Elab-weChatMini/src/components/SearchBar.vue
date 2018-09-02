@@ -1,33 +1,33 @@
 <template>
   <div class="search-bar-wrapper">
     <div v-if="options.option.length > 0" class="search-bar" style="width:75%">
-      <img model="aspectFit" src="/static/images/切图/仪器负责人修改/ss.png">
+      <img model="aspectFit" src="/static/images/res/equipmentManagerEdit/ss.png">
       <input placeholder-class="search-pl" :placeholder="holder">
     </div>
     <div v-else class="search-bar" style="width:95%">
-      <img model="aspectFit" src="/static/images/切图/仪器负责人修改/ss.png">
+      <img model="aspectFit" src="/static/images/res/equipmentManagerEdit/ss.png">
       <input placeholder-class="search-pl" :placeholder="holder">
     </div>
     <div v-if="options.option.length > 0" class="filter">
       <p>{{options.option[0]}}</p>
-      <img v-if="!showFilter" model="aspectFit" src="/static/images/切图/共享仪器预约页-按分钟预约1/xx.png">
-      <img v-else model="aspectFit" src="/static/images/切图/共享仪器预约页-按分钟预约1/xs.png">
+      <img v-if="!showFilter" model="aspectFit" src="/static/images/res/sharedEquipmentReservation-minute1/xx.png">
+      <img v-else model="aspectFit" src="/static/images/res/sharedEquipmentReservation-minute1/xs.png">
     </div>
   </div>
 </template>
 <script>
 export default {
-  created () {
-    console.log('创建搜索框')
+  created() {
+    console.log("创建搜索框");
   },
-  props: ['holder', 'options'],
-  data () {
+  props: ["holder", "options"],
+  data() {
     return {
       showFilter: false,
       options: {}
-    }
+    };
   }
-}
+};
 </script>
 <style lang="scss">
 .search-bar-wrapper {

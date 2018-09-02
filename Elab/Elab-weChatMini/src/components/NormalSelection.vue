@@ -1,26 +1,26 @@
 <template>
-    <div class="simple-selection">
-        <div class="simple-selection-wrapper" @click="Cell点击事件()">
-            <div v-if="options[option.id].checked" class="simple-selection-checked">
-                <p>{{option.description}}</p>
-                <img model="aspectFit" src="/static/images/切图/实验室人员入驻申请2-类别/r.png">
-            </div>
-            <div v-else class="simple-selection-unchecked">
-                <p>{{option.description}}</p>
-            </div>
-        </div>
-        <div class="separator"></div>
+  <div class="simple-selection">
+    <div class="simple-selection-wrapper" @click="Cell点击事件()">
+      <div v-if="options[option.id].checked" class="simple-selection-checked">
+        <p>{{option.description}}</p>
+        <img model="aspectFit" src="/static/images/res/moveInLabRequest2/r.png">
+      </div>
+      <div v-else class="simple-selection-unchecked">
+        <p>{{option.description}}</p>
+      </div>
     </div>
+    <div class="separator"></div>
+  </div>
 </template>
 <script>
 export default {
-  props: ['option', 'click_fn', 'options'],
+  props: ["option", "click_fn", "options"],
   methods: {
-    Cell点击事件: function () {
-      return this.click_fn(this.option)
+    Cell点击事件: function() {
+      return this.click_fn(this.option);
     }
   }
-}
+};
 </script>
 <style lang="scss">
 .simple-selection {

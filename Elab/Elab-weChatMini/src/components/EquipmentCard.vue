@@ -18,7 +18,7 @@
             <p>申请成为负责人</p>
           </div>
           <div v-else class="active">
-            <img src="/static/images/切图/实验室管理的主菜单页面/rs.png" model="aspectFit">
+            <img src="/static/images/res/labManagementMainMenu/rs.png" model="aspectFit">
             <p class="person">{{item.person.name}}</p>
           </div>
         </div>
@@ -27,25 +27,25 @@
     <div class="card-buttons">
       <div v-if="item.person.status === 'pending'" class="pending">
         <div class="btn-1" @click="同意申请()">
-          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sq.png" model="aspectFit">
+          <img src="/static/images/res/equipmentManagerAndStatusEdit/sq.png" model="aspectFit">
           <p>同意申请</p>
         </div>
         <div class="btn-2" @click="编辑负责人()">
-          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/bj.png" model="aspectFit">
+          <img src="/static/images/res/equipmentManagerAndStatusEdit/bj.png" model="aspectFit">
           <p>编辑负责人</p>
         </div>
         <div class="btn-3" @click="删除()">
-          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sc.png" model="aspectFit">
+          <img src="/static/images/res/equipmentManagerAndStatusEdit/sc.png" model="aspectFit">
           <p>删除</p>
         </div>
       </div>
       <div v-else class="active">
         <div class="btn-1" @click="编辑负责人()">
-          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/bj.png" model="aspectFit">
+          <img src="/static/images/res/equipmentManagerAndStatusEdit/bj.png" model="aspectFit">
           <p>编辑负责人</p>
         </div>
         <div class="btn-2" @click="删除()">
-          <img src="/static/images/切图/仪器负责人变更和仪器状态变更/sc.png" model="aspectFit">
+          <img src="/static/images/res/equipmentManagerAndStatusEdit/sc.png" model="aspectFit">
           <p>删除</p>
         </div>
       </div>
@@ -76,13 +76,13 @@ export default {
         open: {
           label: "开放",
           fontSize: "20rpx",
-          src: "/static/images/切图/仪器负责人变更和仪器状态变更/bq1.png",
+          src: "/static/images/res/equipmentManagerAndStatusEdit/bq1.png",
           color: "#1dd069"
         },
         closed: {
           label: "关停",
           fontSize: "20rpx",
-          src: "/static/images/切图/仪器负责人变更和仪器状态变更/bq2.png",
+          src: "/static/images/res/equipmentManagerAndStatusEdit/bq2.png",
           color: "#ff686f"
         }
       }

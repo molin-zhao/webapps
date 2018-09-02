@@ -1,10 +1,10 @@
 <template>
   <div class="container">
-    <titleComponent title_src="/static/images/切图/个人仪器列表/yq.png" title_text="我的仪器"></titleComponent>
+    <titleComponent title_src="/static/images/res/individualEquipmentList/yq.png" title_text="我的仪器"></titleComponent>
     <div class="myEquipmentList">
       <myEquipmentComponent :key='equipment.id' v-for='equipment in equipments' :equipment='equipment'></myEquipmentComponent>
     </div>
-    <bottom-button-component src="/static/images/切图/个人仪器列表/tj.png" label="添加仪器" :clickFn="addEquipment"></bottom-button-component>
+    <bottom-button-component src="/static/images/res/individualEquipmentList/tj.png" label="添加仪器" :clickFn="addEquipment"></bottom-button-component>
   </div>
 </template>
 <script>

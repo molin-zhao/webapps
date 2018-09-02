@@ -6,74 +6,74 @@
   </div>
 </template>
 <script>
-import toolCardComponent from "@/components/EquipmentCard";
+import toolCardComponent from '@/components/EquipmentCard'
 export default {
   components: {
     toolCardComponent
   },
-  data() {
+  data () {
     return {
       items: [
         {
           id: 0,
-          image: "/static/images/xwj.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
-          displayName: "电子秤",
-          status: "open",
+          image: '/static/images/xwj.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
+          displayName: '电子秤',
+          status: 'open',
           person: {
-            status: "pending",
-            name: "张雅"
+            status: 'pending',
+            name: '张雅'
           }
         },
         {
           id: 1,
-          image: "/static/images/xwj.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
-          displayName: "物理电子秤",
-          status: "closed",
+          image: '/static/images/xwj.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
+          displayName: '物理电子秤',
+          status: 'closed',
           person: {
-            status: "active",
-            name: "侯小刚"
+            status: 'active',
+            name: '侯小刚'
           }
         },
         {
           id: 2,
-          image: "/static/images/xwj.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
-          displayName: "生物电子秤",
-          status: "closed",
+          image: '/static/images/xwj.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
+          displayName: '生物电子秤',
+          status: 'closed',
           person: {
-            status: "active",
-            name: "毛子"
+            status: 'active',
+            name: '毛子'
           }
         },
         {
           id: 3,
-          image: "/static/images/xwj.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
-          displayName: "化学",
-          status: "open",
+          image: '/static/images/xwj.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
+          displayName: '化学',
+          status: 'open',
           person: {
-            status: "pending",
-            name: "魏璎珞"
+            status: 'pending',
+            name: '魏璎珞'
           }
         }
       ]
-    };
+    }
   },
   methods: {
-    editFn: function(item) {
+    editFn: function (item) {
       wx.navigateTo({
         url: `/pages/editPersonInCharge/main?id=${item.id}&displayName=${
           item.displayName
         }`
-      });
+      })
     },
-    deleteFn: function(item) {
-      console.log("删除: " + item.name);
+    deleteFn: function (item) {
+      console.log('删除: ' + item.name)
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .bg {

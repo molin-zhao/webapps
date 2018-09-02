@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <titleComponent title_src="/static/images/切图/实验室成员列表/cl.png" title_text="材料实验室"></titleComponent>
-    <subTitleComponent subTitle_src="/static/images/切图/实验室成员列表/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
+    <titleComponent title_src="/static/images/res/labMember/cl.png" title_text="材料实验室"></titleComponent>
+    <subTitleComponent subTitle_src="/static/images/res/labMember/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
     <div class="basicInfo">
       <simple-input-component holder="请输入姓名" :separator="true"></simple-input-component>
       <picker-input-component ref="rolePicker" holder="请选择管理员身份" :separator="true" :click_fn="rolePickerOnClickFn"></picker-input-component>
@@ -10,7 +10,7 @@
       <simple-input-component holder="请输入验证码" :separator="true"></simple-input-component>
     </div>
     <div class="btn-wrapper">
-      <button-component btn_src="/static/images/切图/实验室人员入驻申请2-类别/b1.png" :btn_fn=pageBtnOnClickFn btn_label="确定" font_size="font-size:30rpx"></button-component>
+      <button-component btn_src="/static/images/res/moveInLabRequest2/b1.png" :btn_fn=pageBtnOnClickFn btn_label="确定" font_size="font-size:30rpx"></button-component>
     </div>
     <modal-component ref="modalComponent">
       <modal-header-component :separator="false">
@@ -23,7 +23,7 @@
       </modal-content-component>
       <modal-footer-component>
         <div class="btn-wrapper" style="margin-top:-30rpx; margin-bottom:20rpx;">
-          <buttonComponent btn_src="/static/images/切图/实验室人员入驻申请2-类别/b1.png" :btn_fn=modalBtnOnClickFn btn_label="确定" font_size="font-size:30rpx"></buttonComponent>
+          <buttonComponent btn_src="/static/images/res/moveInLabRequest2/b1.png" :btn_fn=modalBtnOnClickFn btn_label="确定" font_size="font-size:30rpx"></buttonComponent>
         </div>
       </modal-footer-component>
     </modal-component>

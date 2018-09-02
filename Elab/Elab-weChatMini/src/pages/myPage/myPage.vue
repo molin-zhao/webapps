@@ -1,32 +1,32 @@
 <template>
-    <div class="container">
-        <div class="cover">
-            <img src="/static/images/切图/仪器分配/dt.png" model="aspectFit">
-            <div class="cover-detail">
-                <div class="thumb">
-                    <img :src="student.image" model="aspectFit">
-                </div>
-                <div class="description">
-                    <p class="name">{{student.name}}</p>
-                    <p class="id">{{student.id}}</p>
-                </div>
-            </div>
+  <div class="container">
+    <div class="cover">
+      <img src="/static/images/res/equipmentDistribution/dt.png" model="aspectFit">
+      <div class="cover-detail">
+        <div class="thumb">
+          <img :src="student.image" model="aspectFit">
         </div>
+        <div class="description">
+          <p class="name">{{student.name}}</p>
+          <p class="id">{{student.id}}</p>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 <script>
-import { _getStudent } from '@/utils/utils'
+import { _getStudent } from "@/utils/utils";
 export default {
-  mounted () {
-    var id = this.$root.$mp.query.id
-    this.student = _getStudent(id)
+  mounted() {
+    var id = this.$root.$mp.query.id;
+    this.student = _getStudent(id);
   },
-  data () {
+  data() {
     return {
       student: {}
-    }
+    };
   }
-}
+};
 </script>
 <style lang="scss">
 .cover {

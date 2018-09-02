@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="header">
-      <img src="/static/images/切图/实验室管理的主菜单页面/tt_02.png" mode="scaleToFill">
+      <img src="/static/images/res/labManagementMainMenu/tt_02.png" mode="scaleToFill">
       <div class="header-description">
         <p class="description-header">仪器预约</p>
         <p class="description-content">使实验室的安排更加的高效</p>
@@ -12,11 +12,11 @@
       <p>仪器管理</p>
       <div>
         <div class="card" @click="我的仪器()">
-          <img src="/static/images/切图/实验室管理的主菜单页面/yq.png">
+          <img src="/static/images/res/labManagementMainMenu/yq.png">
           <p>我的仪器</p>
         </div>
         <div class="card" @click="人员分配()">
-          <img src="/static/images/切图/实验室管理的主菜单页面/ry.png">
+          <img src="/static/images/res/labManagementMainMenu/ry.png">
           <p>人员分配</p>
         </div>
       </div>
@@ -26,19 +26,19 @@
       <p>实验室管理</p>
       <div>
         <div class="card" @click="人员审核()">
-          <img src="/static/images/切图/实验室管理的主菜单页面/rs.png">
+          <img src="/static/images/res/labManagementMainMenu/rs.png">
           <p>人员审核</p>
         </div>
         <div class="card" @click="实验室成员()">
-          <img src="/static/images/切图/实验室管理的主菜单页面/syy.png">
+          <img src="/static/images/res/labManagementMainMenu/syy.png">
           <p>实验室成员</p>
         </div>
         <div class="card" @click="仪器审核()">
-          <img src="/static/images/切图/实验室管理的主菜单页面/ys.png">
+          <img src="/static/images/res/labManagementMainMenu/ys.png">
           <p>仪器审核</p>
         </div>
         <div class="card" @click="基本信息设置()">
-          <img src="/static/images/切图/实验室管理的主菜单页面/sz.png">
+          <img src="/static/images/res/labManagementMainMenu/sz.png">
           <p>基本信息设置</p>
         </div>
       </div>
@@ -49,47 +49,47 @@
 <script>
 export default {
   methods: {
-    我的仪器: function () {
-      console.log('我的仪器')
+    我的仪器: function() {
+      console.log("我的仪器");
       wx.navigateTo({
-        url: '/pages/myEquipments/main'
-      })
+        url: "/pages/myEquipments/main"
+      });
     },
-    人员分配: function () {
-      console.log('人员分配')
+    人员分配: function() {
+      console.log("人员分配");
       wx.navigateTo({
-        url: '/pages/groupMemberAlloc/main'
-      })
+        url: "/pages/groupMemberAlloc/main"
+      });
     },
-    人员审核: function () {
-      console.log('人员审核')
+    人员审核: function() {
+      console.log("人员审核");
       wx.navigateTo({
-        url: '/pages/labMemberApprovement/main'
-      })
+        url: "/pages/labMemberApprovement/main"
+      });
     },
-    立即预约: function () {
-      console.log('立即预约')
+    立即预约: function() {
+      console.log("立即预约");
       wx.navigateTo({
-        url: '/pages/toolAppointment/main'
-      })
+        url: "/pages/toolAppointment/main"
+      });
     },
-    实验室成员: function () {
-      console.log('实验室成员')
+    实验室成员: function() {
+      console.log("实验室成员");
       wx.navigateTo({
-        url: '/pages/labMemberManagement/main'
-      })
+        url: "/pages/labMemberManagement/main"
+      });
     },
-    仪器审核: function () {
-      console.log('仪器审核')
+    仪器审核: function() {
+      console.log("仪器审核");
       wx.navigateTo({
-        url: '/pages/toolsPersonInCharge/main'
-      })
+        url: "/pages/toolsPersonInCharge/main"
+      });
     },
-    基本信息设置: function () {
-      console.log('基本信息设置')
+    基本信息设置: function() {
+      console.log("基本信息设置");
     }
   }
-}
+};
 </script>
 <style lang="scss">
 .card {

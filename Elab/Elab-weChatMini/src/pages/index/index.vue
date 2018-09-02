@@ -1,39 +1,55 @@
 <template>
-<div class="container">
+  <div class="container">
     <div class="background">
-        <img src="/static/images/切图/首页/bj.png" model="scaleToFill">
-        <div class="card_1">
-          <div class="card" @click="registerLab()">
-            <img src="/static/images/切图/首页/zc.png" alt="注册">
-            <p>实验室注册</p>
+      <img src="/static/images/res/index/bj.png" model="scaleToFill">
+      <div class="card_1">
+        <div class="card" @click="registerLab()">
+          <img src="/static/images/res/index/zc.png">
+          <p>实验室注册</p>
         </div>
+      </div>
+      <div class="card_2">
+        <div class="card" @click="settleLab()">
+          <img src="/static/images/res/index/rz.png">
+          <p>入驻实验室</p>
         </div>
-        <div class="card_2">
-          <div class="card" @click="settleLab()">
-            <img src="/static/images/切图/首页/rz.png" alt="入驻">
-            <p>入驻实验室</p>
-        </div>
-        </div>
+      </div>
     </div>
-</div>
+  </div>
 </template>
 <script>
+import { compareVersion } from "@/utils/utils";
 export default {
+  created() {
+    let info = wx.getSystemInfoSync();
+    let systemInfo = info.system;
+    let versionArr = systemInfo.split(" ");
+    let systemVersion = versionArr[0];
+    let version = versionArr[1];
+    if (systemVersion === "iOS" && compareVersion("11.1.0", version) > 0) {
+      console.log("here");
+      wx.showToast({
+        title: "IOS版本号低于11.1.0 请升级",
+        icon: "none",
+        duration: 2000
+      });
+    }
+  },
   methods: {
-    registerLab: function () {
-      console.log('实验室注册')
+    registerLab: function() {
+      console.log("实验室注册");
       wx.navigateTo({
-        url: '/pages/labRegisteration/main'
-      })
+        url: "/pages/labRegisteration/main"
+      });
     },
-    settleLab: function () {
-      console.log('实验室入驻')
+    settleLab: function() {
+      console.log("实验室入驻");
       wx.navigateTo({
-        url: '/pages/labGroupMemberRequest/main'
-      })
+        url: "/pages/labGroupMemberRequest/main"
+      });
     }
   }
-}
+};
 </script>
 <style lang="scss">
 .background {

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <titleComponent title_src="/static/images/切图/实验室成员列表/cl.png" title_text="材料实验室"></titleComponent>
-    <subTitleComponent subTitle_src="/static/images/切图/实验室成员列表/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
+    <titleComponent title_src="/static/images/res/labMember/cl.png" title_text="材料实验室"></titleComponent>
+    <subTitleComponent subTitle_src="/static/images/res/labMember/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
     <searchBarComponent holder="请输入姓名" :options="options"></searchBarComponent>
     <tableViewControllerComponent :items="items" ref="tableViewController">
       <slideTableCellComponent v-on:slide="滑动(index)" v-on:active="记录(index)" v-for="(item,index) in items" :key="index" :item="item" :index="index" :btns="btns" height="180rpx" :frontLayerOnClickFn="frontLayerOnClickFn">

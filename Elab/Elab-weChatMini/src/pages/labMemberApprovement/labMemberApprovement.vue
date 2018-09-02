@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <titleComponent title_src="/static/images/切图/实验室成员列表/cl.png" title_text="材料实验室"></titleComponent>
-    <subTitleComponent subTitle_src="/static/images/切图/实验室成员列表/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
-    <content-title-component contentTitle_src="/static/images/切图/入驻实验室人员审核/sh.png" contentTitle_text="待审核成员"></content-title-component>
+    <titleComponent title_src="/static/images/res/labMember/cl.png" title_text="材料实验室"></titleComponent>
+    <subTitleComponent subTitle_src="/static/images/res/labMember/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
+    <content-title-component contentTitle_src="/static/images/res/moveInLabRequestVerify/sh.png" contentTitle_text="待审核成员"></content-title-component>
     <tableViewControllerComponent ref="tableViewController" :items="items">
       <slideTableCellComponent v-on:slide="滑动(index)" v-on:active="记录(index)" v-for="(item,index) in items" :key="index" :item="item" :index="index" :btns="btns" height="180rpx" :frontLayerOnClickFn="frontLayerOnClickFn">
         <studentCellComponent :item="item" titleFontSize="25rpx" subTitleFontSize="20rpx"></studentCellComponent>

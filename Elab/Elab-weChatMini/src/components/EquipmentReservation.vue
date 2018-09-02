@@ -11,8 +11,8 @@
           <p class="detail-badge">{{tool.badge}}</p>
         </div>
         <div class="scope-btn-wrapper">
-          <btn-component v-if="tool.status === 1" btn_src="/static/images/切图/实验室仪器预约/tb2.png" btn_label="预约" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
-          <btn-component v-else btn_src="/static/images/切图/实验室仪器预约/tb1.png" btn_label="修改" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
+          <btn-component v-if="tool.status === 1" btn_src="/static/images/res/labEquipmentReservation/tb2.png" btn_label="预约" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
+          <btn-component v-else btn_src="/static/images/res/labEquipmentReservation/tb1.png" btn_label="修改" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
         </div>
       </div>
     </div>
