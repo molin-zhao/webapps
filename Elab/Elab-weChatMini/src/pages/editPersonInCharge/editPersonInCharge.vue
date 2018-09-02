@@ -5,24 +5,24 @@
     </div>
 </template>
 <script>
-import titleComponent from "@/components/Title";
-import subTitleComponent from "@/components/SubTitle";
+import titleComponent from '@/components/Title'
+import subTitleComponent from '@/components/SubTitle'
 export default {
-  mounted() {
-    this.id = this.$root.$mp.query.id;
-    this.displayName = this.$root.$mp.query.displayName;
+  mounted () {
+    this.id = this.$root.$mp.query.id
+    this.displayName = this.$root.$mp.query.displayName
   },
   components: {
     titleComponent,
     subTitleComponent
   },
-  data() {
+  data () {
     return {
       id: 0,
-      displayName: ""
-    };
+      displayName: ''
+    }
   }
-};
+}
 </script>
 <style lang="scss">
 </style>

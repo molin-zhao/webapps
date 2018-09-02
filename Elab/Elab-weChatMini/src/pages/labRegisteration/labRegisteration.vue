@@ -16,21 +16,21 @@
   </div>
 </template>
 <script>
-import titleComponent from '@/components/Title'
-import simCodeComponent from '@/components/验证码输入框组件'
-import buttonComponent from '@/components/按钮组件'
-import pickerComponent from '@/components/选择输入框组件'
-import inputComponent from '@/components/简单输入框组件'
+import titleComponent from "@/components/Title";
+import simCodeComponent from "@/components/SimCodeInput";
+import buttonComponent from "@/components/Button";
+import pickerComponent from "@/components/PickerInput";
+import inputComponent from "@/components/NormalInput";
 export default {
-  data () {
+  data() {
     return {
-      button_function: function () {
-        console.log('下一步')
+      button_function: function() {
+        console.log("下一步");
         wx.navigateTo({
-          url: '/pages/labManagement/main'
-        })
+          url: "/pages/labManagement/main"
+        });
       }
-    }
+    };
   },
   components: {
     simCodeComponent,
@@ -40,7 +40,7 @@ export default {
     titleComponent
   },
   methods: {}
-}
+};
 </script>
 <style lang="scss">
 </style>

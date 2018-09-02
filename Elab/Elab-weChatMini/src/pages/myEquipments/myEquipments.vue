@@ -9,8 +9,8 @@
 </template>
 <script>
 import titleComponent from "@/components/Title";
-import myEquipmentComponent from "@/components/我的仪器组件";
-import bottomButtonComponent from "@/components/底部按钮";
+import myEquipmentComponent from "@/components/Equipment";
+import bottomButtonComponent from "@/components/BottomButton";
 export default {
   components: {
     myEquipmentComponent,

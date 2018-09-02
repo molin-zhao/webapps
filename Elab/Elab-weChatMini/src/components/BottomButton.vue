@@ -11,13 +11,13 @@
 </template>
 <script>
 export default {
-  props: ["label", "clickFn", "data", "src"],
+  props: ['label', 'clickFn', 'data', 'src'],
   methods: {
-    点击事件: function() {
-      return this.clickFn(this.data);
+    点击事件: function () {
+      return this.clickFn(this.data)
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .addingNewEquipment {

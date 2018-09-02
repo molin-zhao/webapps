@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-import toolCardComponent from "@/components/仪器卡";
+import toolCardComponent from "@/components/EquipmentCard";
 export default {
   components: {
     toolCardComponent

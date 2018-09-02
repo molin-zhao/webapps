@@ -6,7 +6,7 @@
     <div class="detail">
       <div>
         <p :style="{fontSize: titleFontSize}">{{item.name}}</p>
-        <div v-if="item.label" class="label">{{item.label}}</div>
+        <div v-if="item.label" :style="{backgroundColor: labelBackgroundColor, borderColor: labelBorderColor, color: labelColor}" class="label">{{item.label}}</div>
       </div>
       <p :style="{fontSize: subTitleFontSize}">{{item.description}}</p>
     </div>
@@ -14,11 +14,14 @@
 </template>
 <script>
 export default {
-  //   mounted() {
-  //     console.log("挂在StudentCell");
-  //     console.log(this.$options.propsData.item);
-  //   },
-  props: ['item', 'titleFontSize', 'subTitleFontSize']
+  props: [
+    'item',
+    'titleFontSize',
+    'subTitleFontSize',
+    'labelBackgroundColor',
+    'labelBorderColor',
+    'labelColor'
+  ]
 }
 </script>
 

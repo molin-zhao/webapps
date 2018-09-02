@@ -7,8 +7,8 @@
 </template>
 <script>
 export default {
-  props: ["title_src", "title_text", "title_sfx"]
-};
+  props: ['title_src', 'title_text', 'title_sfx']
+}
 </script>
 <style lang="scss">
 .title {

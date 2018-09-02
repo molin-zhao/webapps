@@ -30,45 +30,45 @@
   </div>
 </template>
 <script>
-import titleComponent from '@/components/Title'
-import subTitleComponent from '@/components/SubTitle'
-import simpleInputComponent from '@/components/简单输入框组件'
-import pickerInputComponent from '@/components/选择输入框组件'
-import simCodeComponent from '@/components/验证码输入框组件'
-import buttonComponent from '@/components/按钮组件'
-import modalComponent from '@/components/Modal弹窗'
-import modalHeaderComponent from '@/components/Modal头'
-import modalContentComponent from '@/components/Modal内容'
-import modalFooterComponent from '@/components/Modal尾'
-import optionControllerComponent from '@/components/单复选控件'
-import simpleSelectionComponent from '@/components/简单选择Cell'
-import { test } from '@/utils/utils'
+import titleComponent from "@/components/Title";
+import subTitleComponent from "@/components/SubTitle";
+import simpleInputComponent from "@/components/NormalInput";
+import pickerInputComponent from "@/components/PickerInput";
+import simCodeComponent from "@/components/SimCodeInput";
+import buttonComponent from "@/components/Button";
+import modalComponent from "@/components/Modal";
+import modalHeaderComponent from "@/components/ModalHeader";
+import modalContentComponent from "@/components/ModalContent";
+import modalFooterComponent from "@/components/ModalFooter";
+import optionControllerComponent from "@/components/SelectionController";
+import simpleSelectionComponent from "@/components/NormalSelection";
+import { test } from "@/utils/utils";
 export default {
-  data () {
+  data() {
     return {
       options: [
         {
           id: 0,
-          description: '老师',
+          description: "老师",
           checked: false
         },
         {
           id: 1,
-          description: '博士生',
+          description: "博士生",
           checked: false
         },
         {
           id: 2,
-          description: '研究生',
+          description: "研究生",
           checked: false
         },
         {
           id: 3,
-          description: '本科生',
+          description: "本科生",
           checked: false
         }
       ]
-    }
+    };
   },
   components: {
     titleComponent,
@@ -85,29 +85,29 @@ export default {
     simpleSelectionComponent
   },
   methods: {
-    rolePickerOnClickFn: function () {
-      this.$refs.modalComponent.showModal()
+    rolePickerOnClickFn: function() {
+      this.$refs.modalComponent.showModal();
     },
-    modalBtnOnClickFn: function () {
+    modalBtnOnClickFn: function() {
       this.$refs.rolePicker.renderInput(
         this.$refs.optionController.getCheckedOptions()
-      )
-      this.$refs.modalComponent.hideModal()
+      );
+      this.$refs.modalComponent.hideModal();
     },
-    modalSelectionCellOnClickFn: function (option) {
-      this.$refs.optionController.choiceManager(option)
+    modalSelectionCellOnClickFn: function(option) {
+      this.$refs.optionController.choiceManager(option);
     },
-    pageBtnOnClickFn: function () {
-      console.log('确定')
+    pageBtnOnClickFn: function() {
+      console.log("确定");
       wx.navigateTo({
-        url: '/pages/settleInApplicationProcessing/main'
-      })
+        url: "/pages/settleInApplicationProcessing/main"
+      });
     },
-    _test: function () {
-      return test()
+    _test: function() {
+      return test();
     }
   }
-}
+};
 </script>
 <style lang="scss">
 </style>
