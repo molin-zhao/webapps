@@ -16,21 +16,21 @@
   </div>
 </template>
 <script>
-import titleComponent from "@/components/Title";
-import simCodeComponent from "@/components/SimCodeInput";
-import buttonComponent from "@/components/Button";
-import pickerComponent from "@/components/PickerInput";
-import inputComponent from "@/components/NormalInput";
+import titleComponent from '@/components/Title'
+import simCodeComponent from '@/components/SimCodeInput'
+import buttonComponent from '@/components/Button'
+import pickerComponent from '@/components/PickerInput'
+import inputComponent from '@/components/NormalInput'
 export default {
-  data() {
+  data () {
     return {
-      button_function: function() {
-        console.log("下一步");
+      button_function: function () {
+        console.log('下一步')
         wx.navigateTo({
-          url: "/pages/labManagement/main"
-        });
+          url: '/pages/labManagement/main'
+        })
       }
-    };
+    }
   },
   components: {
     simCodeComponent,
@@ -40,7 +40,7 @@ export default {
     titleComponent
   },
   methods: {}
-};
+}
 </script>
 <style lang="scss">
 </style>

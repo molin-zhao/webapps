@@ -49,47 +49,47 @@
 <script>
 export default {
   methods: {
-    我的仪器: function() {
-      console.log("我的仪器");
+    我的仪器: function () {
+      console.log('我的仪器')
       wx.navigateTo({
-        url: "/pages/myEquipments/main"
-      });
+        url: '/pages/myEquipments/main'
+      })
     },
-    人员分配: function() {
-      console.log("人员分配");
+    人员分配: function () {
+      console.log('人员分配')
       wx.navigateTo({
-        url: "/pages/groupMemberAlloc/main"
-      });
+        url: '/pages/groupMemberAlloc/main'
+      })
     },
-    人员审核: function() {
-      console.log("人员审核");
+    人员审核: function () {
+      console.log('人员审核')
       wx.navigateTo({
-        url: "/pages/labMemberApprovement/main"
-      });
+        url: '/pages/labMemberApprovement/main'
+      })
     },
-    立即预约: function() {
-      console.log("立即预约");
+    立即预约: function () {
+      console.log('立即预约')
       wx.navigateTo({
-        url: "/pages/toolAppointment/main"
-      });
+        url: '/pages/toolAppointment/main'
+      })
     },
-    实验室成员: function() {
-      console.log("实验室成员");
+    实验室成员: function () {
+      console.log('实验室成员')
       wx.navigateTo({
-        url: "/pages/labMemberManagement/main"
-      });
+        url: '/pages/labMemberManagement/main'
+      })
     },
-    仪器审核: function() {
-      console.log("仪器审核");
+    仪器审核: function () {
+      console.log('仪器审核')
       wx.navigateTo({
-        url: "/pages/toolsPersonInCharge/main"
-      });
+        url: '/pages/toolsPersonInCharge/main'
+      })
     },
-    基本信息设置: function() {
-      console.log("基本信息设置");
+    基本信息设置: function () {
+      console.log('基本信息设置')
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .card {

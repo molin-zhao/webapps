@@ -17,17 +17,17 @@
 </template>
 <script>
 export default {
-  created() {
-    console.log("创建搜索框");
+  created () {
+    console.log('创建搜索框')
   },
-  props: ["holder", "options"],
-  data() {
+  props: ['holder', 'options'],
+  data () {
     return {
       showFilter: false,
       options: {}
-    };
+    }
   }
-};
+}
 </script>
 <style lang="scss">
 .search-bar-wrapper {

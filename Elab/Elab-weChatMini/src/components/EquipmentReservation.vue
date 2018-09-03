@@ -20,25 +20,25 @@
   </div>
 </template>
 <script>
-import btnComponent from "@/components/Button";
+import btnComponent from '@/components/Button'
 export default {
   components: {
     btnComponent
   },
-  props: ["tool"],
+  props: ['tool'],
   methods: {
-    btn_click: function(tool) {
+    btn_click: function (tool) {
       if (tool.status === 0) {
-        console.log("修改 id:" + tool.id + " " + tool.title);
+        console.log('修改 id:' + tool.id + ' ' + tool.title)
       } else {
-        console.log("预约 id:" + tool.id + " " + tool.title);
+        console.log('预约 id:' + tool.id + ' ' + tool.title)
       }
     },
-    test: function() {
-      console.log("test");
+    test: function () {
+      console.log('test')
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .tools {

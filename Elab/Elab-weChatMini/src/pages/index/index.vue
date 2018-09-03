@@ -18,38 +18,38 @@
   </div>
 </template>
 <script>
-import { compareVersion } from "@/utils/utils";
+import { compareVersion } from '@/utils/utils'
 export default {
-  created() {
-    let info = wx.getSystemInfoSync();
-    let systemInfo = info.system;
-    let versionArr = systemInfo.split(" ");
-    let systemVersion = versionArr[0];
-    let version = versionArr[1];
-    if (systemVersion === "iOS" && compareVersion("11.1.0", version) > 0) {
-      console.log("here");
+  created () {
+    let info = wx.getSystemInfoSync()
+    let systemInfo = info.system
+    let versionArr = systemInfo.split(' ')
+    let systemVersion = versionArr[0]
+    let version = versionArr[1]
+    if (systemVersion === 'iOS' && compareVersion('11.1.0', version) > 0) {
+      console.log('here')
       wx.showToast({
-        title: "IOS版本号低于11.1.0 请升级",
-        icon: "none",
+        title: 'IOS版本号低于11.1.0 请升级',
+        icon: 'none',
         duration: 2000
-      });
+      })
     }
   },
   methods: {
-    registerLab: function() {
-      console.log("实验室注册");
+    registerLab: function () {
+      console.log('实验室注册')
       wx.navigateTo({
-        url: "/pages/labRegisteration/main"
-      });
+        url: '/pages/labRegisteration/main'
+      })
     },
-    settleLab: function() {
-      console.log("实验室入驻");
+    settleLab: function () {
+      console.log('实验室入驻')
       wx.navigateTo({
-        url: "/pages/labGroupMemberRequest/main"
-      });
+        url: '/pages/labGroupMemberRequest/main'
+      })
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .background {

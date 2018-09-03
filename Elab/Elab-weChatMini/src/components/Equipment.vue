@@ -31,16 +31,16 @@
 </template>
 <script>
 export default {
-  props: ["equipment"],
+  props: ['equipment'],
   methods: {
-    改变状态: function(equipment) {
-      equipment.available = !equipment.available;
+    改变状态: function (equipment) {
+      equipment.available = !equipment.available
     },
-    编辑我的仪器: function(equipment) {
-      console.log("编辑我的仪器 " + equipment.name);
+    编辑我的仪器: function (equipment) {
+      console.log('编辑我的仪器 ' + equipment.name)
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .myEquipment {

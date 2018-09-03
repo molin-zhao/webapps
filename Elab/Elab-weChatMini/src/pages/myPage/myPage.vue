@@ -15,18 +15,18 @@
   </div>
 </template>
 <script>
-import { _getStudent } from "@/utils/utils";
+import { _getStudent } from '@/utils/utils'
 export default {
-  mounted() {
-    var id = this.$root.$mp.query.id;
-    this.student = _getStudent(id);
+  mounted () {
+    var id = this.$root.$mp.query.id
+    this.student = _getStudent(id)
   },
-  data() {
+  data () {
     return {
       student: {}
-    };
+    }
   }
-};
+}
 </script>
 <style lang="scss">
 .cover {

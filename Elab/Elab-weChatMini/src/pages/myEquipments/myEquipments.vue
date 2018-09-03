@@ -8,9 +8,9 @@
   </div>
 </template>
 <script>
-import titleComponent from "@/components/Title";
-import myEquipmentComponent from "@/components/Equipment";
-import bottomButtonComponent from "@/components/BottomButton";
+import titleComponent from '@/components/Title'
+import myEquipmentComponent from '@/components/Equipment'
+import bottomButtonComponent from '@/components/BottomButton'
 export default {
   components: {
     myEquipmentComponent,
@@ -18,41 +18,41 @@ export default {
     titleComponent
   },
   methods: {
-    addEquipment: function() {
-      console.log("添加仪器");
+    addEquipment: function () {
+      console.log('添加仪器')
     }
   },
-  data: function() {
+  data: function () {
     return {
       equipments: [
         {
           id: 0,
-          image: "/static/images/dzc.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
+          image: '/static/images/dzc.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
           available: true
         },
         {
           id: 2,
-          image: "/static/images/dzc.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
+          image: '/static/images/dzc.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
           available: false
         },
         {
           id: 3,
-          image: "/static/images/dzc.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
+          image: '/static/images/dzc.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
           available: true
         },
         {
           id: 1,
-          image: "/static/images/dzc.png",
-          name: "电子秤 1000g 物理生物化学专用实验器材",
+          image: '/static/images/dzc.png',
+          name: '电子秤 1000g 物理生物化学专用实验器材',
           available: true
         }
       ]
-    };
+    }
   }
-};
+}
 </script>
 <style>
 .myEquipmentList {

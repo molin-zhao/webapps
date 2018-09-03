@@ -53,42 +53,42 @@
   </div>
 </template>
 <script>
-import labelComponent from "@/components/Label";
+import labelComponent from '@/components/Label'
 export default {
-  props: ["item", "editFn", "deleteFn"],
+  props: ['item', 'editFn', 'deleteFn'],
   components: {
     labelComponent
   },
   methods: {
-    同意申请: function() {
-      this.item.person.status = "active";
+    同意申请: function () {
+      this.item.person.status = 'active'
     },
-    编辑负责人: function() {
-      return this.editFn(this.item);
+    编辑负责人: function () {
+      return this.editFn(this.item)
     },
-    删除: function() {
-      return this.deleteFn(this.item);
+    删除: function () {
+      return this.deleteFn(this.item)
     }
   },
-  data() {
+  data () {
     return {
       labels: {
         open: {
-          label: "开放",
-          fontSize: "20rpx",
-          src: "/static/images/res/equipmentManagerAndStatusEdit/bq1.png",
-          color: "#1dd069"
+          label: '开放',
+          fontSize: '20rpx',
+          src: '/static/images/res/equipmentManagerAndStatusEdit/bq1.png',
+          color: '#1dd069'
         },
         closed: {
-          label: "关停",
-          fontSize: "20rpx",
-          src: "/static/images/res/equipmentManagerAndStatusEdit/bq2.png",
-          color: "#ff686f"
+          label: '关停',
+          fontSize: '20rpx',
+          src: '/static/images/res/equipmentManagerAndStatusEdit/bq2.png',
+          color: '#ff686f'
         }
       }
-    };
+    }
   }
-};
+}
 </script>
 <style lang="scss">
 .card {

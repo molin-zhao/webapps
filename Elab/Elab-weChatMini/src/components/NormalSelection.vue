@@ -14,13 +14,13 @@
 </template>
 <script>
 export default {
-  props: ["option", "click_fn", "options"],
+  props: ['option', 'click_fn', 'options'],
   methods: {
-    Cell点击事件: function() {
-      return this.click_fn(this.option);
+    Cell点击事件: function () {
+      return this.click_fn(this.option)
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .simple-selection {
