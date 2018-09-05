@@ -19,10 +19,10 @@
         <div>{{value === ''? defaultValue : value}}</div>
         <img model="scaleToFill" src="/static/images/res/labRegisteration/y.png">
       </div>
-      <div v-if="category === 'textarea'" style="width:50%; float:right"></div>
-    </div>
-    <div v-if="category === 'textarea'" class="textarea">
-      <textarea class="textarea-input" :placeholder="placeholder" placeholder-class="pl" maxlength="200" v-model="value"></textarea>
+      <div v-if="category === 'textarea'" class="picker" @click="bindOnClickTextarea()">
+        <div>{{value === ''? defaultValue : value}}</div>
+        <img model="scaleToFill" src="/static/images/res/labRegisteration/y.png">
+      </div>
     </div>
     <div v-if="separator" class="separator"></div>
 
@@ -40,6 +40,21 @@
         </div>
       </modalFooterComponent>
     </modalComponent>
+
+    <!-- modal组件，用来显示textarea选项 -->
+    <modalComponent ref="textareaModal">
+      <modalHeaderComponent>
+        <p style="font-size: 30rpx;">请输入仪器描述</p>
+      </modalHeaderComponent>
+      <modalContentComponent>
+        <textarea-component ref="textareaInput" height="400rpx" placeholder="请输入仪器描述(最多300字)"></textarea-component>
+      </modalContentComponent>
+      <modalFooterComponent>
+        <div class="btn-wrapper" style="margin-top:-20rpx; margin-bottom:20rpx;">
+          <buttonComponent btn_src="/static/images/res/moveInLabRequest2/b1.png" :btn_fn="textareaModalConfirm" btn_label="确定" font_size="font-size:30rpx"></buttonComponent>
+        </div>
+      </modalFooterComponent>
+    </modalComponent>
   </div>
 </template>
 <script>
@@ -50,6 +65,7 @@ import modalFooterComponent from "@/components/ModalFooter";
 import pickerViewControllerComponent from "@/components/PickerViewController";
 import pickerComponent from "@/components/PickerInput";
 import buttonComponent from "@/components/Button";
+import textareaComponent from "@/components/Textarea";
 export default {
   components: {
     modalComponent,
@@ -58,7 +74,8 @@ export default {
     modalFooterComponent,
     pickerViewControllerComponent,
     pickerComponent,
-    buttonComponent
+    buttonComponent,
+    textareaComponent
   },
   data() {
     return {
@@ -86,13 +103,19 @@ export default {
     },
     bindOnClick: function() {
       this.$refs.pickerViewController.setFirstColumnOptions(this.options);
-      this.modalTitle = this.labelName;
       this.$refs.pickerModal.showModal();
+    },
+    bindOnClickTextarea: function() {
+      this.$refs.textareaModal.showModal();
     },
     pickerModalConfirm: function() {
       this.$refs.pickerModal.hideModal();
       let optionArr = this.$refs.pickerViewController.getAllSelectedOptions();
       this.value = optionArr[0];
+    },
+    textareaModalConfirm: function() {
+      this.$refs.textareaModal.hideModal();
+      this.value = this.$refs.textareaInput.getTextareaValue();
     },
     getInputValue: function() {
       return this.value;
@@ -197,30 +220,13 @@ export default {
         color: #666666;
         font-size: 30rpx;
         margin-right: 20rpx;
+        overflow: hidden;
       }
       img {
         width: 10rpx;
         height: 20rpx;
         float: right;
       }
-    }
-  }
-  .textarea {
-    width: 95%;
-    height: 250rpx;
-    margin-bottom: 10rpx;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border: solid 0.5rpx #bbbbbb;
-    border-radius: 10rpx;
-    z-index: 0;
-    .textarea-input {
-      width: 95%;
-      margin-top: 20rpx;
-      text-align: left;
-      font-size: 30rpx;
     }
   }
 }

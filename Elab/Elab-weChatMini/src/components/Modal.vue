@@ -8,31 +8,33 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       ifShow: false
-    };
+    }
   },
-  props: ["id", "name"],
+  props: ['id', 'name'],
   methods: {
-    hideModal: function() {
+    hideModal: function (callback) {
       if (this.ifShow === true) {
-        this.ifShow = false;
+        this.ifShow = false
+        return callback
       }
     },
-    showModal: function() {
+    showModal: function (callback) {
       if (this.ifShow === false) {
-        this.ifShow = true;
+        this.ifShow = true
+        return callback
       }
     },
-    remain: function() {
+    remain: function () {
       // empty
     },
-    preventTouchMove: function() {
+    preventTouchMove: function () {
       // empty
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .my-modal {
