@@ -27,7 +27,6 @@ export default {
     let systemVersion = versionArr[0]
     let version = versionArr[1]
     if (systemVersion === 'iOS' && compareVersion('11.1.0', version) > 0) {
-      console.log('here')
       wx.showToast({
         title: 'IOS版本号低于11.1.0 请升级',
         icon: 'none',
@@ -37,13 +36,11 @@ export default {
   },
   methods: {
     registerLab: function () {
-      console.log('实验室注册')
       wx.navigateTo({
         url: '/pages/labRegisteration/main'
       })
     },
     settleLab: function () {
-      console.log('实验室入驻')
       wx.navigateTo({
         url: '/pages/labGroupMemberRequest/main'
       })
@@ -86,17 +83,15 @@ export default {
   align-items: center;
   display: flex;
   flex-direction: column;
-}
-
-.card > img {
-  width: 80%;
-  height: 80%;
-  margin: auto;
-}
-
-.card > p {
-  color: aliceblue;
-  margin: auto;
+  img {
+    width: 80%;
+    height: 80%;
+    margin: auto;
+  }
+  p {
+    color: aliceblue;
+    margin: auto;
+  }
 }
 </style>
 

@@ -1,7 +1,7 @@
 <template>
   <div class="simple-selection">
-    <div class="simple-selection-wrapper" @click="Cell点击事件()">
-      <div v-if="options[option.id].checked" class="simple-selection-checked">
+    <div class="simple-selection-wrapper" @click="onClick()">
+      <div v-if="option.checked" class="simple-selection-checked">
         <p>{{option.description}}</p>
         <img model="aspectFit" src="/static/images/res/moveInLabRequest2/r.png">
       </div>
@@ -14,10 +14,10 @@
 </template>
 <script>
 export default {
-  props: ['option', 'click_fn', 'options'],
+  props: ['option', 'bindOnClick', 'index'],
   methods: {
-    Cell点击事件: function () {
-      return this.click_fn(this.option)
+    onClick: function () {
+      return this.bindOnClick(this.option, this.index)
     }
   }
 }

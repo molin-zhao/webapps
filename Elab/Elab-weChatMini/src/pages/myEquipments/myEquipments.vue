@@ -19,7 +19,9 @@ export default {
   },
   methods: {
     addEquipment: function () {
-      console.log('添加仪器')
+      wx.navigateTo({
+        url: '/pages/addEquipment/main'
+      })
     }
   },
   data: function () {

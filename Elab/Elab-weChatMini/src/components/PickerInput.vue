@@ -1,6 +1,6 @@
 <template>
   <div class="input-selection">
-    <div class="input-selection-wrapper" @click="点击事件()">
+    <div class="input-selection-wrapper" @click="bindClick()">
       <input placeholder-class="pl" :placeholder="holder" disabled v-model="selection"><img model="scaleToFill" src="/static/images/res/labRegisteration/y.png">
     </div>
     <div v-if="separator" class="separator"></div>
@@ -13,21 +13,17 @@ export default {
       selection: ''
     }
   },
-  props: ['holder', 'separator', 'click_fn', 'data_toggle'],
+  props: ['holder', 'separator', 'bindOnClick', 'bindData'],
   methods: {
     renderInput: function (options) {
       if (options.length === 0) {
-        this.selection = '未选择'
-      } else if (options.length === 1) {
-        this.selection = options[0].description
+        this.selection = ''
       } else {
-        options.forEach(element => {
-          this.selection = element.description + ' '
-        })
+        this.selection = options[options.length - 1]
       }
     },
-    点击事件: function () {
-      return this.click_fn(this.data_toggle)
+    bindClick: function () {
+      return this.bindOnClick(this.bindData)
     }
   }
 }

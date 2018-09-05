@@ -114,17 +114,15 @@ export default {
   float: right;
   margin-top: 20rpx;
   margin-right: 20rpx;
-}
-
-.edit > img {
-  width: 30rpx;
-  height: 30rpx;
-  float: left;
-}
-
-.edit > p {
-  color: #6cb7f1;
-  font-size: 20rpx;
-  float: right;
+  img {
+    width: 30rpx;
+    height: 30rpx;
+    float: left;
+  }
+  p {
+    color: #6cb7f1;
+    font-size: 20rpx;
+    float: right;
+  }
 }
 </style>

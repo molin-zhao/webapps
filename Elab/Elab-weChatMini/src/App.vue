@@ -45,7 +45,7 @@ export default {
 .pl {
   font-size: 30rpx;
   font-family: Arial, Helvetica, sans-serif;
-  color: lightgray;
+  color: #bbbbbb;
   opacity: 0.8;
 }
 
@@ -68,6 +68,14 @@ export default {
   margin-top: 20rpx;
   width: 100;
   height: 25rpx;
+}
+.form-content {
+  margin-top: 50rpx;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* this rule will be remove */

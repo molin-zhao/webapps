@@ -13,7 +13,9 @@
     "pages/labMemberApprovement/main",
     "pages/labMemberManagement/main",
     "pages/toolsPersonInCharge/main",
-    "pages/editPersonInCharge/main"
+    "pages/editPersonInCharge/main",
+    "pages/addEquipment/main",
+    "pages/takePhoto/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

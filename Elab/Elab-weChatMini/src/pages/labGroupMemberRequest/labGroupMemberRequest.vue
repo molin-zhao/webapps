@@ -4,8 +4,8 @@
     <subTitleComponent subTitle_src="/static/images/res/labMember/xt.png" subTitle_text="四川大学 高分子学院"></subTitleComponent>
     <div class="basicInfo">
       <simple-input-component holder="请输入姓名" :separator="true"></simple-input-component>
-      <picker-input-component ref="rolePicker" holder="请选择管理员身份" :separator="true" :click_fn="rolePickerOnClickFn"></picker-input-component>
-      <picker-input-component holder="请选择时间" :separator="true" :click_fn="_test"></picker-input-component>
+      <picker-input-component ref="rolePicker" holder="请选择管理员身份" :separator="true" :bindOnClick="rolePickerOnClickFn"></picker-input-component>
+      <picker-input-component holder="请选择时间" :separator="true" :bindOnClick="_test"></picker-input-component>
       <sim-code-component holder="请输入管理员手机号" :separator="true"></sim-code-component>
       <simple-input-component holder="请输入验证码" :separator="true"></simple-input-component>
     </div>
@@ -17,8 +17,8 @@
         <p style="font-size: 30rpx;">选择管理员身份</p>
       </modal-header-component>
       <modal-content-component :separator="false">
-        <option-controller-component ref="optionController" selection="single_notnull" :options="options">
-          <simple-selection-component :key='option.id' v-for='option in options' :option="option" :options='options' :click_fn="modalSelectionCellOnClickFn"></simple-selection-component>
+        <option-controller-component ref="optionController" selection="SINGLE_NOTNULL" :options="options">
+          <simple-selection-component :index='index' :key='index' v-for='(option,index) in options' :option="option" :bindOnClick="modalSelectionCellOnClickFn"></simple-selection-component>
         </option-controller-component>
       </modal-content-component>
       <modal-footer-component>
@@ -48,22 +48,18 @@ export default {
     return {
       options: [
         {
-          id: 0,
           description: '老师',
           checked: false
         },
         {
-          id: 1,
           description: '博士生',
           checked: false
         },
         {
-          id: 2,
           description: '研究生',
           checked: false
         },
         {
-          id: 3,
           description: '本科生',
           checked: false
         }
@@ -90,12 +86,12 @@ export default {
     },
     modalBtnOnClickFn: function () {
       this.$refs.rolePicker.renderInput(
-        this.$refs.optionController.getCheckedOptions()
+        this.$refs.optionController.getAllSelectedOptions()
       )
       this.$refs.modalComponent.hideModal()
     },
-    modalSelectionCellOnClickFn: function (option) {
-      this.$refs.optionController.choiceManager(option)
+    modalSelectionCellOnClickFn: function (option, index) {
+      this.$refs.optionController.choiceManager(option, index)
     },
     pageBtnOnClickFn: function () {
       console.log('确定')
