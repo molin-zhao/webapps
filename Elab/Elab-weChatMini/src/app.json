@@ -15,7 +15,7 @@
     "pages/toolsPersonInCharge/main",
     "pages/editPersonInCharge/main",
     "pages/addEquipment/main",
-    "pages/takePhoto/main"
+    "pages/textarea/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

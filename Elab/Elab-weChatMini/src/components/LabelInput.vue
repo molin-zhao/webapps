@@ -42,7 +42,8 @@
     </modalComponent>
 
     <!-- modal组件，用来显示textarea选项 -->
-    <modalComponent ref="textareaModal">
+    <!-- textarea暂时有层级的问题，待解决 -->
+    <!-- <modalComponent ref="textareaModal">
       <modalHeaderComponent>
         <p style="font-size: 30rpx;">请输入仪器描述</p>
       </modalHeaderComponent>
@@ -54,7 +55,7 @@
           <buttonComponent btn_src="/static/images/res/moveInLabRequest2/b1.png" :btn_fn="textareaModalConfirm" btn_label="确定" font_size="font-size:30rpx"></buttonComponent>
         </div>
       </modalFooterComponent>
-    </modalComponent>
+    </modalComponent> -->
   </div>
 </template>
 <script>
@@ -106,19 +107,21 @@ export default {
       this.$refs.pickerModal.showModal();
     },
     bindOnClickTextarea: function() {
-      this.$refs.textareaModal.showModal();
+      // console.log(this.value);
+      wx.navigateTo({
+        url: "/pages/textarea/main"
+      });
     },
     pickerModalConfirm: function() {
       this.$refs.pickerModal.hideModal();
       let optionArr = this.$refs.pickerViewController.getAllSelectedOptions();
       this.value = optionArr[0];
     },
-    textareaModalConfirm: function() {
-      this.$refs.textareaModal.hideModal();
-      this.value = this.$refs.textareaInput.getTextareaValue();
-    },
     getInputValue: function() {
       return this.value;
+    },
+    setTextareaValue: function(val) {
+      this.value = val;
     }
   }
 };
