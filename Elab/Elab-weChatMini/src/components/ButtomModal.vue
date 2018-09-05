@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'show': ifShow, 'bottom-modal':true}" @click="hideModal()">
+  <div :class="{'show': ifShow, 'bottom-modal':true}" @click="hideModal()" @touchmove.stop="preventTouchMove()">
     <div class="modal-wrapper" @click.stop="remain()">
       <div class="buttom-modal-btns">
         <div class="btn-1" @click="btn1Fn()">{{upperBtnLabel}}</div>
@@ -10,37 +10,40 @@
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       ifShow: false
-    }
+    };
   },
   props: [
-    'bindUpperBtnClick',
-    'bindLowerBtnClick',
-    'upperBtnLabel',
-    'lowerBtnLabel'
+    "bindUpperBtnClick",
+    "bindLowerBtnClick",
+    "upperBtnLabel",
+    "lowerBtnLabel"
   ],
   methods: {
-    hideModal: function () {
+    hideModal: function() {
       if (this.ifShow === true) {
-        this.ifShow = false
+        this.ifShow = false;
       }
     },
-    showModal: function () {
+    showModal: function() {
       if (this.ifShow === false) {
-        this.ifShow = true
+        this.ifShow = true;
       }
     },
-    btn1Fn: function () {
-      return this.bindUpperBtnClick()
+    btn1Fn: function() {
+      return this.bindUpperBtnClick();
     },
-    btn2Fn: function () {
-      return this.bindLowerBtnClick()
+    btn2Fn: function() {
+      return this.bindLowerBtnClick();
     },
-    remain: function () {}
+    remain: function() {},
+    preventTouchMove: function() {
+      //empty
+    }
   }
-}
+};
 </script>
 <style lang="scss">
 .bottom-modal {

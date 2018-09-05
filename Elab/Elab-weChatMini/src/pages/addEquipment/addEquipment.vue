@@ -10,7 +10,7 @@
             <label-input-component ref="equipmentBookingModel" labelName="预约模式" height="70rpx" :separator="true" category="radio" :defaultValue="true"></label-input-component>
             <label-input-component ref="equipmentSlotNum" labelName="槽位数" height="70rpx" :separator="true" category="picker" defaultValue="10" :options="slotOptions"></label-input-component>
             <label-input-component ref="equipmentDuration" labelName="单位测试基本时长" height="70rpx" :separator="true" category="picker" defaultValue="15分钟" :options="durationOptions"></label-input-component>
-            <label-input-component ref="equipmentDescription" labelName="仪器描述" height="70rpx" category="textera" placeholder="请输入仪器描述"></label-input-component>
+            <label-input-component ref="equipmentDescription" labelName="仪器描述" height="70rpx" category="textarea" placeholder="请输入仪器描述"></label-input-component>
         </div>
         <div class="btn-wrapper">
             <buttonComponent btn_src="/static/images/res/moveInLabRequest2/b1.png" :btn_fn="btnFn" btn_label="确定" font_size="font-size:30rpx"></buttonComponent>

@@ -19,10 +19,10 @@
         <div>{{value === ''? defaultValue : value}}</div>
         <img model="scaleToFill" src="/static/images/res/labRegisteration/y.png">
       </div>
-      <div v-if="category === 'textera'" style="width:50%; float:right"></div>
+      <div v-if="category === 'textarea'" style="width:50%; float:right"></div>
     </div>
-    <div v-if="category === 'textera'" class="textera">
-      <textarea class="textera-input" :placeholder="placeholder" placeholder-class="pl" maxlength="200" v-model="value"></textarea>
+    <div v-if="category === 'textarea'" class="textarea">
+      <textarea class="textarea-input" :placeholder="placeholder" placeholder-class="pl" maxlength="200" v-model="value"></textarea>
     </div>
     <div v-if="separator" class="separator"></div>
 
@@ -205,7 +205,7 @@ export default {
       }
     }
   }
-  .textera {
+  .textarea {
     width: 95%;
     height: 250rpx;
     margin-bottom: 10rpx;
@@ -215,7 +215,8 @@ export default {
     align-items: center;
     border: solid 0.5rpx #bbbbbb;
     border-radius: 10rpx;
-    .textera-input {
+    z-index: 0;
+    .textarea-input {
       width: 95%;
       margin-top: 20rpx;
       text-align: left;

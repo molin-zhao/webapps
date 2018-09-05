@@ -1,33 +1,38 @@
 <template>
-    <div :class="{'show': ifShow, 'my-modal':true}" @click="hideModal()">
-        <div class="modal-wrapper" @click.stop="remain()">
-            <!-- 下面可以添加任意内容 -->
-            <slot></slot>
-        </div>
+  <div :class="{'show': ifShow, 'my-modal':true}" @click="hideModal()" @touchmove.stop="preventTouchMove()">
+    <div class="modal-wrapper" @click.stop="remain()">
+      <!-- 下面可以添加任意内容 -->
+      <slot></slot>
     </div>
+  </div>
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       ifShow: false
-    }
+    };
   },
-  props: ['id', 'name'],
+  props: ["id", "name"],
   methods: {
-    hideModal: function () {
+    hideModal: function() {
       if (this.ifShow === true) {
-        this.ifShow = false
+        this.ifShow = false;
       }
     },
-    showModal: function () {
+    showModal: function() {
       if (this.ifShow === false) {
-        this.ifShow = true
+        this.ifShow = true;
       }
     },
-    remain: function () {}
+    remain: function() {
+      // empty
+    },
+    preventTouchMove: function() {
+      // empty
+    }
   }
-}
+};
 </script>
 <style lang="scss">
 .my-modal {
