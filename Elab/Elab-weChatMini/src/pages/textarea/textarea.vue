@@ -10,56 +10,56 @@
     </div>
 </template>
 <script>
-import subTitleComponent from "@/components/SubTitle";
-import buttonComponent from "@/components/Button";
+import subTitleComponent from '@/components/SubTitle'
+import buttonComponent from '@/components/Button'
 export default {
   components: {
     subTitleComponent,
     buttonComponent
   },
-  mounted() {
+  mounted () {
     try {
-      this.value = wx.getStorageSync("equipmentDescription");
+      this.value = wx.getStorageSync('equipmentDescription')
     } catch (e) {
-      this.value = "";
+      this.value = ''
     }
   },
-  data() {
+  data () {
     return {
-      value: ""
-    };
+      value: ''
+    }
   },
   methods: {
-    getTextareaValue: function() {
-      return this.value;
+    getTextareaValue: function () {
+      return this.value
     },
-    setTextareaValue: function(textVal) {
-      this.value = textVal;
+    setTextareaValue: function (textVal) {
+      this.value = textVal
     },
-    textareaConfirm: function() {
-      if (this.value !== "") {
+    textareaConfirm: function () {
+      if (this.value !== '') {
         wx.setStorage({
-          key: "equipmentDescription",
+          key: 'equipmentDescription',
           data: this.value,
-          success: function() {
+          success: function () {
             wx.showToast({
-              title: "描述已保存",
+              title: '描述已保存',
               duration: 3000,
-              icon: "success",
-              success: function() {
-                setTimeout(function() {
-                  wx.navigateBack();
-                }, 3000);
+              icon: 'success',
+              success: function () {
+                setTimeout(function () {
+                  wx.navigateBack()
+                }, 3000)
               }
-            });
+            })
           }
-        });
+        })
       } else {
-        wx.navigateBack();
+        wx.navigateBack()
       }
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .textarea {

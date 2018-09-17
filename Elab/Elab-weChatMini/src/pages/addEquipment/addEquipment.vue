@@ -20,16 +20,16 @@
   </div>
 </template>
 <script>
-import buttomModalComponent from "@/components/ButtomModal";
-import buttonComponent from "@/components/Button";
-import labelInputComponent from "@/components/LabelInput";
+import buttomModalComponent from '@/components/ButtomModal'
+import buttonComponent from '@/components/Button'
+import labelInputComponent from '@/components/LabelInput'
 export default {
-  data() {
+  data () {
     return {
-      equipmentImageSrc: "/static/images/res/addSharedEquipment/j.png",
+      equipmentImageSrc: '/static/images/res/addSharedEquipment/j.png',
       slotOptions: [10, 9, 8, 7, 6, 5, 4, 3],
-      durationOptions: ["15分钟", "30分钟", "45分钟", "60分钟", "90分钟"]
-    };
+      durationOptions: ['15分钟', '30分钟', '45分钟', '60分钟', '90分钟']
+    }
   },
   components: {
     labelInputComponent,
@@ -37,13 +37,13 @@ export default {
     buttomModalComponent
   },
   methods: {
-    addEquipmentPhoto: function() {
+    addEquipmentPhoto: function () {
       this.$refs.bottomModal.showModal(() => {
-        this.$refs.equipmentDescription.manuallyDisableTextarea();
-      });
+        this.$refs.equipmentDescription.manuallyDisableTextarea()
+      })
     },
-    btnFn: function() {
-      console.log("确定");
+    btnFn: function () {
+      console.log('确定')
       let equipmentInfo = {
         img: this.equipmentImageSrc,
         name: this.$refs.equipmentName.getInputValue(),
@@ -52,62 +52,62 @@ export default {
         slotNum: this.$refs.equipmentSlotNum.getInputValue(),
         duration: this.$refs.equipmentDuration.getInputValue(),
         description: this.$refs.equipmentDescription.getInputValue()
-      };
-      console.log(equipmentInfo);
+      }
+      console.log(equipmentInfo)
       try {
-        wx.clearStorageSync("equipmentDescription");
-        console.log("成功删除equipmentDescription缓存");
+        wx.clearStorageSync('equipmentDescription')
+        console.log('成功删除equipmentDescription缓存')
       } catch (e) {
         // 删除本地equipmentDescription出错
-        console.log("无法删除equipmentDescription");
+        console.log('无法删除equipmentDescription')
       }
       wx.showToast({
-        title: "仪器添加成功",
-        icon: "success",
+        title: '仪器添加成功',
+        icon: 'success',
         duration: 3000,
         success: () => {
-          setTimeout(function() {
+          setTimeout(function () {
             wx.redirectTo({
-              url: "/pages/labManagement/main"
-            });
-          }, 3000);
+              url: '/pages/labManagement/main'
+            })
+          }, 3000)
         }
-      });
+      })
     },
-    goToPhoto: function() {
+    goToPhoto: function () {
       wx.chooseImage({
         count: 1,
-        sizeTyle: ["compressed"],
-        sourceType: ["camera"],
+        sizeTyle: ['compressed'],
+        sourceType: ['camera'],
         success: res => {
-          this.equipmentImageSrc = res.tempFilePaths[0];
+          this.equipmentImageSrc = res.tempFilePaths[0]
         },
         fail: () => {
-          console.log("获取图片失败");
+          console.log('获取图片失败')
         }
-      });
+      })
       this.$refs.bottomModal.hideModal(() => {
-        this.$refs.equipmentDescription.manuallyEnableTextarea();
-      });
+        this.$refs.equipmentDescription.manuallyEnableTextarea()
+      })
     },
-    goToUpload: function() {
+    goToUpload: function () {
       wx.chooseImage({
         count: 1,
-        sizeTyle: ["compressed"],
-        sourceType: ["album"],
+        sizeTyle: ['compressed'],
+        sourceType: ['album'],
         success: res => {
-          this.equipmentImageSrc = res.tempFilePaths[0];
+          this.equipmentImageSrc = res.tempFilePaths[0]
         },
         fail: () => {
-          console.log("获取图片失败");
+          console.log('获取图片失败')
         }
-      });
+      })
       this.$refs.bottomModal.hideModal(() => {
-        this.$refs.equipmentDescription.manuallyEnableTextarea();
-      });
+        this.$refs.equipmentDescription.manuallyEnableTextarea()
+      })
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .add-photo {

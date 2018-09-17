@@ -1,6 +1,6 @@
 <template>
   <div :class="{'show': ifShow, 'bottom-modal':true}" @click="hideModal()" @touchmove.stop="preventTouchMove()">
-    <div class="modal-wrapper" @click.stop="remain()">
+    <div :class="{'btnShow': ifShow, 'btnHide': !ifShow, 'modal-wrapper':true}" @click.stop="remain()">
       <div class="buttom-modal-btns">
         <div class="btn-1" @click="btn1Fn()">{{upperBtnLabel}}</div>
         <div class="btn-2" @click="btn2Fn()">{{lowerBtnLabel}}</div>
@@ -10,42 +10,42 @@
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       ifShow: false
-    }
+    };
   },
   props: [
-    'bindUpperBtnClick',
-    'bindLowerBtnClick',
-    'upperBtnLabel',
-    'lowerBtnLabel'
+    "bindUpperBtnClick",
+    "bindLowerBtnClick",
+    "upperBtnLabel",
+    "lowerBtnLabel"
   ],
   methods: {
-    hideModal: function (callback) {
+    hideModal: function(callback) {
       if (this.ifShow === true) {
-        this.ifShow = false
-        return callback
+        this.ifShow = false;
+        return callback;
       }
     },
-    showModal: function (callback) {
+    showModal: function(callback) {
       if (this.ifShow === false) {
-        this.ifShow = true
-        return callback
+        this.ifShow = true;
+        return callback;
       }
     },
-    btn1Fn: function () {
-      return this.bindUpperBtnClick()
+    btn1Fn: function() {
+      return this.bindUpperBtnClick();
     },
-    btn2Fn: function () {
-      return this.bindLowerBtnClick()
+    btn2Fn: function() {
+      return this.bindLowerBtnClick();
     },
-    remain: function () {},
-    preventTouchMove: function () {
+    remain: function() {},
+    preventTouchMove: function() {
       // empty
     }
   }
-}
+};
 </script>
 <style lang="scss">
 .bottom-modal {
@@ -109,5 +109,32 @@ export default {
   opacity: 1;
   visibility: visible;
   transition: all 0.2s linear;
+}
+
+.btnShow {
+  animation: buttonSlipUp 0.5s;
+}
+
+.btnHide {
+  animation: buttonSlipBottom 0.5s;
+}
+
+@keyframes buttonSlipUp {
+  from {
+    bottom: -200rpx;
+  }
+  to {
+    bottom: 0rpx;
+  }
+}
+
+@keyframes buttonSlipBottom {
+  from {
+    bottom: 0rpx;
+  }
+
+  to {
+    bottom: -200rpx;
+  }
 }
 </style>

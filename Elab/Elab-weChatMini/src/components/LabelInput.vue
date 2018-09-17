@@ -59,14 +59,14 @@
   </div>
 </template>
 <script>
-import modalComponent from "@/components/Modal";
-import modalHeaderComponent from "@/components/ModalHeader";
-import modalContentComponent from "@/components/ModalContent";
-import modalFooterComponent from "@/components/ModalFooter";
-import pickerViewControllerComponent from "@/components/PickerViewController";
-import pickerComponent from "@/components/PickerInput";
-import buttonComponent from "@/components/Button";
-import textareaComponent from "@/components/Textarea";
+import modalComponent from '@/components/Modal'
+import modalHeaderComponent from '@/components/ModalHeader'
+import modalContentComponent from '@/components/ModalContent'
+import modalFooterComponent from '@/components/ModalFooter'
+import pickerViewControllerComponent from '@/components/PickerViewController'
+import pickerComponent from '@/components/PickerInput'
+import buttonComponent from '@/components/Button'
+import textareaComponent from '@/components/Textarea'
 export default {
   components: {
     modalComponent,
@@ -78,53 +78,53 @@ export default {
     buttonComponent,
     textareaComponent
   },
-  data() {
+  data () {
     return {
-      value: ""
-    };
+      value: ''
+    }
   },
-  mounted() {
-    this.value = this.$options.propsData.defaultValue;
+  mounted () {
+    this.value = this.$options.propsData.defaultValue
   },
   props: [
-    "separator",
-    "height",
-    "labelName",
-    "category",
-    "placeholder",
-    "options",
-    "defaultValue"
+    'separator',
+    'height',
+    'labelName',
+    'category',
+    'placeholder',
+    'options',
+    'defaultValue'
   ],
   methods: {
-    reservationModelChange: function() {
-      if (this.value === "") {
-        this.value = this.defaultValue;
+    reservationModelChange: function () {
+      if (this.value === '') {
+        this.value = this.defaultValue
       }
-      this.value = !this.value;
+      this.value = !this.value
     },
-    bindOnClick: function() {
-      this.$refs.pickerViewController.setFirstColumnOptions(this.options);
-      this.$refs.pickerModal.showModal();
+    bindOnClick: function () {
+      this.$refs.pickerViewController.setFirstColumnOptions(this.options)
+      this.$refs.pickerModal.showModal()
     },
-    bindOnClickTextarea: function() {
+    bindOnClickTextarea: function () {
       // console.log(this.value);
       wx.navigateTo({
-        url: "/pages/textarea/main"
-      });
+        url: '/pages/textarea/main'
+      })
     },
-    pickerModalConfirm: function() {
-      this.$refs.pickerModal.hideModal();
-      let optionArr = this.$refs.pickerViewController.getAllSelectedOptions();
-      this.value = optionArr[0];
+    pickerModalConfirm: function () {
+      this.$refs.pickerModal.hideModal()
+      let optionArr = this.$refs.pickerViewController.getAllSelectedOptions()
+      this.value = optionArr[0]
     },
-    getInputValue: function() {
-      return this.value;
+    getInputValue: function () {
+      return this.value
     },
-    setTextareaValue: function(val) {
-      this.value = val;
+    setTextareaValue: function (val) {
+      this.value = val
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .label-input {
