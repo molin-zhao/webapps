@@ -10,42 +10,42 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       ifShow: false
-    };
+    }
   },
   props: [
-    "bindUpperBtnClick",
-    "bindLowerBtnClick",
-    "upperBtnLabel",
-    "lowerBtnLabel"
+    'bindUpperBtnClick',
+    'bindLowerBtnClick',
+    'upperBtnLabel',
+    'lowerBtnLabel'
   ],
   methods: {
-    hideModal: function(callback) {
+    hideModal: function (callback) {
       if (this.ifShow === true) {
-        this.ifShow = false;
-        return callback;
+        this.ifShow = false
+        return callback
       }
     },
-    showModal: function(callback) {
+    showModal: function (callback) {
       if (this.ifShow === false) {
-        this.ifShow = true;
-        return callback;
+        this.ifShow = true
+        return callback
       }
     },
-    btn1Fn: function() {
-      return this.bindUpperBtnClick();
+    btn1Fn: function () {
+      return this.bindUpperBtnClick()
     },
-    btn2Fn: function() {
-      return this.bindLowerBtnClick();
+    btn2Fn: function () {
+      return this.bindLowerBtnClick()
     },
-    remain: function() {},
-    preventTouchMove: function() {
+    remain: function () {},
+    preventTouchMove: function () {
       // empty
     }
   }
-};
+}
 </script>
 <style lang="scss">
 .bottom-modal {

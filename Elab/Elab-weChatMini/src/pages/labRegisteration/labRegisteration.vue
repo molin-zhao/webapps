@@ -43,16 +43,16 @@
   </div>
 </template>
 <script>
-import modalComponent from "@/components/Modal";
-import modalHeaderComponents from "@/components/ModalHeader";
-import modalContentComponents from "@/components/ModalContent";
-import modalFooterComponents from "@/components/ModalFooter";
-import pickerViewControllerComponents from "@/components/PickerViewController";
-import titleComponent from "@/components/Title";
-import simCodeComponent from "@/components/SimCodeInput";
-import buttonComponent from "@/components/Button";
-import pickerComponent from "@/components/PickerInput";
-import inputComponent from "@/components/NormalInput";
+import modalComponent from '@/components/Modal'
+import modalHeaderComponents from '@/components/ModalHeader'
+import modalContentComponents from '@/components/ModalContent'
+import modalFooterComponents from '@/components/ModalFooter'
+import pickerViewControllerComponents from '@/components/PickerViewController'
+import titleComponent from '@/components/Title'
+import simCodeComponent from '@/components/SimCodeInput'
+import buttonComponent from '@/components/Button'
+import pickerComponent from '@/components/PickerInput'
+import inputComponent from '@/components/NormalInput'
 export default {
   components: {
     simCodeComponent,
@@ -66,110 +66,110 @@ export default {
     modalFooterComponents,
     pickerViewControllerComponents
   },
-  data() {
+  data () {
     return {
       schoolOptions: [],
       canPickSchool: false,
       uniPickValue: [-1, -1],
       uniOptions: [
-        ["四川省", "江苏省", "辽宁省", "北京市"],
+        ['四川省', '江苏省', '辽宁省', '北京市'],
         [
           // 四川省
-          ["四川大学", "电子科技大学", "西南财经大学"],
+          ['四川大学', '电子科技大学', '西南财经大学'],
           // 江苏省
-          ["南京大学", "南京航空航天大学", "苏州大学"],
+          ['南京大学', '南京航空航天大学', '苏州大学'],
           // 辽宁省
-          ["大连理工大学", "东北大学"],
+          ['大连理工大学', '东北大学'],
           // 北京市
           [
-            "清华大学",
-            "北京大学",
-            "中国人民大学",
-            "北京航空航天大学",
-            "北京理工大学"
+            '清华大学',
+            '北京大学',
+            '中国人民大学',
+            '北京航空航天大学',
+            '北京理工大学'
           ]
         ]
       ],
       schools: [
         [
-          ["轻纺学院", "水电学院", "马克思学院", "吴玉章学院"],
-          ["微电子学院", "计算机学院", "经济学院"],
-          ["国际贸易学院", "商学院"]
+          ['轻纺学院', '水电学院', '马克思学院', '吴玉章学院'],
+          ['微电子学院', '计算机学院', '经济学院'],
+          ['国际贸易学院', '商学院']
         ],
         [
-          ["数学学院", "文学院", "历史学院"],
-          ["电子信息学院", "计算机与科学学院", "航天工程学院", "机械学院"],
-          ["商学院", "外语学院", "法学院"]
+          ['数学学院', '文学院', '历史学院'],
+          ['电子信息学院', '计算机与科学学院', '航天工程学院', '机械学院'],
+          ['商学院', '外语学院', '法学院']
         ],
         [
-          ["机械学院", "外语学院", "数学学院", "电子信息工程学院"],
-          ["历史学院", "物理学院", "化学学院"]
+          ['机械学院', '外语学院', '数学学院', '电子信息工程学院'],
+          ['历史学院', '物理学院', '化学学院']
         ],
         [
-          ["清华大学经管学院", "清华大学环境学院", "管理学院", "医学院"],
-          ["北京大学医学部", "计算机学院", "北京大学光华管理学院"],
-          ["信息学院", "历史学院", "艺术学院"],
-          ["高分子材料学院", "航空航天工程学院", "机械学院", "计算机学院"],
-          ["车辆工程学院", "信息工程学院", "机电学院"]
+          ['清华大学经管学院', '清华大学环境学院', '管理学院', '医学院'],
+          ['北京大学医学部', '计算机学院', '北京大学光华管理学院'],
+          ['信息学院', '历史学院', '艺术学院'],
+          ['高分子材料学院', '航空航天工程学院', '机械学院', '计算机学院'],
+          ['车辆工程学院', '信息工程学院', '机电学院']
         ]
       ]
-    };
+    }
   },
   watch: {
     uniPickValue: {
       // 如果选择的学校更新，将学院的信息重置
-      handler(newVal, oldVal) {
-        this.$refs.schoolPickerInput.renderInput([]);
+      handler (newVal, oldVal) {
+        this.$refs.schoolPickerInput.renderInput([])
       },
       deep: true
     }
   },
   methods: {
-    nextBtnFn: function() {
+    nextBtnFn: function () {
       wx.navigateTo({
-        url: "/pages/labManagement/main"
-      });
+        url: '/pages/labManagement/main'
+      })
     },
-    pickUniversity: function() {
-      this.$refs.uniPickerModal.showModal();
+    pickUniversity: function () {
+      this.$refs.uniPickerModal.showModal()
     },
-    pickSchool: function() {
+    pickSchool: function () {
       if (this.uniPickValue[0] + this.uniPickValue[1] < 0) {
-        this.canPickSchool = false;
+        this.canPickSchool = false
         wx.showToast({
-          title: "请先选择学校名称",
-          icon: "none",
+          title: '请先选择学校名称',
+          icon: 'none',
           duration: 2000
-        });
+        })
       } else {
-        this.canPickSchool = true;
+        this.canPickSchool = true
         this.$refs.schoolPickerController.setFirstColumnOptions(
           this.getSchoolOptions()
-        );
-        this.$refs.schoolPickerModal.showModal();
+        )
+        this.$refs.schoolPickerModal.showModal()
       }
     },
     // 选择学校Modal关闭的时候得到controller选择的值，并且将选择值坐标存在本地
     // 为选择学院或者改变学校时将学院值重置使用
-    uniPickerModalBtnFn: function() {
-      this.$refs.uniPickerModal.hideModal();
-      let optionArr = this.$refs.uniPickerController.getAllSelectedOptions();
-      this.uniPickValue = this.$refs.uniPickerController.getPickValue();
-      this.$refs.uniPickerInput.renderInput(optionArr);
+    uniPickerModalBtnFn: function () {
+      this.$refs.uniPickerModal.hideModal()
+      let optionArr = this.$refs.uniPickerController.getAllSelectedOptions()
+      this.uniPickValue = this.$refs.uniPickerController.getPickValue()
+      this.$refs.uniPickerInput.renderInput(optionArr)
     },
-    schoolPickerModalBtnFn: function() {
-      this.$refs.schoolPickerModal.hideModal();
-      let optionArr = this.$refs.schoolPickerController.getAllSelectedOptions();
-      this.$refs.schoolPickerInput.renderInput(optionArr);
+    schoolPickerModalBtnFn: function () {
+      this.$refs.schoolPickerModal.hideModal()
+      let optionArr = this.$refs.schoolPickerController.getAllSelectedOptions()
+      this.$refs.schoolPickerInput.renderInput(optionArr)
     },
     // 通过选择学校Modal关闭之后存在本地的uniPickValue数组进行学院信息的筛选
-    getSchoolOptions: function() {
-      let province = this.uniPickValue[0];
-      let university = this.uniPickValue[1];
-      return this.schools[province][university];
+    getSchoolOptions: function () {
+      let province = this.uniPickValue[0]
+      let university = this.uniPickValue[1]
+      return this.schools[province][university]
     }
   }
-};
+}
 </script>
 <style lang="scss">
 </style>
