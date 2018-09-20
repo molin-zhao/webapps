@@ -6,14 +6,14 @@ angular.module('mockgramApp', ['ui.router', 'ngResource']).config(function ($sta
             url: '/',
             views: {
                 'header': {
-                    templateUrl: '/components/header.html',
+                    templateUrl: 'components/header.html',
                     controller: 'NavbarController'
                 },
                 'content': {
-                    templateUrl: '/components/home.html',
+                    templateUrl: 'components/home.html',
                 },
                 'footer': {
-                    templateUrl: '/components/footer.html',
+                    templateUrl: 'components/footer.html',
                 }
             }
         })
@@ -22,7 +22,7 @@ angular.module('mockgramApp', ['ui.router', 'ngResource']).config(function ($sta
             url: 'api',
             views: {
                 'content@': {
-                    templateUrl: '/components/api.html'
+                    templateUrl: 'components/api.html'
                 }
             }
         })
@@ -31,7 +31,7 @@ angular.module('mockgramApp', ['ui.router', 'ngResource']).config(function ($sta
             url: 'download',
             views: {
                 'content@': {
-                    templateUrl: '/components/download.html'
+                    templateUrl: 'components/download.html'
                 }
             }
         });
