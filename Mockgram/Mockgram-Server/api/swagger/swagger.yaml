@@ -1,0 +1,17 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: Mockgram API
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /user:
+    get:
+      description: description
+      summary: summary
+      responses:
+        '200':
+          description: response_desc
+        
