@@ -3,4 +3,4 @@
 
 # but not public folder
 
-!public/
+!/public/
