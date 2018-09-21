@@ -32,15 +32,25 @@ body {
 
 @media screen and (max-width: 768px) {
   .mockgram-icon {
-    height: 40vw;
-    width: 40vw;
+    height: 45vw;
+    width: 45vw;
+  }
+
+  .btn-light {
+    width: 50vw;
+    font-size: 12px;
   }
 }
 
 @media screen and (min-width: 768px) {
   .mockgram-icon {
-    height: 280px;
-    width: 280px;
+    height: 300px;
+    width: 300px;
+  }
+
+  .btn-light {
+    width: 200px;
+    font-size: 16px;
   }
 }
 
@@ -80,20 +90,35 @@ body {
 }
 
 .btn-light {
-  animation: bottom-in 1s;
-  color: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #fcb211;
   box-shadow: none;
-  border: 1px solid black;
-  font-size: 20px;
-  -webkit-transition: all 1s;
-  transition: all 1s;
+  color: white;
+  cursor: pointer;
+  border: none;
+
+  /* animations */
+  animation-name: hide, show;
+  animation-duration: 0.5s, 0.5s;
+  animation-timing-function: linear, linear;
+  animation-delay: 0s, 0.5s;
+
+  /* -webit capatible */
+  -webkit-animation-name: hide, show;
+  -webkit-animation-duration: 0.5s, 1s;
+  -webkit-animation-timing-function: linear, linear;
+  -webkit-animation-delay: 0s, 0.5s;
+
 }
 
 .btn-light:hover {
-  background: #ffc05d;
+  background: #f8930e;
   color: white;
-  -webkit-transition: all 1s;
-  transition: all 1s;
 }
 
 @keyframes show {
@@ -106,15 +131,23 @@ body {
   }
 }
 
+@keyframes hide {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
 @keyframes left-in {
   from {
-    visibility: visible;
     opacity: 0;
     transform: translateX(-20px);
   }
 
   to {
-    visibility: visible;
     opacity: 1;
     transform: translateY(0);
   }
@@ -122,13 +155,11 @@ body {
 
 @keyframes bottom-in {
   from {
-    visibility: visible;
     transform: translateY(20px);
     opacity: 0;
   }
 
   to {
-    visibility: visible;
     transform: translateY(0);
     opacity: 1;
   }
@@ -136,13 +167,11 @@ body {
 
 @keyframes right-in {
   from {
-    visibility: visible;
     opacity: 0;
     transform: translateX(20px)
   }
 
   to {
-    visibility: visible;
     opacity: 1;
     transform: translateX(0);
   }
@@ -150,13 +179,11 @@ body {
 
 @keyframes top-in {
   from {
-    visibility: visible;
     transform: translateY(-20px);
     opacity: 0;
   }
 
   to {
-    visibility: visible;
     transform: translateY(0);
     opacity: 1;
   }
