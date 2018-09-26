@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var UserActivity = new Schema({
+var UserMessage = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -119,4 +119,4 @@ var UserActivity = new Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('UserActivity', UserActivity);
+module.exports = mongoose.model('UserMessage', UserMessage);

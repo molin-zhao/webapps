@@ -44,6 +44,10 @@ var User = new Schema({
     },
     gender: {
         type: String
+    },
+    privacy_settings: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'UserPrivacy'
     }
 }, {
     timestamps: true

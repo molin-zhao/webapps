@@ -19,11 +19,6 @@ const PolygonSchema = new Schema({
 
 // UserPrivacy is used for storing user privacy settings, like position, etc.
 var UserPrivacy = new Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
     // activity_area is used for collecting posts within this area
     activity_area: PolygonSchema,
     // location is used for positioning the user and the user can manually change it 

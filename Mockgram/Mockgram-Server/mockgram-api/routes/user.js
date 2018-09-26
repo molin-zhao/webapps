@@ -1,22 +1,17 @@
-var express = require('express');
-var router = express.Router();
-var passport = require('passport');
-var User = require('../models/user');
-var Verify = require('./verify');
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
+const check = require('express-validator/check').check;
+const validationResult = require('express-validator/check').validationResult;
+const User = require('../../mockgram-utils/models/user');
+const verification = require('../../mockgram-utils/utils/verify');
+const response = require('../../mockgram-utils/utils/response');
 
-/* GET users listing. */
-router.route('/')
-  .get(Verify.verifyOrdinaryUser, Verify.verifyAdmin, function (req, res, next) {
-    User.find({}, function (err, user) {
-      if (err) return next(err);
-      res.json(user);
-    });
-  });
+// authentication routers
+router.get('/auth/facebook', passport.authenticate('facebook'),
+  (req, res) => {});
 
-router.get('/facebook', passport.authenticate('facebook'),
-  function (req, res) {});
-
-router.get('/facebook/callback', function (req, res, next) {
+router.get('/auth/facebook/callback', (req, res, next) => {
   passport.authenticate('facebook', function (err, user, info) {
     if (err) {
       return next(err);
@@ -28,87 +23,162 @@ router.get('/facebook/callback', function (req, res, next) {
     }
     req.logIn(user, function (err) {
       if (err) {
-        return res.status(500).json({
-          err: 'Could not log in user'
+        return res.json({
+          status: response.SUCCESS.OK.CODE,
+          msg: response.SUCCESS.OK.MSG,
+          data: err
         });
       }
-      // The token generated in the server only contains some of fields we need, making token short
-      var token = Verify.getToken({
-        "username": user.username,
-        "_id": user._id,
-        "admin": user.admin
-      });
-      res.status(200).json({
-        status: 'Login successful!',
-        success: true,
-        token: token
+      res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG
       });
     });
   })(req, res, next);
 });
 
+router.post('/auth/register', [
+  // Check validity
+  check('email').isEmail().withMessage('Email address should be valid'),
+  check('username')
+  .isLength({
+    min: 1
+  }).withMessage('Username is a required field.')
+  .isAlphanumeric().withMessage('Username must be alphanumeric.'),
 
-
-router.post('/register', function (req, res) {
-  User.register(new User({
-      username: req.body.username
-    }),
-    req.body.password,
-    function (err, user) {
-      if (err) {
-        return res.status(500).json({
-          err: err
-        });
-      }
-      if (req.body.firstname) {
-        user.firstname = req.body.firstname;
-      }
-      if (req.body.lastname) {
-        user.lastname = req.body.lastname;
-      }
-      user.save(function (err, user) {
-        passport.authenticate('local')(req, res, function () {
-          return res.status(200).json({
-            status: 'Registration Successful!'
+  check('password')
+  .isLength({
+    min: 8,
+    max: 16
+  }).withMessage('password must be at 6-8 characters in length.')
+  .matches('[0-9]')
+  .matches('[a-z]')
+  .matches('[A-Z]').withMessage('Password must contain at least 1 uppercase letter, 1 lowercase letter and 1 number.')
+  .custom((value, {
+    req,
+    loc,
+    path
+  }) => {
+    if (value !== req.body.confirmPassword) {
+      return false;
+    } else {
+      return value;
+    }
+  }).withMessage("Passwords don't match."),
+], (req, res) => {
+  var errors = validationResult(req).formatWith(response.ERROR.REGISTER_FAILURES.FORMAT);
+  if (!errors.isEmpty()) {
+    res.json({
+      status: response.ERROR.REGISTER_FAILURES.CODE,
+      msg: response.ERROR.REGISTER_FAILURES.MSG,
+      data: errors.array()
+    });
+  } else {
+    User.register(new User({
+        username: req.body.username,
+        email: req.body.email
+      }),
+      req.body.password,
+      function (err, user) {
+        if (err) {
+          return res.json({
+            status: response.ERROR.SERVER_ERROR.CODE,
+            msg: response.ERROR.SERVER_ERROR.MSG,
+            data: err
+          });
+        }
+        user.save(function (err, user) {
+          passport.authenticate('local')(req, res, function () {
+            return res.json({
+              status: response.SUCCESS.OK.CODE,
+              msg: response.SUCCESS.OK.MSG
+            });
           });
         });
       });
-    });
+  }
 });
 
-router.post('/login', function (req, res, next) {
+router.post('/auth/local', (req, res, next) => {
   passport.authenticate('local', function (err, user, info) {
     if (err) {
       return next(err);
     }
     if (!user) {
-      return res.status(401).json({
-        err: info
+      return res.json({
+        status: response.ERROR.NOT_FOUND.CODE,
+        msg: response.ERROR.NOT_FOUND.MSG,
+        data: info
       });
     }
     req.logIn(user, function (err) {
       if (err) {
-        console.log(err);
-        return res.status(500).json({
-          err: 'Could not log in user'
+        return res.json({
+          status: response.ERROR.SERVER_ERROR.CODE,
+          msg: response.ERROR.SERVER_ERROR.MSG,
+          data: err
         });
       }
-
-      var token = Verify.getToken(user);
-      res.status(200).json({
-        status: 'Login successful!',
-        success: true,
-        token: token
+      res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG
       });
     });
   })(req, res, next);
 });
 
-router.get('/logout', function (req, res) {
-  req.logout();
-  res.status(200).json({
-    status: 'Bye!'
+router.get('/auth/logout', (req, res) => {
+  req.session.destroy(function (err) {
+    if (err) {
+      return res.json({
+        status: response.ERROR.SERVER_ERROR.CODE,
+        msg: response.ERROR.SERVER_ERROR.MSG,
+        data: err
+      });
+    }
+    req.logout();
+    return res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG
+    });
   });
 });
+
+
+// user data routers
+router.all('/profile/*', verification.verifySession, verification.verifyUser, (req, res, next) => {
+  next();
+});
+router.get('/profile/:id', (req, res) => {
+  User.findById(req.params.id).populate('privacy_settings').exec(function (err, user) {
+    if (err) {
+      return res.json({
+        status: response.ERROR.NOT_FOUND.CODE,
+        msg: response.ERROR.NOT_FOUND.MSG,
+        data: err
+      });
+    }
+    let userResult = {
+      avatar: user.avatar,
+      bio: user.bio,
+      gender: user.gender,
+      username: user.username,
+      nickname: user.nickname,
+      email: user.email,
+      counts: user.counts,
+      privacy_settings: user.privacy_settings
+    };
+    return res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG,
+      data: userResult
+    });
+  });
+});
+
+router.put('profile/update', (req, res) => {});
+
+
+
 
 module.exports = router;
