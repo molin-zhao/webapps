@@ -6,6 +6,7 @@ package-lock.json
 
 #system files
 .DS_STORE
+dump.rdb
 
 #ignore folders
 public/upload/*

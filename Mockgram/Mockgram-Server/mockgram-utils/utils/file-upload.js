@@ -1,56 +1,42 @@
 const crypto = require('crypto');
-const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const response = require('./response');
 
-// check file type is image
-checkImageType = function (file, callback) {
+checkImageType = (file) => {
     const filetypes = /jpeg|jpg|png|gif/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalFilename).toLowerCase());
+    const mimetype = filetypes.test(file.type);
     if (mimetype && extname) {
-        return callback(null, true);
+        return true;
     } else {
-        callback("Error: only image can be uploaded.");
+        return false;
     }
-}
-
-exports.uploadImage = function (dest, filesize = 1024 * 1024) {
-    // set storage engine
-    const storage = multer.diskStorage({
-        destination: dest,
-        filename: function (req, file, callback) {
-            crypto.pseudoRandomBytes(16, function (err, raw) {
-                if (err) return callback(err);
-                callback(null, raw.toString('hex') + path.extname(file.originalname));
-            });
-        }
-    });
-    return multer({
-        storage: storage,
-        limits: {
-            filesize: filesize
-        },
-        fileFilter: function (req, file, cb) {
-            checkImageType(file, cb);
-        }
-    });
 };
 
-exports.uploadFile = function (dest, filesize = 1024 * 1024) {
-    // set storage engine
-    const storage = multer.diskStorage({
-        destination: dest,
-        filename: function (req, file, callback) {
-            crypto.pseudoRandomBytes(16, function (err, raw) {
-                if (err) return callback(err);
-                callback(null, raw.toString('hex') + path.extname(file.originalname));
+exports.uploadImage = (options, file, cb) => {
+    if (checkImageType(file)) {
+        if (file.size > options.limit) {
+            return cb(response.ERROR.FILE_SIZE_EXCEEDED, null);
+        }
+        crypto.pseudoRandomBytes(16, (err, raw) => {
+            if (err) return cb(response.ERROR.SAVING_FILE_ERROR, null);
+            let fileName = Date.now() + "-" + raw.toString('hex') + path.extname(file.originalFilename);
+            let fileLocation = options.dest + fileName;
+            // connect-multiparty will creates temp files on server
+            // we should manually clean it after saving file to target path
+            let tmpPath = file.path;
+            fs.rename(tmpPath, fileLocation, (err) => {
+                if (err) return cb(response.ERROR.SAVING_FILE_ERROR, null);
+                fs.unlink(tmpPath, () => {
+                    if (err) return cb(response.ERROR.SAVING_FILE_ERROR, null);
+                    // if everything ok, return the file name to the router 
+                    // data persistence needs file name
+                    return cb(null, fileName);
+                });
             });
-        }
-    });
-    return multer({
-        storage: storage,
-        limits: {
-            filesize: filesize
-        }
-    });
-}
+        });
+    } else {
+        return cb(response.ERROR.FILE_TYPE_ERROR, null);
+    }
+};

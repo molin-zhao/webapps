@@ -51,7 +51,7 @@ exports.verifySession = function (req, res, next) {
 };
 
 exports.verifyUser = function (req, res, next) {
-    let queryId = req.params[0] || req.body.id || req.query.id;
+    let queryId = req.params.id || req.body.id || req.query.id;
     let userId = req.user ? req.user.id : null;
     if (queryId && queryId === userId) {
         next();

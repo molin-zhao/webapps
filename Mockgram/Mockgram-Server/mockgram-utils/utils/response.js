@@ -51,6 +51,18 @@ const ERROR = {
     DATA_PERSISTENCE_ERROR: {
         CODE: 500,
         MSG: "data persistence error, cannot write data to the database."
+    },
+    FILE_SIZE_EXCEEDED: {
+        CODE: 406,
+        MSG: "file size exceeded."
+    },
+    SAVING_FILE_ERROR: {
+        CODE: 500,
+        MSG: "saving file error."
+    },
+    FILE_TYPE_ERROR: {
+        CODE: 406,
+        MSG: "file type is not acceptable."
     }
 };
 
