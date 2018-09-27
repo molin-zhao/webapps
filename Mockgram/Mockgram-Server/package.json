@@ -29,6 +29,7 @@
     "passport-local-mongoose": "^5.0.1",
     "pug": "2.0.0-beta11",
     "redis": "^2.8.0",
+    "socket.io": "^2.1.1",
     "superagent": "^4.0.0-beta.5"
   }
 }
