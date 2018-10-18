@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 
-var ReplySchema = new Schema({
+const ReplySchema = new Schema({
     // index field is used for querying within comment -> reply[] array
     index: {
         type: Number,
@@ -32,11 +32,11 @@ var ReplySchema = new Schema({
         ref: 'User'
     }
 }, {
-    timestamps: true
-});
+        timestamps: true
+    });
 
 
-var ComentSchema = new Schema({
+const ComentSchema = new Schema({
     root_post: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
@@ -59,7 +59,7 @@ var ComentSchema = new Schema({
         }
     }]
 }, {
-    timestamps: true
-});
+        timestamps: true
+    });
 
 module.exports = mongoose.model('Comment', ComentSchema);

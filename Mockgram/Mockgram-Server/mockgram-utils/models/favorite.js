@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var favoriteSchema = new Schema({
+const favoriteSchema = new Schema({
 	post: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Post'
@@ -13,7 +13,7 @@ var favoriteSchema = new Schema({
 		}
 	}]
 }, {
-	timestamps: true
-});
+		timestamps: true
+	});
 
 module.exports = mongoose.model('Favorite', favoriteSchema);

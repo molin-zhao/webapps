@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var UserMessage = new Schema({
+const UserMessage = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -116,7 +116,7 @@ var UserMessage = new Schema({
         },
     }]
 }, {
-    timestamps: true
-});
+        timestamps: true
+    });
 
 module.exports = mongoose.model('UserMessage', UserMessage);

@@ -1,9 +1,10 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 require('mongoose-type-email');
-var Schema = mongoose.Schema;
-var passportLocalMongoose = require('passport-local-mongoose');
+const Schema = mongoose.Schema;
+const passportLocalMongoose = require('passport-local-mongoose');
+const auth = require('passport-local-authenticate');
 
-var User = new Schema({
+const User = new Schema({
     username: {
         type: String,
         default: ''
@@ -50,14 +51,14 @@ var User = new Schema({
         ref: 'UserPrivacy'
     }
 }, {
-    timestamps: true
-});
+        timestamps: true
+    });
 
 User.methods.getName = function () {
     return (`username: ${this.username} nickname ${this.nickname}`);
 };
 
-User.method.getUser = function () {
+User.methods.getUser = function () {
     return (`
     user: \n
     \tuserId: ${this._id}\n
@@ -65,7 +66,17 @@ User.method.getUser = function () {
     \temail: ${this.email}
     `);
 };
-
+User.methods.verifyPassword = function (password, callback) {
+    auth.hash(password, this.salt, (err, hashed) => {
+        if (err) return callback(err);
+        auth.verify(this.hash, hashed, (err, verified) => {
+            if (err) return callback(err);
+            console.log(this.hash);
+            console.log(hashed);
+            return callback(null, verified);
+        });
+    });
+}
 User.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('User', User);

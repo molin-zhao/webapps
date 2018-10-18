@@ -1,5 +1,5 @@
 <template>
-  <div @click="点击事件()" class="btn">
+  <div @click="onClick()" class="btn">
     <img mode="scaleToFill" :src="btn_src">
     <p :style="font_size">{{btn_label}}</p>
   </div>
@@ -8,7 +8,7 @@
 export default {
   props: ['btn_src', 'btn_label', 'btn_fn', 'font_size', 'data'],
   methods: {
-    点击事件: function () {
+    onClick: function () {
       return this.btn_fn(this.data)
     }
   }

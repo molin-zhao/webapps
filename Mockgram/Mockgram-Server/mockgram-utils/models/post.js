@@ -33,7 +33,7 @@ const LocationSchema = new Schema({
 	coordinates: PointSchema
 });
 
-var PostSchema = new Schema({
+const PostSchema = new Schema({
 	image: {
 		type: String,
 		required: true
@@ -65,8 +65,8 @@ var PostSchema = new Schema({
 		default: 0
 	}
 }, {
-	timestamps: true
-});
+		timestamps: true
+	});
 
 const Post = mongoose.model('Post', PostSchema);
 module.exports = {

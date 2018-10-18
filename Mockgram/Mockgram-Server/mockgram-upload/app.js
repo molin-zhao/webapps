@@ -59,7 +59,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // set up static folder
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/upload/image')));
 
 // set up routers
 app.use('/', indexRouter);

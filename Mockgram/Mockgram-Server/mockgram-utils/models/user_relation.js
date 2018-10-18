@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 // record how many followers and followings of one user
-var UserRelation = new Schema({
+const UserRelation = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

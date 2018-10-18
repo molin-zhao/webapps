@@ -1,18 +1,33 @@
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
-var User = require('../models/user');
-var config = require('../../config');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
+const auth = require('passport-local-authenticate');
+const User = require('../models/user');
+const config = require('../../config');
 
 let facebookProfile = ['id', 'displayName', 'name', 'gender', 'picture.type(large)'];
 
-exports.local = passport.use(new LocalStrategy(User.authenticate()));
+exports.local = passport.use(new LocalStrategy({ usernameField: 'username' }, function (username, password, done) {
+  // local login strategy with either email or username
+  // criteria for choosing email or username is check if the username field passed in contains @
+  let criteria = (username.indexOf('@') === -1) ? { username: username } : { email: username };
+  User.findOne(criteria, function (err, user) {
+    if (err) return done(err);
+    if (!user) return done(null, false, { message: `${username} not exists.` });
+    user.authenticate(password, (err, isValid) => {
+      if (err) return done(err);
+      if (isValid) return done(null, user);
+      return done(null, false, { message: 'wrong password' });
+    });
+  });
+}));
+
 exports.facebook = passport.use(new FacebookStrategy({
-    clientID: config.facebook.clientID,
-    clientSecret: config.facebook.clientSecret,
-    callbackURL: config.facebook.callbackURL,
-    facebookProfile
-  },
+  clientID: config.facebook.clientID,
+  clientSecret: config.facebook.clientSecret,
+  callbackURL: config.facebook.callbackURL,
+  facebookProfile
+},
   function (accessToken, refreshToken, profile, done) {
     User.findOne({
       OauthId: profile.id

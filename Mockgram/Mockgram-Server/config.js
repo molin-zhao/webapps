@@ -10,8 +10,8 @@ module.exports = {
     'image': {
         post: './public/upload/image/post/',
         avatar: './public/upload/image/avatar/',
-        postQuery: 'http://localhost:3032/public/upload/image/post/',
-        avatarQuery: 'http://localhost:3032/public/upload/image/avatar/',
+        postQuery: 'http://localhost:3032/post/',
+        avatarQuery: 'http://localhost:3032/avatar/',
         limit: 1024 * 1024
     },
     // signature on token

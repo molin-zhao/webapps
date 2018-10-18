@@ -63,6 +63,10 @@ const ERROR = {
     FILE_TYPE_ERROR: {
         CODE: 406,
         MSG: "file type is not acceptable."
+    },
+    EMAIL_ADDRESS_EXISTS: {
+        CODE: 400,
+        MSG: "email address already registered."
     }
 };
 

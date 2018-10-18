@@ -1,6 +1,6 @@
-var mongoose = require('mongoose');
-var LocationSchema = require('./post').Location;
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const LocationSchema = require('./post').Location;
+const Schema = mongoose.Schema;
 
 const PolygonSchema = new Schema({
     type: {
@@ -18,7 +18,7 @@ const PolygonSchema = new Schema({
 });
 
 // UserPrivacy is used for storing user privacy settings, like position, etc.
-var UserPrivacy = new Schema({
+const UserPrivacy = new Schema({
     // activity_area is used for collecting posts within this area
     activity_area: PolygonSchema,
     // location is used for positioning the user and the user can manually change it 

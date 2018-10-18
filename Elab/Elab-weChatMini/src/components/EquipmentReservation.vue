@@ -4,41 +4,39 @@
       <div class="thumb">
         <img :src="tool.image" mode="aspectFit">
       </div>
-      <div class="detail">
-        <div class="detail-description">
-          <p class="detail-title">{{tool.title}}</p>
-          <p class="detail-appointment">预约时间：{{tool.appointment}}</p>
-          <p class="detail-badge">{{tool.badge}}</p>
-        </div>
-        <div class="scope-btn-wrapper">
-          <btn-component v-if="tool.status === 1" btn_src="/static/images/res/labEquipmentReservation/tb2.png" btn_label="预约" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
-          <btn-component v-else btn_src="/static/images/res/labEquipmentReservation/tb1.png" btn_label="修改" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
+        <div class="detail">
+          <div class="detail-description">
+            <p class="detail-title">{{tool.title}}</p>
+            <p class="detail-appointment">预约时间：{{tool.appointment}}</p>
+            <p class="detail-badge">{{tool.badge}}</p>
+          </div>
+          <div class="scope-btn-wrapper">
+            <btn-component v-if="tool.status === 1" btn_src="/static/images/res/labEquipmentReservation/tb2.png" btn_label="预约" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
+            <btn-component v-else btn_src="/static/images/res/labEquipmentReservation/tb1.png" btn_label="修改" :btn_fn=btn_click font_size="font-size:20rpx" :data="tool"></btn-component>
+          </div>
         </div>
       </div>
+      <div class="separator"></div>
     </div>
-    <div class="separator"></div>
-  </div>
 </template>
 <script>
-import btnComponent from '@/components/Button'
+import btnComponent from "@/components/Button";
 export default {
   components: {
     btnComponent
   },
-  props: ['tool'],
+  props: ["tool", "bindOnClick"],
   methods: {
-    btn_click: function (tool) {
+    btn_click: function(tool) {
       if (tool.status === 0) {
-        console.log('修改 id:' + tool.id + ' ' + tool.title)
+        console.log("修改 id:" + tool.id + " " + tool.title);
       } else {
-        console.log('预约 id:' + tool.id + ' ' + tool.title)
+        console.log("预约 id:" + tool.id + " " + tool.title);
       }
-    },
-    test: function () {
-      console.log('test')
+      return this.bindOnClick(tool);
     }
   }
-}
+};
 </script>
 <style lang="scss">
 .tools {
