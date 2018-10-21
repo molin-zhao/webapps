@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 require('mongoose-type-email');
 const Schema = mongoose.Schema;
-const passportLocalMongoose = require('passport-local-mongoose');
-const auth = require('passport-local-authenticate');
+const bcrypt = require('bcrypt');
+const SALT_FACTOR = 8;
 
 const User = new Schema({
     username: {
         type: String,
-        default: ''
+        default: '',
+        unique: true
     },
     password: String,
     OauthId: String,
@@ -33,6 +34,10 @@ const User = new Schema({
         following: {
             type: Number,
             default: 0
+        },
+        posts: {
+            type: Number,
+            default: 0
         }
     },
     avatar: {
@@ -41,7 +46,8 @@ const User = new Schema({
     },
     email: {
         type: mongoose.SchemaTypes.Email,
-        required: true
+        required: true,
+        unique: true
     },
     gender: {
         type: String
@@ -54,29 +60,24 @@ const User = new Schema({
         timestamps: true
     });
 
-User.methods.getName = function () {
-    return (`username: ${this.username} nickname ${this.nickname}`);
-};
 
-User.methods.getUser = function () {
-    return (`
-    user: \n
-    \tuserId: ${this._id}\n
-    \tusername: ${this.username}\n
-    \temail: ${this.email}
-    `);
-};
-User.methods.verifyPassword = function (password, callback) {
-    auth.hash(password, this.salt, (err, hashed) => {
+User.pre('save', function (next) {
+    if (!this.isModified('password')) return next();
+    bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+        if (err) return next(err);
+        bcrypt.hash(this.password, salt, (err, hash) => {
+            if (err) return next(err);
+            this.password = hash;
+            next();
+        })
+    })
+});
+
+User.methods.comparePassword = (password, hash, callback) => {
+    bcrypt.compare(password, hash, (err, isMatch) => {
         if (err) return callback(err);
-        auth.verify(this.hash, hashed, (err, verified) => {
-            if (err) return callback(err);
-            console.log(this.hash);
-            console.log(hashed);
-            return callback(null, verified);
-        });
-    });
+        callback(null, isMatch);
+    })
 }
-User.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('User', User);

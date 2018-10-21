@@ -1,26 +1,21 @@
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
-const auth = require('passport-local-authenticate');
 const User = require('../models/user');
 const config = require('../../config');
+const jwt = require('jsonwebtoken');
 
 let facebookProfile = ['id', 'displayName', 'name', 'gender', 'picture.type(large)'];
 
-exports.local = passport.use(new LocalStrategy({ usernameField: 'username' }, function (username, password, done) {
-  // local login strategy with either email or username
-  // criteria for choosing email or username is check if the username field passed in contains @
-  let criteria = (username.indexOf('@') === -1) ? { username: username } : { email: username };
-  User.findOne(criteria, function (err, user) {
-    if (err) return done(err);
-    if (!user) return done(null, false, { message: `${username} not exists.` });
-    user.authenticate(password, (err, isValid) => {
-      if (err) return done(err);
-      if (isValid) return done(null, user);
-      return done(null, false, { message: 'wrong password' });
-    });
-  });
-}));
+exports.getToken = function (user) {
+  return jwt.sign(user, config.secretKey, { expiresIn: config.cookie.maxAge / 1000 });
+}
+
+exports.decodeToken = function (token, callback) {
+  jwt.verify(token, config.secretKey, (err, decoded) => {
+    if (err) return callback(err);
+    return callback(null, decoded);
+  })
+}
 
 exports.facebook = passport.use(new FacebookStrategy({
   clientID: config.facebook.clientID,
@@ -61,5 +56,3 @@ exports.facebook = passport.use(new FacebookStrategy({
     });
   }
 ));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());

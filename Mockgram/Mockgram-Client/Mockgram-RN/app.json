@@ -21,7 +21,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.molinz.mockgram"
+    },
+    "android": {
+      "package": "com.molinz.mockgram"
     }
   }
 }

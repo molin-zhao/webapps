@@ -26,47 +26,59 @@ const ERROR = {
     },
     FORBIDDEN: {
         CODE: 403,
-        MSG: "resource forbidden, no permission for this action."
+        MSG: "Resource forbidden, no permission for this action."
     },
     NO_TOKEN_PROVIDED: {
         CODE: 401,
-        MSG: "no token provided."
+        MSG: "No token provided."
     },
     NOT_FOUND: {
         CODE: 404,
-        MSG: "requested resource not found."
+        MSG: "Requested resource not found."
     },
     SERVER_ERROR: {
         CODE: 500,
-        MSG: "server occured errors."
+        MSG: "Server occured errors."
     },
     NO_IMAGE_PROVIDED: {
         CODE: 406,
-        MSG: "post image is required."
+        MSG: "Post image is required."
     },
     USER_UNSPECIFIED: {
         CODE: 406,
-        MSG: "user is unspecified."
+        MSG: "User is unspecified."
     },
     DATA_PERSISTENCE_ERROR: {
         CODE: 500,
-        MSG: "data persistence error, cannot write data to the database."
+        MSG: "Data persistence error, cannot write data to the database."
     },
     FILE_SIZE_EXCEEDED: {
         CODE: 406,
-        MSG: "file size exceeded."
+        MSG: "File size exceeded."
     },
     SAVING_FILE_ERROR: {
         CODE: 500,
-        MSG: "saving file error."
+        MSG: "Saving file error."
     },
     FILE_TYPE_ERROR: {
         CODE: 406,
-        MSG: "file type is not acceptable."
+        MSG: "File type is not acceptable."
     },
     EMAIL_ADDRESS_EXISTS: {
         CODE: 400,
-        MSG: "email address already registered."
+        MSG: "Email address already registered."
+    },
+    USER_NAME_EXISTS: {
+        CODE: 400,
+        MSG: "Username already registered."
+    },
+    USER_PASSWORD_INCORRECT: {
+        CODE: 400,
+        MSG: "Password incorrect."
+    },
+    USER_NAME_NOT_FOUND: {
+        CODE: 400,
+        MSG: "Username or email address not found."
     }
 };
 

@@ -6,11 +6,8 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const redis = require('redis');
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
 const indexRouter = require('./routes/index');
-const messageRouter = require('./routes/message-push');
+const messageRouter = require('./routes/message');
 const config = require('../config');
 const authenticate = require('../mockgram-utils/utils/authenticate');
 
@@ -25,29 +22,11 @@ app.use(logger('dev'));
 // set up mongoose connection
 let mongoUrl = `mongodb://${config.mongoUrl.host}:${config.mongoUrl.port}/${config.mongoUrl.db}`;
 mongoose.connect(mongoUrl, {
-  useNewUrlParser: true
+  useNewUrlParser: true,
+  useCreateIndex: true
 }).then(() => {
   console.log('connected correctly to mongodb');
 }).catch(err => console.log(err));
-
-// set up session information
-// create session middleware for both express and socket.io
-const sessionMiddleWare = session({
-  store: new RedisStore({
-    client: redis.createClient(config.redisUrl.port, config.redisUrl.host)
-  }),
-  secret: config.secretKey,
-  resave: false,
-  saveUninitialized: false,
-  name: config.name,
-  cookie: config.cookie
-});
-// apply middleware to app
-app.use(sessionMiddleWare);
-
-// set up passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(express.json());
 app.use(express.urlencoded({
@@ -86,7 +65,4 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-module.exports = {
-  app: app,
-  sessionMiddleWare: sessionMiddleWare
-};
+module.exports = app;

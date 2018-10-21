@@ -4,8 +4,7 @@
  * Module dependencies.
  */
 
-const app = require('../app').app;
-const sessionMiddleWare = require('../app').sessionMiddleWare;
+const app = require('../app');
 const socketIo = require('socket.io');
 const debug = require('debug')('socket-mockgram-server:server');
 const http = require('http');
@@ -24,34 +23,27 @@ app.set('port', port);
 const server = http.createServer(app);
 const io = socketIo(server);
 
-io.use(function (socket, next) {
-  sessionMiddleWare(socket.request, socket.request.res, next);
-});
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
+module.exports = global.userSockets = [];
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 io.on('connection', function (socket) {
-  console.log('A client has connected');
-  let session = socket.request.session;
-  if (session) {
-    //store actual socket of connected user in order to access it easily
-    //from other modules e.g. from router
-    let user = session.passport.user;
-    userSockets[user] = socket;
-    console.log(`user: ${user} connected and socket stored`);
-    //on disconnect
-    socket.on('disconnect', function () {
-      delete userSockets[user];
-      return console.log(`user: ${user} has disconnected`);
-    });
-  } else {
-    socket.disconnect();
-  }
+  let userId = '';
+  socket.on('registerClient', (data) => {
+    userId = data.id
+    global.userSockets[userId] = socket;
+    console.log(`user: ${userId} connected and socket ${socket.id} stored`);
+  })
+  //on disconnect
+  socket.on('disconnect', () => {
+    delete global.userSockets[userId];
+    console.log(`user ${userId} disconnect and ${socket.id} closed`);
+  });
 });
 
 /**

@@ -8,48 +8,79 @@ export default class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: '',
-            password: '',
-            rememberme: false
+            loginName: this.props.navigation.getParam('loginName', ''),
+            loginPassword: this.props.navigation.getParam('loginPassword', ''),
+            rememberme: this.props.navigation.getParam('rememberme', false),
+            loginError: this.props.navigation.getParam('loginError', '')
         }
     }
 
-    componentDidMount() {
-        SecureStore.getItemAsync('userinfo').then((userdata) => {
+    componentWillMount() {
+        SecureStore.getItemAsync('login_creds').then((userdata) => {
             let userinfo = JSON.parse(userdata);
-            console.log(userinfo);
             if (userinfo) {
-                this.setState({ email: userinfo.email });
-                this.setState({ password: userinfo.password });
+                this.setState({ loginName: userinfo.loginName });
+                this.setState({ loginPassword: userinfo.loginPassword });
                 this.setState({ rememberme: true });
             }
         })
     }
+
+
+    renderLoginError = () => {
+        if (this.state.loginError !== '') {
+            return (
+                <Text style={styles.loginError}><Icon name='exclamation-circle' type="FontAwesome" style={{ fontSize: 15, color: 'red', marginRight: 5 }} />{this.state.loginError}</Text>
+            );
+        } else {
+            return <Text>{null}</Text>
+        }
+    }
+
+
+
     handleLogin = async () => {
         console.log(this.state);
         if (this.state.rememberme) {
-            await SecureStore.setItemAsync('userinfo', JSON.stringify({
-                email: this.state.email,
-                password: this.state.password
+            await SecureStore.setItemAsync('login_creds', JSON.stringify({
+                loginName: this.state.loginName,
+                loginPassword: this.state.loginPassword
             })).catch((err) => {
                 console.log('Could not save user info', err);
             });
         } else {
-            await SecureStore.deleteItemAsync('userinfo').catch(err => console.log('Could not delete user info', err));
+            await SecureStore.deleteItemAsync('logincreds').catch(err => console.log('Could not delete user info', err));
         }
-        fetch('http://localhost:3031/user/auth/auth/local', {
+        fetch('http://localhost:3031/user/login', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email: this.state.email,
-                username: this.state.username,
-                password: this.state.password,
-                confirmPassword: this.state.confirmPassword
+                username: this.state.loginName,
+                password: this.state.loginPassword,
             }),
-        }).then(res => res.json()).then(resJson => console.log(resJson));
+        }).then(res => res.json()).then(resJson => {
+            if (resJson.status === 200) {
+                // login success
+                let userinfo = {
+                    token: resJson.token,
+                    user: resJson.user
+                }
+                SecureStore.setItemAsync('userinfo', JSON.stringify(userinfo)).then(() => {
+                    global.userinfo = userinfo;
+                })
+                // global.socket = SocketIOClient(`${baseUrl.socket}`);
+                // global.socket.emit('registerClient', { id: global.userinfo.user._id });
+                this.props.navigation.popToTop()
+            } else {
+                // login failed
+                this.setState({
+                    loginError: resJson.msg
+                })
+            }
+        });
     }
     render() {
         return (
@@ -57,17 +88,18 @@ export default class Login extends React.Component {
                 <Image style={{ marginTop: 30, width: 100, height: 100, borderRadius: 25 }} source={require('../../static/favicon.png')} />
                 <Item style={styles.formInput}>
                     <Icon type='FontAwesome' name='envelope' />
-                    <Input placeholder='Email'
-                        onChangeText={(email) => this.setState({ email })}
-                        value={this.state.email} />
+                    <Input placeholder='Email or username'
+                        onChangeText={(value) => this.setState({ loginName: value })}
+                        value={this.state.loginName} />
                 </Item>
                 <Item style={styles.formInput}>
                     <Icon type='FontAwesome' name='unlock-alt' />
                     <Input placeholder='Password'
-                        onChangeText={(password) => this.setState({ password })}
+                        onChangeText={(password) => this.setState({ loginPassword: password })}
                         secureTextEntry={true}
-                        value={this.state.password} />
+                        value={this.state.loginPassword} />
                 </Item>
+                <this.renderLoginError />
                 <TouchableOpacity onPress={() => this.setState({ rememberme: !this.state.rememberme })}>
                     <View style={styles.formCheckbox}>
                         <CheckBox checked={this.state.rememberme} />
@@ -117,5 +149,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: windowWidth * 0.6,
         marginTop: 50
-    }
+    },
+    loginError: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 5,
+        flexWrap: 'wrap',
+        width: windowWidth * 0.7,
+        color: 'red',
+        fontSize: 15
+    },
 })

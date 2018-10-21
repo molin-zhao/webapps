@@ -114,6 +114,57 @@ const UserMessage = new Schema({
             required: true,
             ref: 'Post'
         },
+    }],
+    liked: [{
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        read: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        create_time: {
+            type: Date,
+            default: Date.now(),
+            required: true
+        },
+        type: {
+            type: String,
+            required: true
+        },
+        detail: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'Post'
+        },
+    }],
+    followed: [{
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        read: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        create_time: {
+            type: Date,
+            default: Date.now(),
+            required: true
+        },
+        type: {
+            // posted by their friends or neaby people
+            type: String,
+            required: true
+        },
+        detail: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'User'
+        },
     }]
 }, {
         timestamps: true

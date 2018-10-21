@@ -3,41 +3,15 @@ const router = express.Router();
 const passport = require('passport');
 const check = require('express-validator/check').check;
 const validationResult = require('express-validator/check').validationResult;
+const Post = require('../../mockgram-utils/models/post');
 const User = require('../../mockgram-utils/models/user');
 const verification = require('../../mockgram-utils/utils/verify');
 const response = require('../../mockgram-utils/utils/response');
+const authenticate = require('../../mockgram-utils/utils/authenticate');
+const handleError = require('../../mockgram-utils/utils/handleError').handleError;
 
-// authentication routers
-router.get('/auth/facebook', passport.authenticate('facebook'),
-  (req, res) => { });
-
-router.get('/auth/facebook/callback', (req, res, next) => {
-  passport.authenticate('facebook', function (err, user, info) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return res.status(401).json({
-        err: info
-      });
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        return res.json({
-          status: response.SUCCESS.OK.CODE,
-          msg: response.SUCCESS.OK.MSG,
-          data: err
-        });
-      }
-      res.json({
-        status: response.SUCCESS.OK.CODE,
-        msg: response.SUCCESS.OK.MSG
-      });
-    });
-  })(req, res, next);
-});
-
-router.post('/auth/register', [
+// basic user register and login routers
+router.post('/register', [
   // Check validity
   check('email').isEmail().withMessage('Email address should be valid'),
   check('username')
@@ -75,98 +49,93 @@ router.post('/auth/register', [
     });
   } else {
     User.findOne({ email: req.body.email }, function (err, user) {
-      if (err) {
-        return res.json({
-          status: response.ERROR.SERVER_ERROR.CODE,
-          msg: response.ERROR.SERVER_ERROR.MSG,
-          data: err
-        })
-      }
-      console.log(user);
+      if (err) return handleError(res, err);
       if (user) {
         return res.json({
           status: response.ERROR.EMAIL_ADDRESS_EXISTS.CODE,
           msg: response.ERROR.EMAIL_ADDRESS_EXISTS.MSG,
         })
       } else {
-        User.register(new User({
-          username: req.body.username,
-          email: req.body.email
-        }),
-          req.body.password,
-          function (err, user) {
-            if (err) {
-              return res.json({
-                status: response.ERROR.SERVER_ERROR.CODE,
-                msg: response.ERROR.SERVER_ERROR.MSG,
-                data: err
-              });
-            }
-            user.save(function (err, user) {
-              passport.authenticate('local')(req, res, function () {
-                return res.json({
-                  status: response.SUCCESS.OK.CODE,
-                  msg: response.SUCCESS.OK.MSG
-                });
-              });
+        User.findOne({ username: req.body.username }, (err, user) => {
+          if (err) return handleError(res, err);
+          if (user) {
+            return res.json({
+              status: response.ERROR.USER_NAME_EXISTS.CODE,
+              msg: response.ERROR.USER_NAME_EXISTS.MSG
+            })
+          } else {
+            // email address and username both available
+            // create user and save it in database
+            let newUser = new User({
+              email: req.body.email,
+              username: req.body.username,
+              password: req.body.password
             });
-          });
+            newUser.save((err) => {
+              if (err) return handleError(res, err);
+              return res.json({
+                status: response.SUCCESS.OK.CODE,
+                msg: response.SUCCESS.OK.MSG
+              })
+            })
+          }
+        })
       }
     });
   }
 });
 
-router.post('/auth/local', (req, res, next) => {
-  passport.authenticate('local', function (err, user, info) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
+
+router.post('/login', (req, res) => {
+  let loginName = req.body.username;
+  let criteria = (loginName.indexOf('@') === -1) ? { username: loginName } : { email: loginName };
+  User.findOne(criteria, (err, user) => {
+    if (err) return handleError(res, err);
+    if (user) {
+      user.comparePassword(req.body.password, user.password, (err, isMatch) => {
+        if (err) return handleError(res, err);
+        if (isMatch) {
+          let userCreds = {
+            username: user.username,
+            email: user.email,
+            _id: user._id
+          }
+          let token = authenticate.getToken(userCreds);
+          return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            token: token,
+            user: userCreds
+          })
+        } else {
+          return res.json({
+            status: response.ERROR.USER_PASSWORD_INCORRECT.CODE,
+            msg: response.ERROR.USER_PASSWORD_INCORRECT.MSG
+          })
+        }
+      })
+    } else {
       return res.json({
-        status: response.ERROR.NOT_FOUND.CODE,
-        msg: response.ERROR.NOT_FOUND.MSG,
-        data: info
-      });
+        status: response.ERROR.USER_NAME_NOT_FOUND.CODE,
+        msg: response.ERROR.USER_NAME_NOT_FOUND.MSG
+      })
     }
-    req.logIn(user, function (err) {
-      if (err) {
-        return res.json({
-          status: response.ERROR.SERVER_ERROR.CODE,
-          msg: response.ERROR.SERVER_ERROR.MSG,
-          data: err
-        });
-      }
-      res.json({
-        status: response.SUCCESS.OK.CODE,
-        msg: response.SUCCESS.OK.MSG,
-        data: user
-      });
-    });
-  })(req, res, next);
+  })
 });
 
-router.get('/auth/logout', (req, res) => {
-  req.session.destroy(function (err) {
-    if (err) {
-      return res.json({
-        status: response.ERROR.SERVER_ERROR.CODE,
-        msg: response.ERROR.SERVER_ERROR.MSG,
-        data: err
-      });
-    }
-    req.logout();
-    return res.json({
-      status: response.SUCCESS.OK.CODE,
-      msg: response.SUCCESS.OK.MSG
-    });
-  });
+router.get('/token/verify', verification.verifyAuthorization, (req, res) => {
+  return res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG
+  })
+})
+
+router.get('/logout', (req, res) => {
+  // TODO
 });
 
 
 // user data routers
-router.all('/profile/*', verification.verifySession, verification.verifyUser, (req, res, next) => {
-  next();
-});
 router.get('/profile/:id', (req, res) => {
   User.findById(req.params.id).populate('privacy_settings').exec(function (err, user) {
     if (err) {
@@ -176,7 +145,9 @@ router.get('/profile/:id', (req, res) => {
         data: err
       });
     }
+
     let userResult = {
+      _id: user._id,
       avatar: user.avatar,
       bio: user.bio,
       gender: user.gender,
@@ -186,12 +157,43 @@ router.get('/profile/:id', (req, res) => {
       counts: user.counts,
       privacy_settings: user.privacy_settings
     };
+    console.log(userResult);
     return res.json({
       status: response.SUCCESS.OK.CODE,
       msg: response.SUCCESS.OK.MSG,
-      data: userResult
+      user: userResult
     });
   });
+});
+
+// authentication routers
+router.get('/auth/facebook', passport.authenticate('facebook'),
+  (req, res) => { });
+
+router.get('/auth/facebook/callback', (req, res, next) => {
+  passport.authenticate('facebook', function (err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(401).json({
+        err: info
+      });
+    }
+    req.logIn(user, function (err) {
+      if (err) {
+        return res.json({
+          status: response.SUCCESS.OK.CODE,
+          msg: response.SUCCESS.OK.MSG,
+          data: err
+        });
+      }
+      res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG
+      });
+    });
+  })(req, res, next);
 });
 
 router.put('profile/update', (req, res) => { });

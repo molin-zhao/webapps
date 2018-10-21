@@ -3,13 +3,17 @@ var Schema = mongoose.Schema;
 
 const PointSchema = new Schema({
 	type: {
+		//Point
 		type: String,
-		enum: ['Point'],
 		required: true
 	},
-	coordinates: {
-		type: [Number],
-		required: true
+	coords: {
+		latitude: {
+			type: Number
+		},
+		longitude: {
+			type: Number
+		}
 	}
 });
 
@@ -21,13 +25,19 @@ const LocationSchema = new Schema({
 	country: {
 		type: String
 	},
-	state: {
-		type: String
-	},
 	city: {
 		type: String
 	},
-	district: {
+	region: {
+		type: String
+	},
+	postalCode: {
+		type: String
+	},
+	isoCountryCode: {
+		type: String
+	},
+	street: {
 		type: String
 	},
 	coordinates: PointSchema
@@ -71,5 +81,5 @@ const PostSchema = new Schema({
 const Post = mongoose.model('Post', PostSchema);
 module.exports = {
 	Post: Post,
-	Location: LocationSchema
+	Location: LocationSchema,
 };
