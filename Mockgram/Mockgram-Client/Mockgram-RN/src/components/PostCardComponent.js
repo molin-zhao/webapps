@@ -16,12 +16,11 @@ export default class PostCardComponent extends React.Component {
                 <CardItem>
                     <Left>
                         <Thumbnail source={this.state.dataSource.postBy.avatar === '' ? require('../static/user.png') : {
-                            uri: this.state.date
-                                .postBy.avatar
+                            uri: this.state.dataSource.postBy.avatar
                         }} />
                         <Body>
                             <Text>{this.state.dataSource.postBy.username}</Text>
-                            <Text>{this.state.dataSource.location.city}</Text>
+                            <Text>{this.state.dataSource.location ? this.state.dataSource.location.city : null}</Text>
                         </Body>
                     </Left>
                 </CardItem>

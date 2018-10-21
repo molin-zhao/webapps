@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Image, Dimensions, TouchableOpacity, Text } from 'react-native';
 import { SecureStore } from 'expo';
 import { Item, Input, Icon, CheckBox, Body } from 'native-base';
+import baseUrl from '../../common/baseUrl';
 
 
 export default class Login extends React.Component {
@@ -51,7 +52,7 @@ export default class Login extends React.Component {
         } else {
             await SecureStore.deleteItemAsync('logincreds').catch(err => console.log('Could not delete user info', err));
         }
-        fetch('http://localhost:3031/user/login', {
+        fetch(`${baseUrl.api}/user/login`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',

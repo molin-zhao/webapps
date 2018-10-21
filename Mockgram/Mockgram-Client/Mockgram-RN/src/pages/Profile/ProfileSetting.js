@@ -45,6 +45,15 @@ export default class ProfileSetting extends React.Component {
     }
 
     choosePhotoFromLibrary = async () => {
+        if (!this.state.permissionAllowed) {
+            this.setState({
+                permissionAllowed: allowPermissions.allowCameraAccess()
+            }, () => {
+                if (!this.state.permissionAllowed) {
+                    return;
+                }
+            });
+        }
         let capturedImage = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             aspect: [1, 1],
@@ -56,9 +65,19 @@ export default class ProfileSetting extends React.Component {
                 choosedImage: processedImage,
             })
         }
+
     }
 
     choosePhotoFromCamera = async () => {
+        if (!this.state.permissionAllowed) {
+            this.setState({
+                permissionAllowed: allowPermissions.allowCameraAccess()
+            }, () => {
+                if (!this.state.permissionAllowed) {
+                    return;
+                }
+            });
+        }
         let capturedImage = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             aspect: [1, 1],
@@ -70,6 +89,7 @@ export default class ProfileSetting extends React.Component {
                 choosedImage: processedImage,
             })
         }
+
     }
     removeProfileAvatar = () => {
         let formData = new FormData();

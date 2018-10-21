@@ -160,5 +160,8 @@ function FindCelebrity() {
 
 router.post('/like/post/:id', (req, res) => { });
 router.post('/like/comment/:id', (req, res) => { });
+router.post('/follow/:id', verification.verifyAuthorization, (req, res) => {
+
+})
 
 module.exports = router;

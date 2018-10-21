@@ -1,5 +1,5 @@
 export default baseUrl = {
-    api: 'http://localhost:3031',
-    upload: 'http://localhost:3032',
-    socket: 'http://localhost:3033'
+    api: 'http://10.13.2.116:3031',
+    upload: 'http://10.13.2.116:3032',
+    socket: 'http://10.13.2.116:3033'
 }

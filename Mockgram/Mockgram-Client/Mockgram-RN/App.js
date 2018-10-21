@@ -4,7 +4,6 @@ import MainApp from './src/MainApp';
 import { Provider } from 'react-redux';
 import { configureStore } from './src/redux/configureStore';
 import { SecureStore } from 'expo';
-import clearStore from './src/utils/clearSecureStore';
 import SocketIOClient from 'socket.io-client';
 import baseUrl from './src/common/baseUrl';
 const store = configureStore();
@@ -16,7 +15,7 @@ export default class App extends React.Component {
       if (userdata) {
         let userinfo = JSON.parse(userdata);
         global.userinfo = userinfo;
-        fetch('http://localhost:3031/user/token/verify', {
+        fetch(`${baseUrl.api}/user/token/verify`, {
           headers: {
             authorization: global.userinfo.token
           },

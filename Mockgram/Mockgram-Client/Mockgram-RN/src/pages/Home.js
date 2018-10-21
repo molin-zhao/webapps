@@ -17,7 +17,7 @@ export default class Home extends React.Component {
         };
     }
 
-    componentWillMount() {
+    componentDidMount() {
         this.fetchPosts();
     }
 
@@ -41,16 +41,10 @@ export default class Home extends React.Component {
     };
 
     handleRefresh = () => {
-        this.setState(
-            {
-                page: 1,
-                seed: this.state.seed + 1,
-                refreshing: true
-            },
-            () => {
-                this.fetchPosts();
-            }
-        );
+        this.setState({
+            data: []
+        })
+        this.fetchPosts();
     };
 
     handleLoadMore = () => {
@@ -93,6 +87,7 @@ export default class Home extends React.Component {
         );
     };
     render() {
+        console.log('home rendered');
         return (
             <View style={styles.container}>
                 <FlatList
@@ -104,8 +99,8 @@ export default class Home extends React.Component {
                     keyExtractor={item => item._id}
                     ItemSeparatorComponent={this.renderSeparator}
                     ListFooterComponent={this.renderFooter}
-                // onRefresh={this.handleRefresh}
-                // refreshing={this.state.refreshing}
+                    onRefresh={this.handleRefresh}
+                    refreshing={this.state.loading}
                 // onEndReached={this.handleLoadMore}
                 // onEndReachedThreshold={0}
                 />

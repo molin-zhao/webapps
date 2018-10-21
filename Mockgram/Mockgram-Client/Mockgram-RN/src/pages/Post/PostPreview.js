@@ -4,6 +4,7 @@ import { Textarea, Item, Input, Left, Right } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Location, Permissions, SecureStore } from 'expo'
 import window from '../../utils/getWindowSize';
+import baseUrl from '../../common/baseUrl';
 
 
 export default class PostPreview extends React.Component {
@@ -70,7 +71,7 @@ export default class PostPreview extends React.Component {
         formData.append('label', this.state.label);
         formData.append('location', JSON.stringify(this.state.location));
         formData.append('id', global.userinfo.user._id);
-        fetch('http://localhost:3032/upload/post', {
+        fetch(`${baseUrl.upload}/upload/post`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -80,6 +81,7 @@ export default class PostPreview extends React.Component {
             body: formData
         }).then(res => res.json()).then(resJson => {
             console.log(resJson);
+            this.props.navigation.navigate('Home');
         })
     }
 
