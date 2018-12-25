@@ -1,0 +1,8 @@
+{
+  "name": "mockgram-upload",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "PORT=3032 node ./bin/www"
+  }
+}

@@ -89,38 +89,7 @@ router.post('/register', [
 router.post('/login', (req, res) => {
   let loginName = req.body.username;
   let criteria = (loginName.indexOf('@') === -1) ? { username: loginName } : { email: loginName };
-  User.findOne(criteria, (err, user) => {
-    if (err) return handleError(res, err);
-    if (user) {
-      user.comparePassword(req.body.password, user.password, (err, isMatch) => {
-        if (err) return handleError(res, err);
-        if (isMatch) {
-          let userCreds = {
-            username: user.username,
-            email: user.email,
-            _id: user._id
-          }
-          let token = authenticate.getToken(userCreds);
-          return res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG,
-            token: token,
-            user: userCreds
-          })
-        } else {
-          return res.json({
-            status: response.ERROR.USER_PASSWORD_INCORRECT.CODE,
-            msg: response.ERROR.USER_PASSWORD_INCORRECT.MSG
-          })
-        }
-      })
-    } else {
-      return res.json({
-        status: response.ERROR.USER_NAME_NOT_FOUND.CODE,
-        msg: response.ERROR.USER_NAME_NOT_FOUND.MSG
-      })
-    }
-  })
+  return User.login(criteria, req.body.password, res);
 });
 
 router.get('/token/verify', verification.verifyAuthorization, (req, res) => {

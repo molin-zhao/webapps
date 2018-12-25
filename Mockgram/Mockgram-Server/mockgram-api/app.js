@@ -11,7 +11,7 @@ const config = require('../config');
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
-const activityRouter = require('./routes/activity');
+const discoveryRouter = require('./routes/discovery');
 require('../mockgram-utils/utils/modelMigration');
 
 
@@ -51,7 +51,7 @@ app.use(cookieParser());
 app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/post', postRouter);
-app.use('/activity', activityRouter);
+app.use('/discovery', discoveryRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

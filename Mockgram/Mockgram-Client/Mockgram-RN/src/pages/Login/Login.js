@@ -31,7 +31,7 @@ export default class Login extends React.Component {
     renderLoginError = () => {
         if (this.state.loginError !== '') {
             return (
-                <Text style={styles.loginError}><Icon name='exclamation-circle' type="FontAwesome" style={{ fontSize: 15, color: 'red', marginRight: 5 }} />{this.state.loginError}</Text>
+                <Text style={styles.loginError}><Icon name='exclamation-circle' type="FontAwesome" style={{ fontSize: 15, color: 'red', marginRight: 5 }} />{`  ${this.state.loginError}`}</Text>
             );
         } else {
             return <Text>{null}</Text>
@@ -41,7 +41,6 @@ export default class Login extends React.Component {
 
 
     handleLogin = async () => {
-        console.log(this.state);
         if (this.state.rememberme) {
             await SecureStore.setItemAsync('login_creds', JSON.stringify({
                 loginName: this.state.loginName,

@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 require('mongoose-type-email');
+const handleError = require('../utils/handleError').handleError;
+const authenticate = require('../utils/authenticate');
+const response = require('../utils/response');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const SALT_FACTOR = 8;
@@ -10,7 +13,11 @@ const User = new Schema({
         default: '',
         unique: true
     },
-    password: String,
+    password: {
+        type: String,
+        required: true,
+        select: false
+    },
     OauthId: String,
     OauthToken: String,
     // nickname for display name
@@ -26,20 +33,6 @@ const User = new Schema({
         type: String,
         default: ''
     },
-    counts: {
-        followers: {
-            type: Number,
-            default: 0
-        },
-        following: {
-            type: Number,
-            default: 0
-        },
-        posts: {
-            type: Number,
-            default: 0
-        }
-    },
     avatar: {
         type: String,
         default: ''
@@ -52,7 +45,7 @@ const User = new Schema({
     gender: {
         type: String
     },
-    privacy_settings: {
+    privacySettings: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UserPrivacy'
     }
@@ -73,10 +66,38 @@ User.pre('save', function (next) {
     })
 });
 
-User.methods.comparePassword = (password, hash, callback) => {
-    bcrypt.compare(password, hash, (err, isMatch) => {
-        if (err) return callback(err);
-        callback(null, isMatch);
+User.statics.login = function (criteria, password, res, ) {
+    return this.findOne(criteria).select('password').exec((err, user) => {
+        if (err) return handleError(res, err);
+        if (user) {
+            bcrypt.compare(password, user.password, (err, isMatch) => {
+                if (err) return handleError(res, err);
+                if (isMatch) {
+                    let userCreds = {
+                        username: user.username,
+                        email: user.email,
+                        _id: user._id
+                    }
+                    let token = authenticate.getToken(userCreds);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG,
+                        token: token,
+                        user: userCreds
+                    })
+                } else {
+                    return res.json({
+                        status: response.ERROR.USER_PASSWORD_INCORRECT.CODE,
+                        msg: response.ERROR.USER_PASSWORD_INCORRECT.MSG
+                    })
+                }
+            })
+        } else {
+            return res.json({
+                status: response.ERROR.USER_NAME_NOT_FOUND.CODE,
+                msg: response.ERROR.USER_NAME_NOT_FOUND.MSG
+            })
+        }
     })
 }
 

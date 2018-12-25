@@ -21,7 +21,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Discovery,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <Icon name="search" color={tintColor} size={28} />
+                <Icon name="search" color={tintColor} size={25} />
             )
         }
     },
@@ -44,7 +44,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Message,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <Icon name="envelope-o" color={tintColor} size={28} />
+                <Icon name="envelope-o" color={tintColor} size={26} />
             ),
             tabBarOnPress: (scene, jumpToIndex) => {
                 if (!global.userinfo) {
@@ -60,7 +60,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Profile,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <Icon name="user" color={tintColor} size={28} />
+                <Icon name="user" color={tintColor} size={26} />
             ),
             tabBarOnPress: (scene) => {
                 if (!global.userinfo) {
@@ -74,10 +74,11 @@ const MainAppTabNavigator = createBottomTabNavigator({
             }
         }
     }
+
 }, {
         //router configuration
         initialRouteName: 'Home',
-        order: ['Home', 'Discovery', 'Post', 'Message', 'Profile'],
+        order: ["Home", "Discovery", "Post", 'Message', 'Profile'],
         tabBarOptions: {
             activeTintColor: '#eb765a',
             inactiveTintColor: 'black',
@@ -89,7 +90,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
 
 export default createStackNavigator({
     MainApp: MainAppTabNavigator,
-    Auth: Login
+    Auth: Login,
 }, {
         headerMode: 'none',
         navigationOptions: {

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, FlatList, ActivityIndicator, Button, Image } from 'react-native';
+import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SearchBar } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { CardItem, Left, Body, Right, Thumbnail } from 'native-base';
+import ListCell from '../../components/RenderListCell';
 import baseUrl from '../../common/baseUrl';
 
 
@@ -64,28 +63,6 @@ export default class Discovery extends React.Component {
                         });
                     }
                 })
-                // if (text.length !== 0) {
-                //     container.setState({
-                //         searchBarInput: text,
-                //         isSearching: true,
-                //         timer: setTimeout(() => {
-                //             container.setState({
-                //                 searchValue: container.state.searchBarInput,
-                //                 timer: null
-                //             }, () => {
-                //                 clearTimeout(container.state.timer);
-                //                 container.startSearch();
-                //             })
-                //         }, 2000)
-                //     })
-                // } else {
-                //     container.setState({
-                //         searchBarInput: text,
-                //         isSearching: false,
-                //         timer: null,
-                //         searchValue: text
-                //     });
-                // }
             }}
             placeholder='search...'
             round
@@ -145,109 +122,6 @@ export default class Discovery extends React.Component {
         });
     }
 
-    renderPeopleList = (data, isSearchResult) => {
-        if (data.length === 0 && isSearchResult) {
-            return (
-                <View style={{ width: windowWidth }}>
-                    <Text style={{ fontSize: 13, color: 'lightgrey' }}>No account found, try another one.</Text>
-                </View>
-            );
-        } else {
-            return (
-                <FlatList
-                    data={data}
-                    keyExtractor={item => item._id}
-                    style={{ width: windowWidth, marginTop: 0 }}
-                    renderItem={({ item }) => {
-                        return (<CardItem style={{ borderBottomColor: 'lightgrey', borderBottomWidth: 1, width: windowWidth, height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-                            <Left style={{ flex: 4 }}>
-                                <Thumbnail source={item.avatar === '' ? require('../../static/user.png') : {
-                                    uri: item.avatar
-                                }} />
-                                <Body>
-                                    <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{item.username}</Text>
-                                    <Text>{item.nickname}</Text>
-                                </Body>
-                            </Left>
-                            <Right style={{ flex: 1 }}>
-                                <Button style={{ backgroundColor: 'blue', fontSize: 10, height: 35, width: 70 }} title='follow' onPress={() => {
-                                    console.log('follow ' + item._id);
-                                }} />
-                            </Right>
-                        </CardItem>);
-                    }}
-                />);
-        }
-
-    }
-
-    renderTagList = (data, isSearchResult) => {
-        if (data.length === 0 && isSearchResult) {
-            return (
-                <View style={{ width: windowWidth }}>
-                    <Text style={{ fontSize: 13, color: 'lightgrey' }}>No account found, try another one.</Text>
-                </View>
-            );
-        } else {
-            return (<FlatList
-                data={data}
-                keyExtractor={item => item._id}
-                style={{ width: windowWidth, marginTop: 0 }}
-                renderItem={({ item }) => {
-                    return (<CardItem style={{ borderBottomColor: 'lightgrey', borderBottomWidth: 1, width: windowWidth, height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-                        <Left style={{ flex: 4 }}>
-                            <Thumbnail source={item.postBy.avatar === '' ? require('../../static/user.png') : {
-                                uri: item.postBy.avatar
-                            }} />
-                            <Body>
-                                <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{item.label}</Text>
-                                <Text>{item.description}</Text>
-                            </Body>
-                        </Left>
-                        <Right style={{ flex: 1 }}>
-                            {/* <Icon name='arrow-right' size={15} style={{ marginRight: 10 }} /> */}
-                            <Image style={{ width: 50, height: 50 }} source={{ uri: item.image }} />
-                        </Right>
-                    </CardItem>);
-                }}
-            />);
-        }
-
-    }
-
-    renderPlaceList = (data, isSearchResult) => {
-        if (data.length === 0 && isSearchResult) {
-            return (
-                <View style={{ width: windowWidth }}>
-                    <Text style={{ fontSize: 13, color: 'lightgrey' }}>No account found, try another one.</Text>
-                </View>
-            );
-        } else {
-            return (<FlatList
-                data={data}
-                keyExtractor={item => item._id}
-                style={{ width: windowWidth, marginTop: 0 }}
-                renderItem={({ item }) => {
-                    return (<CardItem style={{ borderBottomColor: 'lightgrey', borderBottomWidth: 1, width: windowWidth, height: 80, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' }}>
-                        <Left style={{ flex: 4 }}>
-                            <Thumbnail source={item.postBy.avatar === '' ? require('../../static/user.png') : {
-                                uri: item.postBy.avatar
-                            }} />
-                            <Body>
-                                <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{item.location.name}</Text>
-                                <Text>{item.location.region}</Text>
-                            </Body>
-                        </Left>
-                        <Right style={{ flex: 1 }}>
-                            {/* <Icon name='arrow-right' size={15} style={{ marginRight: 10 }} /> */}
-                            <Image style={{ width: 50, height: 50 }} source={{ uri: item.image }} />
-                        </Right>
-                    </CardItem>);
-                }}
-            />);
-        }
-
-    }
     renderSection = () => {
         // if page is searching for user input
         if (this.state.isSearching) {
@@ -261,21 +135,21 @@ export default class Discovery extends React.Component {
             if (this.state.searchValue !== '') {
                 // page should search for user input
                 if (this.state.activeIndex === 0) {
-                    return this.renderPeopleList(this.state.peopleSearchResult, true);
+                    return (<ListCell dataSource={this.state.peopleSearchResult} type='people' resultType='search' />);
                 } else if (this.state.activeIndex === 1) {
-                    return this.renderTagList(this.state.tagSearchResult, true);
+                    return (<ListCell dataSource={this.state.tagSearchResult} type='tag' resultType='search' />);
                 } else {
-                    return this.renderPlaceList(this.state.placeSearchResult, true);
+                    return (<ListCell dataSource={this.state.placeSearchResult} type='place' resultType='search' />);
                 }
             } else {
                 // page should show suggest to user
                 if (this.state.activeIndex === 0) {
                     // search for first tab and render it out
-                    return this.renderPeopleList(this.state.peopleSuggestResult, false);
+                    return (<ListCell dataSource={this.state.peopleSuggestResult} type='people' resultType='suggest' />);
                 } else if (this.state.activeIndex === 1) {
-                    return this.renderTagList(this.state.tagSuggestResult, false);
+                    return (<ListCell dataSource={this.state.tagSuggestResult} type='tag' resultType='suggest' />);
                 } else {
-                    return this.renderPlaceList(this.state.placeSuggestResult, false);
+                    return (<ListCell dataSource={this.state.placeSuggestResult} type='place' resultType='suggest' />);
                 }
             }
         }
@@ -297,8 +171,7 @@ export default class Discovery extends React.Component {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.tabView}>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'black' }}>{this.state.searchBarInput === '' ? "Suggested" : null}</Text>
-                    {this.renderSection()}
+                    <this.renderSection />
                 </View>
             </View>
         );

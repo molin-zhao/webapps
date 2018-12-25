@@ -3,16 +3,6 @@ const Schema = mongoose.Schema;
 
 
 const ReplySchema = new Schema({
-    // index field is used for querying within comment -> reply[] array
-    index: {
-        type: Number,
-        required: true
-    },
-    root_comment: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'Comment'
-    },
     content: {
         type: String,
         required: true
@@ -23,11 +13,11 @@ const ReplySchema = new Schema({
             ref: 'User'
         }
     }],
-    reply_from: {
+    from: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    reply_to: {
+    to: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }
@@ -37,7 +27,7 @@ const ReplySchema = new Schema({
 
 
 const ComentSchema = new Schema({
-    root_post: {
+    post: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
         required: true
@@ -46,7 +36,7 @@ const ComentSchema = new Schema({
         type: String,
         required: true
     },
-    posted_by: {
+    commentBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true

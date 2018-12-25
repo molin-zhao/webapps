@@ -61,19 +61,7 @@ const PostSchema = new Schema({
 		ref: 'User',
 		required: true
 	},
-	comments: [{
-		id: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Comment'
-		}
-	}],
-	location: LocationSchema,
-	// only record likes count
-	// use favorite model to check which user likes this post
-	likes: {
-		type: Number,
-		default: 0
-	}
+	location: LocationSchema
 }, {
 		timestamps: true
 	});
