@@ -41,7 +41,7 @@ app.use(passport.initialize());
 // which will parse the bodies of all incoming requests.
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({
-  extended: false
+  extended: true
 }));
 // parse application/json
 app.use(bodyParser.json());

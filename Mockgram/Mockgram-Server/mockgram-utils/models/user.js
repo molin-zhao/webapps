@@ -48,6 +48,20 @@ const User = new Schema({
     privacySettings: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UserPrivacy'
+    },
+    followers: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+        default: []
+    },
+    followings: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+        default: []
     }
 }, {
         timestamps: true

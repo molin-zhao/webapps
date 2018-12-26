@@ -1,8 +1,7 @@
-const createError = require('http-errors');
 const express = require('express');
-const logger = require('morgan');
 const mongoose = require('mongoose');
 const config = require('../config');
+const generatorRouter = require('./routes/generator');
 
 const app = express();
 
@@ -15,7 +14,6 @@ mongoose.connect(mongoUrl, {
     console.log('connected correctly to mongodb');
 }).catch(err => console.log(err));
 
-app.use(logger('dev'));
-
+// app.use('/generator', generatorRouter);
 
 module.exports = app;

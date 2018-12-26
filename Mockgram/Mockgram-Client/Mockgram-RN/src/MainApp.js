@@ -7,6 +7,7 @@ import Post from './screens/PostScreen';
 import Message from './screens/MessageScreen';
 import Login from './screens/LoginScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import BadgeIcon from './components/BadgeIcon';
 
 const MainAppTabNavigator = createBottomTabNavigator({
     Home: {
@@ -44,7 +45,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Message,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <Icon name="envelope-o" color={tintColor} size={26} />
+                <BadgeIcon name="envelope-o" color={tintColor} size={26} />
             ),
             tabBarOnPress: (scene, jumpToIndex) => {
                 if (!global.userinfo) {

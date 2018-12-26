@@ -61,7 +61,28 @@ const PostSchema = new Schema({
 		ref: 'User',
 		required: true
 	},
-	location: LocationSchema
+	location: LocationSchema,
+	likes: {
+		type: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User'
+		}],
+		default: []
+	},
+	comments: {
+		type: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Comment'
+		}],
+		default: []
+	},
+	shared: {
+		type: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'User'
+		}],
+		default: []
+	}
 }, {
 		timestamps: true
 	});

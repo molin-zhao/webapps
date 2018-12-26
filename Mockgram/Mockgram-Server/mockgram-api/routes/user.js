@@ -105,8 +105,8 @@ router.get('/logout', (req, res) => {
 
 
 // user data routers
-router.get('/profile/:id', (req, res) => {
-  User.findById(req.params.id).populate('privacy_settings').exec(function (err, user) {
+router.get('/:id', (req, res) => {
+  User.findById(req.params.id).populate('privacySettings').exec(function (err, user) {
     if (err) {
       return res.json({
         status: response.ERROR.NOT_FOUND.CODE,

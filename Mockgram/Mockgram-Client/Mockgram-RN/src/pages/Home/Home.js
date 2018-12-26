@@ -1,10 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView, RefreshControl } from 'react-native';
-import { PacmanIndicator } from 'react-native-indicators'
+import { View, Text, StyleSheet, FlatList } from 'react-native';
+import {
+    BallIndicator,
+    BarIndicator,
+    DotIndicator,
+    MaterialIndicator,
+    PacmanIndicator,
+    PulseIndicator,
+    SkypeIndicator,
+    UIActivityIndicator,
+    WaveIndicator
+} from 'react-native-indicators'
 import PostCardComponent from '../../components/PostCardComponent';
 import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
 import window from '../../utils/getWindowSize';
+import { parseIdFromObjectArray } from '../../utils/parseIdFromObjectArray';
 
 export default class Home extends React.Component {
     constructor(props) {
@@ -17,7 +28,7 @@ export default class Home extends React.Component {
             refreshing: false,
             loadingMore: false,
             hasMore: true,
-            lastPost: null
+            lastPosts: [],
         };
     }
 
@@ -30,20 +41,31 @@ export default class Home extends React.Component {
     }
 
     fetchPosts = () => {
-        const url = this.state.loadingMore ? `${baseUrl.api}/post/${this.state.lastPost._id}/${this.state.lastPost.createdAt}/${config.postReturnLimit}` : `${baseUrl.api}/post`;
-        console.log(`fetching ${url}`);
-        fetch(url)
+        const url = `${baseUrl.api}/post/${config.postReturnLimit}`;
+        console.log(`feching data from ${url}`);
+        fetch(url, {
+
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: global.userinfo ? global.userinfo.user : null,
+                lastPosts: this.state.lastPosts,
+            })
+        })
             .then(res => res.json())
             .then(res => {
                 this.setState({
-                    // data appended to the list when loading more, else replace the data
+                    // data only appended when loading more, else refresh data
                     data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
+                    lastPosts: this.state.loadingMore === true ? [...this.state.lastPosts, ...parseIdFromObjectArray(res.data)] : parseIdFromObjectArray(res.data),
                     error: res.status === 200 ? null : res.msg,
                     hasMore: res.data.length < config.postReturnLimit ? false : true,
                     loading: false,
                     refreshing: false,
                     loadingMore: false,
-                    lastPost: res.data.length > 0 ? res.data[res.data.length - 1] : null
                 });
             })
             .catch(error => {
@@ -52,36 +74,40 @@ export default class Home extends React.Component {
     };
 
     handleRefresh = () => {
+        console.log("refreshing");
         this.setState({
-            refreshing: true
+            refreshing: true,
+            lastPosts: []
         }, () => {
             this.fetchPosts();
         })
     };
 
     handleLoadMore = () => {
-        this.setState(
-            {
-                page: this.state.page + 1
-            },
-            () => {
-                this.fetchPosts();
-            }
-        );
+        console.log("loading more");
+        if (this.state.hasMore) {
+            this.setState(
+                {
+                    loadingMore: true
+                },
+                () => {
+                    this.fetchPosts();
+                }
+            );
+        }
     };
 
     renderFooter = () => {
         return (
-            this.state.hasMore ? null :
-                <View style={styles.listFooter}>
-                    <Text style={{ color: 'grey' }}>No more posts</Text>
-                </View>
+            <View style={styles.listFooter}>
+                {this.state.hasMore ? <SkypeIndicator size={25} /> : <Text style={{ color: 'grey' }}>No more posts</Text>}
+            </View>
         );
     };
 
     renderPost = () => {
         if (this.state.loading) {
-            return (<View style={styles.errorMsgView}><PacmanIndicator /></View>);
+            return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
         } else {
             if (this.state.error) {
                 return (<View style={styles.errorMsgView}><Text>{this.state.error}</Text></View >);
@@ -93,29 +119,23 @@ export default class Home extends React.Component {
                     <PostCardComponent dataSource={item} navigation={this.props.navigation} />
                 )}
                 keyExtractor={item => item._id}
+                onRefresh={this.handleRefresh}
+                refreshing={this.state.refreshing}
                 ListFooterComponent={this.renderFooter}
-            // onRefresh={this.handleRefresh}
-            // refreshing={this.state.refreshing}
-            // onEndReached={this.handleLoadMore}
-            // onEndReachedThreshold={0}
+                onEndReached={this.handleLoadMore}
+                onEndReachedThreshold={0.2}
             />);
         }
     }
 
     render() {
         return (
-            <ScrollView
+            <View
                 style={styles.container}
-                contentContainerStyle={styles.contentContainer}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={this.state.refreshing}
-                        onRefresh={this.handleRefresh}
-                    />
-                }
+                containerStyle={styles.contentContainer}
             >
                 <this.renderPost />
-            </ScrollView>
+            </View>
         );
     }
 }
@@ -136,7 +156,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 40
+        height: 80
     },
     errorMsgView: {
         height: window.height * 0.85,

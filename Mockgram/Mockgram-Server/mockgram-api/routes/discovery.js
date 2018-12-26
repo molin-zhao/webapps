@@ -3,7 +3,6 @@ const router = express.Router();
 const verification = require('../../mockgram-utils/utils/verify');
 const User = require('../../mockgram-utils/models/user');
 const Post = require('../../mockgram-utils/models/post').Post;
-const UserRelation = require('../../mockgram-utils/models/userRelation');
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
 const response = require('../../mockgram-utils/utils/response');
 
@@ -62,7 +61,7 @@ router.get('/search/place/:value', (req, res) => {
 
 router.get('/suggest/people/:id', (req, res) => {
   var userId = req.params.id;
-  UserRelation.find({ user: userId }, function (err, friends) {
+  User.find({ user: userId }, function (err, friends) {
     if (err) {
       //if the user has no friend
       //userResult shows the data of celebrity list, including image, username, userIntro
@@ -88,7 +87,7 @@ router.get('/suggest/people/:id', (req, res) => {
       //likes: { $in: ['vaporizing', 'talking'] }
     });
 
-    UserRelation.find({ user: { $in: queryFriend } }, function (err, newFriends) {
+    User.find({ user: { $in: queryFriend } }, function (err, newFriends) {
       if (err) {
 
       }

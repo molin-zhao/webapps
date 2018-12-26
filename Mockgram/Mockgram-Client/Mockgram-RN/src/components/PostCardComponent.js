@@ -14,7 +14,8 @@ export default class PostCardComponent extends React.Component {
             navigation: this.props.navigation,
             dataSource: this.props.dataSource,
             liked: false,
-            showComments: false
+            showComments: false,
+            descriptionShowLess: true
         }
     }
 
@@ -58,7 +59,7 @@ export default class PostCardComponent extends React.Component {
         const headerStyle = { fontWeight: 'bold' }
         if (this.state.dataSource.location) {
             return (<Body>
-                <Text style={headerStyle}>{this.state.dataSource.postBy.username}</Text>
+                <Text style={headerStyle}>{this.state.dataSource.postUser.username}</Text>
                 <Text>{this.state.dataSource.location ? this.state.dataSource.location.city : null}</Text>
             </Body>);
         } else {
@@ -70,7 +71,7 @@ export default class PostCardComponent extends React.Component {
             }
         }
         return (<Body>
-            <Text style={headerStyle}>{this.state.dataSource.postBy.username}</Text>
+            <Text style={headerStyle}>{this.state.dataSource.postUser.username}</Text>
         </Body>);
     }
 
@@ -79,8 +80,8 @@ export default class PostCardComponent extends React.Component {
             <Card key={this.state.dataSource._id} style={{ width: window.width, marginTop: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, borderTopWidth: 0, borderBottomWidth: 0 }}>
                 <CardItem>
                     <Left>
-                        <Thumbnail source={this.state.dataSource.postBy.avatar === '' ? require('../static/user.png') : {
-                            uri: this.state.dataSource.postBy.avatar
+                        <Thumbnail source={this.state.dataSource.postUser.avatar === '' ? require('../static/user.png') : {
+                            uri: this.state.dataSource.postUser.avatar
                         }} />
                         <this.renderHeader />
                     </Left>
@@ -99,7 +100,7 @@ export default class PostCardComponent extends React.Component {
                             {this.state.liked ? <Icon onPress={() => { this.handleLike() }} name="ios-heart" style={{ color: 'red', fontSize: 24 }} />
                                 : <Icon onPress={() => { this.handleLike() }} name="ios-heart-outline" style={{ color: null, fontSize: 24 }} />
                             }
-                            <Text style={{ fontSize: 12 }}>{this.state.liked ? this.state.dataSource.likes + 1 : this.state.dataSource.likes}</Text>
+                            <Text style={{ fontSize: 12 }}>{this.state.liked ? this.state.dataSource.likeCount + 1 : this.state.dataSource.likeCount}</Text>
                         </View>
                         <View style={styles.cardLabels}>
                             <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onPress={() => {
@@ -107,7 +108,7 @@ export default class PostCardComponent extends React.Component {
                             }}>
                                 <Icon name="ios-chatboxes-outline" style={{ fontSize: 24 }} />
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.comments}</Text>
+                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.commentCount}</Text>
                         </View>
                         <View style={styles.cardLabels}>
                             <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onPress={() => {
@@ -115,7 +116,7 @@ export default class PostCardComponent extends React.Component {
                             }}>
                                 <Icon name="ios-open-outline" style={{ fontSize: 24 }} />
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.shared}</Text>
+                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.sharedCount}</Text>
                         </View>
                     </Left>
                 </CardItem>
@@ -125,21 +126,28 @@ export default class PostCardComponent extends React.Component {
                             <ViewMoreText
                                 numberOfLines={2}
                                 renderViewMore={(onPress) => {
-                                    return (<Text style={{ marginTop: 5, color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>);
+                                    return (
+                                        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+                                            <Text style={{ color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
+                                        </TouchableOpacity>);
+
                                 }}
                                 renderViewLess={(onPress) => {
-                                    return (<Text style={{ marginTop: 5, color: '#4696EC' }} onPress={onPress}>{`show less `}<Icon name="md-arrow-dropup" /></Text>);
+                                    return (
+                                        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+                                            <Text style={{ color: '#4696EC' }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
+                                        </TouchableOpacity>);
                                 }}
                             >
                                 <Text style={{ fontWeight: "bold" }}>
-                                    {this.state.dataSource.postBy.username}
+                                    {this.state.dataSource.postUser.username}
                                     <Text style={{ fontWeight: 'normal' }}>
                                         {`  ${this.state.dataSource.description}`}
                                     </Text>
                                 </Text>
                             </ViewMoreText>
                         </View>
-                        <View style={{ marginTop: 5, height: 20, justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={{ marginTop: 5, height: 20 }}>
                             <Text style={{ fontSize: 12, color: 'grey' }}>{`published ${dateConverter(this.state.dataSource.createdAt)}`}</Text>
                         </View>
                     </Body>

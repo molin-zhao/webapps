@@ -6,7 +6,6 @@ const uploadImage = require('../../mockgram-utils/utils/fileUpload').uploadImage
 const verification = require('../../mockgram-utils/utils/verify');
 const User = require('../../mockgram-utils/models/user');
 const Post = require('../../mockgram-utils/models/post').Post;
-const PostMeta = require('../../mockgram-utils/models/postMeta');
 const response = require('../../mockgram-utils/utils/response');
 const image = require('../../config').image;
 const serverAddress = require('../../config').serverNodes;
@@ -37,31 +36,15 @@ router.post('/post', multipart(), verification.verifyUser, (req, res) => {
                 label: req.body.label,
                 location: locationJson
             }, (err, post) => {
-                if (err) {
-                    return res.json({
-                        status: response.ERROR.DATA_PERSISTENCE_ERROR.CODE,
-                        msg: response.ERROR.DATA_PERSISTENCE_ERROR.MSG
-                    });
-                }
-                PostMeta.create({
-                    post: post._id
-                }, (err, postMeta) => {
+                if (err) return handleError(res, err);
+                agent.post(serverAddress.socketServer + '/message/post').send({
+                    newPost: post
+                }).set('accept', 'json').end((err, resp) => {
                     if (err) return handleError(res, err);
-                    agent.post(serverAddress.socketServer + '/message/post').send({
-                        newPost: post
-                    }).set('accept', 'json').end((err, resp) => {
-                        if (err) {
-                            return res.json({
-                                status: response.ERROR.DATA_PERSISTENCE_ERROR.CODE,
-                                msg: response.ERROR.DATA_PERSISTENCE_ERROR.MSG,
-                            });
-                        }
-                        return res.json({
-                            status: response.SUCCESS.OK.CODE,
-                            msg: response.SUCCESS.OK.MSG
-                        });
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
                     });
-
                 });
             });
         }
