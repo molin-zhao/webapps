@@ -6,8 +6,10 @@ import Profile from './screens/ProfileScreen';
 import Post from './screens/PostScreen';
 import Message from './screens/MessageScreen';
 import Login from './screens/LoginScreen';
+import CommentPage from './pages/Comment/Comment';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import BadgeIcon from './components/BadgeIcon';
+
 
 const MainAppTabNavigator = createBottomTabNavigator({
     Home: {
@@ -89,12 +91,23 @@ const MainAppTabNavigator = createBottomTabNavigator({
         }
     })
 
-export default createStackNavigator({
+const MainAppStackNavigator = createStackNavigator({
     MainApp: MainAppTabNavigator,
-    Auth: Login,
+    Auth: Login
 }, {
         headerMode: 'none',
         navigationOptions: {
             headerVisible: false
         }
     });
+
+export default createStackNavigator({
+    MainAppStackNavigator: MainAppStackNavigator,
+    Comment: CommentPage
+}, {
+        mode: 'modal',
+        headerMode: 'none',
+        navigationOptions: {
+            headerVisible: false
+        }
+    })

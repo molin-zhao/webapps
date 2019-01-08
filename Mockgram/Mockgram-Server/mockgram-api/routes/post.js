@@ -2,41 +2,18 @@ const express = require('express');
 const router = express.Router();
 const response = require('../../mockgram-utils/utils/response');
 const Post = require('../../mockgram-utils/models/post').Post;
+const Comment = require('../../mockgram-utils/models/comment');
+const Reply = require('../../mockgram-utils/models/reply');
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
-const convertStringIdArrToObjectIdArr = require('../../mockgram-utils/utils/converter').convertStringArrToObjectIdArr;
-
-router.get('/', (req, res) => {
-
-    let query = Post.find({}).populate('postBy').sort({ createdAt: -1 });
-    query.exec((err, post) => {
-        if (err) return handleError(res, err);
-        res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG,
-            data: post
-        })
-    })
-})
-
-// get a post with a certain post id
-router.get('/:id', (req, res) => {
-    Post.find({ _id: req.params.id }).populate('postBy').exec((err, post) => {
-        if (err) return handleError(res, err);
-        res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG,
-            data: post
-        })
-    })
-})
-
+const { convertStringArrToObjectIdArr, convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
+const { verifyAuthorization } = require('../../mockgram-utils/utils/verify');
 
 // get posts with limit, say 10~20, query params are included in the request body
 // request body contains last query's post id array
-router.post('/:limit', async (req, res) => {
-    let limit = parseInt(req.params.limit);
+router.post('/', async (req, res) => {
+    let limit = parseInt(req.body.limit);
     let userId = req.body.userId;//client id, who sent the request
-    let lastPosts = convertStringIdArrToObjectIdArr(req.body.lastPosts);
+    let lastPosts = convertStringArrToObjectIdArr(req.body.lastPosts);
     // if client is a loggin user, then send back the follower posts.
     // else send back hot posts.
     if (userId) {
@@ -47,13 +24,13 @@ router.post('/:limit', async (req, res) => {
                 {
                     $match: {
                         _id: { $nin: lastPosts },
-                        postBy: { $in: followings }
+                        creator: { $in: followings }
                     }
                 },
                 {
                     $lookup: {
                         from: 'users',
-                        localField: 'postBy',
+                        localField: 'creator',
                         foreignField: '_id',
                         as: 'postUser'
                     }
@@ -80,7 +57,7 @@ router.post('/:limit', async (req, res) => {
                         "description": 1,
                         "location": 1,
                         "createdAt": 1,
-                        "postBy": 1,
+                        "creator": 1,
                         "postUser.username": 1,
                         "postUser.avatar": 1,
                     }
@@ -94,7 +71,7 @@ router.post('/:limit', async (req, res) => {
                 {
                     $lookup: {
                         from: 'users',
-                        localField: 'postBy',
+                        localField: 'creator',
                         foreignField: '_id',
                         as: 'postUser'
                     }
@@ -119,7 +96,7 @@ router.post('/:limit', async (req, res) => {
             {
                 $lookup: {
                     from: 'users',
-                    localField: 'postBy',
+                    localField: 'creator',
                     foreignField: '_id',
                     as: 'postUser'
                 }
@@ -143,7 +120,7 @@ router.post('/:limit', async (req, res) => {
                     "description": 1,
                     "location": 1,
                     "createdAt": 1,
-                    "postBy": 1,
+                    "creator": 1,
                     "postUser.username": 1,
                     "postUser.avatar": 1
                 }
@@ -163,7 +140,185 @@ router.post('/:limit', async (req, res) => {
             })
         })
     }
+});
+
+// get a post with a certain post id
+router.get('/:id', (req, res) => {
+    Post.find({ _id: req.params.id }).populate('creator').exec((err, post) => {
+        if (err) return handleError(res, err);
+        res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: post
+        })
+    })
+});
+
+
+
+// TODO add verifyAuthorization
+// upload a comment
+router.put('/comment', /*verifyAuthorization,*/(req, res) => {
+    let content = req.body.content;
+    let postId = req.body.postId;
+    let commentBy = req.body.commentBy;
+    let mentioned = req.body.mentioned;
+    Comment.create({
+        content: content,
+        postId: postId,
+        commentBy: commentBy,
+        mentioned: mentioned
+    }).then((comment) => {
+        Post.findOneAndUpdate({ _id: comment.postId }, { $push: { comments: comment._id } }).exec((err, post) => {
+            if (err) return handleError(res, err);
+            res.json({
+                status: response.SUCCESS.OK.CODE,
+                msg: response.SUCCESS.OK.MSG,
+                data: comment
+            });
+        })
+    })
+
 })
 
+// get comments
+router.post('/comment', (req, res) => {
+    let postId = convertStringToObjectId(req.body.postId);
+    let creatorId = convertStringToObjectId(req.body.creatorId);
+    let limit = req.body.limit;
+    let lastComments = convertStringArrToObjectIdArr(req.body.lastComments);
+
+    Post.aggregate([
+        {
+            $match: {
+                _id: postId
+            }
+        },
+        {
+            $project: {
+                "creator": 1,
+                "comments": {
+                    $setDifference: ["$comments", lastComments]
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "comments",
+                localField: "comments",
+                foreignField: '_id',
+                as: "comments"
+            }
+        },
+        { $unwind: "$comments" },
+        {
+            $lookup: {
+                from: 'replies',
+                localField: 'comments.replies',
+                foreignField: '_id',
+                as: 'comments.replies'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'mentioned',
+                foreignField: '_id',
+                as: 'comments.mentioned'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'comments.commentBy',
+                foreignField: '_id',
+                as: 'comments.commentBy'
+            }
+        },
+        { $unwind: "$comments.commentBy" },
+        {
+            $project: {
+                "comments.commentByPostCreator": {
+                    $eq: ["$comments.commentBy._id", "$creator"]
+                },
+                "comments": {
+                    "_id": 1,
+                    "createdAt": 1,
+                    "content": 1,
+                    "likeCount": {
+                        $size: "$comments.likes"
+                    },
+                    "dislikeCount": {
+                        $size: "$comments.dislikes"
+                    },
+                    "replyCount": {
+                        $size: "$comments.replies"
+                    },
+                    "commentBy": {
+                        "username": 1,
+                        "avatar": 1,
+                        "_id": 1,
+                    },
+                    "mentioned": {
+                        "_id": 1,
+                        "username": 1,
+                        "avatar": 1
+                    }
+                }
+            }
+        },
+        {
+            $sort: {
+                "comments.comentByPostCreator": -1,
+                "comments.likeCount": -1,
+                "comments.replyCount": -1,
+                "comments.createdAt": -1,
+                "comments._id": -1,
+            }
+        },
+        { $limit: limit },
+        { $replaceRoot: { newRoot: "$comments" } }
+    ]).exec(async (err, comments) => {
+        if (err) return handleError(res, err);
+        const promises = comments.map(async (comment) => {
+            let result = await Comment.getPostCreatorReply(comment._id, creatorId);
+            comment.replyByPostCreator = result.shift();
+            return comment;
+        });
+        const data = await Promise.all(promises);
+        res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: data
+        });
+    });
+})
+
+router.put('/comment/reply', (req, res) => {
+    let commentId = req.body.commentId;
+    let content = req.body.content;
+    let from = req.body.from;
+    let to = req.body.to;
+    let mentioned = req.body.mentioned;
+    Reply.create({
+        commentId: commentId,
+        content: content,
+        from: from,
+        to: to,
+        mentioned: mentioned
+    }).then((reply) => {
+        Comment.findByIdAndUpdate({ _id: commentId }, {
+            $push: { replies: reply._id }
+        }).exec((err, comment) => {
+            if (err) return handleError(res, err);
+            res.json({
+                status: response.SUCCESS.OK.CODE,
+                msg: response.SUCCESS.OK.MSG,
+                data: reply
+            });
+        })
+    })
+
+})
 
 module.exports = router;

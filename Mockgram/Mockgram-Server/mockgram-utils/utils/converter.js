@@ -7,3 +7,7 @@ exports.convertStringArrToObjectIdArr = (inputArr) => {
     });
     return outputArr;
 }
+
+exports.convertStringToObjectId = (inputString) => {
+    return ObjectId(inputString);
+}

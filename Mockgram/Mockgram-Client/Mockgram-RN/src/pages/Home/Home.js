@@ -1,15 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import {
-    BallIndicator,
-    BarIndicator,
-    DotIndicator,
-    MaterialIndicator,
-    PacmanIndicator,
-    PulseIndicator,
     SkypeIndicator,
-    UIActivityIndicator,
-    WaveIndicator
+    BarIndicator
 } from 'react-native-indicators'
 import PostCardComponent from '../../components/PostCardComponent';
 import baseUrl from '../../common/baseUrl';
@@ -32,6 +25,19 @@ export default class Home extends React.Component {
         };
     }
 
+    static navigationOptions = ({ navigation }) => {
+        return {
+            title: 'Mockgram',
+            headerStyle: {
+                backgroundColor: 'white'
+            },
+            headerTitleStyle: {
+                color: 'black',
+                fontSize: 20
+            }
+        }
+    }
+
     componentDidMount() {
         this.setState({
             loading: true
@@ -41,7 +47,7 @@ export default class Home extends React.Component {
     }
 
     fetchPosts = () => {
-        const url = `${baseUrl.api}/post/${config.postReturnLimit}`;
+        const url = `${baseUrl.api}/post`;
         console.log(`feching data from ${url}`);
         fetch(url, {
 
@@ -51,6 +57,7 @@ export default class Home extends React.Component {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                limit: config.postReturnLimit,
                 userId: global.userinfo ? global.userinfo.user : null,
                 lastPosts: this.state.lastPosts,
             })
@@ -74,23 +81,25 @@ export default class Home extends React.Component {
     };
 
     handleRefresh = () => {
-        console.log("refreshing");
-        this.setState({
-            refreshing: true,
-            lastPosts: []
-        }, () => {
-            this.fetchPosts();
-        })
+        if (!this.state.refreshing && !this.state.loadingMore && !this.state.loading) {
+            this.setState({
+                refreshing: true,
+                lastPosts: []
+            }, () => {
+                console.log("refreshing");
+                this.fetchPosts();
+            })
+        }
     };
 
     handleLoadMore = () => {
-        console.log("loading more");
-        if (this.state.hasMore) {
+        if (this.state.hasMore && !this.state.refreshing && !this.state.loadingMore && !this.state.loading) {
             this.setState(
                 {
                     loadingMore: true
                 },
                 () => {
+                    console.log("loading more");
                     this.fetchPosts();
                 }
             );
@@ -98,6 +107,16 @@ export default class Home extends React.Component {
     };
 
     renderFooter = () => {
+        if (this.state.data.length === 0) {
+            return (
+                <View style={{ height: window.height * 0.9, width: window.width, backgroundColor: "#fff", justifyContent: 'flex-start', alignItems: 'center' }}>
+                    <View style={{ marginTop: window.height * 0.4, height: "10%", width: "100%", justifyContent: 'center', alignItems: 'center' }}>
+                        <BarIndicator count={5} />
+                        <Text style={{ color: 'grey' }}>Temporarily no posts found</Text>
+                    </View>
+                </View>
+            );
+        }
         return (
             <View style={styles.listFooter}>
                 {this.state.hasMore ? <SkypeIndicator size={25} /> : <Text style={{ color: 'grey' }}>No more posts</Text>}
@@ -112,27 +131,28 @@ export default class Home extends React.Component {
             if (this.state.error) {
                 return (<View style={styles.errorMsgView}><Text>{this.state.error}</Text></View >);
             }
-            return (<FlatList
-                style={{ marginTop: 0, width: window.width }}
-                data={this.state.data}
-                renderItem={({ item }) => (
-                    <PostCardComponent dataSource={item} navigation={this.props.navigation} />
-                )}
-                keyExtractor={item => item._id}
-                onRefresh={this.handleRefresh}
-                refreshing={this.state.refreshing}
-                ListFooterComponent={this.renderFooter}
-                onEndReached={this.handleLoadMore}
-                onEndReachedThreshold={0.2}
-            />);
+            return (
+                <FlatList
+                    style={{ marginTop: 0, width: window.width }}
+                    data={this.state.data}
+                    renderItem={({ item }) => (
+                        <PostCardComponent dataSource={item} navigation={this.props.navigation} />
+                    )}
+                    keyExtractor={item => item._id}
+                    onRefresh={this.handleRefresh}
+                    refreshing={this.state.refreshing}
+                    ListFooterComponent={this.renderFooter}
+                    onEndReached={this.handleLoadMore}
+                    onEndReachedThreshold={0.2}
+                />
+            );
         }
     }
 
     render() {
         return (
             <View
-                style={styles.container}
-                containerStyle={styles.contentContainer}
+                style={styles.contentContainer}
             >
                 <this.renderPost />
             </View>
@@ -148,9 +168,6 @@ const styles = StyleSheet.create({
         borderTopWidth: 0,
         borderBottomWidth: 0,
         marginTop: 0,
-    },
-    container: {
-        backgroundColor: '#fff'
     },
     listFooter: {
         flexDirection: 'row',

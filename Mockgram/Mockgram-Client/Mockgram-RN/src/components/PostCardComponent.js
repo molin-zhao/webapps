@@ -4,9 +4,12 @@ import Modal from 'react-native-modal';
 import { Card, CardItem, Thumbnail, Body, Left, Right } from 'native-base';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ViewMoreText from 'react-native-view-more-text';
-import Comment from './Comment';
+import CommentPage from './Comment';
+import CommentDetailPage from './CommentDetail';
+import createStackNavigator from './StackNavigator';
 import window from '../utils/getWindowSize';
 import { dateConverter } from '../utils/unitConverter';
+
 export default class PostCardComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -44,7 +47,12 @@ export default class PostCardComponent extends React.Component {
     }
 
     handleComment = () => {
-        this.showModal();
+        // this.showModal();
+        this.props.navigation.navigate('Comment', {
+            parent: this,
+            postId: this.state.dataSource._id,
+            creatorId: this.state.dataSource.postUser._id
+        });
     }
 
     handleShare = () => {
@@ -76,6 +84,18 @@ export default class PostCardComponent extends React.Component {
     }
 
     render() {
+        const StackNavigator = createStackNavigator(
+            {
+                Comment: <CommentPage />,
+                CommentDetail: <CommentDetailPage />
+            },
+            {
+                post: this.state.dataSource._id,
+                creator: this.state.dataSource.postUser._id,
+                parent: this
+            },
+            {}
+        );
         return (
             <Card key={this.state.dataSource._id} style={{ width: window.width, marginTop: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, borderTopWidth: 0, borderBottomWidth: 0 }}>
                 <CardItem>
@@ -166,17 +186,19 @@ export default class PostCardComponent extends React.Component {
                     }}
                     style={{ margin: 0, justifyContent: 'flex-end' }}
                 >
-                    <View style={{ backgroundColor: '#fff', borderRadius: 10, height: window.height * 0.7 }}>
-                        <View style={{ height: window.height * 0.05, marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: '#fff', borderRadius: 10, height: window.height * 0.8 }}>
+                        <View style={{ flex: 1, marginTop: 10, flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{ height: '100%', flex: 1 }}></View>
-                            <View style={{ height: '100%', flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 15, color: 'grey', fontWeight: 'bold' }}>{`${0} comments`}</Text></View>
+                            <View style={{ height: '100%', flex: 3, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}><Text style={{ fontSize: 15, color: 'grey', fontWeight: 'bold' }}>{`${this.state.dataSource.commentCount} comments`}</Text></View>
                             <View style={{ height: '100%', flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                                 <Icon name="md-close" style={{ fontSize: 20 }} onPress={() => {
                                     this.hideModal();
                                 }} />
                             </View>
                         </View>
-                        <Comment />
+                        <View style={{ flex: 15, backgroundColor: '#fff' }}>
+                            {StackNavigator}
+                        </View>
                     </View>
                 </Modal>
             </Card>

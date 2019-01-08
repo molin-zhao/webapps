@@ -10,8 +10,8 @@ module.exports = {
     'image': {
         post: './public/upload/image/post/',
         avatar: './public/upload/image/avatar/',
-        postQuery: 'http://localhost:3032/post/',
-        avatarQuery: 'http://localhost:3032/avatar/',
+        postQuery: 'http://172.20.10.11:3032/post/',
+        avatarQuery: 'http://172.20.10.11:3032/avatar/',
         limit: 1024 * 1024
     },
     // signature on token
@@ -34,7 +34,7 @@ module.exports = {
         callbackURL: 'https://api.mockgram.molinz.com/user/auth/facebook/callback'
     },
     'serverNodes': {
-        socketServer: 'http://localhost:3033',
-        uploadServer: 'http://localhost:3032',
+        socketServer: 'http://172.20.10.11:3033',
+        uploadServer: 'http://172.20.10.11:3032',
     }
 };

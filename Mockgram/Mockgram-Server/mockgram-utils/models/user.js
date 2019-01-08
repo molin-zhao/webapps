@@ -89,8 +89,8 @@ User.statics.login = function (criteria, password, res, ) {
                 if (isMatch) {
                     let userCreds = {
                         username: user.username,
-                        email: user.email,
-                        _id: user._id
+                        _id: user._id,
+                        avatar: user.avatar
                     }
                     let token = authenticate.getToken(userCreds);
                     return res.json({

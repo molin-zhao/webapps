@@ -30,7 +30,7 @@ router.post('/post', multipart(), verification.verifyUser, (req, res) => {
             let imagePersistencePath = `${image.postQuery}${fileName}`;
             let locationJson = JSON.parse(req.body.location);
             Post.create({
-                postBy: req.body.id,
+                creator: req.body.id,
                 image: imagePersistencePath,
                 description: req.body.description,
                 label: req.body.label,

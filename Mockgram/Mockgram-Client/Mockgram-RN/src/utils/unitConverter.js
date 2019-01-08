@@ -36,5 +36,5 @@ exports.dateConverter = (dateString) => {
     let dateInput_month = dateInput.getMonth();
     let dateInput_date = dateInput.getDate();
     let dateInput_year = dateInput.getFullYear();
-    return `${monthAbbrArr[dateInput_month - 1]}.${dateInput_date}.${dateInput_year}`;
+    return `${monthAbbrArr[dateInput_month]}.${dateInput_date}.${dateInput_year}`;
 } 

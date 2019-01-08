@@ -1,20 +1,26 @@
 import React from 'react';
-import { Text, View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { BallIndicator } from 'react-native-indicators';
-import TextInputBox from './TextInputBox';
-import config from '../common/config';
-import baseUrl from '../common/baseUrl';
-import { parseIdFromObjectArray } from '../utils/parseIdFromObjectArray';
+import { createStackNavigator } from 'react-navigation';
 
-export default class Comment extends React.Component {
+import CommentDetail from '../../components/CommentDetail';
+import TextInputBox from '../../components/TextInputBox';
+import DismissKeyboard from '../../components/DismissKeyboard';
+
+import config from '../../common/config';
+import baseUrl from '../../common/baseUrl';
+import { parseIdFromObjectArray } from '../../utils/parseIdFromObjectArray';
+import window from '../../utils/getWindowSize';
+
+class CommentPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             comments: [],
             lastComments: [],
-            parent: this.props.navigator.state.props.parent,
-            post: this.props.navigator.state.props.post,
-            creator: this.props.navigator.state.props.creator,
+            parent: this.props.navigation.getParam('parent', null),
+            postId: this.props.navigation.getParam('postId', null),
+            creatorId: this.props.navigation.getParam('postCreatorId', null),
             refreshing: false,
             loadidng: false,
             loadingMore: false,
@@ -42,8 +48,8 @@ export default class Comment extends React.Component {
             },
             body: JSON.stringify({
                 lastComments: this.state.lastComments,
-                postId: this.state.post,
-                creatorId: this.state.creator,
+                postId: this.state.postId,
+                creatorId: this.state.creatorId,
                 limit: config.commentReturnLimit
             })
         })
@@ -101,40 +107,37 @@ export default class Comment extends React.Component {
 
 
     render() {
-        const { navigator } = this.props;
+        const { navigation } = this.props;
         return (
-            <View style={styles.container}>
-                {/* <View style={{ marginTop: 0, width: window.width, height: "100%", backgroundColor: 'lightgrey' }}>
-                    <FlatList
-                        data={this.state.comments}
-                        renderItem={({ item }) => (
-                            <View>This is comment</View>
-                            // <CommentList dataSource={item} navigation={this.props.navigation} />
-                        )}
-                        keyExtractor={item => item._id}
-                        onRefresh={this.handleRefresh}
-                        refreshing={this.state.refreshing}
-                        ListFooterComponent={this.renderFooter}
-                        onEndReached={this.handleLoadMore}
-                        onEndReachedThreshold={0.1}
-                    />
-                </View> */}
-                <View style={{ height: 20, marginTop: 0 }}>
-                    <Text onPress={() => {
-                        navigator.goTo("CommentDetail");
-                    }}>more comment</Text>
-                </View>
+            <KeyboardAvoidingView style={styles.container} behavior="padding">
+                <DismissKeyboard>
+                    <View style={{ height: 20, marginTop: 0, flex: 1 }}>
+                        <Text onPress={() => {
+                            navigation.navigate("CommentDetail");
+                        }}>more comment</Text>
+                    </View>
+                </DismissKeyboard>
                 <TextInputBox />
-            </View>
+            </KeyboardAvoidingView>
         );
     }
 }
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: window.width,
+        height: window.height,
+        flexDirection: 'column',
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
+        backgroundColor: '#fff',
     }
 });
+
+
+export default CommentNavigator = createStackNavigator({
+    CommentPage: CommentPage,
+    CommentDetail: CommentDetail
+})
 

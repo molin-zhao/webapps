@@ -56,7 +56,7 @@ const PostSchema = new Schema({
 		type: String,
 		default: ''
 	},
-	postBy: {
+	creator: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 		required: true
