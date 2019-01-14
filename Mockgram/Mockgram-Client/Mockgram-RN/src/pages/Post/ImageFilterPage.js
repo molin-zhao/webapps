@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import window from '../../utils/getWindowSize';
+import window from '../../utils/getDeviceInfo';
 
 
 export default class ImageFilterPage extends React.Component {
@@ -62,7 +62,7 @@ export default class ImageFilterPage extends React.Component {
 
         return (
             <View style={styles.container}>
-                {this.state.selectedFilter === 0 ? <Image style={styles.mainImage} source={{ uri: image.uri }} /> : <Image source={{ uri: image.uri }} resizeMode='cover' style={styles.mainImage}/>
+                {this.state.selectedFilter === 0 ? <Image style={styles.mainImage} source={{ uri: image.uri }} /> : <Image source={{ uri: image.uri }} resizeMode='cover' style={styles.mainImage} />
                 }
                 <ScrollView style={styles.filterImages} contentContainerStyle={{ justifyContent: 'space-between', alignItems: 'center', paddingStart: 10, paddingEnd: 10 }} showsHorizontalScrollIndicator={false} horizontal={true}>
                     <TouchableOpacity key={0} onPress={() => {
@@ -81,7 +81,7 @@ export default class ImageFilterPage extends React.Component {
                     }}
                         style={styles.filterImageCell}>
                         <Text>dot</Text>
-                        <Image source={{ uri: image.uri }} resizeMode='cover' style={{ height: window.width / 4, width: window.width / 4 }}  />
+                        <Image source={{ uri: image.uri }} resizeMode='cover' style={{ height: window.width / 4, width: window.width / 4 }} />
                     </TouchableOpacity>
                     <TouchableOpacity key={2} onPress={() => {
                         this.setState({
@@ -108,7 +108,7 @@ export default class ImageFilterPage extends React.Component {
                     }}
                         style={styles.filterImageCell}>
                         <Text>color-matrix</Text>
-                        <Image source={{ uri: image.uri }} resizeMode='cover' style={{ height: window.width / 4, width: window.width / 4 }}  />
+                        <Image source={{ uri: image.uri }} resizeMode='cover' style={{ height: window.width / 4, width: window.width / 4 }} />
                     </TouchableOpacity>
                 </ScrollView>
             </View>

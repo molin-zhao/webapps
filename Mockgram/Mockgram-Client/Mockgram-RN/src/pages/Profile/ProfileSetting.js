@@ -7,7 +7,7 @@ import { SecureStore, Permissions, ImagePicker } from 'expo';
 import processImage from '../../utils/imageProcessing';
 import allowPermissions from '../../utils/allowPermissions';
 import ActionSheet from 'react-native-actionsheet';
-import window from '../../utils/getWindowSize';
+import window from '../../utils/getDeviceInfo';
 import baseUrl from '../../common/baseUrl';
 
 export default class ProfileSetting extends React.Component {

@@ -85,7 +85,7 @@ export default class Discovery extends React.Component {
         } else {
             category = 'place';
         }
-        let url = `${baseUrl.api}/activity/search/${category}/${this.state.searchValue}`;
+        let url = `${baseUrl.api}/discovery/search/${category}/${this.state.searchValue}`;
         fetch(url).then(res => res.json()).then(res => {
             console.log(res);
             if (category === 'people') {

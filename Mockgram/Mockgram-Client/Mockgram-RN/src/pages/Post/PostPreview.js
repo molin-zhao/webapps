@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, Image, TouchableOpacity, TextInput, Switch } fr
 import { Textarea, Item, Input, Left, Right } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Location, Permissions, SecureStore } from 'expo'
-import window from '../../utils/getWindowSize';
+import window from '../../utils/getDeviceInfo';
 import baseUrl from '../../common/baseUrl';
 
 

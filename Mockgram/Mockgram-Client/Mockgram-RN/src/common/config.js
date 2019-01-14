@@ -1,5 +1,5 @@
 export default config = {
-    postReturnLimit: 2,
-    commentReturnLimit: 2,
-    replyReturnLimit: 2
+    postReturnLimit: 4,
+    commentReturnLimit: 10,
+    replyReturnLimit: 10
 }

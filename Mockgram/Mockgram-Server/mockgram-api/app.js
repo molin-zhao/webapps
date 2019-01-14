@@ -1,4 +1,3 @@
-const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -12,6 +11,7 @@ const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
 const discoveryRouter = require('./routes/discovery');
+const response = require('../mockgram-utils/utils/response');
 require('../mockgram-utils/utils/modelMigration');
 
 
@@ -53,9 +53,20 @@ app.use('/user', userRouter);
 app.use('/post', postRouter);
 app.use('/discovery', discoveryRouter);
 
-// catch 404 and forward to error handler
+// catch 404 and handle response
 app.use(function (req, res, next) {
-  next(createError(404));
+  return res.status(404).json({
+    status: response.ERROR.NOT_FOUND.CODE,
+    msg: response.ERROR.NOT_FOUND.MSG
+  });
+});
+
+// catch 500 and handle response
+app.use(function (err, req, res, next) {
+  return res.status(500).json({
+    status: response.ERROR.SERVER_ERROR.CODE,
+    msg: response.ERROR.SERVER_ERROR.MSG,
+  });
 });
 
 // error handler

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, Image } from 'react-native';
 import { CardItem, Left, Body, Right, Thumbnail } from 'native-base';
-import window from '../utils/getWindowSize';
+import window from '../utils/getDeviceInfo';
 export default class UserListCell extends React.Component {
     constructor(props) {
         super(props);

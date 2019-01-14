@@ -3,7 +3,7 @@ import { Text, View, FlatList } from 'react-native';
 import UserListCell from './UserListCell';
 import PostListCell from './PostListCell';
 import TagListCell from './TagListCell';
-import window from '../utils/getWindowSize';
+import window from '../utils/getDeviceInfo';
 export default class ListCell extends React.Component {
     constructor(props) {
         super(props)

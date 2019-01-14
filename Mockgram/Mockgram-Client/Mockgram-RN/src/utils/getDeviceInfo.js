@@ -4,7 +4,8 @@ const height = Dimensions.get('window').height;
 
 const window = {
     width: width,
-    height: height
+    height: height,
 }
+
 
 export default window;

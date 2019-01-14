@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const response = require('../../mockgram-utils/utils/response');
 const Post = require('../../mockgram-utils/models/post').Post;
-const Comment = require('../../mockgram-utils/models/comment');
+const MyComment = require('../../mockgram-utils/models/comment');
 const Reply = require('../../mockgram-utils/models/reply');
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
 const { convertStringArrToObjectIdArr, convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
@@ -163,7 +163,7 @@ router.put('/comment', /*verifyAuthorization,*/(req, res) => {
     let postId = req.body.postId;
     let commentBy = req.body.commentBy;
     let mentioned = req.body.mentioned;
-    Comment.create({
+    MyComment.create({
         content: content,
         postId: postId,
         commentBy: commentBy,
@@ -187,7 +187,6 @@ router.post('/comment', (req, res) => {
     let creatorId = convertStringToObjectId(req.body.creatorId);
     let limit = req.body.limit;
     let lastComments = convertStringArrToObjectIdArr(req.body.lastComments);
-
     Post.aggregate([
         {
             $match: {
@@ -281,8 +280,8 @@ router.post('/comment', (req, res) => {
     ]).exec(async (err, comments) => {
         if (err) return handleError(res, err);
         const promises = comments.map(async (comment) => {
-            let result = await Comment.getPostCreatorReply(comment._id, creatorId);
-            comment.replyByPostCreator = result.shift();
+            let result = await MyComment.getPostCreatorReply(comment._id, creatorId);
+            comment.replyByPostCreator = result;
             return comment;
         });
         const data = await Promise.all(promises);
@@ -307,7 +306,7 @@ router.put('/comment/reply', (req, res) => {
         to: to,
         mentioned: mentioned
     }).then((reply) => {
-        Comment.findByIdAndUpdate({ _id: commentId }, {
+        MyComment.findByIdAndUpdate({ _id: commentId }, {
             $push: { replies: reply._id }
         }).exec((err, comment) => {
             if (err) return handleError(res, err);

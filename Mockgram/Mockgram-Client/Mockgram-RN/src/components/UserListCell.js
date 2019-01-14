@@ -2,7 +2,7 @@ import React from 'react';
 import { Text } from 'react-native';
 import { Button } from 'react-native-elements';
 import { CardItem, Left, Body, Right, Thumbnail } from 'native-base';
-import window from '../utils/getWindowSize';
+import window from '../utils/getDeviceInfo';
 export default class UserListCell extends React.Component {
     constructor(props) {
         super(props);

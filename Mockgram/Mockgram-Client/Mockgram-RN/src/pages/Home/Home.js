@@ -7,7 +7,7 @@ import {
 import PostCardComponent from '../../components/PostCardComponent';
 import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
-import window from '../../utils/getWindowSize';
+import window from '../../utils/getDeviceInfo';
 import { parseIdFromObjectArray } from '../../utils/parseIdFromObjectArray';
 
 export default class Home extends React.Component {
@@ -133,7 +133,7 @@ export default class Home extends React.Component {
             }
             return (
                 <FlatList
-                    style={{ marginTop: 0, width: window.width }}
+                    style={{ marginTop: 0, width: '100%' }}
                     data={this.state.data}
                     renderItem={({ item }) => (
                         <PostCardComponent dataSource={item} navigation={this.props.navigation} />
@@ -151,9 +151,7 @@ export default class Home extends React.Component {
 
     render() {
         return (
-            <View
-                style={styles.contentContainer}
-            >
+            <View style={styles.contentContainer}>
                 <this.renderPost />
             </View>
         );
