@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { SkypeIndicator, BallIndicator } from 'react-native-indicators';
 
 import CommentDetail from './CommentDetail';
-import CommentList from '../../components/CommentList';
+import CommentListCell from '../../components/CommentListCell';
 import TextInputBox from '../../components/TextInputBox';
 import DismissKeyboard from '../../components/DismissKeyboard';
 import Header from '../../components/Header';
@@ -21,9 +21,9 @@ class CommentPage extends React.Component {
         this.state = {
             comments: [],
             lastComments: [],
-            parent: this.props.navigation.getParam('parent', null),
+            postCard: this.props.navigation.getParam('postCard', null),
             postId: this.props.navigation.getParam('postId', null),
-            creatorId: this.props.navigation.getParam('postCreatorId', null),
+            creatorId: this.props.navigation.getParam('creatorId', null),
             refreshing: false,
             loadidng: false,
             loadingMore: false,
@@ -121,9 +121,10 @@ class CommentPage extends React.Component {
                     style={{ marginTop: 0, width: '100%', flex: 1 }}
                     data={this.state.comments}
                     renderItem={({ item }) => (
-                        <CommentList
+                        <CommentListCell
                             dataSource={item}
                             navigation={this.props.navigation}
+                            creatorId={this.state.creatorId}
                         />
                     )}
                     keyExtractor={item => item._id}
@@ -143,13 +144,12 @@ class CommentPage extends React.Component {
         return (
             <View style={styles.container}>
                 <Header
-                    style={{}}
-                    headerTitle="comments"
+                    headerTitle="All Comments"
                     rightIconButton={
                         <Icon name="md-close" style={{ fontSize: 24 }} />
                     }
                     rightButtonOnPress={() => {
-                        navigation.popToTop();
+                        navigation.dismiss();
                     }}
                 />
                 <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
@@ -158,7 +158,7 @@ class CommentPage extends React.Component {
                             <this.renderComment />
                         </View>
                     </DismissKeyboard>
-                    <TextInputBox style={{}} />
+                    <TextInputBox />
                 </KeyboardAvoidingView>
             </View>
         );
@@ -183,12 +183,13 @@ const styles = StyleSheet.create({
         borderTopWidth: 0,
         borderBottomWidth: 0,
         marginTop: 0,
+        width: '100%'
     },
     listFooter: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 80
+        height: 50
     },
     errorMsgView: {
         height: window.height * 0.85,

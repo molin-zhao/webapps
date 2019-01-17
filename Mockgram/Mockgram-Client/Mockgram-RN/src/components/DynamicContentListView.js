@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { SkypeIndicator } from 'react-native-indicators';
+import { SkypeIndicator, BallIndicator } from 'react-native-indicators';
+
 import { parseIdFromObjectArray } from '../utils/parseIdFromObjectArray';
-export default class ListView extends React.Component {
+
+export default class DynamicContentList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -16,7 +18,6 @@ export default class ListView extends React.Component {
         }
     }
 
-
     componentDidMount() {
         this.setState({
             loading: true
@@ -26,18 +27,15 @@ export default class ListView extends React.Component {
     }
 
     fetchData = () => {
-        const url = this.props.url;
+        const request = this.props.request;
+        const url = request.url;
         console.log(`feching data from ${url}`);
         fetch(url, {
-
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
+            method: request.method,
+            headers: request.headers,
             body: JSON.stringify({
-                userId: global.userinfo ? global.userinfo.user : null,
                 lastQueryDataIds: this.state.lastQueryDataIds,
+                ...request.body
             })
         })
             .then(res => res.json())
@@ -47,14 +45,14 @@ export default class ListView extends React.Component {
                     data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
                     lastQueryDataIds: this.state.loadingMore === true ? [...this.state.lastQueryDataIds, ...parseIdFromObjectArray(res.data)] : parseIdFromObjectArray(res.data),
                     error: res.status === 200 ? null : res.msg,
-                    hasMore: res.data.length < this.props.limit ? false : true,
+                    hasMore: res.data.length < request.body.limit ? false : true,
                     loading: false,
                     refreshing: false,
                     loadingMore: false,
                 });
             })
             .catch(error => {
-                this.setState({ error: "Network request failed", loading: false, refreshing: false });
+                this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
             });
     };
 
@@ -86,16 +84,18 @@ export default class ListView extends React.Component {
 
 
 
-    renderFooter = (props) => {
+    renderFooter = () => {
+        const props = this.props;
         return (
             <View style={styles.listFooter}>
-                {this.state.hasMore ? props.renderFooterHasMore : props.renderFooterNoMore}
+                {this.state.hasMore ? props.footerHasMore : props.footerNoMore}
             </View>
         );
     };
 
 
-    renderContent = (props) => {
+    renderContent = () => {
+        const props = this.props;
         if (this.state.loading) {
             return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
         } else {
@@ -105,11 +105,17 @@ export default class ListView extends React.Component {
             return (<FlatList
                 style={{ marginTop: 0, width: '100%' }}
                 data={this.state.data}
-                renderItem={props.renderItem}
+                renderItem={({ item }) => (
+                    <props.renderItem
+                        dataSource={item}
+                        navigation={props.navigation}
+                        meta={props.meta}
+                    />
+                )}
                 keyExtractor={item => item._id}
                 onRefresh={this.handleRefresh}
                 refreshing={this.state.refreshing}
-                ListFooterComponent={this.renderFooter(props)}
+                ListFooterComponent={this.renderFooter}
                 onEndReached={this.handleLoadMore}
                 onEndReachedThreshold={0.2}
             />);
@@ -117,10 +123,9 @@ export default class ListView extends React.Component {
     }
 
     render() {
-        const { width } = this.props;
         return (
-            <View style={[styles.contentContainer, { width: width }]}>
-                {this.renderContent(this.props)}
+            <View style={styles.contentContainer}>
+                <this.renderContent />
             </View>
         );
     }
@@ -128,16 +133,18 @@ export default class ListView extends React.Component {
 
 const styles = StyleSheet.create({
     contentContainer: {
-        flexDirection: 'row',
+        flex: 1,
+        flexDirection: 'column',
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'flex-start',
         borderTopWidth: 0,
         borderBottomWidth: 0,
         marginTop: 0,
+        width: '100%'
     },
     listFooter: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         height: 80
@@ -145,7 +152,7 @@ const styles = StyleSheet.create({
     errorMsgView: {
         height: window.height * 0.85,
         width: window.width,
-        flexDirection: 'row',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center'
     }

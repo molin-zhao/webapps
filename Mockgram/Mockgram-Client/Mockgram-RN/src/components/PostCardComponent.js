@@ -6,48 +6,29 @@ import ViewMoreText from 'react-native-view-more-text';
 import window from '../utils/getDeviceInfo';
 import { dateConverter } from '../utils/unitConverter';
 
+
+
 export default class PostCardComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            navigation: this.props.navigation,
             dataSource: this.props.dataSource,
-            liked: false,
-            showComments: false,
-            descriptionShowLess: true
+            navigation: this.props.navigation
         }
     }
 
     handleLike = () => {
+        this.state.dataSource.liked = !this.state.dataSource.liked;
         this.setState({
-            liked: !this.state.liked
-        }, () => {
-            console.log(this.state.liked ? 'liked' : 'unliked');
+            dataSource: this.state.dataSource
         });
     }
 
-    showModal = () => {
-        if (!this.state.showComments) {
-            this.setState({
-                showComments: !this.state.showComments
-            })
-        }
-    }
-
-    hideModal = () => {
-        if (this.state.showComments) {
-            this.setState({
-                showComments: !this.state.showComments
-            })
-        }
-    }
-
     handleComment = () => {
-        // this.showModal();
         this.props.navigation.navigate('Comment', {
-            parent: this,
             postId: this.state.dataSource._id,
-            creatorId: this.state.dataSource.postUser._id
+            creatorId: this.state.dataSource.creator,
+            postCard: this
         });
     }
 
@@ -101,10 +82,10 @@ export default class PostCardComponent extends React.Component {
                 <CardItem style={{ marginTop: 10, height: 50 }}>
                     <Left style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <View style={styles.cardLabels}>
-                            {this.state.liked ? <Icon onPress={() => { this.handleLike() }} name="ios-heart" style={{ color: 'red', fontSize: 24 }} />
+                            {this.state.dataSource.liked ? <Icon onPress={() => { this.handleLike() }} name="ios-heart" style={{ color: 'red', fontSize: 24 }} />
                                 : <Icon onPress={() => { this.handleLike() }} name="ios-heart-outline" style={{ color: null, fontSize: 24 }} />
                             }
-                            <Text style={{ fontSize: 12 }}>{this.state.liked ? this.state.dataSource.likeCount + 1 : this.state.dataSource.likeCount}</Text>
+                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.liked ? this.state.dataSource.likeCount + 1 : this.state.dataSource.likeCount}</Text>
                         </View>
                         <View style={styles.cardLabels}>
                             <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onPress={() => {
@@ -160,6 +141,7 @@ export default class PostCardComponent extends React.Component {
         );
     }
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

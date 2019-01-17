@@ -4,16 +4,19 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const passport = require('passport');
-const authenticate = require('../mockgram-utils/utils/authenticate');
-const config = require('../config');
+
+// routers
 const indexRouter = require('./routes/index');
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
 const discoveryRouter = require('./routes/discovery');
-const response = require('../mockgram-utils/utils/response');
-require('../mockgram-utils/utils/modelMigration');
+const profileRouter = require('./routes/profile');
 
+// utils
+const response = require('../mockgram-utils/utils/response');
+const authenticate = require('../mockgram-utils/utils/authenticate');
+const config = require('../config');
+require('../mockgram-utils/utils/modelMigration');
 
 const app = express();
 
@@ -33,10 +36,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(logger('dev'));
 
-
-// set up passport middleware
-app.use(passport.initialize());
-
 // adding a generic JSON and URL-encoded parser as a top-level middleware, 
 // which will parse the bodies of all incoming requests.
 // parse application/x-www-form-urlencoded
@@ -52,6 +51,7 @@ app.use('/', indexRouter);
 app.use('/user', userRouter);
 app.use('/post', postRouter);
 app.use('/discovery', discoveryRouter);
+app.use('/profile', profileRouter);
 
 // catch 404 and handle response
 app.use(function (req, res, next) {

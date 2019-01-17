@@ -1,12 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import MainApp from './src/MainApp';
-import { Provider } from 'react-redux';
-import { configureStore } from './src/redux/configureStore';
 import { SecureStore } from 'expo';
 import SocketIOClient from 'socket.io-client';
 import baseUrl from './src/common/baseUrl';
-const store = configureStore();
 
 export default class App extends React.Component {
   componentWillMount() {
@@ -38,9 +35,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <Provider store={store}>
-        <MainApp />
-      </Provider>
+      <MainApp />
     );
   }
 }

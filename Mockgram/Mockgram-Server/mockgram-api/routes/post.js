@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const response = require('../../mockgram-utils/utils/response');
 const Post = require('../../mockgram-utils/models/post').Post;
-const MyComment = require('../../mockgram-utils/models/comment');
+const CommentModal = require('../../mockgram-utils/models/comment');
 const Reply = require('../../mockgram-utils/models/reply');
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
 const { convertStringArrToObjectIdArr, convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
@@ -41,7 +41,7 @@ router.post('/', async (req, res) => {
                 {
                     $project: {
                         "liked": {
-                            $in: [userId, "$comments"]
+                            $in: [userId, "$likes"]
                         },
                         "likeCount": {
                             $size: "$likes"
@@ -106,6 +106,9 @@ router.post('/', async (req, res) => {
             },
             {
                 $project: {
+                    "liked": {
+                        $in: [userId, "$likes"]
+                    },
                     "likeCount": {
                         $size: "$likes"
                     },
@@ -163,7 +166,7 @@ router.put('/comment', /*verifyAuthorization,*/(req, res) => {
     let postId = req.body.postId;
     let commentBy = req.body.commentBy;
     let mentioned = req.body.mentioned;
-    MyComment.create({
+    CommentModal.create({
         content: content,
         postId: postId,
         commentBy: commentBy,
@@ -186,6 +189,7 @@ router.post('/comment', (req, res) => {
     let postId = convertStringToObjectId(req.body.postId);
     let creatorId = convertStringToObjectId(req.body.creatorId);
     let limit = req.body.limit;
+    let userId = req.body.userId;//client id, who sent the request
     let lastComments = convertStringArrToObjectIdArr(req.body.lastComments);
     Post.aggregate([
         {
@@ -262,6 +266,12 @@ router.post('/comment', (req, res) => {
                         "_id": 1,
                         "username": 1,
                         "avatar": 1
+                    },
+                    "liked": {
+                        $in: [userId, "$comments.likes"]
+                    },
+                    "disliked": {
+                        $in: [userId, "$comments.dislikes"]
                     }
                 }
             }
@@ -280,8 +290,8 @@ router.post('/comment', (req, res) => {
     ]).exec(async (err, comments) => {
         if (err) return handleError(res, err);
         const promises = comments.map(async (comment) => {
-            let result = await MyComment.getPostCreatorReply(comment._id, creatorId);
-            comment.replyByPostCreator = result;
+            let result = await CommentModal.getPostCreatorReply(comment._id, creatorId);
+            comment.replyByPostCreator = result.shift();
             return comment;
         });
         const data = await Promise.all(promises);
@@ -293,6 +303,117 @@ router.post('/comment', (req, res) => {
     });
 })
 
+
+router.post('/comment/detail/reply', (req, res) => {
+    let commentId = convertStringToObjectId(req.body.commentId);
+    let creatorId = convertStringToObjectId(req.body.creatorId);
+    let lastDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
+    let limit = req.body.limit;
+    let clientId = req.body.userId;
+    CommentModal.aggregate([
+        {
+            $match: {
+                _id: commentId
+            }
+        },
+        {
+            $project: {
+                "replies": {
+                    $setDifference: ["$replies", lastDataIds]
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "replies",
+                localField: "replies",
+                foreignField: '_id',
+                as: "replies"
+            }
+        },
+        { $unwind: "$replies" },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'replies.mentioned',
+                foreignField: '_id',
+                as: 'replies.mentioned'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'replies.from',
+                foreignField: '_id',
+                as: 'replies.from'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'replies.to',
+                foreignField: '_id',
+                as: 'replies.to'
+            }
+        },
+        { $unwind: "$replies.from" },
+        { $unwind: "$replies.to" },
+        {
+            $project: {
+                "replies": {
+                    "_id": 1,
+                    "liked": {
+                        $in: [clientId, "$replies.likes"]
+                    },
+                    "disliked": {
+                        $in: [clientId, "$replies.dislikes"]
+                    },
+                    "likeCount": {
+                        $size: "$replies.likes"
+                    },
+                    "dislikeCount": {
+                        $size: "$replies.dislikes"
+                    },
+                    "mentioned": {
+                        "username": 1,
+                        "_id": 1,
+                        "avatar": 1
+                    },
+                    "from": {
+                        "username": 1,
+                        "_id": 1,
+                        "avatar": 1
+                    },
+                    "to": {
+                        "username": 1,
+                        "_id": 1,
+                        "avatar": 1
+                    },
+                    "createdAt": 1,
+                    "content": 1
+                }
+            }
+        },
+        {
+            $sort: {
+                "likeCount": -1,
+                "createdAt": -1,
+                "_id": -1
+            }
+        },
+        { $limit: limit },
+        { $replaceRoot: { newRoot: "$replies" } }
+    ]).exec((err, replies) => {
+        if (err) return handleError(res, err);
+        return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: replies
+        })
+    })
+})
+
+// post a reply to the comment
 router.put('/comment/reply', (req, res) => {
     let commentId = req.body.commentId;
     let content = req.body.content;
@@ -306,7 +427,7 @@ router.put('/comment/reply', (req, res) => {
         to: to,
         mentioned: mentioned
     }).then((reply) => {
-        MyComment.findByIdAndUpdate({ _id: commentId }, {
+        CommentModal.findByIdAndUpdate({ _id: commentId }, {
             $push: { replies: reply._id }
         }).exec((err, comment) => {
             if (err) return handleError(res, err);

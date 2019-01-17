@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, StyleSheet, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import baseUrl from '../../common/baseUrl';
-import renderImageList from '../../components/RenderImageList';
+import renderImageList from '../../components/ImageGridList';
 
 export default class MyProfileListView extends React.Component {
     constructor(props) {

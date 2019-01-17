@@ -121,6 +121,7 @@ ComentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) {
                         "avatar": 1
                     },
                     "createdAt": 1,
+                    "content": 1
                 }
             }
         },

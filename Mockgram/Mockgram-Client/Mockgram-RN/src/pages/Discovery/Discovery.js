@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SearchBar } from 'react-native-elements';
-import ListCell from '../../components/RenderListCell';
+import ListCell from '../../components/ListCell';
 import baseUrl from '../../common/baseUrl';
 
 

@@ -1,38 +1,30 @@
 import React from 'react';
-import { View, StyleSheet, Text, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ViewMoreText from 'react-native-view-more-text';
-import { BallIndicator } from 'react-native-indicators';
 
-import Header from '../../components/Header';
-import DismissKeyboard from '../../components/DismissKeyboard';
-import TextInputBox from '../../components/TextInputBox';
-import Thumbnail from '../../components/Thumbnail';
-import CreatorTag from '../../components/CreatorTag';
-import DynamicListView from '../../components/DynamicContentListView';
-import ReplyListCell from '../../components/ReplyListCell';
+import Thumbnail from './Thumbnail';
+import CreatorTag from './CreatorTag';
 
-import { dateConverter } from '../../utils/unitConverter';
-import config from '../../common/config';
-import baseUrl from '../../common/baseUrl';
+import { dateConverter } from '../utils/unitConverter';
 
 
-export default class CommentDetail extends React.Component {
-
-    renderComment = (dataSource) => {
+export default class ReplyListCell extends React.Component {
+    render() {
+        const { dataSource, meta } = this.props;
         return (
-            <View style={styles.comment}>
-                <View style={styles.commentUserAvatar}>
-                    <Thumbnail source={dataSource.commentBy.avatar} style={{ width: 40, height: 40 }} />
+            <View key={dataSource._id} style={styles.container}>
+                <View style={styles.replyUserAvatar}>
+                    <Thumbnail source={dataSource.from.avatar} style={{ width: 40, height: 40 }} />
                 </View>
-                <View style={styles.commentContentWrapper}>
-                    <View style={styles.commentUsername}>
+                <View style={styles.replyContentWrapper}>
+                    <View style={styles.replyUsername}>
                         <Text style={{ fontWeight: "bold", fontSize: 14 }}>
-                            {dataSource.commentBy.username}
+                            {dataSource.from.username}
                         </Text>
-                        <CreatorTag byCreator={dataSource.commentByPostCreator} />
+                        <CreatorTag byCreator={(dataSource.from._id === meta.creatorId)} />
                     </View>
-                    <View style={styles.commentContents}>
+                    <View style={styles.replyContents}>
                         <ViewMoreText
                             numberOfLines={1}
                             renderViewMore={(onPress) => {
@@ -61,18 +53,18 @@ export default class CommentDetail extends React.Component {
                             </Text>
                         </ViewMoreText>
                     </View>
-                    <View style={styles.commentMeta}>
+                    <View style={styles.replyMeta}>
                         <Text style={{ fontSize: 12, color: 'grey' }}>{dateConverter(dataSource.createdAt)}</Text>
                         <View style={{ width: '30%', height: '100%', position: 'absolute', right: 0, justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <TouchableOpacity
                                 activeOpacity={0.8}
-                                style={styles.commentMetaIcon}>
+                                style={styles.replyMetaIcon}>
                                 <Icon name="ios-thumbs-up" style={{ color: dataSource.liked ? '#eb765a' : 'grey' }} />
                                 <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 activeOpacity={0.8}
-                                style={styles.commentMetaIcon}
+                                style={styles.replyMetaIcon}
                             >
                                 <Icon name="ios-thumbs-down" style={{ color: dataSource.disliked ? '#eb765a' : 'grey' }} />
                                 <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.dislikeCount}</Text>
@@ -83,91 +75,32 @@ export default class CommentDetail extends React.Component {
             </View>
         );
     }
-    render() {
-        const { navigation } = this.props;
-        const dataSource = navigation.getParam('dataSource');
-        return (
-            <View style={styles.container}>
-                <Header
-                    headerTitle="comments"
-                    rightIconButton={
-                        <Icon name="md-close" style={{ fontSize: 24 }} />
-                    }
-                    rightButtonOnPress={() => {
-                        navigation.dismiss();
-                    }}
-
-                    leftIconButton={
-                        <Icon name="md-arrow-back" style={{ fontSize: 24 }} />
-                    }
-
-                    leftButtonOnPress={() => {
-                        navigation.goBack()
-                    }}
-                />
-                {this.renderComment(dataSource)}
-                <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
-                    <DismissKeyboard>
-                        <DynamicListView
-                            meta={{ creatorId: this.props.navigation.getParam("creatorId") }}
-                            request={{
-                                url: `${baseUrl.api}/post/comment/detail/reply`,
-                                method: 'POST',
-                                headers: {
-                                    Accept: 'application/json',
-                                    'Content-Type': 'application/json',
-                                },
-                                body: {
-                                    limit: config.replyReturnLimit,
-                                    commentId: dataSource._id
-                                }
-                            }}
-                            renderItem={ReplyListCell}
-                            footerHasMore={<BallIndicator size={20} />}
-                            footerNoMore={<Text style={{ color: 'grey' }}>No more replies</Text>}
-                        />
-                    </DismissKeyboard>
-                    <TextInputBox />
-                </KeyboardAvoidingView>
-            </View>
-        );
-    }
 }
-
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column',
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        backgroundColor: '#fff',
-    },
-    comment: {
-        borderBottomColor: 'lightgrey',
-        borderBottomWidth: 5,
+        width: '100%',
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
-    commentUserAvatar: {
+    replyUserAvatar: {
         width: '15%',
         justifyContent: 'center',
         alignItems: 'center'
     },
-    commentContentWrapper: {
+    replyContentWrapper: {
         width: '85%',
         justifyContent: 'flex-start',
         alignItems: 'center'
     },
-    commentContents: {
+    replyContents: {
         width: '98%',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
     },
-    commentMeta: {
+    replyMeta: {
         width: '98%',
         height: 20,
         marginTop: 2,
@@ -176,7 +109,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
     },
-    commentUsername: {
+    replyUsername: {
         width: '98%',
         height: 20,
         marginTop: 10,
@@ -184,12 +117,12 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
     },
-    commentMetaIcon: {
+    replyMetaIcon: {
         width: '30%',
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
         marginLeft: '3%'
-    },
-});
+    }
+})
