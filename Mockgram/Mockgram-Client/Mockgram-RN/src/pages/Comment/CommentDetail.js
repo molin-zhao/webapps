@@ -109,7 +109,7 @@ export default class CommentDetail extends React.Component {
                 <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
                     <DismissKeyboard>
                         <DynamicListView
-                            meta={{ creatorId: this.props.navigation.getParam("creatorId") }}
+                            itemProps={{ creatorId: this.props.navigation.getParam("creatorId") }}
                             request={{
                                 url: `${baseUrl.api}/post/comment/detail/reply`,
                                 method: 'POST',

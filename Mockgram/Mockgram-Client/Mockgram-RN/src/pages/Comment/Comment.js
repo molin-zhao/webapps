@@ -12,7 +12,7 @@ import Header from '../../components/Header';
 
 import config from '../../common/config';
 import baseUrl from '../../common/baseUrl';
-import { parseIdFromObjectArray } from '../../utils/parseIdFromObjectArray';
+import { parseIdFromObjectArray } from '../../utils/idParser';
 import window from '../../utils/getDeviceInfo';
 
 class CommentPage extends React.Component {

@@ -1,87 +1,75 @@
 import React from 'react';
-import { View, StyleSheet, Image, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
 import { SecureStore } from 'expo';
 import { Item, Input, Icon, CheckBox, Body } from 'native-base';
-import baseUrl from '../../common/baseUrl';
+import { connect } from 'react-redux';
 
+import window from '../../utils/getDeviceInfo';
+import * as LocalKeys from '../../common/localKeys';
+import { clientLogin, loginError } from '../../redux/actions/clientActions';
 
-export default class Login extends React.Component {
+class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loginName: this.props.navigation.getParam('loginName', ''),
-            loginPassword: this.props.navigation.getParam('loginPassword', ''),
-            rememberme: this.props.navigation.getParam('rememberme', false),
-            loginError: this.props.navigation.getParam('loginError', '')
+            loginName: '',
+            loginPassword: '',
+            rememberMe: false
         }
     }
 
     componentWillMount() {
-        SecureStore.getItemAsync('login_creds').then((userdata) => {
-            let userinfo = JSON.parse(userdata);
-            if (userinfo) {
-                this.setState({ loginName: userinfo.loginName });
-                this.setState({ loginPassword: userinfo.loginPassword });
-                this.setState({ rememberme: true });
+        SecureStore.getItemAsync(LocalKeys.LOGIN_CREDENTIALS).then((data) => {
+            let creds = JSON.parse(data);
+            if (creds) {
+                this.setState({
+                    loginName: creds.loginName,
+                    loginPassword: creds.loginPassword,
+                    rememberMe: true
+                });
             }
         })
     }
 
 
-    renderLoginError = () => {
-        if (this.state.loginError !== '') {
+    renderLoginError = (error) => {
+        if (error) {
             return (
-                <Text style={styles.loginError}><Icon name='exclamation-circle' type="FontAwesome" style={{ fontSize: 15, color: 'red', marginRight: 5 }} />{`  ${this.state.loginError}`}</Text>
+                <Text style={styles.loginError}><Icon name='exclamation-circle' type="FontAwesome" style={{ fontSize: 15, color: 'red', marginRight: 5 }} />{`  ${error}`}</Text>
             );
-        } else {
-            return <Text>{null}</Text>
         }
+        return null;
     }
-
 
 
     handleLogin = async () => {
-        if (this.state.rememberme) {
-            await SecureStore.setItemAsync('login_creds', JSON.stringify({
-                loginName: this.state.loginName,
-                loginPassword: this.state.loginPassword
+        const { navigation } = this.props;
+        let loginForm = {
+            loginName: this.state.loginName,
+            loginPassword: this.state.loginPassword,
+        }
+        if (this.state.rememberMe) {
+            await SecureStore.setItemAsync(LocalKeys.LOGIN_CREDENTIALS, JSON.stringify({
+                loginName: loginForm.loginName,
+                loginPassword: loginForm.loginPassword
             })).catch((err) => {
-                console.log('Could not save user info', err);
+                console.log('Could not save credential info on local storage', err);
             });
         } else {
-            await SecureStore.deleteItemAsync('logincreds').catch(err => console.log('Could not delete user info', err));
+            await SecureStore.deleteItemAsync(LocalKeys.LOGIN_CREDENTIALS).catch(err => {
+                console.log('Could not delete credential info on local storage', err)
+            });
         }
-        fetch(`${baseUrl.api}/user/login`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: this.state.loginName,
-                password: this.state.loginPassword,
-            }),
-        }).then(res => res.json()).then(resJson => {
-            if (resJson.status === 200) {
-                // login success
-                let userinfo = {
-                    token: resJson.token,
-                    user: resJson.user
-                }
-                SecureStore.setItemAsync('userinfo', JSON.stringify(userinfo)).then(() => {
-                    global.userinfo = userinfo;
-                })
-                // global.socket = SocketIOClient(`${baseUrl.socket}`);
-                // global.socket.emit('registerClient', { id: global.userinfo.user._id });
-                this.props.navigation.popToTop()
-            } else {
-                // login failed
-                this.setState({
-                    loginError: resJson.msg
-                })
-            }
-        });
+        // client login and set client info into local storage after modifying state
+        this.props.clientLogin(loginForm).then((clientInfo) => {
+            SecureStore.setItemAsync(LocalKeys.CLIENT_INFO, JSON.stringify(clientInfo)).then(() => {
+                navigation.dismiss();
+            })
+        }).catch((err) => {
+            console.log("Cannot set client info in local storage", err);
+        })
     }
+
     render() {
         return (
             <View style={styles.container}>
@@ -99,10 +87,10 @@ export default class Login extends React.Component {
                         secureTextEntry={true}
                         value={this.state.loginPassword} />
                 </Item>
-                <this.renderLoginError />
-                <TouchableOpacity onPress={() => this.setState({ rememberme: !this.state.rememberme })}>
+                {this.renderLoginError(this.props.errMsg)}
+                <TouchableOpacity onPress={() => this.setState({ rememberMe: !this.state.rememberMe })}>
                     <View style={styles.formCheckbox}>
-                        <CheckBox checked={this.state.rememberme} />
+                        <CheckBox checked={this.state.rememberMe} />
                         <Body>
                             <Text>Remember me</Text>
                         </Body>
@@ -121,7 +109,6 @@ export default class Login extends React.Component {
     }
 }
 
-const windowWidth = Dimensions.get('window').width;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -130,7 +117,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     formInput: {
-        width: windowWidth * 0.7,
+        width: window.width * 0.7,
         height: 50,
         marginTop: 50
     },
@@ -138,7 +125,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        width: windowWidth / 2.5,
+        width: window.width / 2.5,
         height: 50,
         backgroundColor: null,
         marginTop: 50
@@ -147,7 +134,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        width: windowWidth * 0.6,
+        width: window.width * 0.6,
         marginTop: 50
     },
     loginError: {
@@ -156,8 +143,22 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 5,
         flexWrap: 'wrap',
-        width: windowWidth * 0.7,
+        width: window.width * 0.7,
         color: 'red',
         fontSize: 15
     },
 })
+
+const mapStateToProps = state => {
+    return {
+        client: state.client.client,
+        errMsg: state.client.errMsg
+    }
+}
+
+const mapDispatchToProps = dispatch => ({
+    clientLogin: (loginForm) => dispatch(clientLogin(loginForm)),
+    loginError: (err) => dispatch(loginError(err))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login)

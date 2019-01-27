@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { SkypeIndicator, BallIndicator } from 'react-native-indicators';
 
-import { parseIdFromObjectArray } from '../utils/parseIdFromObjectArray';
+import { parseIdFromObjectArray } from '../utils/idParser';
 
 export default class DynamicContentList extends React.Component {
     constructor(props) {
@@ -109,7 +109,7 @@ export default class DynamicContentList extends React.Component {
                     <props.renderItem
                         dataSource={item}
                         navigation={props.navigation}
-                        meta={props.meta}
+                        itemProps={props.itemProps}
                     />
                 )}
                 keyExtractor={item => item._id}

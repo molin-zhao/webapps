@@ -4,19 +4,22 @@ import { Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Item, Input, Label, Form } from 'native-base';
 import { SecureStore, Permissions, ImagePicker } from 'expo';
+import { connect } from 'react-redux';
+
 import processImage from '../../utils/imageProcessing';
 import allowPermissions from '../../utils/allowPermissions';
 import ActionSheet from 'react-native-actionsheet';
 import window from '../../utils/getDeviceInfo';
 import baseUrl from '../../common/baseUrl';
+import * as LocalKeys from '../../common/localKeys';
 
-export default class ProfileSetting extends React.Component {
+class ProfileSetting extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            imageUri: this.props.navigation.getParam('user').avatar,
-            nickname: this.props.navigation.getParam('user').nickname,
-            bio: this.props.navigation.getParam('user').bio,
+            imageUri: '',
+            nickname: '',
+            bio: '',
             permissionAllowed: false,
             choosedImage: null
         }
@@ -34,14 +37,20 @@ export default class ProfileSetting extends React.Component {
     })
 
     componentWillMount() {
-        SecureStore.getItemAsync('permission_camera').then(permissionData => {
+        const { profile } = this.props;
+        SecureStore.getItemAsync(LocalKeys.PERMISSION_CAMERA).then(permissionData => {
             if (permissionData) {
                 let permissionInfo = JSON.parse(permissionData);
                 if (permissionInfo.CAMERA_ROLL && permissionInfo.CAMERA) {
                     this.setState({ permissionAllowed: true });
                 }
             }
-        })
+        });
+        if (profile) {
+            this.setState({
+                imageUri: profile.avatar,
+            })
+        }
     }
 
     choosePhotoFromLibrary = async () => {
@@ -92,27 +101,31 @@ export default class ProfileSetting extends React.Component {
 
     }
     removeProfileAvatar = () => {
+        const { client } = this.props;
         let formData = new FormData();
-        formData.append("id", global.userinfo.user._id);
+        formData.append("id", client.user._id);
         fetch(`${baseUrl.upload}/upload/profile/remove/avatar`, {
             method: 'POST',
             body: formData,
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'multipart/form-data',
-                Authorization: global.userinfo.token
+                Authorization: client.token
             }
         }).then(res => res.json()).then(resJson => {
-            global.userinfo.user = resJson.user
-            this.setState({
-                imageUri: '',
-                image: null
-            });
+            if (resJson.status === 200) {
+                this.setState({
+                    imageUri: '',
+                    choosedImage: null
+                });
+            } else {
+                console.log("remove image error");
+            }
         })
     }
 
     uploadProfile = () => {
-        console.log(this.state);
+        const { client } = this.props;
         let fileName = this.state.imageUri.split('/').pop();
         let match = /\.(\w+)$/.exec(fileName);
         let type = match ? `image/${match[1]}` : `image`;
@@ -125,17 +138,16 @@ export default class ProfileSetting extends React.Component {
         });
         formData.append('bio', this.state.bio);
         formData.append('nickname', this.state.nickname);
-        formData.append('id', global.userinfo.user._id);
+        formData.append('id', client.user._id);
         fetch(`${baseUrl.upload}/upload/profile`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'multipart/form-data',
-                Authorization: global.userinfo.token
+                Authorization: client.token
             },
             body: formData
         }).then(res => res.json()).then(resJson => {
-            global.userinfo.user = resJson.user;
             this.props.navigation.goBack();
         })
     }
@@ -143,8 +155,9 @@ export default class ProfileSetting extends React.Component {
     showActionSheet = () => {
         this.ActionSheet.show();
     }
+
     render() {
-        const user = this.props.navigation.getParam('user', null);
+        const { profile } = this.props;
         return (
             <View style={styles.container}>
                 <ActionSheet
@@ -186,13 +199,13 @@ export default class ProfileSetting extends React.Component {
                     <Form style={{ width: window.width }}>
                         <Item stackedLabel>
                             <Label>nickname</Label>
-                            <Input style={{ marginLeft: 5, height: window.width * 0.2 }} placeholder={user.nickname} value={this.state.nickname} onChangeText={text => {
+                            <Input style={{ marginLeft: 5, height: window.width * 0.2 }} placeholder={profile.nickname} value={this.state.nickname} onChangeText={text => {
                                 this.setState({ nickname: text })
                             }} />
                         </Item>
                         <Item stackedLabel>
                             <Label>bio</Label>
-                            <Input style={{ marginLeft: 5, height: window.width * 0.2 }} placeholder={user.bio} value={this.state.bio} onChangeText={text => {
+                            <Input style={{ marginLeft: 5, height: window.width * 0.2 }} placeholder={profile.bio} value={this.state.bio} onChangeText={text => {
                                 this.setState({ bio: text })
                             }} />
                         </Item>
@@ -203,6 +216,14 @@ export default class ProfileSetting extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        profile: state.client.profile
+    }
+}
+
+export default connect(mapStateToProps, null)(ProfileSetting)
 
 const styles = StyleSheet.create({
     container: {

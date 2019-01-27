@@ -3,9 +3,21 @@ require('mongoose-type-email');
 const handleError = require('../utils/handleError').handleError;
 const authenticate = require('../utils/authenticate');
 const response = require('../utils/response');
+const PolygonSchema = require('../models/post').Polygon;
+const LocationSchema = require('../models/post').Location;
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const SALT_FACTOR = 8;
+
+const PrivacySchema = new Schema({
+    // activity_area is used for collecting posts within this area
+    activityArea: PolygonSchema,
+    // location is used for positioning the user and the user can manually change it 
+    location: LocationSchema
+}, {
+        timestamps: true
+    })
+
 
 const User = new Schema({
     username: {
@@ -45,10 +57,6 @@ const User = new Schema({
     gender: {
         type: String
     },
-    privacySettings: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'UserPrivacy'
-    },
     followers: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
@@ -56,13 +64,14 @@ const User = new Schema({
         }],
         default: []
     },
-    followings: {
+    following: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         }],
         default: []
-    }
+    },
+    privacy: PrivacySchema
 }, {
         timestamps: true
     });
@@ -113,6 +122,41 @@ User.statics.login = function (criteria, password, res, ) {
             })
         }
     })
+}
+
+User.statics.getUserProfile = function (userId, notMyProfile) {
+    // if a user request a personal account, return privacy settings, second param will be true
+    return this.aggregate([
+        {
+            $match: {
+                _id: userId
+            }
+        },
+        {
+            $project: {
+                "_id": 1,
+                "username": 1,
+                "nickname": 1,
+                "bio": 1,
+                "avatar": 1,
+                "email": 1,
+                "createdAt": 1,
+                "followerCount": {
+                    $size: "$followers"
+                },
+                "followingCount": {
+                    $size: "$following"
+                },
+                "privacy": {
+                    $cond: {
+                        if: notMyProfile,
+                        then: "$$REMOVE",
+                        else: "$privacy"
+                    }
+                }
+            }
+        }
+    ]);
 }
 
 module.exports = mongoose.model('User', User);

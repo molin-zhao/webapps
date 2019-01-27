@@ -4,13 +4,16 @@ import {
     SkypeIndicator,
     BarIndicator
 } from 'react-native-indicators'
+import { connect } from 'react-redux';
+
 import PostCardComponent from '../../components/PostCardComponent';
 import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
-import { parseIdFromObjectArray } from '../../utils/parseIdFromObjectArray';
+import { parseIdFromObjectArray } from '../../utils/idParser';
+import { client } from '../../redux/reducers/clientReducers';
 
-export default class Home extends React.Component {
+class Home extends React.Component {
     constructor(props) {
         super(props);
 
@@ -21,7 +24,6 @@ export default class Home extends React.Component {
             refreshing: false,
             loadingMore: false,
             hasMore: true,
-            lastPosts: [],
         };
     }
 
@@ -48,6 +50,7 @@ export default class Home extends React.Component {
 
     fetchPosts = () => {
         const url = `${baseUrl.api}/post`;
+        const { client } = this.props;
         console.log(`feching data from ${url}`);
         fetch(url, {
 
@@ -58,8 +61,8 @@ export default class Home extends React.Component {
             },
             body: JSON.stringify({
                 limit: config.postReturnLimit,
-                userId: global.userinfo ? global.userinfo.user : null,
-                lastPosts: this.state.lastPosts,
+                userId: client ? client.user._id : null,
+                lastQueryDataIds: parseIdFromObjectArray(this.state.data)
             })
         })
             .then(res => res.json())
@@ -67,7 +70,6 @@ export default class Home extends React.Component {
                 this.setState({
                     // data only appended when loading more, else refresh data
                     data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
-                    lastPosts: this.state.loadingMore === true ? [...this.state.lastPosts, ...parseIdFromObjectArray(res.data)] : parseIdFromObjectArray(res.data),
                     error: res.status === 200 ? null : res.msg,
                     hasMore: res.data.length < config.postReturnLimit ? false : true,
                     loading: false,
@@ -76,7 +78,7 @@ export default class Home extends React.Component {
                 });
             })
             .catch(error => {
-                this.setState({ error: "Network request failed", loading: false, refreshing: false });
+                this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
             });
     };
 
@@ -107,7 +109,7 @@ export default class Home extends React.Component {
     };
 
     renderFooter = () => {
-        if (this.state.data.length === 0) {
+        if (!this.state.loading && !this.state.loadingMore && !this.state.refreshing && this.state.data.length === 0) {
             return (
                 <View style={{ height: window.height * 0.9, width: window.width, backgroundColor: "#fff", justifyContent: 'flex-start', alignItems: 'center' }}>
                     <View style={{ marginTop: window.height * 0.4, height: "10%", width: "100%", justifyContent: 'center', alignItems: 'center' }}>
@@ -157,6 +159,15 @@ export default class Home extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        client: state.client.client
+    }
+}
+
+export default connect(mapStateToProps, null)(Home);
+
 const styles = StyleSheet.create({
     contentContainer: {
         flexDirection: 'row',

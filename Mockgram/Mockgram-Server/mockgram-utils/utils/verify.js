@@ -22,8 +22,6 @@ exports.verifyAuthorization = function (req, res, next) {
 exports.verifyUser = function (req, res, next) {
     let queryId = req.params.id || req.body.id || req.query.id;
     let userId = req.user ? req.user._id : null;
-    console.log(queryId);
-    console.log(userId);
     if (queryId && queryId === userId) {
         next();
     } else {

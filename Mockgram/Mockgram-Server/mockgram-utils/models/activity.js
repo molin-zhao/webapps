@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const UserActivity = new Schema({
+const ActivitySchema = new Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -16,4 +16,4 @@ const UserActivity = new Schema({
 });
 
 
-module.exports = mongoose.model('UserActivity', UserActivity);
+module.exports = mongoose.model('Activity', ActivitySchema);

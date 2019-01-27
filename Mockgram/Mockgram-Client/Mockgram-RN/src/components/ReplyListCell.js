@@ -11,7 +11,7 @@ import { dateConverter } from '../utils/unitConverter';
 
 export default class ReplyListCell extends React.Component {
     render() {
-        const { dataSource, meta } = this.props;
+        const { dataSource, itemProps } = this.props;
         return (
             <View key={dataSource._id} style={styles.container}>
                 <View style={styles.replyUserAvatar}>
@@ -22,7 +22,7 @@ export default class ReplyListCell extends React.Component {
                         <Text style={{ fontWeight: "bold", fontSize: 14 }}>
                             {dataSource.from.username}
                         </Text>
-                        <CreatorTag byCreator={(dataSource.from._id === meta.creatorId)} />
+                        <CreatorTag byCreator={(dataSource.from._id === itemProps.creatorId)} />
                     </View>
                     <View style={styles.replyContents}>
                         <ViewMoreText

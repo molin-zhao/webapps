@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const response = require('../../mockgram-utils/utils/response');
 const Post = require('../../mockgram-utils/models/post').Post;
+const User = require('../../mockgram-utils/models/user');
 const CommentModal = require('../../mockgram-utils/models/comment');
 const Reply = require('../../mockgram-utils/models/reply');
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
@@ -12,8 +13,8 @@ const { verifyAuthorization } = require('../../mockgram-utils/utils/verify');
 // request body contains last query's post id array
 router.post('/', async (req, res) => {
     let limit = parseInt(req.body.limit);
-    let userId = req.body.userId;//client id, who sent the request
-    let lastPosts = convertStringArrToObjectIdArr(req.body.lastPosts);
+    let userId = convertStringToObjectId(req.body.userId);//client id, who sent the request
+    let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
     // if client is a loggin user, then send back the follower posts.
     // else send back hot posts.
     if (userId) {
@@ -23,7 +24,7 @@ router.post('/', async (req, res) => {
             Post.aggregate([
                 {
                     $match: {
-                        _id: { $nin: lastPosts },
+                        _id: { $nin: lastQueryDataIds },
                         creator: { $in: followings }
                     }
                 },
@@ -90,7 +91,7 @@ router.post('/', async (req, res) => {
         Post.aggregate([
             {
                 $match: {
-                    _id: { $nin: lastPosts },
+                    _id: { $nin: lastQueryDataIds },
                 }
             },
             {

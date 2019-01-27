@@ -16,8 +16,8 @@ const profileRouter = require('./routes/profile');
 const response = require('../mockgram-utils/utils/response');
 const authenticate = require('../mockgram-utils/utils/authenticate');
 const config = require('../config');
-require('../mockgram-utils/utils/modelMigration');
 
+// set up app
 const app = express();
 
 // set up mongoose connection
@@ -67,16 +67,6 @@ app.use(function (err, req, res, next) {
     status: response.ERROR.SERVER_ERROR.CODE,
     msg: response.ERROR.SERVER_ERROR.MSG,
   });
-});
-
-// error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
 });
 
 module.exports = app;

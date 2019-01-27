@@ -1,56 +1,85 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { Avatar } from 'react-native-elements';
-import ProfileEmbeddedTabView from './ProfileEmbeddedTabView';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { connect } from 'react-redux';
 
-export default class Profile extends React.Component {
+import ProfileTabView from './ProfileTabView';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { getClientProfile } from '../../redux/actions/clientActions';
+import window from '../../utils/getDeviceInfo';
+
+class Profile extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: {
+            initialProfile: {
                 avatar: '',
-                username: 'Unimelb',
-                counts: {
-                    posts: 5,
-                    followers: 2,
-                    following: 3,
-                    bio: "I love unimelb"
-                }
-            }
+                postsCount: 0,
+                followersCount: 0,
+                followingCount: 0,
+                bio: 'no bio yet',
+            },
+            refreshing: false,
         }
-
     }
+
     static navigationOptions = ({ navigation }) => ({
-        title: "Unimelb",
+        title: navigation.getParam('title', null),
         headerRight: (
-            <TouchableOpacity style={{ marginRight: 20 }}
+            <TouchableOpacity activeOpacity={0.8} style={{ marginRight: 20 }}
                 onPress={() => {
-                    navigation.navigate('Settings', {
-                        user: {
-                            avatar: '',
-                            username: 'Unimelb',
-                            counts: {
-                                posts: 5,
-                                followers: 0,
-                                following: 0,
-                                bio: "I love unimelb"
-                            }
-                        }
-                    });
+                    navigation.navigate('Settings');
                 }}>
-                <Icon name='cog' size={24} />
+                <Icon name='ios-settings' size={24} />
             </TouchableOpacity>
         )
     });
+
+    componentDidMount() {
+        const { navigation } = this.props;
+        if (this.props.client) {
+            this.props.getClientProfile(this.props.client.token).then(profile => {
+                navigation.setParams({
+                    title: profile.username
+                })
+            });
+        } else {
+            navigation.navigate('Auth');
+        }
+    }
+
+    onRefresh = () => {
+        let that = this;
+        this.setState({
+            refreshing: true
+        }, () => {
+            setTimeout(() => {
+                that.setState({
+                    refreshing: false
+                })
+            }, 2000)
+        })
+    }
+
     render() {
+        let profile = this.props.profile ? this.props.profile : this.state.initialProfile;
         return (
-            <View style={styles.container}>
-                {this.state.user.avatar && this.state.user.avatar !== '' ?
+            <ScrollView
+                style={styles.container}
+                contentContainerStyle={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start' }}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.onRefresh}
+                    />
+                }
+                horizontal={false}
+            >
+                {profile.avatar && profile.avatar !== '' ?
                     <Avatar
                         large
                         rounded
-                        source={{ uri: this.state.user.avatar }}
+                        source={{ uri: profile.avatar }}
                         activeOpacity={0.7}
                         containerStyle={{ marginTop: 30 }}
                     /> :
@@ -64,26 +93,35 @@ export default class Profile extends React.Component {
                 }
 
                 <View style={styles.count}>
-                    <View style={styles.count_subview}>
-                        <Text style={styles.count_text}>{this.state.user.counts.posts}</Text>
-                        <Text style={styles.count_text}>Posts</Text>
-                    </View>
-                    <View style={styles.count_subview}>
-                        <Text style={styles.count_text}>{this.state.user.counts.following}</Text>
-                        <Text style={styles.count_text}>Follow</Text>
-                    </View>
-                    <View style={styles.count_subview}>
-                        <Text style={styles.count_text}>{this.state.user.counts.followers}</Text>
-                        <Text style={styles.count_text}>Follower</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.countSubview}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.countText}>{profile.postCount}</Text>
+                        <Text style={styles.countText}>Post</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.countSubview}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.countText}>{profile.followingCount}</Text>
+                        <Text style={styles.countText}>Following</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.countSubview}
+                        activeOpacity={0.8}
+                    >
+                        <Text style={styles.countText}>{profile.followerCount}</Text>
+                        <Text style={styles.countText}>Follower</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.bio}>
-                    <Text style={styles.bio_text}>{this.state.user.bio}</Text>
+                    <Text style={styles.bioText}>{profile.bio}</Text>
                 </View>
                 <View style={styles.embeddedTabView}>
-                    <ProfileEmbeddedTabView />
+                    <ProfileTabView navigation={this.props.navigation} userId={profile._id} clientUpdate={true} numColumns={3} />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -92,23 +130,24 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
     },
     count: {
         marginTop: 20,
+        width: '80%',
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        height: 50
+        justifyContent: 'space-around',
+        height: window.height * 0.1
     },
-    count_subview: {
-        flex: 1,
+    countSubview: {
+        width: '30%',
+        height: '100%',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
-    count_text: {
+    countText: {
+        alignSelf: 'center',
         fontSize: 15
     },
     bio: {
@@ -117,10 +156,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         height: 50
     },
-    bio_text: {
+    bioText: {
         fontSize: 12
     },
     embeddedTabView: {
         marginTop: 20,
     }
 });
+
+const mapStateToProps = state => {
+    return {
+        client: state.client.client,
+        profile: state.client.profile,
+    }
+}
+
+const mapDispatchToProps = dispatch => ({
+    getClientProfile: (token) => dispatch(getClientProfile(token))
+})
+export default connect(mapStateToProps, mapDispatchToProps)(Profile)

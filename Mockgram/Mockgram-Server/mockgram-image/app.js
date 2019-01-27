@@ -1,4 +1,3 @@
-const createError = require('http-errors');
 const mongoose = require('mongoose');
 const express = require('express');
 const path = require('path');
@@ -8,7 +7,6 @@ const bodyParser = require('body-parser');
 const config = require('../config');
 const indexRouter = require('./routes/index');
 const uploadRouter = require('./routes/upload');
-require('../mockgram-utils/utils/modelMigration');
 
 const app = express();
 
@@ -45,20 +43,20 @@ app.use(express.static(path.join(__dirname, 'public/upload/image')));
 app.use('/', indexRouter);
 app.use('/upload', uploadRouter);
 
-// catch 404 and forward to error handler
+// catch 404 and handle response
 app.use(function (req, res, next) {
-  next(createError(404));
+  return res.status(404).json({
+    status: response.ERROR.NOT_FOUND.CODE,
+    msg: response.ERROR.NOT_FOUND.MSG
+  });
 });
 
-// error handler
+// catch 500 and handle response
 app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  return res.status(500).json({
+    status: response.ERROR.SERVER_ERROR.CODE,
+    msg: response.ERROR.SERVER_ERROR.MSG,
+  });
 });
 
 module.exports = app;

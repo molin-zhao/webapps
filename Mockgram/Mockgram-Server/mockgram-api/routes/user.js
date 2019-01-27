@@ -3,7 +3,6 @@ const router = express.Router();
 const passport = require('passport');
 const check = require('express-validator/check').check;
 const validationResult = require('express-validator/check').validationResult;
-const Post = require('../../mockgram-utils/models/post');
 const User = require('../../mockgram-utils/models/user');
 const verification = require('../../mockgram-utils/utils/verify');
 const response = require('../../mockgram-utils/utils/response');
@@ -85,57 +84,17 @@ router.post('/register', [
   }
 });
 
-
+// user login and authentication routers
 router.post('/login', (req, res) => {
   let loginName = req.body.username;
   let criteria = (loginName.indexOf('@') === -1) ? { username: loginName } : { email: loginName };
   return User.login(criteria, req.body.password, res);
 });
 
-router.get('/token/verify', verification.verifyAuthorization, (req, res) => {
-  return res.json({
-    status: response.SUCCESS.OK.CODE,
-    msg: response.SUCCESS.OK.MSG
-  })
-})
-
 router.get('/logout', (req, res) => {
   // TODO
 });
 
-
-// user data routers
-router.get('/:id', (req, res) => {
-  User.findById(req.params.id).populate('privacySettings').exec(function (err, user) {
-    if (err) {
-      return res.json({
-        status: response.ERROR.NOT_FOUND.CODE,
-        msg: response.ERROR.NOT_FOUND.MSG,
-        data: err
-      });
-    }
-
-    let userResult = {
-      _id: user._id,
-      avatar: user.avatar,
-      bio: user.bio,
-      gender: user.gender,
-      username: user.username,
-      nickname: user.nickname,
-      email: user.email,
-      counts: user.counts,
-      privacy_settings: user.privacy_settings
-    };
-    console.log(userResult);
-    return res.json({
-      status: response.SUCCESS.OK.CODE,
-      msg: response.SUCCESS.OK.MSG,
-      user: userResult
-    });
-  });
-});
-
-// authentication routers
 router.get('/auth/facebook', passport.authenticate('facebook'),
   (req, res) => { });
 
@@ -165,9 +124,11 @@ router.get('/auth/facebook/callback', (req, res, next) => {
   })(req, res, next);
 });
 
-router.put('profile/update', (req, res) => { });
-
-
-
+router.get('/token/verify', verification.verifyAuthorization, (req, res) => {
+  return res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG
+  })
+})
 
 module.exports = router;
