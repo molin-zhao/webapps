@@ -7,7 +7,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import PostGridViewImage from '../../components/PostGridViewImage';
 
 import config from '../../common/config';
-import { getClientProfilePosts } from '../../redux/actions/clientActions';
+import { getClientProfilePosts } from '../../redux/actions/profileActions';
 import window from '../../utils/getDeviceInfo';
 
 class ProfilePostGridView extends React.Component {
@@ -24,21 +24,21 @@ class ProfilePostGridView extends React.Component {
     }
 
     componentDidMount() {
-        const { clientUpdate, userId, type, dataSource } = this.props;
+        const { userId, type, dataSource } = this.props;
         this.setState({
             loading: true
         }, () => {
-            this.props.fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit, clientUpdate);
+            this.props.fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit);
         })
     }
 
     handleLoadMore = () => {
-        const { clientUpdate, userId, type, dataSource } = this.props;
+        const { userId, type, dataSource } = this.props;
         if (this.state.hasMore && !this.state.loading && !this.state.refreshing && !this.state.loadingMore) {
             this.setState({
                 loadingMore: true
             }, () => {
-                this.props.fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit, clientUpdate);
+                this.props.fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit);
             })
         }
     }
@@ -135,7 +135,7 @@ class ProfilePostGridView extends React.Component {
 }
 
 const mapDispatchToProps = dispatch => ({
-    fetchPosts: (caller, dataSource, userId, type, limit, hotUpdate) => dispatch(getClientProfilePosts(caller, dataSource, userId, type, limit, hotUpdate))
+    fetchPosts: (caller, dataSource, userId, type, limit) => dispatch(getClientProfilePosts(caller, dataSource, userId, type, limit))
 })
 
 export default connect(null, mapDispatchToProps)(ProfilePostGridView)

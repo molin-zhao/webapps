@@ -37,4 +37,14 @@ exports.dateConverter = (dateString) => {
     let dateInput_date = dateInput.getDate();
     let dateInput_year = dateInput.getFullYear();
     return `${monthAbbrArr[dateInput_month]}.${dateInput_date}.${dateInput_year}`;
-} 
+}
+
+exports.messageCountNormalizer = (inputInt) => {
+    if (inputInt > 99) {
+        return `99+`
+    } else if (inputInt > 0) {
+        return `${inputInt}`
+    } else {
+        return ''
+    }
+}

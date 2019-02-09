@@ -37,11 +37,11 @@ class ProfileTabView extends React.Component {
             );
         } else {
             if (this.state.activeIndex === 0) {
-                return <Posts type="CREATED" userId={userId} dataSource={clientUpdate ? created : null} clientUpdate={clientUpdate} navigation={navigation} numColumns={numColumns} />
+                return <Posts type="CREATED" userId={userId} dataSource={clientUpdate ? created : null} navigation={navigation} numColumns={numColumns} />
             } else if (this.state.activeIndex === 1) {
-                return <Liked type="LIKED" userId={userId} dataSource={clientUpdate ? liked : null} clientUpdate={clientUpdate} navigation={navigation} numColumns={numColumns} />
+                return <Liked type="LIKED" userId={userId} dataSource={clientUpdate ? liked : null} navigation={navigation} numColumns={numColumns} />
             } else {
-                return <Mentioned type="MENTIONED" userId={userId} dataSource={clientUpdate ? mentioned : null} clientUpdate={clientUpdate} navigation={navigation} numColumns={numColumns} />
+                return <Mentioned type="MENTIONED" userId={userId} dataSource={clientUpdate ? mentioned : null} navigation={navigation} numColumns={numColumns} />
             }
         }
     }
@@ -73,9 +73,9 @@ class ProfileTabView extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        created: state.client.created,
-        liked: state.client.liked,
-        mentioned: state.client.mentioned
+        created: state.profile.created,
+        liked: state.profile.liked,
+        mentioned: state.profile.mentioned
     }
 }
 

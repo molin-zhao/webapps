@@ -1,7 +1,16 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
+import { connect } from 'react-redux';
 
-export default class Following extends React.Component {
+class Following extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    componentDidMount() {
+
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -10,6 +19,14 @@ export default class Following extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => (
+    {
+        client: state.client.client
+    }
+);
+
+export default connect(mapStateToProps, null)(Following);
 const styles = StyleSheet.create({
     container: {
         flex: 1,

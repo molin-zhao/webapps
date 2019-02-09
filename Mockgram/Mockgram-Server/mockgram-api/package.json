@@ -3,6 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "PORT=3031 node ./bin/www"
+    "start": "PORT=3031 node app.js"
   }
 }

@@ -10,10 +10,12 @@ import Post from './screens/PostScreen';
 import Message from './screens/MessageScreen';
 import Login from './screens/LoginScreen';
 import CommentPage from './pages/Comment/Comment';
-import BadgeIcon from './components/BadgeIcon';
+import MessageBadgeIcon from './components/MessageBadgeIcon';
 import AuthIcon from './components/AuthIcon';
 
 import { getClientInfo } from './redux/actions/clientActions';
+import { } from './redux/actions/messageActions';
+import { socketListener } from './redux/middleware/subscriber';
 
 
 const MainAppTabNavigator = createBottomTabNavigator({
@@ -48,10 +50,16 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Message,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <BadgeIcon name="ios-mail" color={tintColor} size={28} auth={true} router={{
-                    target: 'Message',
-                    auth: 'Auth'
-                }} />
+                <MessageBadgeIcon
+                    name="ios-mail"
+                    color={tintColor}
+                    size={28}
+                    auth={true}
+                    router={{
+                        target: 'Message',
+                        auth: 'Auth'
+                    }}
+                />
             )
         }
     },
@@ -108,6 +116,10 @@ class MainApp extends React.Component {
         this.props.getClientInfo();
     }
 
+    componentWillUpdate() {
+        socketListener();
+    }
+
 
     render() {
         return (
@@ -115,9 +127,14 @@ class MainApp extends React.Component {
         );
     }
 }
-
+const mapStateToProps = state => {
+    return {
+        socket: state.message.socket,
+        message: state.message.message
+    }
+}
 const mapDispatchToProps = dispatch => ({
-    getClientInfo: () => dispatch(getClientInfo())
+    getClientInfo: () => dispatch(getClientInfo()),
 })
 
-export default connect(null, mapDispatchToProps)(MainApp);
+export default connect(mapStateToProps, mapDispatchToProps)(MainApp);

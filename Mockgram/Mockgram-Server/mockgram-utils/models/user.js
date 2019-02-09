@@ -18,6 +18,17 @@ const PrivacySchema = new Schema({
         timestamps: true
     })
 
+const LoginInfoSchema = new Schema({
+    token: String,
+    socket: String,
+    deviceType: String,
+    ipAddress: String,
+    lastLogin: Date,
+    lastLogout: Date
+}, {
+        timestamps: true
+    })
+
 
 const User = new Schema({
     username: {
@@ -71,7 +82,17 @@ const User = new Schema({
         }],
         default: []
     },
-    privacy: PrivacySchema
+    privacy: PrivacySchema,
+    loginInfo: LoginInfoSchema,
+    receivedMessage: {
+        type: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: 'Message'
+            }
+        ],
+        default: []
+    }
 }, {
         timestamps: true
     });

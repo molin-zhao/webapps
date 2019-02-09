@@ -7,7 +7,7 @@ exports.verifyAuthorization = function (req, res, next) {
     let token = req.body.token || req.query.token || req.headers.authorization;
     if (token) {
         return decodeToken(token, (err, decoded) => {
-            if (err) return handleError(res, err);
+            if (err) return handleError(res, err.message);
             req.user = decoded;
             next();
         })

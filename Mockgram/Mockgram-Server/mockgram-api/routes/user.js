@@ -6,7 +6,6 @@ const validationResult = require('express-validator/check').validationResult;
 const User = require('../../mockgram-utils/models/user');
 const verification = require('../../mockgram-utils/utils/verify');
 const response = require('../../mockgram-utils/utils/response');
-const authenticate = require('../../mockgram-utils/utils/authenticate');
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
 
 // basic user register and login routers

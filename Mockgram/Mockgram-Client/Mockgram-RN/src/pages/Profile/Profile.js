@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import ProfileTabView from './ProfileTabView';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { getClientProfile } from '../../redux/actions/clientActions';
+import { getClientProfile } from '../../redux/actions/profileActions';
 import window from '../../utils/getDeviceInfo';
 
 class Profile extends React.Component {
@@ -14,8 +14,8 @@ class Profile extends React.Component {
         this.state = {
             initialProfile: {
                 avatar: '',
-                postsCount: 0,
-                followersCount: 0,
+                postCount: 0,
+                followerCount: 0,
                 followingCount: 0,
                 bio: 'no bio yet',
             },
@@ -36,15 +36,15 @@ class Profile extends React.Component {
     });
 
     componentDidMount() {
-        const { navigation } = this.props;
-        if (this.props.client) {
-            this.props.getClientProfile(this.props.client.token).then(profile => {
+        const { navigation, client, getClientProfile } = this.props;
+        if (client) {
+            getClientProfile(client.token).then(profile => {
                 navigation.setParams({
                     title: profile.username
                 })
+            }).catch(err => {
+                console.log(err);
             });
-        } else {
-            navigation.navigate('Auth');
         }
     }
 
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return {
         client: state.client.client,
-        profile: state.client.profile,
+        profile: state.profile.profile,
     }
 }
 

@@ -3,7 +3,7 @@ import { SecureStore } from 'expo';
 import * as ActionTypes from './ActionTypes';
 import * as LocalKeys from '../../common/localKeys';
 import baseUrl from '../../common/baseUrl';
-import { parseIdFromObjectArray } from '../../utils/idParser';
+import { createSocket } from '../../utils/socket';
 
 export const clientLogin = (loginForm) => (dispatch) => {
     return fetch(`${baseUrl.api}/user/login`, {
@@ -23,10 +23,8 @@ export const clientLogin = (loginForm) => (dispatch) => {
                 token: resJson.token,
                 user: resJson.user
             }
-            // global.socket = SocketIOClient(`${baseUrl.socket}`);
-            // global.socket.emit('registerClient', { id: global.userinfo.user._id });
-            console.log(clientInfo);
             dispatch(loginSucess(clientInfo));
+            dispatch(connectSocket(createSocket(baseUrl.socket, clientInfo)));
             return Promise.resolve(clientInfo);
         } else {
             // login failed
@@ -41,25 +39,6 @@ export const clientLogout = () => (dispatch) => {
     return
 }
 
-export const getClientProfile = (token) => (dispatch) => {
-    return fetch(`${baseUrl.api}/profile/`, {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-            Authorization: token
-        },
-    }).then(res => res.json()).then(resJson => {
-        if (resJson.status === 200) {
-            let profile = resJson.data;
-            dispatch(addClientProfile(profile));
-            return Promise.resolve(profile);
-        } else {
-            let errMsg = resJson.msg;
-            dispatch(addClientProfileFailed(errMsg));
-            return Promise.reject(errMsg);
-        }
-    })
-}
 
 export const getClientInfo = () => (dispatch) => {
     return SecureStore.getItemAsync(LocalKeys.CLIENT_INFO).then((info) => {
@@ -80,6 +59,7 @@ export const getClientInfo = () => (dispatch) => {
                     });
                 } else {
                     dispatch(addClientInfo(clientInfo));
+                    dispatch(connectSocket(createSocket(baseUrl.socket, clientInfo)));
                 }
             })
         } else {
@@ -88,58 +68,15 @@ export const getClientInfo = () => (dispatch) => {
     })
 }
 
-export const getClientProfilePosts = (caller, dataSource, userId, type, limit, hotUpdate) => dispatch => {
-    const url = `${baseUrl.api}/profile/post`;
-    console.log(`fetching data from ${url}`);
-    let lastData = dataSource == null ? caller.state.data : dataSource;
-    return fetch(url, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            limit: limit,
-            userId: userId,
-            lastQueryDataIds: parseIdFromObjectArray(lastData),
-            type: type,
-            lastQueryDataLastItem: lastData.slice(-1),
-        })
-    }).then(res => res.json()).then(res => {
-        if (dataSource) {
-            if (caller.state.loadingMore) {
-                dispatch(addClientProfilePosts(type, res.data));
-            } else {
-                dispatch(reloadClientProfilePosts(type, res.data));
-            }
-        } else {
-            caller.setState({
-                data: caller.state.loadingMore === true ? res.data.new.concat(caller.state.data).concat(res.data.old) : res.data.old,
-            })
-        }
-        caller.setState({
-            // data only appended when loading more, else refresh data
-            error: res.status === 200 ? null : res.msg,
-            hasMore: res.data.length < limit ? false : true,
-            loading: false,
-            refreshing: false,
-            loadingMore: false,
-        });
-    }).catch(err => {
-        console.log(err);
-        caller.setState({ error: "some err", loading: false, refreshing: false, loadingMore: false });
-    })
-}
-
 // dispatch objects
 export const loginSucess = (clientInfo) => ({
     type: ActionTypes.CLIENT_LOGIN,
-    payload: { data: clientInfo }
+    payload: clientInfo
 })
 
 export const loginError = (err) => ({
     type: ActionTypes.CLIENT_LOGIN_FAILED,
-    payload: { error: err }
+    payload: err
 });
 
 export const removeClientInfo = () => ({
@@ -148,25 +85,10 @@ export const removeClientInfo = () => ({
 
 export const addClientInfo = (clientInfo) => ({
     type: ActionTypes.ADD_CLIENT_INFO,
-    payload: { data: clientInfo }
+    payload: clientInfo
 })
 
-export const addClientProfile = (clientProfile) => ({
-    type: ActionTypes.GET_CLIENT_PROFILE,
-    payload: { data: clientProfile }
-})
-
-export const addClientProfileFailed = (err) => ({
-    type: ActionTypes.GET_CLIENT_PROFILE_FAILED,
-    payload: { error: err }
-})
-
-export const addClientProfilePosts = (type, data) => ({
-    type: ActionTypes.ADD_CLIENT_PROFILE_POST,
-    payload: { type: type, data: data }
-})
-
-export const reloadClientProfilePosts = (type, data) => ({
-    type: ActionTypes.RELOAD_CLIENT_PROFILE_POST,
-    payload: { type: type, data: data }
+export const connectSocket = (socket) => ({
+    type: ActionTypes.CONNECT_SOCKET,
+    payload: socket
 })

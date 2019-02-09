@@ -1,42 +1,53 @@
 import React from 'react';
-import { Text, View, StyleSheet, Dimensions } from 'react-native';
-import ScrollableTabView, { DefaultTabBar } from 'react-native-scrollable-tab-view';
-import Following from './Following';
-import You from './You';
-export default class MessageTabView extends React.Component {
+import { StyleSheet } from 'react-native';
+import ScrollableTabView from 'react-native-scrollable-tab-view';
+import { connect } from 'react-redux';
+
+import FollowingPage from './Following';
+import YouPage from './You';
+import CustomTabBar from '../../components/CustomTabBar';
+
+class MessageTabView extends React.Component {
     constructor(props) {
         super(props);
+    }
+
+    componentDidMount() {
+        const { client, navigation } = this.props;
+        if (!client) {
+            navigation.navigate('Auth');
+        }
     }
 
     render() {
         return (
             <ScrollableTabView
-                renderTabBar={() => <DefaultTabBar />}
+                style={{ backgroundColor: '#fff' }}
+                renderTabBar={() => <CustomTabBar tabNames={['Following', 'You']} />}
                 tabBarPosition='top'
-                tabBarUnderlineStyle={styles.lineStyle}
-                tabBarActiveTextColor='#eb765a'
-                tabBarBackgroundColor='white'
-                tabBarInactiveTextColor='black'
                 initialPage={0}>
-                <Following tabLabel='Following' />
-                <You tabLabel='You' />
+                <FollowingPage tabLabel='Following' />
+                <YouPage tabLabel='You' />
             </ScrollableTabView>
         );
     }
 }
 
-const windowWidth = Dimensions.get('window').width;
+const mapStateToProps = state => (
+    {
+        client: state.client.client,
+        message: state.message.message
+    }
+);
+
+
+export default connect(mapStateToProps, null)(MessageTabView);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-    },
-
-    lineStyle: {
-        backgroundColor: '#eb765a',
-        width: windowWidth / 4,
-        left: windowWidth / 8
     }
 });

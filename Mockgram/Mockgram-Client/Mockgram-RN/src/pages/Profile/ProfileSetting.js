@@ -219,7 +219,7 @@ class ProfileSetting extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        profile: state.client.profile
+        profile: state.profile.profile
     }
 }
 

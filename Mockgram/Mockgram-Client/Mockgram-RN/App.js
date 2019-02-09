@@ -7,9 +7,10 @@ import store from './src/redux';
 // import clearLocalStorage from './src/utils/clearSecureStore';
 
 export default class App extends React.Component {
-  // componentDidMount() {
-  //   clearLocalStorage(['login_creds', 'userinfo', 'test']);
-  // }
+  componentDidMount() {
+    // clearLocalStorage(['login_creds', 'userinfo', 'test']);
+  }
+
   render() {
     return (
       <Provider store={store}>

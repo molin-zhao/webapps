@@ -20,6 +20,7 @@ export default class PostTabView extends React.Component {
     render() {
         return (
             <ScrollableTabView
+                style={{ backgroundColor: '#fff' }}
                 renderTabBar={() => <DefaultTabBar />}
                 tabBarPosition='top'
                 tabBarUnderlineStyle={styles.lineStyle}
