@@ -23,6 +23,8 @@ export default class ReplyListCell extends React.Component {
                             {dataSource.from.username}
                         </Text>
                         <CreatorTag byCreator={(dataSource.from._id === itemProps.creatorId)} />
+                        <Icon name="md-arrow-dropright" style={{ marginLeft: 3, color: 'grey' }} />
+                        <Text style={{ marginLeft: 3, fontWeight: 'bold', fontSize: 12 }}>{dataSource.to.username}</Text>
                     </View>
                     <View style={styles.replyContents}>
                         <ViewMoreText

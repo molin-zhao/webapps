@@ -20,6 +20,7 @@ router.post('/', async (req, res) => {
     if (userId) {
         // find client's all following users
         User.find({ user: userId }).select('followings').exec(async (err, followings) => {
+            followings.push(userId);
             if (err) return handleError(res, err);
             Post.aggregate([
                 {
@@ -68,14 +69,6 @@ router.post('/', async (req, res) => {
                 },
                 {
                     $limit: limit
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'creator',
-                        foreignField: '_id',
-                        as: 'postUser'
-                    }
                 }
             ]).exec((err, posts) => {
                 if (err) return handleError(res, err);
@@ -173,7 +166,7 @@ router.put('/comment', /*verifyAuthorization,*/(req, res) => {
         commentBy: commentBy,
         mentioned: mentioned
     }).then((comment) => {
-        Post.findOneAndUpdate({ _id: comment.postId }, { $push: { comments: comment._id } }).exec((err, post) => {
+        Post.updateOne({ _id: comment.postId }, { $addToSet: { comments: comment._id } }).exec((err, post) => {
             if (err) return handleError(res, err);
             res.json({
                 status: response.SUCCESS.OK.CODE,
@@ -428,8 +421,8 @@ router.put('/comment/reply', (req, res) => {
         to: to,
         mentioned: mentioned
     }).then((reply) => {
-        CommentModal.findByIdAndUpdate({ _id: commentId }, {
-            $push: { replies: reply._id }
+        CommentModal.updateOne({ _id: commentId }, {
+            $addToSet: { replies: reply._id }
         }).exec((err, comment) => {
             if (err) return handleError(res, err);
             res.json({
@@ -439,7 +432,20 @@ router.put('/comment/reply', (req, res) => {
             });
         })
     })
-
 })
 
+router.put('/liked', verifyAuthorization, (req, res) => {
+    let userId = convertStringToObjectId(req.body.userId);
+    let postId = convertStringToObjectId(req.body.postId);
+    let addLike = req.body.addLike;
+    let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
+    Post.update({ _id: postId }, update).exec((err, post) => {
+        if (err) handleError(res, err);
+        console.log(post.likes);
+        return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+        })
+    })
+})
 module.exports = router;

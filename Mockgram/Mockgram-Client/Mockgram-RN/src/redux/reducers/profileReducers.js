@@ -1,4 +1,5 @@
 import * as ActionTypes from '../actions/ActionTypes';
+import { concatArrayWithData, removeItemFromArrayWithItemId } from '../../utils/arrayEditor';
 
 export const profile = (state = {
     profile: null,
@@ -15,14 +16,21 @@ export const profile = (state = {
             return { ...state, profile: null, errMsg: error };
         case ActionTypes.ADD_CLIENT_PROFILE_POST:
             if (data && type === 'CREATED') {
-                let newData = data.new.concat(state.created).concat(data.old);
-                return { ...state, created: newData }
+                return { ...state, created: concatArrayWithData(state.created, data) }
             } else if (data && type === 'LIKED') {
-                let newData = data.new.concat(state.liked).concat(data.old);
-                return { ...state, liked: newData }
+                return { ...state, liked: concatArrayWithData(state.liked, data) }
             } else if (data && type === 'MENTIONED') {
-                let newData = data.new.concat(state.mentioned).concat(data.old);
-                return { ...state, mentioned: newData }
+                return { ...state, mentioned: concatArrayWithData(state.mentioned, data) }
+            } else {
+                return state
+            }
+        case ActionTypes.REMOVE_CLIENT_PROFILE_POST:
+            if (data && type === 'CREATED') {
+                return { ...state, created: removeItemFromArrayWithItemId(state.created, data) }
+            } else if (data && type === 'LIKED') {
+                return { ...state, liked: removeItemFromArrayWithItemId(state.liked, data) }
+            } else if (data && type === 'MENTIONED') {
+                return { ...state, mentioned: removeItemFromArrayWithItemId(state.mentioned, data) }
             } else {
                 return state
             }

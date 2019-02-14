@@ -8,13 +8,14 @@ import Posts from './ProfilePostGridView';
 import Mentioned from './ProfilePostGridView';
 
 import window from '../../utils/getDeviceInfo';
+import theme from '../../common/theme';
 
 class ProfileTabView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             activeIndex: 0, // by default the first tab
-            activeColor: '#eb765a',
+            activeColor: theme.primaryColor,
             inactiveColor: 'black'
         }
     }

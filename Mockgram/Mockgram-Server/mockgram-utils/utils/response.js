@@ -79,6 +79,10 @@ const ERROR = {
     USER_NAME_NOT_FOUND: {
         CODE: 400,
         MSG: "Username or email address not found."
+    },
+    SOCKET_CONNECTION_FAILED: {
+        CODE: 400,
+        MSG: "Cannot connecte to the server."
     }
 };
 

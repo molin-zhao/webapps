@@ -48,9 +48,7 @@ router.post('/post', (req, res) => {
     if (type === 'LIKED') {
         Post.getUserLikedPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
             if (err) return handleError(res, err);
-            console.log(posts);
             let result = arrSeparatorByDate(lastItem, posts);
-            console.log(result);
             res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG,
@@ -70,16 +68,13 @@ router.post('/post', (req, res) => {
     } else if (type === 'MENTIONED') {
         Post.getUserMentionedPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
             if (err) return handleError(res, err);
-            console.log(posts);
             let result = arrSeparateByDate(lastItem, posts);
-            console.log(result);
             res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG,
                 data: result
             })
         })
-
     } else {
         res.json({
             status: response.ERROR.NOT_FOUND.CODE,

@@ -81,6 +81,11 @@ export const addClientProfilePosts = (type, data) => ({
     payload: { type: type, data: data }
 })
 
+export const removeClientProfilePost = (type, data) => ({
+    type: ActionTypes.REMOVE_CLIENT_PROFILE_POST,
+    payload: { type: type, data: data }
+})
+
 export const reloadClientProfilePosts = (type, data) => ({
     type: ActionTypes.RELOAD_CLIENT_PROFILE_POST,
     payload: { type: type, data: data }

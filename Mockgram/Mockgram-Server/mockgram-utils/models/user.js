@@ -3,6 +3,7 @@ require('mongoose-type-email');
 const handleError = require('../utils/handleError').handleError;
 const authenticate = require('../utils/authenticate');
 const response = require('../utils/response');
+const { getRemoteIpAddress, getRemoteDeviceType } = require('../utils/tools');
 const PolygonSchema = require('../models/post').Polygon;
 const LocationSchema = require('../models/post').Location;
 const Schema = mongoose.Schema;
@@ -18,13 +19,13 @@ const PrivacySchema = new Schema({
         timestamps: true
     })
 
-const LoginInfoSchema = new Schema({
+const LoginStatusSchema = new Schema({
     token: String,
-    socket: String,
+    socketId: String,
     deviceType: String,
     ipAddress: String,
-    lastLogin: Date,
-    lastLogout: Date
+    lastLoginTime: Date,
+    lastLogoutTime: Date
 }, {
         timestamps: true
     })
@@ -83,7 +84,7 @@ const User = new Schema({
         default: []
     },
     privacy: PrivacySchema,
-    loginInfo: LoginInfoSchema,
+    loginStatus: LoginStatusSchema,
     receivedMessage: {
         type: [
             {
@@ -110,7 +111,8 @@ User.pre('save', function (next) {
     })
 });
 
-User.statics.login = function (criteria, password, res, ) {
+User.statics.login = function (criteria, req, res) {
+    let password = req.body.password;
     return this.findOne(criteria).select('password').exec((err, user) => {
         if (err) return handleError(res, err);
         if (user) {
@@ -123,12 +125,24 @@ User.statics.login = function (criteria, password, res, ) {
                         avatar: user.avatar
                     }
                     let token = authenticate.getToken(userCreds);
-                    return res.json({
-                        status: response.SUCCESS.OK.CODE,
-                        msg: response.SUCCESS.OK.MSG,
+                    let ip = getRemoteIpAddress(req);
+                    let deviceType = getRemoteDeviceType(req.useragent);
+                    let loginStatus = {
                         token: token,
-                        user: userCreds
-                    })
+                        ipAddress: ip,
+                        deviceType: deviceType,
+                        lastLoginTime: Date.now()
+                    }
+                    this.updateOne({ _id: user._id }, { $set: { 'loginStatus': loginStatus } }).then(() => {
+                        return res.json({
+                            status: response.SUCCESS.OK.CODE,
+                            msg: response.SUCCESS.OK.MSG,
+                            token: token,
+                            user: userCreds
+                        })
+                    }).catch(err => {
+                        return handleError(res, err);
+                    });
                 } else {
                     return res.json({
                         status: response.ERROR.USER_PASSWORD_INCORRECT.CODE,

@@ -24,11 +24,11 @@ class ProfilePostGridView extends React.Component {
     }
 
     componentDidMount() {
-        const { userId, type, dataSource } = this.props;
+        const { userId, type, dataSource, fetchPosts } = this.props;
         this.setState({
             loading: true
         }, () => {
-            this.props.fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit);
+            fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit);
         })
     }
 

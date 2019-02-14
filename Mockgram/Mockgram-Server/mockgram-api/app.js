@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const useragent = require('express-useragent');
 
 // routers
 const indexRouter = require('./routes/index');
@@ -33,10 +34,10 @@ mongoose.connect(mongoUrl, {
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(useragent.express());
 app.use(logger('dev'));
-
 // adding a generic JSON and URL-encoded parser as a top-level middleware, 
 // which will parse the bodies of all incoming requests.
 // parse application/x-www-form-urlencoded

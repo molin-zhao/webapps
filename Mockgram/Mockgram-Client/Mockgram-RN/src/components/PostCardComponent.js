@@ -3,12 +3,17 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Card, CardItem, Thumbnail, Body, Left, Right } from 'native-base';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ViewMoreText from 'react-native-view-more-text';
+
+import { connect } from 'react-redux';
+
 import window from '../utils/getDeviceInfo';
-import { dateConverter } from '../utils/unitConverter';
+import baseUrl from '../common/baseUrl';
+import { dateConverter, numberConverter } from '../utils/unitConverter';
+import { addClientProfilePosts, removeClientProfilePost } from '../redux/actions/profileActions';
 
 
 
-export default class PostCardComponent extends React.Component {
+class PostCardComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -18,17 +23,46 @@ export default class PostCardComponent extends React.Component {
     }
 
     handleLike = () => {
-        this.state.dataSource.liked = !this.state.dataSource.liked;
-        this.setState({
-            dataSource: this.state.dataSource
-        });
+        const { client, addLikePostToProfile, removeLikePostFromProfile } = this.props;
+        const { dataSource } = this.state;
+        if (client && client.token) {
+            fetch(`${baseUrl.api}/post/liked`, {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: client.token
+                },
+                body: JSON.stringify({
+                    userId: client.user._id,
+                    postId: dataSource._id,
+                    addLike: !dataSource.liked
+                })
+            }).then(res => res.json()).then(res => {
+                if (res.status === 200) {
+                    dataSource.liked = !dataSource.liked;
+                    this.setState({
+                        dataSource: dataSource
+                    }, () => {
+                        if (dataSource.creator !== client.user._id) {
+                            // client liked other user's post, push this post to local profile
+                            if (dataSource.liked) {
+                                addLikePostToProfile({ new: [dataSource] });
+                            } else {
+                                removeLikePostFromProfile(dataSource._id);
+                            }
+                        }
+                    });
+                }
+            })
+        }
     }
 
     handleComment = () => {
-        this.props.navigation.navigate('Comment', {
-            postId: this.state.dataSource._id,
-            creatorId: this.state.dataSource.creator,
-            postCard: this
+        const { dataSource } = this.state;
+        const { navigation } = this.props;
+        navigation.navigate('Comment', {
+            postId: dataSource._id,
+            creatorId: dataSource.creator,
         });
     }
 
@@ -42,31 +76,39 @@ export default class PostCardComponent extends React.Component {
 
     renderHeader = () => {
         const headerStyle = { fontWeight: 'bold' }
-        if (this.state.dataSource.location) {
-            return (<Body>
-                <Text style={headerStyle}>{this.state.dataSource.postUser.username}</Text>
-                <Text>{this.state.dataSource.location ? this.state.dataSource.location.city : null}</Text>
-            </Body>);
+        const { dataSource } = this.state;
+        if (dataSource.location) {
+            return (
+                <Body>
+                    <Text style={headerStyle}>{dataSource.postUser.username}</Text>
+                    <Text>{dataSource.location ? dataSource.location.city : null}</Text>
+                </Body>
+            );
         } else {
             // if this post is for advertisement, return sponsored
-            if (this.state.dataSource.ad) {
-                return (<Body>
-                    <Text>{`Sponsored`}</Text>
-                </Body>);
+            if (dataSource.ad) {
+                return (
+                    <Body>
+                        <Text>{`Sponsored`}</Text>
+                    </Body>
+                );
             }
         }
-        return (<Body>
-            <Text style={headerStyle}>{this.state.dataSource.postUser.username}</Text>
-        </Body>);
+        return (
+            <Body>
+                <Text style={headerStyle}>{dataSource.postUser.username}</Text>
+            </Body>
+        );
     }
 
     render() {
+        const { dataSource } = this.state;
         return (
-            <Card key={this.state.dataSource._id} style={{ width: window.width, marginTop: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, borderTopWidth: 0, borderBottomWidth: 0 }}>
+            <Card key={dataSource._id} style={{ width: window.width, marginTop: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, borderTopWidth: 0, borderBottomWidth: 0 }}>
                 <CardItem>
                     <Left>
-                        <Thumbnail source={this.state.dataSource.postUser.avatar === '' ? require('../static/user.png') : {
-                            uri: this.state.dataSource.postUser.avatar
+                        <Thumbnail source={dataSource.postUser.avatar === '' ? require('../static/user.png') : {
+                            uri: dataSource.postUser.avatar
                         }} />
                         <this.renderHeader />
                     </Left>
@@ -77,31 +119,54 @@ export default class PostCardComponent extends React.Component {
                     </Right>
                 </CardItem>
                 <CardItem cardBody>
-                    <Image source={{ uri: this.state.dataSource.image }} style={{ height: window.width, width: window.width, flex: 1 }} resizeMode='cover' />
+                    <Image source={{ uri: dataSource.image }} style={{ height: window.width, width: window.width, flex: 1 }} resizeMode='cover' />
                 </CardItem>
                 <CardItem style={{ marginTop: 10, height: 50 }}>
                     <Left style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
                         <View style={styles.cardLabels}>
-                            {this.state.dataSource.liked ? <Icon onPress={() => { this.handleLike() }} name="ios-heart" style={{ color: 'red', fontSize: 24 }} />
-                                : <Icon onPress={() => { this.handleLike() }} name="ios-heart-outline" style={{ color: null, fontSize: 24 }} />
-                            }
-                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.liked ? this.state.dataSource.likeCount + 1 : this.state.dataSource.likeCount}</Text>
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                                onPress={() => { this.handleLike() }}
+                            >
+                                {dataSource.liked ? <Icon name="ios-heart" style={{ color: 'red', fontSize: 24 }} />
+                                    : <Icon name="ios-heart-outline" style={{ color: null, fontSize: 24 }} />
+                                }
+                            </TouchableOpacity>
+                            <Text style={{ fontSize: 12 }}>{dataSource.liked ? numberConverter(dataSource.likeCount + 1) : numberConverter(dataSource.likeCount)}</Text>
                         </View>
                         <View style={styles.cardLabels}>
-                            <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onPress={() => {
-                                this.handleComment();
-                            }}>
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                                onPress={() => {
+                                    this.handleComment();
+                                }}
+                            >
                                 <Icon name="ios-chatboxes-outline" style={{ fontSize: 24 }} />
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.commentCount}</Text>
+                            <Text style={{ fontSize: 12 }}>{numberConverter(dataSource.commentCount)}</Text>
                         </View>
                         <View style={styles.cardLabels}>
-                            <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onPress={() => {
-                                this.handleShare();
-                            }}>
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                                onPress={() => {
+                                    this.handleShare();
+                                }}
+                            >
                                 <Icon name="ios-open-outline" style={{ fontSize: 24 }} />
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 12 }}>{this.state.dataSource.sharedCount}</Text>
+                            <Text style={{ fontSize: 12 }}>{numberConverter(dataSource.sharedCount)}</Text>
                         </View>
                     </Left>
                 </CardItem>
@@ -112,7 +177,17 @@ export default class PostCardComponent extends React.Component {
                                 numberOfLines={2}
                                 renderViewMore={(onPress) => {
                                     return (
-                                        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+                                        <TouchableOpacity
+                                            activeOpacity={0.8}
+                                            onPress={onPress}
+                                            style={{
+                                                marginTop: 2,
+                                                height: 15,
+                                                flexDirection: 'column',
+                                                justifyContent: 'flex-end',
+                                                alignItems: 'flex-start'
+                                            }}
+                                        >
                                             <Text style={{ color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
                                         </TouchableOpacity>);
 
@@ -125,15 +200,15 @@ export default class PostCardComponent extends React.Component {
                                 }}
                             >
                                 <Text style={{ fontWeight: "bold" }}>
-                                    {this.state.dataSource.postUser.username}
+                                    {dataSource.postUser.username}
                                     <Text style={{ fontWeight: 'normal' }}>
-                                        {`  ${this.state.dataSource.description}`}
+                                        {`  ${dataSource.description}`}
                                     </Text>
                                 </Text>
                             </ViewMoreText>
                         </View>
                         <View style={{ marginTop: 5, height: 20 }}>
-                            <Text style={{ fontSize: 12, color: 'grey' }}>{`published ${dateConverter(this.state.dataSource.createdAt)}`}</Text>
+                            <Text style={{ fontSize: 12, color: 'grey' }}>{`published ${dateConverter(dataSource.createdAt)}`}</Text>
                         </View>
                     </Body>
                 </CardItem>
@@ -141,6 +216,17 @@ export default class PostCardComponent extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    client: state.client.client
+});
+
+const mapDispatchToProps = dispatch => ({
+    addLikePostToProfile: (data) => dispatch(addClientProfilePosts('LIKED', data)),
+    removeLikePostFromProfile: (id) => dispatch(removeClientProfilePost('LIKED', id)),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(PostCardComponent);
 
 const styles = StyleSheet.create({
     container: {

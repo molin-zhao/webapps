@@ -10,8 +10,8 @@ export const createSocket = async (url, clientInfo) => {
         console.log(err);
         socket.disconnect();
     })
-    socket.on('establish-connection-success', () => {
-        console.log('success established connection with server');
+    socket.on('establish-connection-success', (socketId) => {
+        console.log(`success established connection with server with socket ${socketId}`);
     })
     socket.on('disconnect', () => {
         console.log('disconnect from the server');

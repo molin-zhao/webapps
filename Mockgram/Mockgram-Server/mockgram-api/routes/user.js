@@ -87,7 +87,7 @@ router.post('/register', [
 router.post('/login', (req, res) => {
   let loginName = req.body.username;
   let criteria = (loginName.indexOf('@') === -1) ? { username: loginName } : { email: loginName };
-  return User.login(criteria, req.body.password, res);
+  return User.login(criteria, req, res);
 });
 
 router.get('/logout', (req, res) => {

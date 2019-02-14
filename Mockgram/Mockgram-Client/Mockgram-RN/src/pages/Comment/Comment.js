@@ -21,7 +21,6 @@ class CommentPage extends React.Component {
         this.state = {
             comments: [],
             lastComments: [],
-            postCard: this.props.navigation.getParam('postCard', null),
             postId: this.props.navigation.getParam('postId', null),
             creatorId: this.props.navigation.getParam('creatorId', null),
             refreshing: false,

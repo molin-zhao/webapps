@@ -6,12 +6,13 @@ import PropTypes from 'prop-types';
 import Badge from './Badge';
 
 import window from '../utils/getDeviceInfo';
+import theme from '../common/theme';
 
 class CustomTabBar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            activeColor: '#eb765a',
+            activeColor: theme.primaryColor,
             inactiveColor: 'black'
         }
     }
@@ -103,7 +104,7 @@ export default connect(mapStateToProps, null)(CustomTabBar)
 
 const styles = StyleSheet.create({
     tabUnderline: {
-        backgroundColor: '#eb765a',
+        backgroundColor: theme.primaryColor,
         width: '25%',
         height: '5%',
         left: '12.5%'

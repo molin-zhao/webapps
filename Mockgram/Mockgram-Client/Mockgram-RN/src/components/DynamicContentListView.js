@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import { SkypeIndicator, BallIndicator } from 'react-native-indicators';
+import { SkypeIndicator } from 'react-native-indicators';
 
 import { parseIdFromObjectArray } from '../utils/idParser';
 
@@ -14,7 +14,6 @@ export default class DynamicContentList extends React.Component {
             refreshing: false,
             loadingMore: false,
             hasMore: true,
-            lastQueryDataIds: [],
         }
     }
 
@@ -27,14 +26,14 @@ export default class DynamicContentList extends React.Component {
     }
 
     fetchData = () => {
-        const request = this.props.request;
+        const { request } = this.props;
         const url = request.url;
         console.log(`feching data from ${url}`);
         fetch(url, {
             method: request.method,
             headers: request.headers,
             body: JSON.stringify({
-                lastQueryDataIds: this.state.lastQueryDataIds,
+                lastQueryDataIds: this.state.refreshing ? [] : parseIdFromObjectArray(this.state.data),
                 ...request.body
             })
         })
@@ -43,7 +42,6 @@ export default class DynamicContentList extends React.Component {
                 this.setState({
                     // data only appended when loading more, else refresh data
                     data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
-                    lastQueryDataIds: this.state.loadingMore === true ? [...this.state.lastQueryDataIds, ...parseIdFromObjectArray(res.data)] : parseIdFromObjectArray(res.data),
                     error: res.status === 200 ? null : res.msg,
                     hasMore: res.data.length < request.body.limit ? false : true,
                     loading: false,
@@ -60,7 +58,6 @@ export default class DynamicContentList extends React.Component {
         if (!this.state.loadingMore && !this.state.refreshing && !this.state.loading) {
             this.setState({
                 refreshing: true,
-                lastQueryDataIds: []
             }, () => {
                 console.log("refreshing");
                 this.fetchData();

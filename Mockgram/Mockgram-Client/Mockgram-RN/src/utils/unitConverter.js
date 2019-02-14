@@ -48,3 +48,13 @@ exports.messageCountNormalizer = (inputInt) => {
         return ''
     }
 }
+
+exports.numberConverter = (inputNum) => {
+    if (inputNum > 1000000) {
+        return `${(inputNum / 1000000).toFixed(1)}M`;
+    } else if (inputNum > 1000) {
+        return `${(inputNum / 1000).toFixed(1)}K`;
+    } else {
+        return `${inputNum}`
+    }
+}

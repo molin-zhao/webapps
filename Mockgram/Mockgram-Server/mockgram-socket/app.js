@@ -12,9 +12,16 @@ const indexRouter = require('./routes/index');
 const messageRouter = require('./routes/message');
 
 // utils
+const response = require('../mockgram-utils/utils/response');
 const config = require('../config');
 const { normalizePort } = require('../mockgram-utils/utils/tools');
 
+// models
+const User = require('../mockgram-utils/models/user');
+
+/**
+ * config app
+ */
 const app = express();
 
 // view engine setup
@@ -93,9 +100,40 @@ app.locals.sockets = [];
 
 io.on('connection', socket => {
   socket.on('establish-connection', clientInfo => {
-    console.log(clientInfo);
+    let token = clientInfo.token;
+    let userId = clientInfo.user._id;
+    User.findOne({ _id: userId }).exec((err, user) => {
+      if (err) return socket.emit('establish-connection-failed', response.ERROR.SOCKET_CONNECTION_FAILED.MSG);
+      if (user.loginStatus) {
+        let loginToken = user.loginStatus.token;
+        let loginSocketId = user.loginStatus.socketId;
+        if (loginToken !== token) {
+          return socket.emit('establish-connection-failed', response.ERROR.SOCKET_CONNECTION_FAILED.MSG);
+        }
+        if (loginSocketId && app.locals.sockets[loginSocketId]) {
+          app.locals.sockets[loginSocketId].disconnect();
+        }
+        let newSocketId = socket.id;
+        User.updateOne({ _id: userId }, { $set: { 'loginStatus.socketId': newSocketId } }).exec((err, user) => {
+          if (err) return socket.emit('establish-connection-failed', response.ERROR.SOCKET_CONNECTION_FAILED.MSG);
+          app.locals.sockets[newSocketId] = socket;
+          console.log(Object.keys(app.locals.sockets));
+          return socket.emit('establish-connection-success', newSocketId);
+        })
+      }
+    })
   })
   socket.on('disconnect', () => {
+    let socketId = socket.id;
+    if (app.locals.sockets[socketId]) {
+      app.locals.sockets[socketId].disconnect();
+    }
+    delete app.locals.sockets[socketId];
+    User.updateOne({ 'loginStatus.socketId': socketId }, { $set: { 'loginStatus.socketId': '' } }).then(() => {
+      console.log(Object.keys(app.locals.sockets));
+    }).catch(err => {
+      console.log(err);
+    })
   })
 })
 

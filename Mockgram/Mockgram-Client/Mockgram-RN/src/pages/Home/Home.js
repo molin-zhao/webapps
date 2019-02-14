@@ -11,12 +11,10 @@ import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
 import { parseIdFromObjectArray } from '../../utils/idParser';
-import { client } from '../../redux/reducers/clientReducers';
 
 class Home extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             data: [],
             error: null,
@@ -62,14 +60,14 @@ class Home extends React.Component {
             body: JSON.stringify({
                 limit: config.postReturnLimit,
                 userId: client ? client.user._id : null,
-                lastQueryDataIds: parseIdFromObjectArray(this.state.data)
+                lastQueryDataIds: this.state.refreshing ? [] : parseIdFromObjectArray(this.state.data)
             })
         })
             .then(res => res.json())
             .then(res => {
                 this.setState({
                     // data only appended when loading more, else refresh data
-                    data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
+                    data: this.state.loadingMore ? [...this.state.data, ...res.data] : res.data,
                     error: res.status === 200 ? null : res.msg,
                     hasMore: res.data.length < config.postReturnLimit ? false : true,
                     loading: false,
@@ -86,7 +84,6 @@ class Home extends React.Component {
         if (!this.state.refreshing && !this.state.loadingMore && !this.state.loading) {
             this.setState({
                 refreshing: true,
-                lastPosts: []
             }, () => {
                 console.log("refreshing");
                 this.fetchPosts();
