@@ -19,7 +19,8 @@ router.post('/', async (req, res) => {
     // else send back hot posts.
     if (userId) {
         // find client's all following users
-        User.find({ user: userId }).select('followings').exec(async (err, followings) => {
+        User.findOne({ _id: userId }).select('following').exec((err, user) => {
+            let followings = user.following;
             followings.push(userId);
             if (err) return handleError(res, err);
             Post.aggregate([
@@ -408,7 +409,7 @@ router.post('/comment/detail/reply', (req, res) => {
 })
 
 // post a reply to the comment
-router.put('/comment/reply', (req, res) => {
+router.put('/comment/reply', verifyAuthorization, (req, res) => {
     let commentId = req.body.commentId;
     let content = req.body.content;
     let from = req.body.from;
@@ -436,12 +437,11 @@ router.put('/comment/reply', (req, res) => {
 
 router.put('/liked', verifyAuthorization, (req, res) => {
     let userId = convertStringToObjectId(req.body.userId);
-    let postId = convertStringToObjectId(req.body.postId);
+    let postId = req.body.postId;
     let addLike = req.body.addLike;
     let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
-    Post.update({ _id: postId }, update).exec((err, post) => {
+    Post.updateOne({ _id: postId }, update).exec((err, post) => {
         if (err) handleError(res, err);
-        console.log(post.likes);
         return res.json({
             status: response.SUCCESS.OK.CODE,
             msg: response.SUCCESS.OK.MSG,

@@ -2,6 +2,10 @@ import store from '../';
 
 export const socketListener = () => {
     let state = store.getState();
-    let socket = state.message.socket;
-    return socket;
+    return state.message.socket;
+}
+
+export const clientListener = () => {
+    let state = store.getState();
+    return state.client.client;
 }

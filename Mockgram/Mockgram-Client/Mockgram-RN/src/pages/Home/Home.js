@@ -11,6 +11,7 @@ import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
 import { parseIdFromObjectArray } from '../../utils/idParser';
+import { clientListener } from '../../redux/middleware/subscriber';
 
 class Home extends React.Component {
     constructor(props) {
@@ -18,10 +19,10 @@ class Home extends React.Component {
         this.state = {
             data: [],
             error: null,
-            loading: false,
-            refreshing: false,
-            loadingMore: false,
             hasMore: true,
+            loading: true,
+            refreshing: false,
+            loadingMore: false
         };
     }
 
@@ -40,18 +41,34 @@ class Home extends React.Component {
 
     componentDidMount() {
         this.setState({
-            loading: true
+            loading: true,
+            refreshing: false,
+            loadingMore: false,
+            data: []
         }, () => {
-            this.fetchPosts();
+            this.fetchPosts(this.state.loading);
         })
     }
 
-    fetchPosts = () => {
+    componentDidUpdate(preProps) {
+        let client = clientListener();
+        if (client !== preProps.client) {
+            this.handleReload()
+        }
+    }
+
+    fetchPosts = (status) => {
+        /**
+         * status is one of refreshing, loading and lodingMore
+         * use status to check if the network request is interrupted
+         * the criteria is the value of status has been changed after receving server response 
+         * */
+
+        let _status = status;
         const url = `${baseUrl.api}/post`;
         const { client } = this.props;
         console.log(`feching data from ${url}`);
         fetch(url, {
-
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -60,46 +77,81 @@ class Home extends React.Component {
             body: JSON.stringify({
                 limit: config.postReturnLimit,
                 userId: client ? client.user._id : null,
-                lastQueryDataIds: this.state.refreshing ? [] : parseIdFromObjectArray(this.state.data)
+                lastQueryDataIds: parseIdFromObjectArray(this.state.data)
             })
-        })
-            .then(res => res.json())
-            .then(res => {
+        }).then(res => res.json()).then(res => {
+            if (_status === status) {
+                // request is not interrupted, continue updating data
                 this.setState({
-                    // data only appended when loading more, else refresh data
-                    data: this.state.loadingMore ? [...this.state.data, ...res.data] : res.data,
+                    data: this.state.data.concat(...res.data),
                     error: res.status === 200 ? null : res.msg,
                     hasMore: res.data.length < config.postReturnLimit ? false : true,
                     loading: false,
                     refreshing: false,
-                    loadingMore: false,
-                });
-            })
-            .catch(error => {
-                this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
-            });
+                    loadingMore: false
+                })
+            } else {
+                this.setState({
+                    loading: false,
+                    refreshing: false,
+                    loadingMore: false
+                })
+            }
+        }).catch(error => {
+            this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
+        });
     };
 
+    handleReload = () => {
+        /**
+         *  reload should have highest priority than loading more and refreshing
+         *  do not need to check if page is requesting for loading more or refreshing
+         *  interrupt other network requests by setting status to false
+         */
+        if (!this.state.loading) {
+            this.setState({
+                loading: true,
+                refreshing: false,
+                loadingMore: false,
+                data: []
+            }, () => {
+                console.log("reloading");
+                this.fetchPosts(this.state.loading);
+            })
+        }
+    }
+
     handleRefresh = () => {
-        if (!this.state.refreshing && !this.state.loadingMore && !this.state.loading) {
+        /**
+         *  refresh should have higher priority than load more 
+         *  only check if page is requesting for loading, if it isn't, perform this request
+         *  otherwise do not send refreshing page request
+         *  */
+        if (!this.state.refreshing && !this.state.loading) {
             this.setState({
                 refreshing: true,
+                loading: false,
+                loadingMore: false,
+                data: []
             }, () => {
                 console.log("refreshing");
-                this.fetchPosts();
+                this.fetchPosts(this.state.refreshing);
             })
         }
     };
 
     handleLoadMore = () => {
-        if (this.state.hasMore && !this.state.refreshing && !this.state.loadingMore && !this.state.loading) {
+        // only loading more when request resource has more data and page is not loading, refreshing and loading more beforehand
+        if (this.state.hasMore && !this.state.refreshing && !this.state.loading && !this.state.loadingMore) {
             this.setState(
                 {
-                    loadingMore: true
+                    loadingMore: true,
+                    refreshing: false,
+                    loding: false
                 },
                 () => {
                     console.log("loading more");
-                    this.fetchPosts();
+                    this.fetchPosts(this.state.loadingMore);
                 }
             );
         }
@@ -124,7 +176,7 @@ class Home extends React.Component {
     };
 
     renderPost = () => {
-        if (this.state.loading) {
+        if (this.state.loading || this.state.refreshing) {
             return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
         } else {
             if (this.state.error) {
@@ -151,7 +203,7 @@ class Home extends React.Component {
     render() {
         return (
             <View style={styles.contentContainer}>
-                <this.renderPost />
+                {this.renderPost()}
             </View>
         );
     }

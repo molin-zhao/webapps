@@ -1,7 +1,6 @@
-exports.getUserAvatar = () => {
-    let avatar = '';
-    if (global.userinfo && gloabal.userinfo.user.avatar !== '') {
-        avatar = global.userinfo.user.avatar;
+export const userAvatar = (dataSource) => {
+    if (dataSource && dataSource.avatar) {
+        return { uri: dataSource.avatar }
     }
-    return avatar;
+    return require('../static/user.png')
 }

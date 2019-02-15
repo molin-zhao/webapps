@@ -26,11 +26,13 @@ class PostCardComponent extends React.Component {
         const { client, addLikePostToProfile, removeLikePostFromProfile } = this.props;
         const { dataSource } = this.state;
         if (client && client.token) {
-            fetch(`${baseUrl.api}/post/liked`, {
+            const url = `${baseUrl.api}/post/liked`;
+            fetch(url, {
                 method: 'PUT',
                 headers: {
                     Accept: 'application/json',
-                    Authorization: client.token
+                    Authorization: client.token,
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     userId: client.user._id,
@@ -39,6 +41,7 @@ class PostCardComponent extends React.Component {
                 })
             }).then(res => res.json()).then(res => {
                 if (res.status === 200) {
+                    dataSource.likeCount = dataSource.liked ? dataSource.likeCount - 1 : dataSource.likeCount + 1;
                     dataSource.liked = !dataSource.liked;
                     this.setState({
                         dataSource: dataSource
@@ -136,7 +139,7 @@ class PostCardComponent extends React.Component {
                                     : <Icon name="ios-heart-outline" style={{ color: null, fontSize: 24 }} />
                                 }
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 12 }}>{dataSource.liked ? numberConverter(dataSource.likeCount + 1) : numberConverter(dataSource.likeCount)}</Text>
+                            <Text style={{ fontSize: 12 }}>{numberConverter(dataSource.likeCount)}</Text>
                         </View>
                         <View style={styles.cardLabels}>
                             <TouchableOpacity
