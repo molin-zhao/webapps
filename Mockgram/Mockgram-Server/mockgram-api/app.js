@@ -13,6 +13,7 @@ const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
 const discoveryRouter = require('./routes/discovery');
 const profileRouter = require('./routes/profile');
+const messageRouter = require('./routes/message');
 
 // utils
 const response = require('../mockgram-utils/utils/response');
@@ -55,6 +56,7 @@ app.use('/user', userRouter);
 app.use('/post', postRouter);
 app.use('/discovery', discoveryRouter);
 app.use('/profile', profileRouter);
+app.use('/message', messageRouter);
 
 // catch 404 and handle response
 app.use(function (req, res, next) {

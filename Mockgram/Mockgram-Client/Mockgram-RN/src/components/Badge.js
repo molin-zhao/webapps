@@ -9,7 +9,7 @@ export default class Badge extends React.Component {
             return (
                 <View style={[styles.badgeBackground, style]}>
                     <View style={styles.badge}>
-                        <Text style={{ color: '#fff', fontSize: 6 }}>{val}</Text>
+                        <Text style={{ color: '#fff', fontSize: 6, fontWeight: 'bold' }}>{val}</Text>
                     </View>
                 </View>
             );

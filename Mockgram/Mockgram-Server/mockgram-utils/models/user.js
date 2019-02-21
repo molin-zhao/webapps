@@ -119,6 +119,14 @@ User.statics.login = function (criteria, req, res) {
             bcrypt.compare(password, user.password, (err, isMatch) => {
                 if (err) return handleError(res, err);
                 if (isMatch) {
+                    /**
+                     * decoded token like this
+                     * { _id: '5bc9fa9387f14a5d7d10531a',
+                     *   iat: 1550762791,
+                     *   exp: 1550766391 
+                     * }
+                     * access user id => req.user._id
+                     */
                     let userCreds = {
                         _id: user._id,
                     }

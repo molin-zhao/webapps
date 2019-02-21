@@ -23,6 +23,7 @@ export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
 export const READ_MESSAGE = 'READ_MESSAGE';
 export const DELETE_MESSAGE = 'DELETE_MESSAGE';
 export const MESSAGE_ERROR = 'MESSAGE_ERROR';
+export const UPDATE_LAST_MESSAGE_ID = 'UPDATE_LAST_MESSAGE_ID';
 
 // app related action types
 export const APP_FINISH_INIT = 'APP_FINISH_INIT';

@@ -17,7 +17,7 @@ import AuthIcon from './components/AuthIcon';
 import { getClientInfo } from './redux/actions/clientActions';
 import { getClientProfile } from './redux/actions/profileActions';
 import { finishAppInitialize } from './redux/actions/appActions';
-import { } from './redux/actions/messageActions';
+import { getMessage } from './redux/actions/messageActions';
 import theme from './common/theme';
 
 
@@ -131,15 +131,15 @@ class MainApp extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { getClientProfile, client, socket } = this.props;
+        const { client, socket, getClientProfile, getMessage } = this.props;
         if (prevProps.client !== client && client) {
             // client has value
             getClientProfile(client.token);
+            getMessage(client.token);
         }
         if (prevProps.socket !== socket && socket) {
             // socket has been established
             socket.on('new-message', msg => {
-                console.log(msg);
             })
         }
     }
@@ -162,6 +162,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getClientInfo: () => dispatch(getClientInfo()),
     getClientProfile: (token) => dispatch(getClientProfile(token)),
+    getMessage: (token) => dispatch(getMessage(token)),
     finishAppInitialize: () => dispatch(finishAppInitialize())
 })
 

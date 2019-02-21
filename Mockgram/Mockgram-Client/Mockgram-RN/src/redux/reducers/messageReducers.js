@@ -2,7 +2,8 @@ import * as ActionTypes from '../actions/ActionTypes';
 
 export const message = (state = {
     socket: null,
-    message: []
+    message: [],
+    lastMessageId: ''
 }, action) => {
     switch (action.type) {
         case ActionTypes.CONNECT_SOCKET:
@@ -11,8 +12,9 @@ export const message = (state = {
             let newMessage = action.payload;
             let concatenatedMessage = newMessage.concat(state.message);
             return { ...state, message: concatenatedMessage };
-        case ActionTypes.READ_MESSAGE:
-            return {};
+        case ActionTypes.UPDATE_LAST_MESSAGE_ID:
+            let lastMessageId = state.message[0];
+            return { ...state, lastMessageId: lastMessageId }
         case ActionTypes.DISCONNECT_SOCKET:
             state.socket.disconnect();
             return { ...state, socket: null };

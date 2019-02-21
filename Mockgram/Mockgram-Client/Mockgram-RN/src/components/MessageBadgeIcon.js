@@ -6,6 +6,7 @@ import { withNavigation } from 'react-navigation';
 
 import Badge from '../components/Badge';
 import { messageCountNormalizer } from '../utils/unitConverter';
+import { getNewMessageCount } from '../utils/arrayEditor';
 
 class MessageBadgeIcon extends React.Component {
     constructor(props) {
@@ -13,10 +14,10 @@ class MessageBadgeIcon extends React.Component {
     }
 
     render() {
-        const { color, size, name, auth, navigation, router, client, message } = this.props;
+        const { color, size, name, auth, navigation, router, client, message, lastMessageId } = this.props;
         return (
             <View style={styles.container}>
-                <Badge val={messageCountNormalizer(message.length)} />
+                <Badge val={messageCountNormalizer(getNewMessageCount(message, lastMessageId))} />
                 <Icon name={name} color={color} size={size} onPress={() => {
                     if (auth && !client) {
                         navigation.navigate(router.auth);
@@ -32,7 +33,8 @@ class MessageBadgeIcon extends React.Component {
 const mapStateToProps = (state) => {
     return {
         client: state.client.client,
-        message: state.message.message
+        message: state.message.message,
+        lastMessageId: state.message.lastMessageId
     }
 }
 

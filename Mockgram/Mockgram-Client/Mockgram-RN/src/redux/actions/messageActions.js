@@ -3,19 +3,13 @@ import * as ActionTypes from './ActionTypes';
 import baseUrl from '../../common/baseUrl';
 import { parseIdFromObjectArray } from '../../utils/idParser';
 
-export const getMessage = (user, lastQueryDataIds) => dispatch => {
-    let token = user.token;
-    let userId = user._id;
-    if (token && userId) {
-        return fetch(`${baseUrl.api}/message/`, {
-            method: 'POST',
+export const getMessage = (token) => dispatch => {
+    if (token) {
+        return fetch(`${baseUrl.api}/message/new`, {
+            method: 'GET',
             headers: {
                 Accept: 'application/json',
                 Authorization: token
-            },
-            body: {
-                userId: userId,
-                lastQueryDataIds: parseIdFromObjectArray(lastQueryDataIds)
             }
         }).then(res => res.json()).then(resJson => {
             if (resJson.status === 200) {
