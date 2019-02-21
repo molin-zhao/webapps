@@ -109,6 +109,109 @@ const PostSchema = new Schema({
 		timestamps: true
 	});
 
+
+PostSchema.statics.getPosts = function (userId, lastQueryDataIds, limit, followings = null) {
+	if (followings) {
+		return this.aggregate([
+			{
+				$match: {
+					_id: { $nin: lastQueryDataIds },
+					creator: { $in: followings }
+				}
+			},
+			{
+				$lookup: {
+					from: 'users',
+					localField: 'creator',
+					foreignField: '_id',
+					as: 'postUser'
+				}
+			},
+			{
+				$unwind: "$postUser"
+			},
+			{
+				$project: {
+					"liked": {
+						$in: [userId, "$likes"]
+					},
+					"likeCount": {
+						$size: "$likes"
+					},
+					"commentCount": {
+						$size: "$comments"
+					},
+					"sharedCount": {
+						$size: "$shared"
+					},
+					"image": 1,
+					"label": 1,
+					"description": 1,
+					"location": 1,
+					"createdAt": 1,
+					"creator": 1,
+					"postUser.username": 1,
+					"postUser.avatar": 1,
+				}
+			},
+			{
+				$sort: { "createdAt": -1, "_id": -1 }
+			},
+			{
+				$limit: limit
+			}
+		])
+	}
+	return this.aggregate([
+		{
+			$match: {
+				_id: { $nin: lastQueryDataIds }
+			}
+		},
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'creator',
+				foreignField: '_id',
+				as: 'postUser'
+			}
+		},
+		{
+			$unwind: "$postUser"
+		},
+		{
+			$project: {
+				"liked": {
+					$in: [userId, "$likes"]
+				},
+				"likeCount": {
+					$size: "$likes"
+				},
+				"commentCount": {
+					$size: "$comments"
+				},
+				"sharedCount": {
+					$size: "$shared"
+				},
+				"image": 1,
+				"label": 1,
+				"description": 1,
+				"location": 1,
+				"createdAt": 1,
+				"creator": 1,
+				"postUser.username": 1,
+				"postUser.avatar": 1,
+			}
+		},
+		{
+			$sort: { "createdAt": -1, "_id": -1 }
+		},
+		{
+			$limit: limit
+		}
+	])
+}
+
 PostSchema.statics.getUserPostCount = function (userId) {
 	return this.countDocuments({ creator: userId });
 }
@@ -194,9 +297,100 @@ PostSchema.statics.getUserMentionedPosts = function (userId, lastQueryDataIds, l
 	]);
 }
 
-const Post = mongoose.model('Post', PostSchema);
-module.exports = {
-	Post: Post,
-	Location: LocationSchema,
-	Polygon: PolygonSchema
-};
+PostSchema.statics.getAllComment = function (postId, lastComments, userId, limit) {
+	return this.aggregate([
+		{
+			$match: {
+				_id: postId
+			}
+		},
+		{
+			$project: {
+				"creator": 1,
+				"comments": {
+					$setDifference: ["$comments", lastComments]
+				}
+			}
+		},
+		{
+			$lookup: {
+				from: "comments",
+				localField: "comments",
+				foreignField: '_id',
+				as: "comments"
+			}
+		},
+		{ $unwind: "$comments" },
+		{
+			$lookup: {
+				from: 'replies',
+				localField: 'comments.replies',
+				foreignField: '_id',
+				as: 'comments.replies'
+			}
+		},
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'mentioned',
+				foreignField: '_id',
+				as: 'comments.mentioned'
+			}
+		},
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'comments.commentBy',
+				foreignField: '_id',
+				as: 'comments.commentBy'
+			}
+		},
+		{ $unwind: "$comments.commentBy" },
+		{
+			$project: {
+				"comments.commentByPostCreator": {
+					$eq: ["$comments.commentBy._id", "$creator"]
+				},
+				"comments": {
+					"_id": 1,
+					"createdAt": 1,
+					"content": 1,
+					"likeCount": {
+						$size: "$comments.likes"
+					},
+					"replyCount": {
+						$size: "$comments.replies"
+					},
+					"commentBy": {
+						"username": 1,
+						"avatar": 1,
+						"_id": 1,
+					},
+					"mentioned": {
+						"_id": 1,
+						"username": 1,
+						"avatar": 1
+					},
+					"liked": {
+						$in: [userId, "$comments.likes"]
+					}
+				}
+			}
+		},
+		{
+			$sort: {
+				"comments.comentByPostCreator": -1,
+				"comments.likeCount": -1,
+				"comments.replyCount": -1,
+				"comments.createdAt": -1,
+				"comments._id": -1,
+			}
+		},
+		{ $limit: limit },
+		{ $replaceRoot: { newRoot: "$comments" } }
+	])
+}
+
+exports.Post = mongoose.model('Post', PostSchema);
+exports.Location = LocationSchema;
+exports.Polygon = PolygonSchema;

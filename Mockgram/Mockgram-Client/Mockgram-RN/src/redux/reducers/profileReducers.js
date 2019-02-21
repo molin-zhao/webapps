@@ -10,9 +10,9 @@ export const profile = (state = {
 }, action) => {
     let { data, type, error } = action.payload ? action.payload : {};
     switch (action.type) {
-        case ActionTypes.GET_CLIENT_PROFILE:
+        case ActionTypes.ADD_CLIENT_PROFILE:
             return { ...state, profile: data, errMsg: null };
-        case ActionTypes.GET_CLIENT_PROFILE_FAILED:
+        case ActionTypes.ADD_CLIENT_PROFILE_FAILED:
             return { ...state, profile: null, errMsg: error };
         case ActionTypes.ADD_CLIENT_PROFILE_POST:
             if (data && type === 'CREATED') {

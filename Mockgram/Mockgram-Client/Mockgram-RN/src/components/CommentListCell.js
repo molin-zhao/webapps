@@ -84,13 +84,6 @@ export default class CommentListCell extends React.Component {
                                     <Icon name="ios-thumbs-up" style={{ color: replyByPostCreator.liked ? '#eb765a' : 'grey' }} />
                                     <Text style={{ color: 'grey', fontSize: 12 }}>{replyByPostCreator.likeCount}</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity
-                                    activeOpacity={0.8}
-                                    style={styles.commentMetaIcon}
-                                >
-                                    <Icon name="ios-thumbs-down" style={{ color: replyByPostCreator.disliked ? '#eb765a' : 'grey' }} />
-                                    <Text style={{ color: 'grey', fontSize: 12 }}>{replyByPostCreator.dislikeCount}</Text>
-                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
@@ -153,13 +146,6 @@ export default class CommentListCell extends React.Component {
                                     style={styles.commentMetaIcon}>
                                     <Icon name="ios-thumbs-up" style={{ color: dataSource.liked ? '#eb765a' : 'grey' }} />
                                     <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    activeOpacity={0.8}
-                                    style={styles.commentMetaIcon}
-                                >
-                                    <Icon name="ios-thumbs-down" style={{ color: dataSource.disliked ? '#eb765a' : 'grey' }} />
-                                    <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.dislikeCount}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     activeOpacity={0.8}
@@ -231,7 +217,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     commentMetaIcon: {
-        width: '30%',
+        width: '50%',
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',

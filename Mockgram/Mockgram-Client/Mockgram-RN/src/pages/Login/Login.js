@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity, Text, TextInput } from 'react-native';
 import { SecureStore } from 'expo';
-import { Item, Input, Icon, CheckBox, Body } from 'native-base';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { CheckBox } from 'react-native-elements';
 import { connect } from 'react-redux';
 
 import window from '../../utils/getDeviceInfo';
@@ -74,26 +75,40 @@ class Login extends React.Component {
         return (
             <View style={styles.container}>
                 <Image style={{ marginTop: 30, width: 100, height: 100, borderRadius: 25 }} source={require('../../static/favicon.png')} />
-                <Item style={styles.formInput}>
-                    <Icon type='FontAwesome' name='envelope' />
-                    <Input placeholder='Email or username'
+                <View style={styles.formInput}>
+                    <Icon name='user' size={20} />
+                    <TextInput
+                        style={{ marginLeft: 10, fontSize: 14 }}
+                        placeholder='Email or username'
                         onChangeText={(value) => this.setState({ loginName: value })}
                         value={this.state.loginName} />
-                </Item>
-                <Item style={styles.formInput}>
-                    <Icon type='FontAwesome' name='unlock-alt' />
-                    <Input placeholder='Password'
+                </View>
+                <View style={styles.formInput}>
+                    <Icon name='unlock-alt' size={20} />
+                    <TextInput
+                        style={{ marginLeft: 10, fontSize: 14 }}
+                        placeholder='Password'
                         onChangeText={(password) => this.setState({ loginPassword: password })}
                         secureTextEntry={true}
                         value={this.state.loginPassword} />
-                </Item>
+                </View>
                 {this.renderLoginError(this.props.errMsg)}
                 <TouchableOpacity onPress={() => this.setState({ rememberMe: !this.state.rememberMe })}>
                     <View style={styles.formCheckbox}>
-                        <CheckBox checked={this.state.rememberMe} />
-                        <Body>
-                            <Text>Remember me</Text>
-                        </Body>
+                        <CheckBox
+                            containerStyle={{
+                                backgroundColor: null,
+                                borderWidth: 0
+                            }}
+                            center
+                            title='Remember me'
+                            checked={this.state.rememberMe}
+                            onPress={() => {
+                                this.setState({
+                                    rememberMe: !this.state.rememberMe
+                                })
+                            }}
+                        />
                     </View>
                 </TouchableOpacity>
                 <View style={styles.formButton}>
@@ -117,6 +132,9 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     formInput: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         width: window.width * 0.7,
         height: 50,
         marginTop: 50

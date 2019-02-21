@@ -34,7 +34,8 @@ module.exports = {
         callbackURL: 'https://api.mockgram.molinz.com/user/auth/facebook/callback'
     },
     'serverNodes': {
-        socketServer: 'http://172.20.10.11:3033',
+        apiServer: 'http://172.20.10.11:3031',
         uploadServer: 'http://172.20.10.11:3032',
+        socketServer: 'http://172.20.10.11:3033'
     }
 };

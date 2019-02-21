@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 import ProfileTabView from './ProfileTabView';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { getClientProfile } from '../../redux/actions/profileActions';
 import window from '../../utils/getDeviceInfo';
 
 class Profile extends React.Component {
@@ -24,7 +23,7 @@ class Profile extends React.Component {
     }
 
     static navigationOptions = ({ navigation }) => ({
-        title: navigation.getParam('title', null),
+        title: navigation.getParam('title', 'username'),
         headerRight: (
             <TouchableOpacity activeOpacity={0.8} style={{ marginRight: 20 }}
                 onPress={() => {
@@ -36,33 +35,24 @@ class Profile extends React.Component {
     });
 
     componentDidMount() {
-        const { navigation, client, getClientProfile } = this.props;
-        if (client) {
-            getClientProfile(client.token).then(profile => {
-                navigation.setParams({
-                    title: profile.username
-                })
-            }).catch(err => {
-                console.log(err);
-            });
+        const { navigation, profile } = this.props;
+        if (profile) {
+            navigation.setParams({
+                title: profile.username
+            })
         }
     }
 
     onRefresh = () => {
-        let that = this;
         this.setState({
             refreshing: true
-        }, () => {
-            setTimeout(() => {
-                that.setState({
-                    refreshing: false
-                })
-            }, 2000)
-        })
+        });
     }
 
     render() {
-        let profile = this.props.profile ? this.props.profile : this.state.initialProfile;
+        const { initialProfile } = this.state;
+        const { profile, navigation } = this.props;
+        let userProfile = profile ? profile : initialProfile;
         return (
             <ScrollView
                 style={styles.container}
@@ -75,11 +65,11 @@ class Profile extends React.Component {
                 }
                 horizontal={false}
             >
-                {profile.avatar && profile.avatar !== '' ?
+                {userProfile.avatar ?
                     <Avatar
                         large
                         rounded
-                        source={{ uri: profile.avatar }}
+                        source={{ uri: userProfile.avatar }}
                         activeOpacity={0.7}
                         containerStyle={{ marginTop: 30 }}
                     /> :
@@ -97,29 +87,29 @@ class Profile extends React.Component {
                         style={styles.countSubview}
                         activeOpacity={0.8}
                     >
-                        <Text style={styles.countText}>{profile.postCount}</Text>
+                        <Text style={styles.countText}>{userProfile.postCount}</Text>
                         <Text style={styles.countText}>Post</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.countSubview}
                         activeOpacity={0.8}
                     >
-                        <Text style={styles.countText}>{profile.followingCount}</Text>
+                        <Text style={styles.countText}>{userProfile.followingCount}</Text>
                         <Text style={styles.countText}>Following</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.countSubview}
                         activeOpacity={0.8}
                     >
-                        <Text style={styles.countText}>{profile.followerCount}</Text>
+                        <Text style={styles.countText}>{userProfile.followerCount}</Text>
                         <Text style={styles.countText}>Follower</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.bio}>
-                    <Text style={styles.bioText}>{profile.bio}</Text>
+                    <Text style={styles.bioText}>{userProfile.bio}</Text>
                 </View>
                 <View style={styles.embeddedTabView}>
-                    <ProfileTabView navigation={this.props.navigation} userId={profile._id} clientUpdate={true} numColumns={3} />
+                    <ProfileTabView navigation={navigation} userId={userProfile._id} clientUpdate={true} numColumns={3} />
                 </View>
             </ScrollView>
         );
@@ -166,12 +156,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
     return {
-        client: state.client.client,
         profile: state.profile.profile,
     }
 }
-
-const mapDispatchToProps = dispatch => ({
-    getClientProfile: (token) => dispatch(getClientProfile(token))
-})
-export default connect(mapStateToProps, mapDispatchToProps)(Profile)
+export default connect(mapStateToProps, null)(Profile)

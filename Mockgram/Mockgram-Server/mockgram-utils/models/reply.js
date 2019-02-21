@@ -25,13 +25,6 @@ const ReplySchema = new Schema({
         }],
         default: []
     },
-    dislikes: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }],
-        default: []
-    },
     from: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

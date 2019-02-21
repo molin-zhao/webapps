@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity, TextInput, Switch } from 'react-native';
-import { Textarea, Item, Input, Left, Right } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Location, Permissions, SecureStore } from 'expo'
 import window from '../../utils/getDeviceInfo';
@@ -151,23 +150,36 @@ export default class PostPreview extends React.Component {
             <View style={styles.container}>
                 <View style={styles.descriptionView}>
                     <Image source={{ uri: image.uri }} style={{ marginLeft: 5, width: window.width * 0.25, height: window.width * 0.25 }} />
-                    <Textarea rowSpan={5} placeholder='Write a description' style={{ marginLeft: 20, marginRight: 5, height: window.width * 0.25, width: window.width * 0.65, borderColor: null, borderWidth: 0, backgroundColor: '#fff' }}
+                    <TextInput multiline={true}
+                        numberOfLines={4}
+                        placeholder='Write a description'
+                        style={{
+                            marginLeft: 20,
+                            marginRight: 5,
+                            height: window.width * 0.25,
+                            width: window.width * 0.65,
+                            borderColor: null,
+                            borderWidth: 0,
+                            backgroundColor: '#fff'
+                        }}
                         value={this.state.description}
                         onChangeText={text => {
                             this.setState({ description: text });
                         }} />
                 </View>
-                <Item>
-                    <Input placeholder='label' value={this.state.label} onChangeText={text => {
+                <View>
+                    <TextInput placeholder='label' value={this.state.label} onChangeText={text => {
                         this.setState({ label: text })
                     }} />
-                </Item>
-                <Item onPress={() => {
-                    console.log('tag you friends');
-                }}>
+                </View>
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={() => {
+                        console.log('tag you friends');
+                    }}>
                     <Input disabled placeholder='Tag your friends' />
                     <Icon name='arrow-right' size={15} style={{ marginRight: 10 }} />
-                </Item>
+                </TouchableOpacity>
                 <View style={{ height: 50, width: window.width, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomColor: 'lightgrey', borderBottomWidth: 0.5 }}>
                     <Switch style={{ marginLeft: 10, height: 20 }} value={this.state.switchValue}
                         onValueChange={value => {

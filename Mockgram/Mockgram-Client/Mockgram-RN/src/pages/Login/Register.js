@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text } from 'react-native';
-import { Item, Input, Icon } from 'native-base';
+import { View, StyleSheet, Dimensions, Text, TextInput } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 import formValidation from '../../utils/formValidation';
 import baseUrl from '../../common/baseUrl';
@@ -88,47 +88,55 @@ export default class Register extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Item style={styles.formInput}>
-                    <Icon type='FontAwesome' name='envelope' />
-                    <Input placeholder='Email'
+                <View style={styles.formInput}>
+                    <Icon name='envelope' size={20} />
+                    <TextInput
+                        style={{ marginLeft: 10, fontSize: 14 }}
+                        placeholder='Email'
                         onChangeText={(email) => {
                             this.setState({ email });
                             formValidation(this, this.state.errors.email, 'Email', email, 'isEmail', null);
                         }}
                         value={this.state.email} />
-                </Item>
+                </View>
                 <Text style={styles.formValidationMessage}>{this.state.errors.email.status ? this.state.errors.email.message : null}</Text>
-                <Item style={styles.formInput}>
-                    <Icon type='FontAwesome' name='user' />
-                    <Input placeholder='Username'
+                <View style={styles.formInput}>
+                    <Icon name='user' size={20} />
+                    <TextInput
+                        style={{ marginLeft: 10, fontSize: 14 }}
+                        placeholder='Username'
                         onChangeText={(username) => {
                             this.setState({ username });
                             formValidation(this, this.state.errors.username, 'Username', username, 'isAlphanumberic', null);
                         }}
                         value={this.state.username} />
-                </Item>
+                </View>
                 <Text style={styles.formValidationMessage}>{this.state.errors.username.status ? this.state.errors.username.message : null}</Text>
-                <Item style={styles.formInput}>
-                    <Icon type='FontAwesome' name='key' />
-                    <Input placeholder='Password'
+                <View style={styles.formInput}>
+                    <Icon name='key' size={20} />
+                    <TextInput
+                        style={{ marginLeft: 10, fontSize: 14 }}
+                        placeholder='Password'
                         onChangeText={(password) => {
                             this.setState({ password });
                             formValidation(this, this.state.errors.password, 'Password', password, 'isPassword', null);
                         }}
                         value={this.state.password}
                         secureTextEntry={true} />
-                </Item>
+                </View>
                 <Text style={styles.formValidationMessage}>{this.state.errors.password.status ? this.state.errors.password.message : null}</Text>
-                <Item style={styles.formInput}>
-                    <Icon type='FontAwesome' name='lock' />
-                    <Input placeholder='Confirm password'
+                <View style={styles.formInput}>
+                    <Icon name='lock' size={20} />
+                    <TextInput
+                        style={{ marginLeft: 10, fontSize: 14 }}
+                        placeholder='Confirm password'
                         onChangeText={(confirmPassword) => {
                             this.setState({ confirmPassword });
                             formValidation(this, this.state.errors.confirmPassword, 'Confirm password', confirmPassword, 'isConfirmPassword', this.state.password);
                         }}
                         value={this.state.confirmPassword}
                         secureTextEntry={true} />
-                </Item>
+                </View>
                 <Text style={styles.formValidationMessage}>{this.state.errors.confirmPassword.status ? this.state.errors.confirmPassword.message : null}</Text>
                 <this.renderRegisterError />
                 <Button title='Register'
@@ -150,6 +158,9 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     formInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
         width: windowWidth * 0.7,
         height: 50,
         marginTop: 50

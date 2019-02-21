@@ -5,6 +5,7 @@ import { createStackNavigator } from 'react-navigation';
 import LoginPage from '../pages/Login/Login';
 import RegisterPage from '../pages/Login/Register';
 import LoginModePage from '../pages/Login/LoginMode';
+
 export default LoginStackNavigator = createStackNavigator({
     Login: {
         screen: LoginPage,

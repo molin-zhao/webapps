@@ -1,7 +1,8 @@
 // client related action types
 export const CLIENT_LOGIN = 'CLIENT_LOGIN';
 export const CLIENT_LOGOUT = 'CLIENT_LOGOUT';
-export const GET_CLIENT_PROFILE = 'GET_CLIENT_PROFILE';
+export const ADD_CLIENT_PROFILE = 'ADD_CLIENT_PROFILE';
+export const ADD_CLIENT_PROFILE_FAILED = 'ADD_CLIENT_PROFILE_FAILED';
 export const ADD_CLIENT_INFO = 'ADD_CLIENT_INFO';
 export const REMOVE_CLIENT_INFO = 'REMOVE_CLIENT_INFO';
 export const CLIENT_LOGIN_FAILED = 'USER_LOGIN_FAILED';
@@ -22,4 +23,7 @@ export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE';
 export const READ_MESSAGE = 'READ_MESSAGE';
 export const DELETE_MESSAGE = 'DELETE_MESSAGE';
 export const MESSAGE_ERROR = 'MESSAGE_ERROR';
+
+// app related action types
+export const APP_FINISH_INIT = 'APP_FINISH_INIT';
 

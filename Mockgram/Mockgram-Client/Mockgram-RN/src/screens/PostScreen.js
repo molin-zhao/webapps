@@ -5,13 +5,8 @@ import PostPreview from '../pages/Post/PostPreview';
 import ImageFilter from '../pages/Post/ImageFilterPage';
 
 export default PostStackNavigator = createStackNavigator({
-    PostTabView: {
-        screen: PostTabView
-    },
-    PostPreview: {
-        screen: PostPreview
-    },
-    ImageFilter: {
-        screen: ImageFilter
-    }
+    PostTabView: PostTabView,
+    PostPreview: PostPreview,
+    ImageFilter: ImageFilter
+
 })

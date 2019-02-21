@@ -1,9 +1,9 @@
 const response = require('./response');
-exports.handleError = (res, err) => {
+exports.handleError = (res, err, errType = response.ERROR.SERVER_ERROR) => {
     console.log(err);
     return res.json({
-        status: response.ERROR.SERVER_ERROR.CODE,
-        msg: response.ERROR.SERVER_ERROR.MSG,
+        status: errType.CODE,
+        msg: errType.MSG,
         data: err
     })
 }

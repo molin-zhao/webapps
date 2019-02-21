@@ -67,12 +67,12 @@ export const getClientProfilePosts = (caller, dataSource, userId, type, limit) =
 }
 
 export const addClientProfile = (clientProfile) => ({
-    type: ActionTypes.GET_CLIENT_PROFILE,
+    type: ActionTypes.ADD_CLIENT_PROFILE,
     payload: { data: clientProfile }
 })
 
 export const addClientProfileFailed = (err) => ({
-    type: ActionTypes.GET_CLIENT_PROFILE_FAILED,
+    type: ActionTypes.ADD_CLIENT_PROFILE_FAILED,
     payload: { error: err }
 })
 

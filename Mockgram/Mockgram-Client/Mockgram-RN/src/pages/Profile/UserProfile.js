@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Avatar } from 'react-native-elements';
-import ProfileEmbeddedTabView from './Profile/ProfileEmbeddedTabView';
+import ProfileEmbeddedTabView from './ProfileTabView';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class Profile extends React.Component {

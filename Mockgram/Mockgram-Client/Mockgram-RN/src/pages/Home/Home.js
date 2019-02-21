@@ -1,9 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
-import {
-    SkypeIndicator,
-    BarIndicator
-} from 'react-native-indicators'
+import { SkypeIndicator } from 'react-native-indicators'
 import { connect } from 'react-redux';
 
 import PostCardComponent from '../../components/PostCardComponent';
@@ -11,7 +8,6 @@ import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
 import { parseIdFromObjectArray } from '../../utils/idParser';
-import { clientListener } from '../../redux/middleware/subscriber';
 
 class Home extends React.Component {
     constructor(props) {
@@ -22,7 +18,9 @@ class Home extends React.Component {
             hasMore: true,
             loading: true,
             refreshing: false,
-            loadingMore: false
+            loadingMore: false,
+            fetching: false,
+            interrupt: false
         };
     }
 
@@ -43,63 +41,74 @@ class Home extends React.Component {
         this.setState({
             loading: true,
             refreshing: false,
-            loadingMore: false,
-            data: []
+            loadingMore: false
         }, () => {
-            this.fetchPosts(this.state.loading);
+            console.log('loading');
+            this.fetchPosts();
         })
     }
 
-    componentDidUpdate(preProps) {
-        let client = clientListener();
-        if (client !== preProps.client) {
-            this.handleReload()
+    componentDidUpdate(prevProps) {
+        const { client, initialized } = this.props;
+        if (client !== prevProps.client) {
+            this.handleReload();
         }
     }
 
-    fetchPosts = (status) => {
+    fetchPosts = () => {
         /**
          * status is one of refreshing, loading and lodingMore
          * use status to check if the network request is interrupted
          * the criteria is the value of status has been changed after receving server response 
          * */
 
-        let _status = status;
         const url = `${baseUrl.api}/post`;
         const { client } = this.props;
-        console.log(`feching data from ${url}`);
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                limit: config.postReturnLimit,
-                userId: client ? client.user._id : null,
-                lastQueryDataIds: parseIdFromObjectArray(this.state.data)
-            })
-        }).then(res => res.json()).then(res => {
-            if (_status === status) {
-                // request is not interrupted, continue updating data
+        this.setState({
+            fetching: true
+        }, () => {
+            console.log(`fetching data from ${url}`);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    limit: config.postReturnLimit,
+                    userId: client ? client.user._id : null,
+                    lastQueryDataIds: (this.state.loading || this.state.refreshing) ? [] : parseIdFromObjectArray(this.state.data)
+                })
+            }).then(res => res.json()).then(res => {
+                if (!this.state.interrupt) {
+                    this.setState({
+                        data: (this.state.loading || this.state.refreshing) ? res.data : this.state.data.concat(...res.data),
+                        error: res.status === 200 ? null : res.msg,
+                        hasMore: res.data.length < config.postReturnLimit ? false : true,
+                    })
+                } else {
+                    this.setState({
+                        interrupt: false
+                    })
+                }
+            }).then(() => {
                 this.setState({
-                    data: this.state.data.concat(...res.data),
-                    error: res.status === 200 ? null : res.msg,
-                    hasMore: res.data.length < config.postReturnLimit ? false : true,
                     loading: false,
                     refreshing: false,
-                    loadingMore: false
+                    loadingMore: false,
+                    fetching: false
                 })
-            } else {
+            }).catch(error => {
                 this.setState({
+                    error: "Network request failed",
                     loading: false,
                     refreshing: false,
-                    loadingMore: false
-                })
-            }
-        }).catch(error => {
-            this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
-        });
+                    loadingMore: false,
+                    fetching: false,
+                    interrupt: false
+                });
+            });
+        })
     };
 
     handleReload = () => {
@@ -108,41 +117,47 @@ class Home extends React.Component {
          *  do not need to check if page is requesting for loading more or refreshing
          *  interrupt other network requests by setting status to false
          */
-        if (!this.state.loading) {
+        if (this.state.fetching) {
             this.setState({
-                loading: true,
-                refreshing: false,
-                loadingMore: false,
-                data: []
-            }, () => {
-                console.log("reloading");
-                this.fetchPosts(this.state.loading);
+                interrupt: true
             })
         }
+        this.setState({
+            loading: true,
+            refreshing: false,
+            loadingMore: false
+        }, () => {
+            console.log('reloading');
+            this.fetchPosts()
+        })
     }
 
     handleRefresh = () => {
         /**
          *  refresh should have higher priority than load more 
-         *  only check if page is requesting for loading, if it isn't, perform this request
-         *  otherwise do not send refreshing page request
+         *  if this page is refreshing or loading, disable refresh
+         *  otherwise anable refresh
          *  */
         if (!this.state.refreshing && !this.state.loading) {
+            if (this.state.fetching) {
+                this.setState({
+                    interrupt: true
+                })
+            }
             this.setState({
                 refreshing: true,
                 loading: false,
-                loadingMore: false,
-                data: []
+                loadingMore: false
             }, () => {
                 console.log("refreshing");
-                this.fetchPosts(this.state.refreshing);
+                this.fetchPosts();
             })
         }
     };
 
     handleLoadMore = () => {
         // only loading more when request resource has more data and page is not loading, refreshing and loading more beforehand
-        if (this.state.hasMore && !this.state.refreshing && !this.state.loading && !this.state.loadingMore) {
+        if (this.state.hasMore && !this.state.refreshing && !this.state.loading && !this.state.loadingMore && !this.state.fetching) {
             this.setState(
                 {
                     loadingMore: true,
@@ -151,18 +166,19 @@ class Home extends React.Component {
                 },
                 () => {
                     console.log("loading more");
-                    this.fetchPosts(this.state.loadingMore);
+                    this.fetchPosts();
                 }
             );
         }
     };
 
     renderFooter = () => {
-        if (!this.state.loading && !this.state.loadingMore && !this.state.refreshing && this.state.data.length === 0) {
+        const { loading, loadingMore, refreshing, data, hasMore } = this.state;
+        const { initialized } = this.props;
+        if (initialized && !loading && !loadingMore && refreshing && data.length === 0) {
             return (
                 <View style={{ height: window.height * 0.9, width: window.width, backgroundColor: "#fff", justifyContent: 'flex-start', alignItems: 'center' }}>
                     <View style={{ marginTop: window.height * 0.4, height: "10%", width: "100%", justifyContent: 'center', alignItems: 'center' }}>
-                        <BarIndicator count={5} />
                         <Text style={{ color: 'grey' }}>Temporarily no posts found</Text>
                     </View>
                 </View>
@@ -170,13 +186,22 @@ class Home extends React.Component {
         }
         return (
             <View style={styles.listFooter}>
-                {this.state.hasMore ? <SkypeIndicator size={25} /> : <Text style={{ color: 'grey' }}>No more posts</Text>}
+                {hasMore ? <SkypeIndicator size={25} /> : <Text style={{ color: 'grey', fontSize: 12 }}> - No more posts - </Text>}
             </View>
         );
     };
 
+    listEmpty = () => {
+        return (
+            <View style={{
+                flex: 1,
+                backgroundColor: '#fff'
+            }}></View>
+        );
+    }
+
     renderPost = () => {
-        if (this.state.loading || this.state.refreshing) {
+        if (this.state.loading || this.state.refreshing || !this.props.initialized) {
             return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
         } else {
             if (this.state.error) {
@@ -184,11 +209,13 @@ class Home extends React.Component {
             }
             return (
                 <FlatList
-                    style={{ marginTop: 0, width: '100%' }}
+                    style={{ marginTop: 0, width: '100%', backgroundColor: '#fff' }}
+                    contentContainerStyle={{ backgroundColor: '#fff' }}
                     data={this.state.data}
                     renderItem={({ item }) => (
                         <PostCardComponent dataSource={item} navigation={this.props.navigation} />
                     )}
+                    ListEmptyComponent={this.listEmpty}
                     keyExtractor={item => item._id}
                     onRefresh={this.handleRefresh}
                     refreshing={this.state.refreshing}
@@ -209,11 +236,10 @@ class Home extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        client: state.client.client
-    }
-}
+const mapStateToProps = state => ({
+    client: state.client.client,
+    initialized: state.app.initialized
+})
 
 export default connect(mapStateToProps, null)(Home);
 
@@ -228,10 +254,9 @@ const styles = StyleSheet.create({
         marginTop: 0,
     },
     listFooter: {
-        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        height: 80
+        height: window.height * 0.1
     },
     errorMsgView: {
         height: window.height * 0.85,

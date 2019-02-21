@@ -57,19 +57,20 @@ export default class ReplyListCell extends React.Component {
                     </View>
                     <View style={styles.replyMeta}>
                         <Text style={{ fontSize: 12, color: 'grey' }}>{dateConverter(dataSource.createdAt)}</Text>
-                        <View style={{ width: '30%', height: '100%', position: 'absolute', right: 0, justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+                        <View style={{
+                            width: '30%',
+                            height: '100%',
+                            position: 'absolute',
+                            right: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexDirection: 'row'
+                        }}>
                             <TouchableOpacity
                                 activeOpacity={0.8}
                                 style={styles.replyMetaIcon}>
                                 <Icon name="ios-thumbs-up" style={{ color: dataSource.liked ? '#eb765a' : 'grey' }} />
                                 <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                style={styles.replyMetaIcon}
-                            >
-                                <Icon name="ios-thumbs-down" style={{ color: dataSource.disliked ? '#eb765a' : 'grey' }} />
-                                <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.dislikeCount}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -120,11 +121,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     replyMetaIcon: {
-        width: '30%',
-        height: '100%',
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        marginLeft: '3%'
     }
 })

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
 
-const ComentSchema = new Schema({
+const CommentSchema = new Schema({
     postId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',
@@ -18,13 +18,6 @@ const ComentSchema = new Schema({
         required: true
     },
     mentioned: {
-        type: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        }],
-        default: []
-    },
-    dislikes: {
         type: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
@@ -49,7 +42,7 @@ const ComentSchema = new Schema({
         timestamps: true
     });
 
-ComentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) {
+CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) {
     return this.aggregate([
         {
             $match: {
@@ -102,9 +95,6 @@ ComentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) {
                     "likeCount": {
                         $size: "$likes"
                     },
-                    "dislikeCount": {
-                        $size: "$dislikes"
-                    },
                     "mentioned": {
                         "username": 1,
                         "_id": 1,
@@ -133,9 +123,100 @@ ComentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) {
             }
         },
         { $replaceRoot: { newRoot: "$replies" } }
-    ]).then(function (result) {
+    ]).then(result => {
         return result;
     });
 }
 
-module.exports = mongoose.model('Comment', ComentSchema);
+CommentSchema.statics.getAllReply = function (commentId, lastDataIds, clientId, limit) {
+    return this.aggregate([
+        {
+            $match: {
+                _id: commentId
+            }
+        },
+        {
+            $project: {
+                "replies": {
+                    $setDifference: ["$replies", lastDataIds]
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "replies",
+                localField: "replies",
+                foreignField: '_id',
+                as: "replies"
+            }
+        },
+        { $unwind: "$replies" },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'replies.mentioned',
+                foreignField: '_id',
+                as: 'replies.mentioned'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'replies.from',
+                foreignField: '_id',
+                as: 'replies.from'
+            }
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'replies.to',
+                foreignField: '_id',
+                as: 'replies.to'
+            }
+        },
+        { $unwind: "$replies.from" },
+        { $unwind: "$replies.to" },
+        {
+            $project: {
+                "replies": {
+                    "_id": 1,
+                    "liked": {
+                        $in: [clientId, "$replies.likes"]
+                    },
+                    "likeCount": {
+                        $size: "$replies.likes"
+                    },
+                    "mentioned": {
+                        "username": 1,
+                        "_id": 1,
+                        "avatar": 1
+                    },
+                    "from": {
+                        "username": 1,
+                        "_id": 1,
+                        "avatar": 1
+                    },
+                    "to": {
+                        "username": 1,
+                        "_id": 1,
+                        "avatar": 1
+                    },
+                    "createdAt": 1,
+                    "content": 1
+                }
+            }
+        },
+        {
+            $sort: {
+                "likeCount": -1,
+                "createdAt": -1,
+                "_id": -1
+            }
+        },
+        { $limit: limit },
+        { $replaceRoot: { newRoot: "$replies" } }
+    ])
+}
+
+module.exports = mongoose.model('Comment', CommentSchema);

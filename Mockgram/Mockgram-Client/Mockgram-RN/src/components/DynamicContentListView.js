@@ -14,6 +14,8 @@ export default class DynamicContentList extends React.Component {
             refreshing: false,
             loadingMore: false,
             hasMore: true,
+            fetching: false,
+            interrupt: false
         }
     }
 
@@ -28,34 +30,60 @@ export default class DynamicContentList extends React.Component {
     fetchData = () => {
         const { request } = this.props;
         const url = request.url;
-        console.log(`feching data from ${url}`);
-        fetch(url, {
-            method: request.method,
-            headers: request.headers,
-            body: JSON.stringify({
-                lastQueryDataIds: this.state.refreshing ? [] : parseIdFromObjectArray(this.state.data),
-                ...request.body
+        this.setState({
+            fetching: true
+        }, () => {
+            console.log(`feching data from ${url}`);
+            fetch(url, {
+                method: request.method,
+                headers: request.headers,
+                body: JSON.stringify({
+                    lastQueryDataIds: (this.state.refreshing || this.state.loading) ? [] : parseIdFromObjectArray(data),
+                    ...request.body
+                })
             })
-        })
-            .then(res => res.json())
-            .then(res => {
-                this.setState({
-                    // data only appended when loading more, else refresh data
-                    data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
-                    error: res.status === 200 ? null : res.msg,
-                    hasMore: res.data.length < request.body.limit ? false : true,
-                    loading: false,
-                    refreshing: false,
-                    loadingMore: false,
+                .then(res => res.json())
+                .then(res => {
+                    if (!this.state.interrupt) {
+                        this.setState({
+                            // data only appended when loading more, else refresh data
+                            data: this.state.data.concat(...res.data),
+                            error: res.status === 200 ? null : res.msg,
+                            hasMore: res.data.length < request.body.limit ? false : true
+                        });
+                    } else {
+                        this.setState({
+                            interrupt: false
+                        })
+                    }
+                }).then(() => {
+                    this.setState({
+                        loading: false,
+                        refreshing: false,
+                        loadingMore: false,
+                        fetching: false
+                    })
+                })
+                .catch(error => {
+                    this.setState({
+                        error: "Network request failed",
+                        loading: false,
+                        refreshing: false,
+                        loadingMore: false,
+                        fetching: false,
+                        interrupt: false
+                    });
                 });
-            })
-            .catch(error => {
-                this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
-            });
+        })
     };
 
     handleRefresh = () => {
-        if (!this.state.loadingMore && !this.state.refreshing && !this.state.loading) {
+        if (!this.state.refreshing && !this.state.loading) {
+            if (this.state.fetching) {
+                this.setState({
+                    interrupt: true
+                })
+            }
             this.setState({
                 refreshing: true,
             }, () => {
@@ -92,7 +120,7 @@ export default class DynamicContentList extends React.Component {
 
 
     renderContent = () => {
-        const props = this.props;
+        const { navigation, itemProps } = this.props;
         if (this.state.loading) {
             return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
         } else {
@@ -103,10 +131,10 @@ export default class DynamicContentList extends React.Component {
                 style={{ marginTop: 0, width: '100%' }}
                 data={this.state.data}
                 renderItem={({ item }) => (
-                    <props.renderItem
+                    <this.props.renderItem
                         dataSource={item}
-                        navigation={props.navigation}
-                        itemProps={props.itemProps}
+                        navigation={navigation}
+                        itemProps={itemProps}
                     />
                 )}
                 keyExtractor={item => item._id}

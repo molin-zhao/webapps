@@ -30,6 +30,7 @@ mongoose.connect(mongoUrl, {
 }).then(() => {
   console.log('connected correctly to mongodb');
 }).catch(err => console.log(err));
+mongoose.set('useFindAndModify', false);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

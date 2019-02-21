@@ -8,7 +8,12 @@ class Following extends React.Component {
     }
 
     componentDidMount() {
+        const { client, navigation } = this.props;
+        if (client) {
 
+        } else {
+            navigation.navigate('Auth');
+        }
     }
 
     render() {

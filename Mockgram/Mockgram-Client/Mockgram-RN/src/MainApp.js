@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Home from './screens/HomeScreen';
 import Discovery from './screens/DiscoveryScreen';
 import Profile from './screens/ProfileScreen';
+import UserProfile from './pages/Profile/UserProfile';
 import Post from './screens/PostScreen';
 import Message from './screens/MessageScreen';
 import Login from './screens/LoginScreen';
@@ -14,8 +15,10 @@ import MessageBadgeIcon from './components/MessageBadgeIcon';
 import AuthIcon from './components/AuthIcon';
 
 import { getClientInfo } from './redux/actions/clientActions';
+import { getClientProfile } from './redux/actions/profileActions';
+import { finishAppInitialize } from './redux/actions/appActions';
 import { } from './redux/actions/messageActions';
-import { socketListener } from './redux/middleware/subscriber';
+import theme from './common/theme';
 
 
 const MainAppTabNavigator = createBottomTabNavigator({
@@ -80,7 +83,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         initialRouteName: 'Home',
         order: ["Home", "Discovery", "Post", 'Message', 'Profile'],
         tabBarOptions: {
-            activeTintColor: '#eb765a',
+            activeTintColor: theme.primaryColor,
             inactiveTintColor: 'black',
             style: {
                 backgroundColor: 'white',
@@ -88,9 +91,13 @@ const MainAppTabNavigator = createBottomTabNavigator({
         }
     })
 
+/**
+ * MainAppStackNavigator only contains pages that display app contents
+ * not including modals and other util pages
+ */
 const MainAppStackNavigator = createStackNavigator({
     MainApp: MainAppTabNavigator,
-    Auth: Login
+    UserProfile: UserProfile
 }, {
         headerMode: 'none',
         navigationOptions: {
@@ -98,9 +105,14 @@ const MainAppStackNavigator = createStackNavigator({
         }
     });
 
+/**
+ * RootNavigator contains all the pages in this app
+ * including modals and stack navigators
+ */
 const RootNavigator = createStackNavigator({
-    MainAppStackNavigator: MainAppStackNavigator,
-    Comment: CommentPage
+    Main: MainAppStackNavigator,
+    Comment: CommentPage,
+    Auth: Login
 }, {
         mode: 'modal',
         headerMode: 'none',
@@ -111,13 +123,25 @@ const RootNavigator = createStackNavigator({
 
 class MainApp extends React.Component {
 
-    componentDidMount() {
+    async componentDidMount() {
+        const { getClientInfo, finishAppInitialize } = this.props;
         console.log('app starts');
-        this.props.getClientInfo();
+        await getClientInfo();
+        finishAppInitialize()
     }
 
-    componentWillUpdate() {
-        socketListener();
+    componentDidUpdate(prevProps) {
+        const { getClientProfile, client, socket } = this.props;
+        if (prevProps.client !== client && client) {
+            // client has value
+            getClientProfile(client.token);
+        }
+        if (prevProps.socket !== socket && socket) {
+            // socket has been established
+            socket.on('new-message', msg => {
+                console.log(msg);
+            })
+        }
     }
 
 
@@ -130,11 +154,15 @@ class MainApp extends React.Component {
 const mapStateToProps = state => {
     return {
         socket: state.message.socket,
-        message: state.message.message
+        message: state.message.message,
+        client: state.client.client,
+        profile: state.profile.profile
     }
 }
 const mapDispatchToProps = dispatch => ({
     getClientInfo: () => dispatch(getClientInfo()),
+    getClientProfile: (token) => dispatch(getClientProfile(token)),
+    finishAppInitialize: () => dispatch(finishAppInitialize())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainApp);

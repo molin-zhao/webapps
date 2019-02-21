@@ -19,20 +19,22 @@ class CommentPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            comments: [],
-            lastComments: [],
+            data: [],
             postId: this.props.navigation.getParam('postId', null),
             creatorId: this.props.navigation.getParam('creatorId', null),
             refreshing: false,
             loadidng: false,
             loadingMore: false,
-            hasMore: true
+            hasMore: true,
+            fetching: false,
+            interrupt: false
         }
     }
 
     componentDidMount() {
         this.setState({
-            loading: true
+            loading: true,
+            data: []
         }, () => {
             this.fetchComment();
         });
@@ -40,44 +42,61 @@ class CommentPage extends React.Component {
 
     fetchComment = () => {
         const url = `${baseUrl.api}/post/comment`;
-        console.log(`feching data from ${url}`);
-        fetch(url, {
-
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                lastComments: this.state.lastComments,
-                postId: this.state.postId,
-                creatorId: this.state.creatorId,
-                limit: config.commentReturnLimit
-            })
-        })
-            .then(res => res.json())
-            .then(res => {
+        this.setState({
+            fetching: true
+        }, () => {
+            console.log(`feching data from ${url}`);
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    lastQueryDataIds: this.state.refreshing ? [] : parseIdFromObjectArray(this.state.data),
+                    postId: this.state.postId,
+                    creatorId: this.state.creatorId,
+                    limit: config.commentReturnLimit
+                })
+            }).then(res => res.json()).then(res => {
+                if (this.state.interrupt) {
+                    this.setState({
+                        interrupt: false
+                    })
+                } else {
+                    this.setState({
+                        data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
+                        error: res.status === 200 ? null : res.msg,
+                        hasMore: res.data.length < config.commentReturnLimit ? false : true,
+                    });
+                }
+            }).then(() => {
                 this.setState({
-                    // data only appended when loading more, else refresh data
-                    comments: this.state.loadingMore === true ? [...this.state.comments, ...res.data] : res.data,
-                    lastComments: this.state.loadingMore === true ? [...this.state.lastComments, ...parseIdFromObjectArray(res.data)] : parseIdFromObjectArray(res.data),
-                    error: res.status === 200 ? null : res.msg,
-                    hasMore: res.data.length < config.commentReturnLimit ? false : true,
                     loading: false,
                     refreshing: false,
                     loadingMore: false,
+                    fetching: false
+                })
+            }).catch(error => {
+                this.setState({
+                    error: error,
+                    loading: false,
+                    refreshing: false,
+                    loadingMore: false
                 });
-            })
-            .catch(error => {
-                this.setState({ error: "Network request failed", loading: false, refreshing: false, loadingMore: false });
             });
+        })
     };
 
     handleRefresh = () => {
-        if (!this.state.refreshing && !this.state.loadingMore && !this.state.loading) {
+        if (!this.state.refreshing && !this.state.loading) {
+            if (this.state.fetching) {
+                this.setState({
+                    interrupt: true
+                })
+            }
             this.setState({
-                refreshing: true,
-                lastComments: []
+                refreshing: true
             }, () => {
                 console.log("refreshing");
                 this.fetchComment();
@@ -102,7 +121,7 @@ class CommentPage extends React.Component {
     renderFooter = () => {
         return (
             <View style={styles.listFooter}>
-                {this.state.hasMore ? <BallIndicator size={20} /> : <Text style={{ color: 'grey' }}>No more comments</Text>}
+                {this.state.hasMore ? <BallIndicator size={20} /> : <Text style={{ color: 'grey', fontSize: 12 }}>- No more comments -</Text>}
             </View>
         );
     };
@@ -118,7 +137,7 @@ class CommentPage extends React.Component {
             return (
                 <FlatList
                     style={{ marginTop: 0, width: '100%', flex: 1 }}
-                    data={this.state.comments}
+                    data={this.state.data}
                     renderItem={({ item }) => (
                         <CommentListCell
                             dataSource={item}

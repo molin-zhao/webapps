@@ -120,9 +120,7 @@ User.statics.login = function (criteria, req, res) {
                 if (err) return handleError(res, err);
                 if (isMatch) {
                     let userCreds = {
-                        username: user.username,
                         _id: user._id,
-                        avatar: user.avatar
                     }
                     let token = authenticate.getToken(userCreds);
                     let ip = getRemoteIpAddress(req);

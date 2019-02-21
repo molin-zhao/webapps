@@ -1,79 +1,50 @@
 const express = require('express');
 const router = express.Router();
+const agent = require('superagent');
+
+// utils
 const response = require('../../mockgram-utils/utils/response');
-const Post = require('../../mockgram-utils/models/post').Post;
-const User = require('../../mockgram-utils/models/user');
-const CommentModal = require('../../mockgram-utils/models/comment');
-const Reply = require('../../mockgram-utils/models/reply');
-const handleError = require('../../mockgram-utils/utils/handleError').handleError;
+const { handleError } = require('../../mockgram-utils/utils/handleError');
 const { convertStringArrToObjectIdArr, convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
 const { verifyAuthorization } = require('../../mockgram-utils/utils/verify');
 
-// get posts with limit, say 10~20, query params are included in the request body
-// request body contains last query's post id array
-router.post('/', async (req, res) => {
+// models
+const { Post } = require('../../mockgram-utils/models/post');
+const User = require('../../mockgram-utils/models/user');
+const CommentModel = require('../../mockgram-utils/models/comment');
+const Reply = require('../../mockgram-utils/models/reply');
+const Message = require('../../mockgram-utils/models/message');
+
+// configs
+const { serverNodes } = require('../../config');
+
+
+/**
+ * POST and GET methods for query posts, comments and replies
+ */
+
+
+/**
+* get posts with limit, say 10~20, query params are included in the request body
+* request body contains last query's post id array
+*/
+router.post('/', (req, res) => {
     let limit = parseInt(req.body.limit);
     let userId = convertStringToObjectId(req.body.userId);//client id, who sent the request
     let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
-    // if client is a loggin user, then send back the follower posts.
-    // else send back hot posts.
+    /**
+     * if client is a loggin user, then send back the follower posts.
+     * else send back hot posts.
+     */
     if (userId) {
         // find client's all following users
         User.findOne({ _id: userId }).select('following').exec((err, user) => {
             let followings = user.following;
             followings.push(userId);
             if (err) return handleError(res, err);
-            Post.aggregate([
-                {
-                    $match: {
-                        _id: { $nin: lastQueryDataIds },
-                        creator: { $in: followings }
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'creator',
-                        foreignField: '_id',
-                        as: 'postUser'
-                    }
-                },
-                {
-                    $unwind: "$postUser"
-                },
-                {
-                    $project: {
-                        "liked": {
-                            $in: [userId, "$likes"]
-                        },
-                        "likeCount": {
-                            $size: "$likes"
-                        },
-                        "commentCount": {
-                            $size: "$comments"
-                        },
-                        "sharedCount": {
-                            $size: "$shared"
-                        },
-                        "image": 1,
-                        "label": 1,
-                        "description": 1,
-                        "location": 1,
-                        "createdAt": 1,
-                        "creator": 1,
-                        "postUser.username": 1,
-                        "postUser.avatar": 1,
-                    }
-                },
-                {
-                    $sort: { "createdAt": -1, "_id": -1 }
-                },
-                {
-                    $limit: limit
-                }
-            ]).exec((err, posts) => {
+            Post.getPosts(userId, lastQueryDataIds, limit, followings).exec((err, posts) => {
                 if (err) return handleError(res, err);
-                res.json({
+                return res.json({
                     status: response.SUCCESS.OK.CODE,
                     msg: response.SUCCESS.OK.MSG,
                     data: posts
@@ -82,56 +53,9 @@ router.post('/', async (req, res) => {
         })
     } else {
         // client is not a loggin user, then send back hot posts
-        Post.aggregate([
-            {
-                $match: {
-                    _id: { $nin: lastQueryDataIds },
-                }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'creator',
-                    foreignField: '_id',
-                    as: 'postUser'
-                }
-            },
-            {
-                $unwind: "$postUser"
-            },
-            {
-                $project: {
-                    "liked": {
-                        $in: [userId, "$likes"]
-                    },
-                    "likeCount": {
-                        $size: "$likes"
-                    },
-                    "commentCount": {
-                        $size: "$comments"
-                    },
-                    "sharedCount": {
-                        $size: "$shared"
-                    },
-                    "image": 1,
-                    "label": 1,
-                    "description": 1,
-                    "location": 1,
-                    "createdAt": 1,
-                    "creator": 1,
-                    "postUser.username": 1,
-                    "postUser.avatar": 1
-                }
-            },
-            {
-                $sort: { "likeCount": -1, "createdAt": -1, "_id": -1 }
-            },
-            {
-                $limit: limit
-            }
-        ]).exec((err, posts) => {
+        Post.getPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
             if (err) return handleError(res, err);
-            res.json({
+            return res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG,
                 data: posts
@@ -153,144 +77,22 @@ router.get('/:id', (req, res) => {
 });
 
 
-
-// TODO add verifyAuthorization
-// upload a comment
-router.put('/comment', /*verifyAuthorization,*/(req, res) => {
-    let content = req.body.content;
-    let postId = req.body.postId;
-    let commentBy = req.body.commentBy;
-    let mentioned = req.body.mentioned;
-    CommentModal.create({
-        content: content,
-        postId: postId,
-        commentBy: commentBy,
-        mentioned: mentioned
-    }).then((comment) => {
-        Post.updateOne({ _id: comment.postId }, { $addToSet: { comments: comment._id } }).exec((err, post) => {
-            if (err) return handleError(res, err);
-            res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG,
-                data: comment
-            });
-        })
-    })
-
-})
-
 // get comments
 router.post('/comment', (req, res) => {
     let postId = convertStringToObjectId(req.body.postId);
     let creatorId = convertStringToObjectId(req.body.creatorId);
     let limit = req.body.limit;
     let userId = req.body.userId;//client id, who sent the request
-    let lastComments = convertStringArrToObjectIdArr(req.body.lastComments);
-    Post.aggregate([
-        {
-            $match: {
-                _id: postId
-            }
-        },
-        {
-            $project: {
-                "creator": 1,
-                "comments": {
-                    $setDifference: ["$comments", lastComments]
-                }
-            }
-        },
-        {
-            $lookup: {
-                from: "comments",
-                localField: "comments",
-                foreignField: '_id',
-                as: "comments"
-            }
-        },
-        { $unwind: "$comments" },
-        {
-            $lookup: {
-                from: 'replies',
-                localField: 'comments.replies',
-                foreignField: '_id',
-                as: 'comments.replies'
-            }
-        },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'mentioned',
-                foreignField: '_id',
-                as: 'comments.mentioned'
-            }
-        },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'comments.commentBy',
-                foreignField: '_id',
-                as: 'comments.commentBy'
-            }
-        },
-        { $unwind: "$comments.commentBy" },
-        {
-            $project: {
-                "comments.commentByPostCreator": {
-                    $eq: ["$comments.commentBy._id", "$creator"]
-                },
-                "comments": {
-                    "_id": 1,
-                    "createdAt": 1,
-                    "content": 1,
-                    "likeCount": {
-                        $size: "$comments.likes"
-                    },
-                    "dislikeCount": {
-                        $size: "$comments.dislikes"
-                    },
-                    "replyCount": {
-                        $size: "$comments.replies"
-                    },
-                    "commentBy": {
-                        "username": 1,
-                        "avatar": 1,
-                        "_id": 1,
-                    },
-                    "mentioned": {
-                        "_id": 1,
-                        "username": 1,
-                        "avatar": 1
-                    },
-                    "liked": {
-                        $in: [userId, "$comments.likes"]
-                    },
-                    "disliked": {
-                        $in: [userId, "$comments.dislikes"]
-                    }
-                }
-            }
-        },
-        {
-            $sort: {
-                "comments.comentByPostCreator": -1,
-                "comments.likeCount": -1,
-                "comments.replyCount": -1,
-                "comments.createdAt": -1,
-                "comments._id": -1,
-            }
-        },
-        { $limit: limit },
-        { $replaceRoot: { newRoot: "$comments" } }
-    ]).exec(async (err, comments) => {
+    let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
+    Post.getAllComment(postId, lastQueryDataIds, userId, limit).exec(async (err, comments) => {
         if (err) return handleError(res, err);
         const promises = comments.map(async (comment) => {
-            let result = await CommentModal.getPostCreatorReply(comment._id, creatorId);
+            let result = await CommentModel.getPostCreatorReply(comment._id, creatorId);
             comment.replyByPostCreator = result.shift();
             return comment;
         });
         const data = await Promise.all(promises);
-        res.json({
+        return res.json({
             status: response.SUCCESS.OK.CODE,
             msg: response.SUCCESS.OK.MSG,
             data: data
@@ -298,107 +100,15 @@ router.post('/comment', (req, res) => {
     });
 })
 
-
-router.post('/comment/detail/reply', (req, res) => {
+/**
+ * get comment's all replies
+ */
+router.post('/comment/reply', (req, res) => {
     let commentId = convertStringToObjectId(req.body.commentId);
-    let creatorId = convertStringToObjectId(req.body.creatorId);
     let lastDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
     let limit = req.body.limit;
     let clientId = req.body.userId;
-    CommentModal.aggregate([
-        {
-            $match: {
-                _id: commentId
-            }
-        },
-        {
-            $project: {
-                "replies": {
-                    $setDifference: ["$replies", lastDataIds]
-                }
-            }
-        },
-        {
-            $lookup: {
-                from: "replies",
-                localField: "replies",
-                foreignField: '_id',
-                as: "replies"
-            }
-        },
-        { $unwind: "$replies" },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'replies.mentioned',
-                foreignField: '_id',
-                as: 'replies.mentioned'
-            }
-        },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'replies.from',
-                foreignField: '_id',
-                as: 'replies.from'
-            }
-        },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'replies.to',
-                foreignField: '_id',
-                as: 'replies.to'
-            }
-        },
-        { $unwind: "$replies.from" },
-        { $unwind: "$replies.to" },
-        {
-            $project: {
-                "replies": {
-                    "_id": 1,
-                    "liked": {
-                        $in: [clientId, "$replies.likes"]
-                    },
-                    "disliked": {
-                        $in: [clientId, "$replies.dislikes"]
-                    },
-                    "likeCount": {
-                        $size: "$replies.likes"
-                    },
-                    "dislikeCount": {
-                        $size: "$replies.dislikes"
-                    },
-                    "mentioned": {
-                        "username": 1,
-                        "_id": 1,
-                        "avatar": 1
-                    },
-                    "from": {
-                        "username": 1,
-                        "_id": 1,
-                        "avatar": 1
-                    },
-                    "to": {
-                        "username": 1,
-                        "_id": 1,
-                        "avatar": 1
-                    },
-                    "createdAt": 1,
-                    "content": 1
-                }
-            }
-        },
-        {
-            $sort: {
-                "likeCount": -1,
-                "createdAt": -1,
-                "_id": -1
-            }
-        },
-        { $limit: limit },
-        { $replaceRoot: { newRoot: "$replies" } }
-    ]).exec((err, replies) => {
+    CommentModel.getAllReply(commentId, lastDataIds, clientId, limit).exec((err, replies) => {
         if (err) return handleError(res, err);
         return res.json({
             status: response.SUCCESS.OK.CODE,
@@ -408,7 +118,15 @@ router.post('/comment/detail/reply', (req, res) => {
     })
 })
 
-// post a reply to the comment
+
+
+/**
+ * PUT methods for updating posts, comments and replies
+ */
+
+/**
+ * add a reply to the comment  
+ */
 router.put('/comment/reply', verifyAuthorization, (req, res) => {
     let commentId = req.body.commentId;
     let content = req.body.content;
@@ -422,11 +140,11 @@ router.put('/comment/reply', verifyAuthorization, (req, res) => {
         to: to,
         mentioned: mentioned
     }).then((reply) => {
-        CommentModal.updateOne({ _id: commentId }, {
+        CommentModel.updateOne({ _id: commentId }, {
             $addToSet: { replies: reply._id }
         }).exec((err, comment) => {
             if (err) return handleError(res, err);
-            res.json({
+            return res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG,
                 data: reply
@@ -435,12 +153,69 @@ router.put('/comment/reply', verifyAuthorization, (req, res) => {
     })
 })
 
+/**
+ * add like or dislike to a post
+ */
 router.put('/liked', verifyAuthorization, (req, res) => {
     let userId = convertStringToObjectId(req.body.userId);
     let postId = req.body.postId;
     let addLike = req.body.addLike;
     let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
-    Post.updateOne({ _id: postId }, update).exec((err, post) => {
+    Post.findOneAndUpdate({ _id: postId }, update).exec((err, post) => {
+        if (err) handleError(res, err);
+        /**
+         * if user like the post, create a message and send it to socket server for notification
+         * otherwise delete the message already stored in the database
+         */
+        let message = {
+            receiver: post.creator,
+            sender: userId,
+            messageType: 'LikePost',
+            postReference: post._id
+        }
+        if (addLike) {
+            return Message.createMessage(message, (err, msg) => {
+                if (err) return handleError(res, err);
+                if (msg) {
+                    agent.post(`${serverNodes.socketServer}/message/post/liked`).send({
+                        message: msg
+                    }).set('Accept', 'application/json').end((err) => {
+                        if (err) return handleError(res, err);
+                        return res.json({
+                            status: response.SUCCESS.OK.CODE,
+                            msg: response.SUCCESS.OK.MSG
+                        })
+                    });
+                } else {
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
+                    })
+                }
+            });
+        } else {
+            return Message.deleteOne(message).then(() => {
+                return res.json({
+                    status: response.SUCCESS.OK.CODE,
+                    msg: response.SUCCESS.OK.MSG
+                })
+            }).catch(err => {
+                return handleError(res, err);
+            })
+
+        }
+    })
+})
+
+/**
+ * add like or dislike to a comment
+ */
+router.put('/comment/liked', verifyAuthorization, (req, res) => {
+    let userId = convertStringToObjectId(req.body.userId);
+    let commentId = req.body.commentId;
+    let addLike = req.body.addLike;
+    let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
+    CommentModel.updateOne({ _id: commentId }, update).exec((err, comment) => {
         if (err) handleError(res, err);
         return res.json({
             status: response.SUCCESS.OK.CODE,
@@ -448,4 +223,23 @@ router.put('/liked', verifyAuthorization, (req, res) => {
         })
     })
 })
+
+/**
+ * add like or dislike to a reply
+ */
+router.put('/comment/reply/liked', verifyAuthorization, (req, res) => {
+    let userId = convertStringToObjectId(req.body.userId);
+    let replyId = req.body.replyId;
+    let addLike = req.body.addLike;
+    let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
+    Reply.updateOne({ _id: replyId }, update).exec((err, reply) => {
+        if (err) handleError(res, err);
+        return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+        })
+    })
+})
+
+
 module.exports = router;

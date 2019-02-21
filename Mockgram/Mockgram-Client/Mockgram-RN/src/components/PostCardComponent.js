@@ -1,15 +1,95 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { Card, CardItem, Thumbnail, Body, Left, Right } from 'native-base';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ViewMoreText from 'react-native-view-more-text';
+import Thumbnail from './Thumbnail';
 
 import { connect } from 'react-redux';
 
 import window from '../utils/getDeviceInfo';
+import { userAvatar } from '../utils/getUserInfo';
 import baseUrl from '../common/baseUrl';
 import { dateConverter, numberConverter } from '../utils/unitConverter';
 import { addClientProfilePosts, removeClientProfilePost } from '../redux/actions/profileActions';
+
+export class Card extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <View style={[styles.card, this.props.style]}>
+                {this.props.children}
+            </View>
+        )
+    }
+}
+
+export class CardItemRow extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <View style={[styles.cardItemRow, this.props.style]}>
+                {this.props.children}
+            </View>
+        );
+    }
+}
+
+export class CardItemCol extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <View style={[styles.cardItemCol, this.props.style]}>
+                {this.props.children}
+            </View>
+        );
+    }
+}
+
+export class CardBody extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <View style={[styles.cardBody, this.props.style]}>
+                {this.props.children}
+            </View>
+        );
+    }
+}
+
+export class Left extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <View style={[styles.left, this.props.style]}>
+                {this.props.children}
+            </View>
+        );
+    }
+}
+
+export class Right extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <View style={[styles.right, this.props.style]}>
+                {this.props.children}
+            </View>
+        );
+    }
+}
+
 
 
 
@@ -82,50 +162,60 @@ class PostCardComponent extends React.Component {
         const { dataSource } = this.state;
         if (dataSource.location) {
             return (
-                <Body>
+                <View style={{
+                    marginLeft: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
                     <Text style={headerStyle}>{dataSource.postUser.username}</Text>
                     <Text>{dataSource.location ? dataSource.location.city : null}</Text>
-                </Body>
+                </View>
             );
         } else {
             // if this post is for advertisement, return sponsored
             if (dataSource.ad) {
                 return (
-                    <Body>
+                    <View style={{
+                        marginLeft: 10,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
                         <Text>{`Sponsored`}</Text>
-                    </Body>
+                    </View>
                 );
             }
         }
         return (
-            <Body>
+            <View style={{
+                marginLeft: 10,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
                 <Text style={headerStyle}>{dataSource.postUser.username}</Text>
-            </Body>
+            </View>
         );
     }
 
     render() {
         const { dataSource } = this.state;
         return (
-            <Card key={dataSource._id} style={{ width: window.width, marginTop: 0, marginLeft: 0, marginRight: 0, marginBottom: 0, borderTopWidth: 0, borderBottomWidth: 0 }}>
-                <CardItem>
+            <Card key={dataSource._id}>
+                <CardItemRow>
                     <Left>
-                        <Thumbnail source={dataSource.postUser.avatar === '' ? require('../static/user.png') : {
-                            uri: dataSource.postUser.avatar
-                        }} />
+                        <Thumbnail source={dataSource.postUser.avatar} style={{ height: 40, width: 40 }} />
                         <this.renderHeader />
                     </Left>
-                    <Right>
+                    <View style={styles.right}>
                         <Icon name="md-more" style={{ fontSize: 20 }} onPress={() => {
                             this.handleMoreOptions();
                         }} />
-                    </Right>
-                </CardItem>
-                <CardItem cardBody>
+                    </View>
+                </CardItemRow>
+                <CardBody>
                     <Image source={{ uri: dataSource.image }} style={{ height: window.width, width: window.width, flex: 1 }} resizeMode='cover' />
-                </CardItem>
-                <CardItem style={{ marginTop: 10, height: 50 }}>
-                    <Left style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+                </CardBody>
+                <CardItemRow style={[styles.cardItemRow, { marginTop: 10, height: 50 }]}>
+                    <Left>
                         <View style={styles.cardLabels}>
                             <TouchableOpacity
                                 style={{
@@ -172,49 +262,45 @@ class PostCardComponent extends React.Component {
                             <Text style={{ fontSize: 12 }}>{numberConverter(dataSource.sharedCount)}</Text>
                         </View>
                     </Left>
-                </CardItem>
-                <CardItem>
-                    <Body>
-                        <View>
-                            <ViewMoreText
-                                numberOfLines={2}
-                                renderViewMore={(onPress) => {
-                                    return (
-                                        <TouchableOpacity
-                                            activeOpacity={0.8}
-                                            onPress={onPress}
-                                            style={{
-                                                marginTop: 2,
-                                                height: 15,
-                                                flexDirection: 'column',
-                                                justifyContent: 'flex-end',
-                                                alignItems: 'flex-start'
-                                            }}
-                                        >
-                                            <Text style={{ color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
-                                        </TouchableOpacity>);
+                </CardItemRow>
+                <CardItemCol style={styles.cardItemCol}>
+                    <ViewMoreText
+                        numberOfLines={2}
+                        renderViewMore={(onPress) => {
+                            return (
+                                <TouchableOpacity
+                                    activeOpacity={0.8}
+                                    onPress={onPress}
+                                    style={{
+                                        marginTop: 2,
+                                        height: 15,
+                                        flexDirection: 'column',
+                                        justifyContent: 'flex-end',
+                                        alignItems: 'flex-start'
+                                    }}
+                                >
+                                    <Text style={{ color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
+                                </TouchableOpacity>);
 
-                                }}
-                                renderViewLess={(onPress) => {
-                                    return (
-                                        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-                                            <Text style={{ color: '#4696EC' }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
-                                        </TouchableOpacity>);
-                                }}
-                            >
-                                <Text style={{ fontWeight: "bold" }}>
-                                    {dataSource.postUser.username}
-                                    <Text style={{ fontWeight: 'normal' }}>
-                                        {`  ${dataSource.description}`}
-                                    </Text>
-                                </Text>
-                            </ViewMoreText>
-                        </View>
-                        <View style={{ marginTop: 5, height: 20 }}>
-                            <Text style={{ fontSize: 12, color: 'grey' }}>{`published ${dateConverter(dataSource.createdAt)}`}</Text>
-                        </View>
-                    </Body>
-                </CardItem>
+                        }}
+                        renderViewLess={(onPress) => {
+                            return (
+                                <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+                                    <Text style={{ color: '#4696EC' }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
+                                </TouchableOpacity>);
+                        }}
+                    >
+                        <Text style={{ fontWeight: "bold" }}>
+                            {dataSource.postUser.username}
+                            <Text style={{ fontWeight: 'normal' }}>
+                                {`  ${dataSource.description}`}
+                            </Text>
+                        </Text>
+                    </ViewMoreText>
+                    <View style={{ marginTop: 5, height: 20 }}>
+                        <Text style={{ fontSize: 12, color: 'grey' }}>{`published ${dateConverter(dataSource.createdAt)}`}</Text>
+                    </View>
+                </CardItemCol>
             </Card>
         );
     }
@@ -242,5 +328,44 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center'
+    },
+    card: {
+        width: window.width,
+        marginTop: 0,
+        marginBottom: 0,
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    },
+    cardItemRow: {
+        width: '95%',
+        height: window.height * 0.08,
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'row',
+        flexWrap: 'nowrap'
+    },
+    cardItemCol: {
+        width: '95%',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start'
+    },
+    cardBody: {
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    left: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        position: 'absolute',
+        left: 0
+    },
+    right: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        position: 'absolute',
+        right: 0
     }
 });

@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Text, Button, TouchableOpacity, TextInput } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Item, Input, Label, Form } from 'native-base';
 import { SecureStore, Permissions, ImagePicker } from 'expo';
 import { connect } from 'react-redux';
 
@@ -196,20 +195,25 @@ class ProfileSetting extends React.Component {
                     />
                 }
                 <View style={styles.profile}>
-                    <Form style={{ width: window.width }}>
-                        <Item stackedLabel>
-                            <Label>nickname</Label>
-                            <Input style={{ marginLeft: 5, height: window.width * 0.2 }} placeholder={profile.nickname} value={this.state.nickname} onChangeText={text => {
-                                this.setState({ nickname: text })
-                            }} />
-                        </Item>
-                        <Item stackedLabel>
-                            <Label>bio</Label>
-                            <Input style={{ marginLeft: 5, height: window.width * 0.2 }} placeholder={profile.bio} value={this.state.bio} onChangeText={text => {
-                                this.setState({ bio: text })
-                            }} />
-                        </Item>
-                    </Form>
+                    <View style={{ width: '90%' }}>
+                        <View style={styles.itemCol}>
+                            <Text>Nickname</Text>
+                            <TextInput style={{}}
+                                placeholder={profile.nickname}
+                                value={this.state.nickname} onChangeText={text => {
+                                    this.setState({ nickname: text })
+                                }} />
+                        </View>
+                        <View style={styles.itemCol}>
+                            <Text>Bio</Text>
+                            <TextInput style={{}}
+                                placeholder={profile.bio}
+                                value={this.state.bio}
+                                onChangeText={text => {
+                                    this.setState({ bio: text })
+                                }} />
+                        </View>
+                    </View>
                     <Button style={{ marginTop: 20, color: '#eb765a', width: window.width * 0.8, heigh: window.width * 0.15 }} title='edit' onPress={() => { this.uploadProfile() }} />
                 </View>
             </View>
@@ -236,5 +240,14 @@ const styles = StyleSheet.create({
         marginTop: 30,
         width: window.width,
         alignItems: 'center'
+    },
+    itemCol: {
+        marginTop: 20,
+        height: window.height * 0.05,
+        width: '90%',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        borderBottomWidth: 1,
+        borderBottomColor: 'lightgrey'
     }
 })

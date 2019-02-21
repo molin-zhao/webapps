@@ -63,19 +63,20 @@ export default class CommentDetail extends React.Component {
                     </View>
                     <View style={styles.commentMeta}>
                         <Text style={{ fontSize: 12, color: 'grey' }}>{dateConverter(dataSource.createdAt)}</Text>
-                        <View style={{ width: '30%', height: '100%', position: 'absolute', right: 0, justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+                        <View style={{
+                            width: '30%',
+                            height: '100%',
+                            position: 'absolute',
+                            right: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexDirection: 'row'
+                        }}>
                             <TouchableOpacity
                                 activeOpacity={0.8}
                                 style={styles.commentMetaIcon}>
                                 <Icon name="ios-thumbs-up" style={{ color: dataSource.liked ? '#eb765a' : 'grey' }} />
                                 <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                activeOpacity={0.8}
-                                style={styles.commentMetaIcon}
-                            >
-                                <Icon name="ios-thumbs-down" style={{ color: dataSource.disliked ? '#eb765a' : 'grey' }} />
-                                <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.dislikeCount}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -83,6 +84,7 @@ export default class CommentDetail extends React.Component {
             </View>
         );
     }
+
     render() {
         const { navigation } = this.props;
         const dataSource = navigation.getParam('dataSource');
@@ -109,9 +111,9 @@ export default class CommentDetail extends React.Component {
                 <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
                     <DismissKeyboard>
                         <DynamicListView
-                            itemProps={{ creatorId: this.props.navigation.getParam("creatorId") }}
+                            itemProps={{ creatorId: navigation.getParam("creatorId") }}
                             request={{
-                                url: `${baseUrl.api}/post/comment/detail/reply`,
+                                url: `${baseUrl.api}/post/comment/reply`,
                                 method: 'POST',
                                 headers: {
                                     Accept: 'application/json',
@@ -124,7 +126,7 @@ export default class CommentDetail extends React.Component {
                             }}
                             renderItem={ReplyListCell}
                             footerHasMore={<BallIndicator size={20} />}
-                            footerNoMore={<Text style={{ color: 'grey' }}>No more replies</Text>}
+                            footerNoMore={<Text style={{ color: 'grey', fontSize: 12 }}>- No more replies -</Text>}
                         />
                     </DismissKeyboard>
                     <TextInputBox />
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
     },
     comment: {
         borderBottomColor: 'lightgrey',
-        borderBottomWidth: 5,
+        borderBottomWidth: 1,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center'
@@ -185,8 +187,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     commentMetaIcon: {
-        width: '30%',
-        height: '100%',
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
