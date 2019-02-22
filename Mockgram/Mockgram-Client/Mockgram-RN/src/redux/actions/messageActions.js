@@ -24,6 +24,12 @@ export const getMessage = (token) => dispatch => {
     return;
 }
 
+export const updateLastMessageId = () => {
+    return {
+        type: ActionTypes.UPDATE_LAST_MESSAGE_ID
+    }
+}
+
 export const addMessage = (messages) => ({
     type: ActionTypes.RECEIVE_MESSAGE,
     payload: messages

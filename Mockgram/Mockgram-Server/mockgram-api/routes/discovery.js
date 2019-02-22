@@ -28,7 +28,7 @@ router.get('/search/tag/:value', (req, res) => {
       {
         label: { $regex: '.*' + search + '.*' }
       }]
-  }).populate('postBy').exec((err, post) => {
+  }).populate('creator').exec((err, post) => {
     if (err) return handleError(res, err);
     res.json({
       status: response.SUCCESS.OK.CODE,
@@ -48,7 +48,7 @@ router.get('/search/place/:value', (req, res) => {
       { 'location.city': { $regex: '.*' + search + '.*' } },
       { 'location.region': { $regex: '.*' + search + '.*' } }
     ]
-  }).populate('postBy').exec((err, post) => {
+  }).populate('creator').exec((err, post) => {
     if (err) return handleError(res, err);
     res.json({
       status: response.SUCCESS.OK.CODE,

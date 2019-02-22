@@ -28,16 +28,23 @@ export default class PostListCell extends React.Component {
                     justifyContent: 'flex-start',
                     alignItems: 'center'
                 }}>
-                    <Thumbnail source={dataSource.postBy} />
                     <View style={{
+                        width: '20%',
                         justifyContent: 'center',
                         alignItems: 'center'
                     }}>
-                        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{dataSource.postBy.nickname}</Text>
+                        <Thumbnail source={dataSource.creator.avatar} style={{ height: 50, width: 50 }} />
+                    </View>
+                    <View style={{
+                        width: '80%',
+                        justifyContent: 'center',
+                        alignItems: 'flex-start'
+                    }}>
+                        <Text style={{ fontSize: 15, fontWeight: 'bold' }}>{dataSource.creator.username}</Text>
                         <Text style={{ fontSize: 13 }}>{`${dataSource.location.street}, ${dataSource.location.city}, ${dataSource.location.region}`}</Text>
                     </View>
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Image style={{ width: 50, height: 50 }} source={{ uri: dataSource.image }} />
                 </View>
             </View>

@@ -25,7 +25,7 @@ class MessageTabView extends React.Component {
                 style={{ backgroundColor: '#fff' }}
                 renderTabBar={() => <CustomTabBar tabNames={['Following', 'You']} />}
                 tabBarPosition='top'
-                initialPage={0}>
+                initialPage={1}>
                 <FollowingPage tabLabel='Following' />
                 <YouPage tabLabel='You' />
             </ScrollableTabView>

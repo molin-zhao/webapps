@@ -1,7 +1,19 @@
 import React from 'react';
 import { Image } from 'react-native';
+import PropTypes from 'prop-types';
 
 export default class Thumbnail extends React.Component {
+
+    static defaultProps = {
+        style: { width: 50, height: 50 },
+        source: ''
+    }
+
+    static propTypes = {
+        style: PropTypes.object,
+        source: PropTypes.string
+    }
+
     render() {
         const { style, source } = this.props;
         return (
@@ -9,4 +21,5 @@ export default class Thumbnail extends React.Component {
                 source={source ? { uri: source } : require('../static/user.png')} />
         );
     }
-}
+};
+

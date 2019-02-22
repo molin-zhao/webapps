@@ -7,6 +7,9 @@ import Badge from './Badge';
 
 import window from '../utils/getDeviceInfo';
 import theme from '../common/theme';
+import { getNewMessageCount } from '../utils/arrayEditor';
+import { messageCountNormalizer } from '../utils/unitConverter';
+import { updateLastMessageId } from '../redux/actions/messageActions';
 
 class CustomTabBar extends React.Component {
     constructor(props) {
@@ -18,10 +21,10 @@ class CustomTabBar extends React.Component {
     }
 
     renderBadge = (tabName) => {
-        const { message } = this.props;
+        const { message, lastMessageId } = this.props;
         if (tabName === 'You') {
             return (
-                <Badge style={{ position: 'relative' }} val={message.length} />
+                <Badge style={{ position: 'relative' }} val={messageCountNormalizer(getNewMessageCount(message, lastMessageId))} />
             );
         }
 
@@ -49,14 +52,19 @@ class CustomTabBar extends React.Component {
     }
 
     renderTabOption(tab, i) {
-        const { activeTab, tabNames } = this.props;
+        const { activeTab, tabNames, goToPage, updateLastMessageId } = this.props;
         const { activeColor, inactiveColor } = this.state;
         let color = activeTab === i ? activeColor : inactiveColor;
         let tabName = tabNames[i];
 
         return (
             <TouchableOpacity
-                onPress={() => this.props.goToPage(i)}
+                onPress={() => {
+                    if (tabName === 'You') {
+                        updateLastMessageId();
+                    }
+                    goToPage(i);
+                }}
                 key={'tab' + i}
                 style={[styles.tab]}
             >
@@ -89,7 +97,14 @@ class CustomTabBar extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        message: state.message.message
+        message: state.message.message,
+        lastMessageId: state.message.lastMessageId
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        updateLastMessageId: () => dispatch(updateLastMessageId())
     }
 }
 
@@ -100,7 +115,7 @@ CustomTabBar.propTypes = {
     tabNames: PropTypes.array,
 };
 
-export default connect(mapStateToProps, null)(CustomTabBar)
+export default connect(mapStateToProps, mapDispatchToProps)(CustomTabBar)
 
 const styles = StyleSheet.create({
     tabUnderline: {
