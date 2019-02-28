@@ -19,7 +19,7 @@ export default LoginStackNavigator = createStackNavigator({
             headerRight: (
                 <TouchableOpacity style={{ marginRight: 20 }}
                     onPress={() => {
-                        navigation.navigate('Home');
+                        navigation.dismiss();
                     }}>
                     <Icon name='times' size={24} />
                 </TouchableOpacity>
@@ -39,7 +39,7 @@ export default LoginStackNavigator = createStackNavigator({
             headerRight: (
                 <TouchableOpacity style={{ marginRight: 20 }}
                     onPress={() => {
-                        navigation.navigate('Home');
+                        navigation.dismiss();
                     }}>
                     <Icon name='times' size={24} />
                 </TouchableOpacity>
@@ -66,7 +66,7 @@ export default LoginStackNavigator = createStackNavigator({
             headerRight: (
                 <TouchableOpacity style={{ marginRight: 20 }}
                     onPress={() => {
-                        navigation.navigate('Home');
+                        navigation.dismiss();
                     }}>
                     <Icon name='times' size={24} />
                 </TouchableOpacity>

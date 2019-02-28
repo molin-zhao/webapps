@@ -98,8 +98,24 @@ class ProfilePostGridView extends React.Component {
         }
     }
 
+    normalizeData = () => {
+        const { dataSource, numColumns } = this.props;
+        const { data } = this.state;
+        let inputData = dataSource ? dataSource : data;
+        if (inputData.length > 0 && inputData.length < numColumns) {
+            while (inputData.length < numColumns) {
+                inputData.push({
+                    _id: `empty-${inputData.length}`,
+                    type: 'empty'
+                })
+            }
+            return inputData;
+        }
+        return inputData;
+    }
+
     renderPostGridView = () => {
-        const { navigation, numColumns, dataSource } = this.props;
+        const { navigation, numColumns } = this.props;
         if (this.state.loading) {
             return (<View style={styles.errorMsgView}><BallIndicator /></View>);
         } else {
@@ -108,7 +124,7 @@ class ProfilePostGridView extends React.Component {
             }
             return (
                 <FlatList
-                    data={dataSource ? dataSource : this.state.data}
+                    data={this.normalizeData()}
                     style={{ backgroundColor: '#fff', width: '100%', marginTop: 0 }}
                     renderItem={({ item }) => (
                         <PostGridViewImage dataSource={item} navigation={navigation} numColumns={numColumns} />

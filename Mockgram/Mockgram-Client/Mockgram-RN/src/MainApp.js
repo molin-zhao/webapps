@@ -17,7 +17,7 @@ import AuthIcon from './components/AuthIcon';
 import { getClientInfo } from './redux/actions/clientActions';
 import { getClientProfile } from './redux/actions/profileActions';
 import { finishAppInitialize } from './redux/actions/appActions';
-import { getMessage } from './redux/actions/messageActions';
+import { getMessage, addMessages, recallMessage } from './redux/actions/messageActions';
 import theme from './common/theme';
 
 
@@ -42,7 +42,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Post,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <AuthIcon name="md-add" color={tintColor} size={28} router={{
+                <AuthIcon name="ios-add-circle-outline" color={tintColor} size={28} router={{
                     target: 'Post',
                     auth: 'Auth'
                 }} />
@@ -131,15 +131,19 @@ class MainApp extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { client, socket, getClientProfile, getMessage } = this.props;
+        const { client, socket, getClientProfile, getMessage, addMessages, recallMessage } = this.props;
         if (prevProps.client !== client && client) {
             // client has value
             getClientProfile(client.token);
-            getMessage(client.token);
+            // getMessage(client.token);
         }
         if (prevProps.socket !== socket && socket) {
             // socket has been established
             socket.on('new-message', msg => {
+                addMessages(msg);
+            });
+            socket.on('recall-message', msg => {
+                recallMessage(msg);
             })
         }
     }
@@ -163,7 +167,9 @@ const mapDispatchToProps = dispatch => ({
     getClientInfo: () => dispatch(getClientInfo()),
     getClientProfile: (token) => dispatch(getClientProfile(token)),
     getMessage: (token) => dispatch(getMessage(token)),
-    finishAppInitialize: () => dispatch(finishAppInitialize())
+    finishAppInitialize: () => dispatch(finishAppInitialize()),
+    addMessages: (messages) => dispatch(addMessages(messages)),
+    recallMessage: (message) => dispatch(recallMessage(message))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(MainApp);

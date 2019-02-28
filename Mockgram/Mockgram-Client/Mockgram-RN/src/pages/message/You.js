@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import MessageListCell from '../../components/MessageListCell';
 
 class You extends React.Component {
+
     render() {
         const { message, navigation } = this.props;
         return (

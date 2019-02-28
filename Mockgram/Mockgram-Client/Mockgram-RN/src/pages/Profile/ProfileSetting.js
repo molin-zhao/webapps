@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, Button, TouchableOpacity, TextInput } from 'react-native';
 import { Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { SecureStore, Permissions, ImagePicker } from 'expo';
+import { SecureStore, ImagePicker } from 'expo';
 import { connect } from 'react-redux';
 
 import processImage from '../../utils/imageProcessing';
@@ -12,6 +12,7 @@ import window from '../../utils/getDeviceInfo';
 import baseUrl from '../../common/baseUrl';
 import * as LocalKeys from '../../common/localKeys';
 
+
 class ProfileSetting extends React.Component {
     constructor(props) {
         super(props);
@@ -20,7 +21,8 @@ class ProfileSetting extends React.Component {
             nickname: '',
             bio: '',
             permissionAllowed: false,
-            choosedImage: null
+            choosedImage: null,
+            bioHeight: window.height * 0.1,
         }
     }
     static navigationOptions = ({ navigation }) => ({
@@ -99,6 +101,8 @@ class ProfileSetting extends React.Component {
         }
 
     }
+
+
     removeProfileAvatar = () => {
         const { client } = this.props;
         let formData = new FormData();
@@ -155,6 +159,14 @@ class ProfileSetting extends React.Component {
         this.ActionSheet.show();
     }
 
+    updateHeight = (height) => {
+        this.setState({
+            bioHeight: height
+        })
+    }
+
+
+
     render() {
         const { profile } = this.props;
         return (
@@ -195,24 +207,30 @@ class ProfileSetting extends React.Component {
                     />
                 }
                 <View style={styles.profile}>
-                    <View style={{ width: '90%' }}>
-                        <View style={styles.itemCol}>
+                    <View style={styles.itemCol}>
+                        <View style={styles.itemLabel}>
                             <Text>Nickname</Text>
-                            <TextInput style={{}}
-                                placeholder={profile.nickname}
-                                value={this.state.nickname} onChangeText={text => {
-                                    this.setState({ nickname: text })
-                                }} />
                         </View>
-                        <View style={styles.itemCol}>
+                        <TextInput style={{ width: '100%' }}
+                            placeholder={profile.nickname}
+                            value={this.state.nickname} onChangeText={text => {
+                                this.setState({ nickname: text })
+                            }} />
+                    </View>
+                    <View style={[styles.itemCol, { height: this.state.bioHeight }]}>
+                        <View style={styles.itemLabel}>
                             <Text>Bio</Text>
-                            <TextInput style={{}}
-                                placeholder={profile.bio}
-                                value={this.state.bio}
-                                onChangeText={text => {
-                                    this.setState({ bio: text })
-                                }} />
                         </View>
+                        <TextInput
+                            style={{ width: '100%' }}
+                            editable={true}
+                            multiline={true}
+                            numberOfLines={3}
+                            placeholder={profile.bio}
+                            value={this.state.bio}
+                            onChangeText={text => {
+                                this.setState({ bio: text })
+                            }} />
                     </View>
                     <Button style={{ marginTop: 20, color: '#eb765a', width: window.width * 0.8, heigh: window.width * 0.15 }} title='edit' onPress={() => { this.uploadProfile() }} />
                 </View>
@@ -239,15 +257,21 @@ const styles = StyleSheet.create({
     profile: {
         marginTop: 30,
         width: window.width,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     itemCol: {
         marginTop: 20,
-        height: window.height * 0.05,
-        width: '90%',
+        height: window.height * 0.08,
+        width: '80%',
         alignItems: 'flex-start',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-start',
         borderBottomWidth: 1,
         borderBottomColor: 'lightgrey'
+    },
+    itemLabel: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        height: window.height * 0.03
     }
 })

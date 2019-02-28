@@ -1,30 +1,46 @@
 import React from 'react';
-import { Text, View, StyleSheet, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SearchBar } from 'react-native-elements';
+import { connect } from 'react-redux';
+
 import ListCell from '../../components/ListCell';
+import DismissKeyboad from '../../components/DismissKeyboard';
 import baseUrl from '../../common/baseUrl';
 
+import theme from '../../common/theme';
+import config from '../../common/config';
+import window from '../../utils/getDeviceInfo';
+import { parseIdFromObjectArray } from '../../utils/idParser';
 
 
 
-export default class Discovery extends React.Component {
+
+class Discovery extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            /**
+             * different categories of result array
+             * holding search and suggest results
+             */
             peopleSuggestResult: [],
             peopleSearchResult: [],
             tagSuggestResult: [],
             tagSearchResult: [],
             placeSuggestResult: [],
             placeSearchResult: [],
+
             isSearching: false,
             searchValue: '',
             typing: false,
             searchBarInput: '',
             timer: null,
             activeIndex: 0, // by default the first tab
-            activeColor: '#eb765a',
-            inactiveColor: 'black'
+            activeColor: theme.primaryColor,
+            inactiveColor: 'black',
+
+            loadingMore: false,
+            hasMore: true
         }
     }
 
@@ -33,6 +49,7 @@ export default class Discovery extends React.Component {
             container: this
         });
     }
+
     static navigationOptions = ({ navigation }) => ({
         headerTitle: <SearchBar
             onChangeText={(text) => {
@@ -68,39 +85,56 @@ export default class Discovery extends React.Component {
             round
             lightTheme
             icon={{ type: 'font-awesome', name: 'search' }}
-            containerStyle={{ borderBottomWidth: 0, borderTopWidth: 0, backgroundColor: 'white', width: windowWidth }}
+            containerStyle={{ borderBottomWidth: 0, borderTopWidth: 0, backgroundColor: 'white', width: window.width }}
             inputStyle={{ backgroundColor: 'white', borderWidth: 1, borderColor: 'lightgrey' }}
         />
     });
 
     startSearch = () => {
+        const { client } = this.props;
         this.setState({
             isSearching: true
         })
         let category = '';
+        let lastQueryData = []
         if (this.state.activeIndex === 0) {
             category = 'people';
+            lastQueryData = this.state.peopleSearchResult;
         } else if (this.state.activeIndex === 1) {
             category = 'tag';
+            lastQueryData = this.state.tagSearchResult;
         } else {
             category = 'place';
+            lastQueryData = this.state.placeSearchResult;
         }
-        let url = `${baseUrl.api}/discovery/search/${category}/${this.state.searchValue}`;
-        fetch(url).then(res => res.json()).then(res => {
+        let url = `${baseUrl.api}/discovery/search/${category}`;
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                limit: config.searchReturnLimit,
+                userId: client ? client.user._id : null,
+                lastQueryDataIds: (this.state.loading || this.state.refreshing) ? [] : parseIdFromObjectArray(lastQueryData),
+                searchValue: this.state.searchValue
+            })
+        }).then(res => res.json()).then(res => {
             console.log(res);
             if (category === 'people') {
                 this.setState({
-                    peopleSearchResult: res.data,
+                    peopleSearchResult: this.state.loadingMore ? lastQueryData.concat(res.data) : res.data,
                     isSearching: false
                 });
             } else if (category === 'tag') {
                 this.setState({
-                    tagSearchResult: res.data,
+                    tagSearchResult: this.state.loadingMore ? lastQueryData.concat(res.data) : res.data,
                     isSearching: false
                 })
             } else {
                 this.setState({
-                    placeSearchResult: res.data,
+                    placeSearchResult: this.state.loadingMore ? lastQueryData.concat(res.data) : res.data,
                     isSearching: false
                 })
             }
@@ -158,26 +192,34 @@ export default class Discovery extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <View style={styles.tabBarTop}>
-                    <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(0)}>
-                        <Text style={{ fontSize: 15, color: this.activeStyle(0) }}>People</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(1)}>
-                        <Text style={{ fontSize: 15, color: this.activeStyle(1) }}>Tag</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(2)}>
-                        <Text style={{ fontSize: 15, color: this.activeStyle(2) }}>Place</Text>
-                    </TouchableOpacity>
+            <DismissKeyboad>
+                <View style={styles.container}>
+                    <View style={styles.tabBarTop}>
+                        <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(0)}>
+                            <Text style={{ fontSize: 15, color: this.activeStyle(0) }}>People</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(1)}>
+                            <Text style={{ fontSize: 15, color: this.activeStyle(1) }}>Tag</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(2)}>
+                            <Text style={{ fontSize: 15, color: this.activeStyle(2) }}>Place</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.tabView}>
+                        <this.renderSection />
+                    </View>
                 </View>
-                <View style={styles.tabView}>
-                    <this.renderSection />
-                </View>
-            </View>
+            </DismissKeyboad>
         );
     }
 }
-const windowWidth = Dimensions.get('window').width;
+
+const mapStateToProps = state => ({
+    client: state.client.client
+})
+
+export default connect(mapStateToProps, null)(Discovery);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -188,8 +230,8 @@ const styles = StyleSheet.create({
     tabBarTop: {
         flexDirection: 'row',
         flexWrap: 'nowrap',
-        height: windowWidth * 0.15,
-        width: windowWidth,
+        height: window.width * 0.15,
+        width: window.width,
         borderBottomColor: 'lightgrey',
         borderBottomWidth: 0.5,
         justifyContent: 'space-between'
@@ -205,7 +247,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        width: windowWidth,
+        width: window.width,
         marginTop: 0,
     }
 });

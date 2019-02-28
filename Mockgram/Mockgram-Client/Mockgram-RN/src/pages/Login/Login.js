@@ -19,7 +19,7 @@ class Login extends React.Component {
         }
     }
 
-    componentWillMount() {
+    componentDidMount() {
         SecureStore.getItemAsync(LocalKeys.LOGIN_CREDENTIALS).then((data) => {
             let creds = JSON.parse(data);
             if (creds) {
@@ -44,7 +44,7 @@ class Login extends React.Component {
 
 
     handleLogin = async () => {
-        const { navigation } = this.props;
+        const { navigation, clientLogin } = this.props;
         let loginForm = {
             loginName: this.state.loginName,
             loginPassword: this.state.loginPassword,
@@ -62,7 +62,7 @@ class Login extends React.Component {
             });
         }
         // client login and set client info into local storage after modifying state
-        this.props.clientLogin(loginForm).then((clientInfo) => {
+        clientLogin(loginForm).then(clientInfo => {
             SecureStore.setItemAsync(LocalKeys.CLIENT_INFO, JSON.stringify(clientInfo)).then(() => {
                 navigation.dismiss();
             })
@@ -78,7 +78,7 @@ class Login extends React.Component {
                 <View style={styles.formInput}>
                     <Icon name='user' size={20} />
                     <TextInput
-                        style={{ marginLeft: 10, fontSize: 14 }}
+                        style={{ marginLeft: 10, fontSize: 14, width: '80%' }}
                         placeholder='Email or username'
                         onChangeText={(value) => this.setState({ loginName: value })}
                         value={this.state.loginName} />
@@ -86,7 +86,7 @@ class Login extends React.Component {
                 <View style={styles.formInput}>
                     <Icon name='unlock-alt' size={20} />
                     <TextInput
-                        style={{ marginLeft: 10, fontSize: 14 }}
+                        style={{ marginLeft: 10, fontSize: 14, width: '80%' }}
                         placeholder='Password'
                         onChangeText={(password) => this.setState({ loginPassword: password })}
                         secureTextEntry={true}

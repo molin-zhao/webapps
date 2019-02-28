@@ -165,7 +165,7 @@ User.statics.login = function (criteria, req, res) {
     })
 }
 
-User.statics.getUserProfile = function (userId, notMyProfile) {
+User.statics.getUserProfile = function (userId, clientId = null) {
     // if a user request a personal account, return privacy settings, second param will be true
     return this.aggregate([
         {
@@ -190,14 +190,56 @@ User.statics.getUserProfile = function (userId, notMyProfile) {
                 },
                 "privacy": {
                     $cond: {
-                        if: notMyProfile,
-                        then: "$$REMOVE",
-                        else: "$privacy"
+                        if: { $eq: [userId, clientId] },
+                        then: "$privacy",
+                        else: "$$REMOVE"
                     }
+                },
+                "followed": {
+                    $in: [clientId, "$followers"]
                 }
             }
         }
     ]);
+}
+
+User.statics.searchUser = function (searchValue, userId, limit) {
+    return this.aggregate([
+        {
+            $match: {
+                $or: [
+                    { username: { $regex: '.*' + searchValue + '.*' } },
+                    { nickname: { $regex: '.*' + searchValue + '.*' } }
+                ]
+            }
+        },
+        {
+            $project: {
+                '_id': 1,
+                'avatar': 1,
+                'bio': 1,
+                'username': 1,
+                'nickname': 1,
+                'followed': {
+                    $in: [userId, "$followers"]
+                },
+                'followerCount': {
+                    $size: '$followers'
+                }
+
+            }
+        },
+        {
+            $limit: limit
+        },
+        {
+            $sort: {
+                'follwerCount': -1,
+                'createdAt': -1,
+                '_id': -1
+            }
+        }
+    ])
 }
 
 module.exports = mongoose.model('User', User);

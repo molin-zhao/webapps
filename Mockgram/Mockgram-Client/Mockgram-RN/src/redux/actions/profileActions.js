@@ -25,7 +25,6 @@ export const getClientProfile = (token) => (dispatch) => {
 
 export const getClientProfilePosts = (caller, dataSource, userId, type, limit) => dispatch => {
     const url = `${baseUrl.api}/profile/post`;
-    console.log(`fetching data from ${url}`);
     let lastData = dataSource == null ? caller.state.data : dataSource;
     return fetch(url, {
         method: 'POST',

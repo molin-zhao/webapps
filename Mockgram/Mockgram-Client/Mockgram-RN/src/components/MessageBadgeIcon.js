@@ -16,10 +16,10 @@ class MessageBadgeIcon extends React.Component {
 
     render() {
         const { color, size, name, auth, navigation, router, client, message, lastMessageId, updateLastMessageId } = this.props;
-        // console.log(messageCountNormalizer(getNewMessageCount(message, lastMessageId)));
+        let badgeCount = messageCountNormalizer(getNewMessageCount(message, lastMessageId));
         return (
             <View style={styles.container}>
-                <Badge val={messageCountNormalizer(getNewMessageCount(message, lastMessageId))} />
+                <Badge val={badgeCount} />
                 <Icon name={name} color={color} size={size} onPress={() => {
                     if (auth && !client) {
                         navigation.navigate(router.auth);
@@ -33,7 +33,7 @@ class MessageBadgeIcon extends React.Component {
     }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
     return {
         client: state.client.client,
         message: state.message.message,

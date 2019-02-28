@@ -6,11 +6,29 @@ import window from '../utils/getDeviceInfo';
 export default class PostGridViewImage extends React.Component {
 
 
-    render() {
-        const { numColumns, navigation, dataSource } = this.props;
+    renderImage = () => {
+        const { dataSource } = this.props;
+        if (dataSource.type === 'empty') {
+            return null;
+        }
         return (
-            <View style={{ width: window.width / numColumns, height: window.width / numColumns, justifyContent: 'center', alignItems: 'center' }}>
-                <Image source={{ uri: dataSource.image }} style={{ width: '95%', height: '95%' }} />
+            <Image
+                source={{ uri: dataSource.image }}
+                style={{ width: '95%', height: '95%' }} />
+        );
+    }
+
+
+    render() {
+        const { numColumns, navigation } = this.props;
+        return (
+            <View style={{
+                width: window.width / numColumns,
+                height: window.width / numColumns,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                {this.renderImage()}
             </View>
         );
     }

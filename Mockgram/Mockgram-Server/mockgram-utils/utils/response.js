@@ -64,13 +64,9 @@ const ERROR = {
         CODE: 406,
         MSG: "File type is not acceptable."
     },
-    EMAIL_ADDRESS_EXISTS: {
+    EMAIL_ADDRESS_OR_USERNAME_EXISTS: {
         CODE: 400,
-        MSG: "Email address already registered."
-    },
-    USER_NAME_EXISTS: {
-        CODE: 400,
-        MSG: "Username already registered."
+        MSG: "Email address or username already registered."
     },
     USER_PASSWORD_INCORRECT: {
         CODE: 400,

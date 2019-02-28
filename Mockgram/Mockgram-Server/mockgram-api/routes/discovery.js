@@ -5,23 +5,30 @@ const User = require('../../mockgram-utils/models/user');
 const Post = require('../../mockgram-utils/models/post').Post;
 const handleError = require('../../mockgram-utils/utils/handleError').handleError;
 const response = require('../../mockgram-utils/utils/response');
+const { convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
 
 // var celebrity = FindCelebrity();
 
-router.get('/search/people/:value', (req, res) => {
-  let search = req.params.value;
-  User.find({ $or: [{ username: { $regex: '.*' + search + '.*' } }, { nickname: { $regex: '.*' + search + '.*' } }] }, { password: 0 }, (err, user) => {
-    if (err) return handleError(res, err);
+router.post('/search/people', (req, res) => {
+  let search = req.body.searchValue;
+  let userId = convertStringToObjectId(req.body.userId);
+  let limit = req.body.limit;
+  console.log(req.body);
+  User.searchUser(search, userId, limit).then(user => {
+    console.log(user);
     res.json({
       status: response.SUCCESS.OK.CODE,
       msg: response.SUCCESS.OK.MSG,
       data: user
     })
+  }).catch(err => {
+    return handleError(res, err);
   })
 })
 
-router.get('/search/tag/:value', (req, res) => {
-  let search = req.params.value;
+router.post('/search/tag', (req, res) => {
+  let search = req.body.searchValue;
+  let limit = req.body.limit;
   Post.find({
     $or: [
       { description: { $regex: '.*' + search + '.*' } },
@@ -39,8 +46,9 @@ router.get('/search/tag/:value', (req, res) => {
 
 })
 
-router.get('/search/place/:value', (req, res) => {
-  let search = req.params.value;
+router.post('/search/place', (req, res) => {
+  let search = req.body.searchValue;
+  let limit = req.body.limit;
   Post.find({
     $or: [
       { 'location.name': { $regex: '.*' + search + '.*' } },
@@ -59,7 +67,7 @@ router.get('/search/place/:value', (req, res) => {
 
 })
 
-router.get('/suggest/people/:id', (req, res) => {
+router.post('/suggest/people/:id', (req, res) => {
   var userId = req.params.id;
   User.find({ user: userId }, function (err, friends) {
     if (err) {

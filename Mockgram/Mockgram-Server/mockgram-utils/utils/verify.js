@@ -12,7 +12,6 @@ exports.verifyAuthorization = function (req, res, next) {
         return decodeToken(token, (err, decoded) => {
             if (err) return handleError(res, err.message);
             req.user = decoded;
-            console.log(req.user);
             next();
         })
     } else {

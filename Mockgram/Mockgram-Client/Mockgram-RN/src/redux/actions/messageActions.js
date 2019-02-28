@@ -30,12 +30,18 @@ export const updateLastMessageId = () => {
     }
 }
 
-export const addMessage = (messages) => ({
+export const addMessages = (messages) => ({
     type: ActionTypes.RECEIVE_MESSAGE,
     payload: messages
 })
 
+
 export const addMessageFailed = (err) => ({
     type: ActionTypes.MESSAGE_ERROR,
     payload: err
+})
+
+export const recallMessage = (message) => ({
+    type: ActionTypes.RECALL_MESSAGE,
+    payload: message
 })

@@ -156,6 +156,7 @@ class MessageListCell extends React.Component {
                             alignItems: 'flex-start'
                         }}>
                             <Text style={{ fontWeight: 'bold' }}>{sender.username}</Text>
+                            <Text>{'started following you'}</Text>
                             {this.renderDate(createdAt)}
                         </View>
                     </View>

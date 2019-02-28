@@ -177,7 +177,7 @@ router.put('/liked', verifyAuthorization, (req, res) => {
             return Message.createMessage(message, (err, msg) => {
                 if (err) return handleError(res, err);
                 if (msg) {
-                    agent.post(`${serverNodes.socketServer}/message/post/liked`).send({
+                    agent.post(`${serverNodes.socketServer}/message/push`).send({
                         message: msg
                     }).set('Accept', 'application/json').end((err) => {
                         if (err) return handleError(res, err);
@@ -194,15 +194,25 @@ router.put('/liked', verifyAuthorization, (req, res) => {
                 }
             });
         } else {
-            return Message.deleteOne(message).then(() => {
-                return res.json({
-                    status: response.SUCCESS.OK.CODE,
-                    msg: response.SUCCESS.OK.MSG
-                })
-            }).catch(err => {
-                return handleError(res, err);
+            return Message.deleteMessage(message, (err, msg) => {
+                if (err) return handleError(res, err);
+                if (msg) {
+                    agent.post(`${serverNodes.socketServer}/message/recall`).send({
+                        message: msg
+                    }).set('Accept', 'application/json').end(err => {
+                        if (err) return handleError(res, err);
+                        return res.json({
+                            status: response.SUCCESS.OK.CODE,
+                            msg: response.SUCCESS.OK.MSG
+                        })
+                    })
+                } else {
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
+                    })
+                }
             })
-
         }
     })
 })

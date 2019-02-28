@@ -12,13 +12,16 @@ export const removeItemFromArrayWithItemId = (originalArr, id) => {
 }
 
 export const getNewMessageCount = (messages, lastMessageId) => {
-    let count = 0;
-    for (let i = 0; i < messages.length; i++) {
-        if (messages[i]._id === lastMessageId) {
-            break;
+    if (messages && messages.length > 0) {
+        let count = 0;
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i]._id === lastMessageId) {
+                break;
+            }
+            count++;
         }
-        count++;
-    }
 
-    return count;
+        return count;
+    }
+    return 0;
 }

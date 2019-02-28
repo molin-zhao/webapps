@@ -5,7 +5,7 @@ import * as LocalKeys from '../../common/localKeys';
 import baseUrl from '../../common/baseUrl';
 import { createSocket } from '../../utils/socket';
 
-export const clientLogin = (loginForm) => (dispatch) => {
+export const clientLogin = loginForm => (dispatch) => {
     return fetch(`${baseUrl.api}/user/login`, {
         method: 'POST',
         headers: {

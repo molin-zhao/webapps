@@ -10,32 +10,35 @@ const { convertStringToObjectId, convertStringArrToObjectIdArr, arrSeparateByDat
 // get personal user profile with provided token
 router.get('/', verify.verifyAuthorization, (req, res) => {
     let clientId = convertStringToObjectId(req.user._id);
-    let queryOtherUserProfle = false;
-    User.getUserProfile(clientId, queryOtherUserProfle).exec(async (err, user) => {
-        if (err) return handleError(res, err);
+    User.getUserProfile(clientId, clientId).then(async user => {
+        let userProfile = user.shift();
         let postCount = await Post.getUserPostCount(clientId);
-        user[0].postCount = postCount;
+        userProfile.postCount = postCount;
         res.json({
             status: response.SUCCESS.OK.CODE,
             msg: response.SUCCESS.OK.MSG,
-            data: user[0]
+            data: userProfile
         })
+    }).catch(err => {
+        return handleError(res, err);
     })
 });
 
-// get a user profile info using a certain user id
-router.get('/:id', (req, res) => {
-    let userId = convertStringToObjectId(req.params.id);
-    let queryOtherUserProfle = true;
-    User.getUserProfile(userId, queryOtherUserProfle).exec(async (err, user) => {
-        if (err) return handleError(res, err);
+// get a user profile info with certain user id
+router.post('/', (req, res) => {
+    let userId = convertStringToObjectId(req.body.userId);
+    let clientId = convertStringToObjectId(req.body.clientId);
+    User.getUserProfile(userId, clientId).then(async user => {
+        let userProfile = user.shift();
         let postCount = await Post.getUserPostCount(userId);
-        user[0].postCount = postCount;
+        userProfile.postCount = postCount;
         res.json({
             status: response.SUCCESS.OK.CODE,
             msg: response.SUCCESS.OK.MSG,
-            data: user[0]
+            data: userProfile
         })
+    }).catch(err => {
+        return handleError(res, err);
     })
 });
 
@@ -45,42 +48,16 @@ router.post('/post', (req, res) => {
     let lastItem = req.body.lastQueryDataLastItem;
     let limit = req.body.limit;
     let type = req.body.type;
-    if (type === 'LIKED') {
-        Post.getUserLikedPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
-            if (err) return handleError(res, err);
-            let result = arrSeparatorByDate(lastItem, posts);
-            res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG,
-                data: result
-            })
-        })
-    } else if (type === 'CREATED') {
-        Post.getUserCreatedPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
-            if (err) return handleError(res, err);
-            let result = arrSeparateByDate(lastItem, posts);
-            res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG,
-                data: result
-            })
-        })
-    } else if (type === 'MENTIONED') {
-        Post.getUserMentionedPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
-            if (err) return handleError(res, err);
-            let result = arrSeparateByDate(lastItem, posts);
-            res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG,
-                data: result
-            })
-        })
-    } else {
+    Post.getUserPosts(userId, lastQueryDataIds, limit, type).then(posts => {
+        let result = arrSeparateByDate(lastItem, posts);
         res.json({
-            status: response.ERROR.NOT_FOUND.CODE,
-            msg: response.ERROR.NOT_FOUND.MSG
-        });
-    }
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: result
+        })
+    }).catch(err => {
+        return handleError(res, err);
+    })
 })
 
 module.exports = router;

@@ -142,7 +142,7 @@ MessageSchema.statics.createMessage = function (message, callback) {
                     }
                 ])
                     .then(msg => {
-                        return callback(null, msg.shift());
+                        return callback(null, msg);
                     })
                     .catch(err => {
                         return callback(err, null);
@@ -152,6 +152,24 @@ MessageSchema.statics.createMessage = function (message, callback) {
             })
         }
         return callback(null, null);
+    })
+}
+
+MessageSchema.statics.deleteMessage = function (message, callback) {
+    return this.findOne(message).then(msg => {
+        if (msg) {
+            return this.deleteOne(message).then(result => {
+                if (result.n && result.ok) {
+                    return callback(null, msg);
+                }
+                return callback(null, null);
+
+            }).catch(err => {
+                return callback(err, null)
+            })
+        }
+    }).catch(err => {
+        return callback(err, null);
     })
 }
 

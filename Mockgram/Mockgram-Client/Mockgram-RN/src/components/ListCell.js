@@ -10,7 +10,7 @@ export default class ListCell extends React.Component {
     }
 
     render() {
-        const { dataSource, resultType, type, ...props } = this.props;
+        const { dataSource, resultType, type } = this.props;
         if (dataSource.length === 0 && resultType === 'search') {
             return (<View style={{ marginTop: 10, width: window.width }}>
                 <Text style={{ marginLeft: 20, fontSize: 13, color: 'lightgrey' }}>No account found.</Text>

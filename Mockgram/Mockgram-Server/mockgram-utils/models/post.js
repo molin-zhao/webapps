@@ -216,13 +216,22 @@ PostSchema.statics.getUserPostCount = function (userId) {
 	return this.countDocuments({ creator: userId });
 }
 
-PostSchema.statics.getUserCreatedPosts = function (userId, lastQueryDataIds, limit) {
+PostSchema.statics.getUserPosts = function (userId, lastQueryDataIds, limit, type) {
+	let criteria = {
+		_id: { $nin: lastQueryDataIds }
+	};
+	if (type === 'LIKED') {
+		criteria.likes = userId;
+	} else if (type === 'CREATED') {
+		criteria.creator = userId;
+	} else {
+		// 'MENTIONED'
+		criteria.mentioned = userId
+	}
+
 	return this.aggregate([
 		{
-			$match: {
-				_id: { $nin: lastQueryDataIds },
-				creator: userId
-			}
+			$match: criteria
 		},
 		{
 			$project: {
@@ -239,62 +248,8 @@ PostSchema.statics.getUserCreatedPosts = function (userId, lastQueryDataIds, lim
 		},
 		{
 			$limit: limit
-		},
+		}
 	])
-}
-
-PostSchema.statics.getUserLikedPosts = function (userId, lastQueryDataIds, limit) {
-	return this.aggregate([
-		{
-			$match: {
-				_id: { $nin: lastQueryDataIds },
-				likes: userId
-			}
-		},
-		{
-			$project: {
-				"_id": 1,
-				"image": 1,
-				"likeCount": {
-					$size: "$likes"
-				},
-				"createdAt": 1
-			}
-		},
-		{
-			$sort: { "createdAt": -1, "_id": -1 }
-		},
-		{
-			$limit: limit
-		},
-	]);
-}
-
-PostSchema.statics.getUserMentionedPosts = function (userId, lastQueryDataIds, limit) {
-	return this.aggregate([
-		{
-			$match: {
-				_id: { $nin: lastQueryDataIds },
-				mentioned: userId
-			}
-		},
-		{
-			$project: {
-				"_id": 1,
-				"image": 1,
-				"likeCount": {
-					$size: "$likes"
-				},
-				"createdAt": 1
-			}
-		},
-		{
-			$sort: { "createdAt": -1, "_id": -1 }
-		},
-		{
-			$limit: limit
-		},
-	]);
 }
 
 PostSchema.statics.getAllComment = function (postId, lastComments, userId, limit) {
