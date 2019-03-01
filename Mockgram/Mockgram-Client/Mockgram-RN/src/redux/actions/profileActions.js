@@ -20,12 +20,17 @@ export const getClientProfile = (token) => (dispatch) => {
             dispatch(addClientProfileFailed(errMsg));
             return Promise.reject(errMsg);
         }
+    }).catch(err => {
+        dispatch(addClientProfileFailed(err));
+        return Promise.reject(err);
     })
 }
 
 export const getClientProfilePosts = (caller, dataSource, userId, type, limit) => dispatch => {
     const url = `${baseUrl.api}/profile/post`;
-    let lastData = dataSource == null ? caller.state.data : dataSource;
+    let lastData = dataSource ? dataSource : caller.state.data;
+    let lqDataIds = caller.state.loadingMore ? parseIdFromObjectArray(lastData) : [];
+    let lqDataLastItem = caller.state.loadingMore ? lastData.slice(-1) : null;
     return fetch(url, {
         method: 'POST',
         headers: {
@@ -35,11 +40,15 @@ export const getClientProfilePosts = (caller, dataSource, userId, type, limit) =
         body: JSON.stringify({
             limit: limit,
             userId: userId,
-            lastQueryDataIds: parseIdFromObjectArray(lastData),
+            lastQueryDataIds: lqDataIds,
             type: type,
-            lastQueryDataLastItem: lastData.slice(-1),
+            lastQueryDataLastItem: lqDataLastItem,
         })
     }).then(res => res.json()).then(res => {
+        /**
+         * if dataSource exists, use dataSource from props
+         * else use dataSource from component state itself
+         */
         if (dataSource) {
             if (caller.state.loadingMore) {
                 dispatch(addClientProfilePosts(type, res.data));
@@ -49,19 +58,25 @@ export const getClientProfilePosts = (caller, dataSource, userId, type, limit) =
         } else {
             caller.setState({
                 data: caller.state.loadingMore === true ? res.data.new.concat(caller.state.data).concat(res.data.old) : res.data.old,
-            })
+            });
         }
         caller.setState({
             // data only appended when loading more, else refresh data
             error: res.status === 200 ? null : res.msg,
-            hasMore: res.data.length < limit ? false : true,
+            hasMore: res.data.length < limit ? false : true
+        });
+    }).then(() => {
+        caller.setState({
             loading: false,
             refreshing: false,
-            loadingMore: false,
+            loadingMore: false
         });
     }).catch(err => {
-        console.log(err);
-        caller.setState({ error: "some err", loading: false, refreshing: false, loadingMore: false });
+        caller.setState({
+            error: err,
+        }, () => {
+            console.log(err)
+        });
     })
 }
 

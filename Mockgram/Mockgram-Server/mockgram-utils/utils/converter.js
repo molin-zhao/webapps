@@ -16,7 +16,7 @@ exports.convertStringToObjectId = (inputString) => {
 }
 
 exports.arrSeparateByDate = (inputFlagItem, inputItemArr) => {
-    if (inputFlagItem == null) {
+    if (!inputFlagItem) {
         return {
             new: [],
             old: inputItemArr,

@@ -167,25 +167,31 @@ export default class PostPreview extends React.Component {
                             this.setState({ description: text });
                         }} />
                 </View>
-                <View>
-                    <TextInput placeholder='label' value={this.state.label} onChangeText={text => {
-                        this.setState({ label: text })
-                    }} />
+                <View style={styles.item}>
+                    <TextInput
+                        placeholder='label'
+                        value={this.state.label}
+                        onChangeText={text => {
+                            this.setState({ label: text })
+                        }} />
                 </View>
                 <TouchableOpacity
+                    style={styles.item}
                     activeOpacity={1}
                     onPress={() => {
                         console.log('tag you friends');
                     }}>
-                    <Input disabled placeholder='Tag your friends' />
+                    <Text>Tag Your friends</Text>
                     <Icon name='arrow-right' size={15} style={{ marginRight: 10 }} />
                 </TouchableOpacity>
-                <View style={{ height: 50, width: window.width, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomColor: 'lightgrey', borderBottomWidth: 0.5 }}>
-                    <Switch style={{ marginLeft: 10, height: 20 }} value={this.state.switchValue}
-                        onValueChange={value => {
-                            this.getLocationAsync(value);
-                        }} />
-                    <Text style={{ fontSize: 18, marginRight: 10 }}>
+                <View style={styles.item}>
+                    <View style={{ width: '10%', height: '70%', justifyContent: 'center', alignItems: 'center' }}>
+                        <Switch style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }} value={this.state.switchValue}
+                            onValueChange={value => {
+                                this.getLocationAsync(value);
+                            }} />
+                    </View>
+                    <Text style={{ fontSize: 18 }}>
                         {this.state.switchValue && this.state.location ? this.state.location.city : 'add a place'}
                     </Text>
                 </View>
@@ -205,8 +211,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         height: window.width * 0.3,
-        width: window.width,
+        width: '95%',
         borderBottomWidth: 1,
         borderBottomColor: 'lightgrey'
+    },
+    item: {
+        marginTop: 10,
+        height: window.height * 0.05,
+        width: '95%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomColor: 'lightgrey',
+        borderBottomWidth: 0.5
     }
 });

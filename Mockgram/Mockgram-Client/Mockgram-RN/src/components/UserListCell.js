@@ -3,6 +3,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { connect } from 'react-redux';
 import ActionSheet from 'react-native-actionsheet';
 import { withNavigation } from 'react-navigation';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import Button from './Button';
 import Thumbnail from './Thumbnail';
@@ -15,7 +16,8 @@ class UserListCell extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: false
+            loading: false,
+            dataSource: this.props.dataSource
         }
 
     }
@@ -25,7 +27,8 @@ class UserListCell extends React.Component {
     }
 
     followAction = (type) => {
-        let { dataSource, client, navigation } = this.props;
+        const { client, navigation } = this.props;
+        const { dataSource } = this.state;
         if (client && client.token) {
             this.setState({
                 loading: true
@@ -41,13 +44,16 @@ class UserListCell extends React.Component {
                         followingId: dataSource._id,
                         type: type
                     })
-                }).then(res => res.json).then(resJson => {
+                }).then(res => res.json()).then(resJson => {
                     this.setState({
                         loading: false
                     }, () => {
                         console.log(resJson);
                         if (resJson.status === 200) {
                             dataSource.followed = !dataSource.followed
+                            this.setState({
+                                dataSource: dataSource
+                            })
                         }
                     })
                 }).catch(err => {
@@ -62,31 +68,35 @@ class UserListCell extends React.Component {
         }
     }
 
-    renderButton = (dataSource) => {
+    renderButton = () => {
         const { client } = this.props;
-        const { _id, followed } = dataSource;
-        if (client && client.user._id === _id) {
+        const { dataSource } = this.state;
+        if (client && client.user._id === dataSource._id) {
             return null
         }
         let followStyle = {
-            width: 85,
-            height: 35,
             backgroundColor: theme.primaryColor
         };
         let followingStyle = {
-            width: 85,
-            height: 35,
             backgroundColor: 'lightgrey',
             borderColor: 'black'
         }
         return (
             <Button
-                containerStyle={followed ? followingStyle : followStyle}
+                containerStyle={[{ width: 90, height: 40 }, dataSource.followed ? followingStyle : followStyle]}
                 loading={this.state.loading}
-                titleStyle={{ fontSize: 14, color: followed ? 'black' : '#fff' }}
-                title={followed ? 'following' : 'follow'}
+                titleStyle={[{ fontSize: 14, color: '#fff' }]}
+                iconRight={() => {
+                    if (dataSource.followed) {
+                        return (
+                            <Icon name='md-checkmark' color='#fff' size={18} />
+                        );
+                    }
+                    return null;
+                }}
+                title={dataSource.followed ? 'following' : 'follow'}
                 onPress={() => {
-                    followed ? this.showActionSheet() : this.followAction('Follow')
+                    dataSource.followed ? this.showActionSheet() : this.followAction('Follow')
                 }} />
         );
 
@@ -131,7 +141,7 @@ class UserListCell extends React.Component {
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                    {this.renderButton(dataSource)}
+                    {this.renderButton()}
                 </View>
                 <ActionSheet
                     ref={o => this.ActionSheet = o}

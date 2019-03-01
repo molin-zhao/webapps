@@ -31,18 +31,25 @@ class ProfileTabView extends React.Component {
     }
 
     renderSection = () => {
-        const { userId, navigation, numColumns, clientUpdate, created, liked, mentioned } = this.props;
-        if (userId == null || userId === '') {
+        const { userId, refreshing,numColumns, clientUpdate, created, liked, mentioned } = this.props;
+        if (!userId) {
             return (
-                <Text>no user id provide</Text>
+                <View style={{
+                    height: window.height * 0.3,
+                    width: '100%',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={{ fontSize: 12, fontWeight: 'bold' }}>no user id provide</Text>
+                </View>
             );
         } else {
             if (this.state.activeIndex === 0) {
-                return <Posts type="CREATED" userId={userId} dataSource={clientUpdate ? created : null} navigation={navigation} numColumns={numColumns} />
+                return <Posts type="CREATED" userId={userId} refreshing={refreshing} dataSource={clientUpdate ? created : null} numColumns={numColumns} />
             } else if (this.state.activeIndex === 1) {
-                return <Liked type="LIKED" userId={userId} dataSource={clientUpdate ? liked : null} navigation={navigation} numColumns={numColumns} />
+                return <Liked type="LIKED" userId={userId} refreshing={refreshing} dataSource={clientUpdate ? liked : null} numColumns={numColumns} />
             } else {
-                return <Mentioned type="MENTIONED" userId={userId} dataSource={clientUpdate ? mentioned : null} navigation={navigation} numColumns={numColumns} />
+                return <Mentioned type="MENTIONED" userId={userId} refreshing={refreshing} dataSource={clientUpdate ? mentioned : null} numColumns={numColumns} />
             }
         }
     }

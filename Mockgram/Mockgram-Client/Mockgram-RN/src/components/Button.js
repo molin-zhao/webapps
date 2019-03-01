@@ -11,7 +11,8 @@ export default class Button extends React.Component {
     static defaultProps = {
         activeOpacity: 0.8,
         loadingIndicator: () => (<BallIndicator size={14} />),
-        iconComponent: () => (null),
+        iconLeft: () => (null),
+        iconRight: () => (null),
         loading: false
     }
 
@@ -20,20 +21,21 @@ export default class Button extends React.Component {
         loading: PropTypes.bool,
 
         //styles
-        containerStyle: PropTypes.object,
-        titleStyle: PropTypes.object,
+        containerStyle: PropTypes.array,
+        titleStyle: PropTypes.array,
 
         //content
         title: PropTypes.string,
 
         //functions
-        iconComponent: PropTypes.func,
+        iconLeft: PropTypes.func,
+        iconRight: PropTypes.func,
         onPress: PropTypes.func,
         loadingIndicator: PropTypes.func
     }
 
     renderButtonContent = () => {
-        const { loading, loadingIndicator, title, titleStyle, iconComponent } = this.props;
+        const { loading, loadingIndicator, title, titleStyle, iconLeft, iconRight } = this.props;
         if (loading) {
             return (
                 loadingIndicator()
@@ -47,8 +49,9 @@ export default class Button extends React.Component {
                 justifyContent: 'center',
                 alignItems: 'center'
             }}>
-                {iconComponent()}
+                {iconLeft()}
                 <Text style={[{ fontSize: 12 }, titleStyle]}>{title}</Text>
+                {iconRight()}
             </View>
         );
     }
@@ -57,7 +60,7 @@ export default class Button extends React.Component {
         const { containerStyle, onPress, activeOpacity } = this.props;
         return (
             <TouchableOpacity
-                style={[styles.container, containerStyle]}
+                style={[styles.container, ...containerStyle]}
                 onPress={onPress}
                 activeOpacity={activeOpacity}
             >

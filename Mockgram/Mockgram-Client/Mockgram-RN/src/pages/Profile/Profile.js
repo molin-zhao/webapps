@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import ProfileTabView from './ProfileTabView';
 import Icon from 'react-native-vector-icons/Ionicons';
 import window from '../../utils/getDeviceInfo';
+import { getClientProfile } from '../../redux/actions/profileActions';
 
 class Profile extends React.Component {
     constructor(props) {
@@ -44,9 +45,24 @@ class Profile extends React.Component {
     }
 
     onRefresh = () => {
-        this.setState({
-            refreshing: true
-        });
+        const { client, getClientProfile } = this.props;
+        if (client && client.token) {
+            this.setState({
+                refreshing: true
+            }, () => {
+                getClientProfile(client.token).then(() => {
+                    this.setState({
+                        refreshing: false
+                    })
+                }).catch(err => {
+                    this.setState({
+                        refreshing: false
+                    }, () => {
+                        console.log(err);
+                    })
+                })
+            })
+        }
     }
 
     render() {
@@ -109,7 +125,7 @@ class Profile extends React.Component {
                     <Text style={styles.bioText}>{userProfile.bio}</Text>
                 </View>
                 <View style={styles.embeddedTabView}>
-                    <ProfileTabView navigation={navigation} userId={userProfile._id} clientUpdate={true} numColumns={3} />
+                    <ProfileTabView navigation={navigation} refreshing={this.state.refreshing} userId={userProfile._id} clientUpdate={true} numColumns={3} />
                 </View>
             </ScrollView>
         );
@@ -141,7 +157,7 @@ const styles = StyleSheet.create({
         fontSize: 15
     },
     bio: {
-        marginTop: 20,
+        marginTop: 15,
         alignItems: 'center',
         justifyContent: 'center',
         height: 50
@@ -150,13 +166,19 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     embeddedTabView: {
-        marginTop: 20,
+        marginTop: 15,
     }
 });
 
 const mapStateToProps = state => {
     return {
         profile: state.profile.profile,
+        client: state.client.client
     }
 }
-export default connect(mapStateToProps, null)(Profile)
+
+const mapDispatchToProps = dispatch => ({
+    getClientProfile: (token) => dispatch(getClientProfile(token)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

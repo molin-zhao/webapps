@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { withNavigation } from 'react-navigation';
 
 import Thumbnail from '../components/Thumbnail';
 import window from '../utils/getDeviceInfo';
@@ -200,4 +201,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default MessageListCell;
+export default withNavigation(MessageListCell);

@@ -15,7 +15,18 @@ class MessageBadgeIcon extends React.Component {
     }
 
     render() {
-        const { color, size, name, auth, navigation, router, client, message, lastMessageId, updateLastMessageId } = this.props;
+        const {
+            color,
+            size,
+            name,
+            auth,
+            navigation,
+            router,
+            client,
+            message,
+            lastMessageId,
+            updateLastMessageId
+        } = this.props;
         let badgeCount = messageCountNormalizer(getNewMessageCount(message, lastMessageId));
         return (
             <View style={styles.container}>

@@ -16,7 +16,6 @@ class ProfilePostGridView extends React.Component {
         this.state = {
             data: this.props.dataSource ? this.props.dataSource : [],
             loading: false,
-            refreshing: false,
             loadingMore: false,
             hasMore: true,
             error: null,
@@ -24,17 +23,23 @@ class ProfilePostGridView extends React.Component {
     }
 
     componentDidMount() {
-        const { userId, type, dataSource, fetchPosts } = this.props;
-        this.setState({
-            loading: true
-        }, () => {
-            fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit);
-        })
+        this.handleLoadingAndReloading();
+    }
+
+    componentDidUpdate(prevProps) {
+        const { refreshing } = this.props;
+        if (!prevProps.refreshing && refreshing && !this.state.loading) {
+            /**
+             * if refreshing prop changed from false to true and view is not currently refreshing, 
+             * then refresh posts 
+             * */
+            this.handleLoadingAndReloading();
+        }
     }
 
     handleLoadMore = () => {
         const { userId, type, dataSource } = this.props;
-        if (this.state.hasMore && !this.state.loading && !this.state.refreshing && !this.state.loadingMore) {
+        if (this.state.hasMore && !this.state.loading && !this.state.loadingMore) {
             this.setState({
                 loadingMore: true
             }, () => {
@@ -43,10 +48,19 @@ class ProfilePostGridView extends React.Component {
         }
     }
 
+    handleLoadingAndReloading = () => {
+        const { userId, type, dataSource, fetchPosts } = this.props;
+        this.setState({
+            loading: true
+        }, () => {
+            fetchPosts(this, dataSource, userId, type, config.profilePostReturnLimit);
+        })
+    }
+
     renderEmpty = () => {
-        const { dataSource, type } = this.props;
-        let data = dataSource ? dataSource : this.state.data;
-        if (!this.state.refreshing && !this.state.loading && !this.state.loadingMore && data.length === 0) {
+        const { type } = this.props;
+        let data = this.props.dataSource ? this.props.dataSource : this.state.data;
+        if (!this.state.loading && !this.state.loadingMore && data.length === 0) {
             if (type === 'CREATED') {
                 return (
                     <View style={styles.postViewEmptyMsg}>

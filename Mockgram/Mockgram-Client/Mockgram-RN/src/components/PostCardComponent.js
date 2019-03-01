@@ -5,6 +5,7 @@ import ViewMoreText from 'react-native-view-more-text';
 import Thumbnail from './Thumbnail';
 
 import { connect } from 'react-redux';
+import { withNavigation } from 'react-navigation';
 
 import window from '../utils/getDeviceInfo';
 import { userAvatar } from '../utils/getUserInfo';
@@ -16,6 +17,7 @@ export class Card extends React.Component {
     constructor(props) {
         super(props);
     }
+
     render() {
         return (
             <View style={[styles.card, this.props.style]}>
@@ -98,7 +100,6 @@ class PostCardComponent extends React.Component {
         super(props);
         this.state = {
             dataSource: this.props.dataSource,
-            navigation: this.props.navigation
         }
     }
 
@@ -315,7 +316,7 @@ const mapDispatchToProps = dispatch => ({
     removeLikePostFromProfile: (id) => dispatch(removeClientProfilePost('LIKED', id)),
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(PostCardComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(withNavigation(PostCardComponent));
 
 const styles = StyleSheet.create({
     container: {
