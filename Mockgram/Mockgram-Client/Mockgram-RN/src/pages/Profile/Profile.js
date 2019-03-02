@@ -1,12 +1,15 @@
 import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
-import { Avatar } from 'react-native-elements';
 import { connect } from 'react-redux';
 
-import ProfileTabView from './ProfileTabView';
+import Thumbnail from '../../components/Thumbnail';
+import TabView from '../../components/TabView';
 import Icon from 'react-native-vector-icons/Ionicons';
+import PostsGridView from './PostsGridView';
+
 import window from '../../utils/getDeviceInfo';
 import { getClientProfile } from '../../redux/actions/profileActions';
+import theme from '../../common/theme';
 
 class Profile extends React.Component {
     constructor(props) {
@@ -67,7 +70,7 @@ class Profile extends React.Component {
 
     render() {
         const { initialProfile } = this.state;
-        const { profile, navigation } = this.props;
+        const { profile, navigation, created, liked, mentioned } = this.props;
         let userProfile = profile ? profile : initialProfile;
         return (
             <ScrollView
@@ -81,23 +84,10 @@ class Profile extends React.Component {
                 }
                 horizontal={false}
             >
-                {userProfile.avatar ?
-                    <Avatar
-                        large
-                        rounded
-                        source={{ uri: userProfile.avatar }}
-                        activeOpacity={0.7}
-                        containerStyle={{ marginTop: 30 }}
-                    /> :
-                    <Avatar
-                        large
-                        rounded
-                        icon={{ name: 'user', type: 'font-awesome' }}
-                        activeOpacity={0.7}
-                        containerStyle={{ marginTop: 30 }}
-                    />
-                }
-
+                <Thumbnail
+                    style={{ marginTop: 30, height: 80, width: 80 }}
+                    source={userProfile.avatar}
+                />
                 <View style={styles.count}>
                     <TouchableOpacity
                         style={styles.countSubview}
@@ -109,6 +99,12 @@ class Profile extends React.Component {
                     <TouchableOpacity
                         style={styles.countSubview}
                         activeOpacity={0.8}
+                        onPress={() => {
+                            navigation.push('UserList', {
+                                userId: userProfile._id,
+                                type: 'Following'
+                            })
+                        }}
                     >
                         <Text style={styles.countText}>{userProfile.followingCount}</Text>
                         <Text style={styles.countText}>Following</Text>
@@ -116,6 +112,12 @@ class Profile extends React.Component {
                     <TouchableOpacity
                         style={styles.countSubview}
                         activeOpacity={0.8}
+                        onPress={() => {
+                            navigation.push('UserList', {
+                                userId: userProfile._id,
+                                type: 'Follower'
+                            })
+                        }}
                     >
                         <Text style={styles.countText}>{userProfile.followerCount}</Text>
                         <Text style={styles.countText}>Follower</Text>
@@ -125,7 +127,40 @@ class Profile extends React.Component {
                     <Text style={styles.bioText}>{userProfile.bio}</Text>
                 </View>
                 <View style={styles.embeddedTabView}>
-                    <ProfileTabView navigation={navigation} refreshing={this.state.refreshing} userId={userProfile._id} clientUpdate={true} numColumns={3} />
+                    <TabView
+                        activeColor={theme.primaryColor}
+                        inactiveColor={'black'}
+                        tabBarComponents={[
+                            {
+                                icon: {
+                                    name: 'md-images'
+                                },
+                                text: {
+                                    title: 'Posts'
+                                }
+                            },
+                            {
+                                icon: {
+                                    name: 'md-heart'
+                                },
+                                text: {
+                                    title: 'Liked'
+                                }
+                            },
+                            {
+                                icon: {
+                                    name: 'ios-people'
+                                },
+                                text: {
+                                    title: 'Mentioned'
+                                }
+                            }
+                        ]}
+                    >
+                        <PostsGridView type='CREATED' userId={userProfile._id} refreshing={this.state.refreshing} dataSource={created} numColumns={3} />
+                        <PostsGridView type='LIKED' userId={userProfile._id} refreshing={this.state.refreshing} dataSource={liked} numColumns={3} />
+                        <PostsGridView type='MENTIONED' userId={userProfile._id} refreshing={this.state.refreshing} dataSource={mentioned} numColumns={3} />
+                    </TabView>
                 </View>
             </ScrollView>
         );
@@ -173,7 +208,10 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return {
         profile: state.profile.profile,
-        client: state.client.client
+        client: state.client.client,
+        created: state.profile.created,
+        liked: state.profile.liked,
+        mentioned: state.profile.mentioned
     }
 }
 

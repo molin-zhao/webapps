@@ -38,7 +38,7 @@ export default class DynamicContentList extends React.Component {
                 method: request.method,
                 headers: request.headers,
                 body: JSON.stringify({
-                    lastQueryDataIds: (this.state.refreshing || this.state.loading) ? [] : parseIdFromObjectArray(data),
+                    lastQueryDataIds: this.state.loadingMore ? parseIdFromObjectArray(data) : [],
                     ...request.body
                 })
             })
@@ -66,7 +66,7 @@ export default class DynamicContentList extends React.Component {
                 })
                 .catch(error => {
                     this.setState({
-                        error: "Network request failed",
+                        error: error,
                         loading: false,
                         refreshing: false,
                         loadingMore: false,
@@ -110,40 +110,57 @@ export default class DynamicContentList extends React.Component {
 
 
     renderFooter = () => {
-        const props = this.props;
+        const { footerHasMore, footerNoMore } = this.props;
         return (
             <View style={styles.listFooter}>
-                {this.state.hasMore ? props.footerHasMore : props.footerNoMore}
+                {this.state.hasMore ? footerHasMore : footerNoMore}
             </View>
         );
     };
 
+    listEmpty = () => {
+        const { error } = this.state;
+        if (error) {
+            return (
+                <View style={styles.errorMsgView}>
+                    <Text>{error}</Text>
+                </View >
+            );
+        }
+        return (
+            <View style={styles.errorMsgView}>
+                <Text>{`- Nothing found -`}</Text>
+            </View >
+        );
+    }
 
     renderContent = () => {
         const { navigation, itemProps } = this.props;
         if (this.state.loading) {
-            return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
+            return (
+                <View style={styles.errorMsgView}>
+                    <SkypeIndicator />
+                </View>);
         } else {
-            if (this.state.error) {
-                return (<View style={styles.errorMsgView}><Text>{this.state.error}</Text></View >);
-            }
-            return (<FlatList
-                style={{ marginTop: 0, width: '100%' }}
-                data={this.state.data}
-                renderItem={({ item }) => (
-                    <this.props.renderItem
-                        dataSource={item}
-                        navigation={navigation}
-                        itemProps={itemProps}
-                    />
-                )}
-                keyExtractor={item => item._id}
-                onRefresh={this.handleRefresh}
-                refreshing={this.state.refreshing}
-                ListFooterComponent={this.renderFooter}
-                onEndReached={this.handleLoadMore}
-                onEndReachedThreshold={0.2}
-            />);
+            return (
+                <FlatList
+                    style={{ marginTop: 0, width: '100%' }}
+                    data={this.state.data}
+                    renderItem={({ item }) => (
+                        <this.props.renderItem
+                            dataSource={item}
+                            itemProps={itemProps}
+                        />
+                    )}
+                    ListEmptyComponent={this.listEmpty}
+                    keyExtractor={item => item._id}
+                    onRefresh={this.handleRefresh}
+                    refreshing={this.state.refreshing}
+                    ListFooterComponent={this.renderFooter}
+                    onEndReached={this.handleLoadMore}
+                    onEndReachedThreshold={0.2}
+                />
+            );
         }
     }
 

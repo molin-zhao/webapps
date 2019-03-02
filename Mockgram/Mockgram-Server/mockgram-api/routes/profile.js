@@ -60,4 +60,21 @@ router.post('/post', (req, res) => {
     })
 })
 
+router.post('/user', (req, res) => {
+    let userId = convertStringToObjectId(req.body.userId);
+    let type = req.body.type;
+    let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
+    let limit = req.body.limit;
+    User.getUserList(userId, limit, lastQueryDataIds, type).then(users => {
+        res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: users
+        })
+    }).catch(err => {
+        return handleError(res, err);
+    })
+
+})
+
 module.exports = router;

@@ -1,13 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { withNavigation } from 'react-navigation';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import Thumbnail from '../components/Thumbnail';
+
 import window from '../utils/getDeviceInfo';
 import { dateConverter } from '../utils/unitConverter';
 
-class MessageListCell extends React.Component {
+class FollowingMessasgeDetailListCell extends React.Component {
 
     renderDate = (createdAt) => {
         return (
@@ -17,7 +18,7 @@ class MessageListCell extends React.Component {
 
     renderContent = () => {
         const { dataSource } = this.props;
-        const { messageType, sender, postReference, commentReference, replyReference, createdAt } = dataSource;
+        const { messageType, sender, receiver, postReference, commentReference, replyReference, createdAt } = dataSource;
         switch (messageType) {
             case 'LikePost':
                 return (
@@ -55,7 +56,7 @@ class MessageListCell extends React.Component {
                             }}>
                                 <Text style={{ fontWeight: 'bold' }}>{sender.username}</Text>
                                 <Icon name='ios-heart-outline' size={18} style={{ marginLeft: 10 }} />
-                                <Text style={{ marginLeft: 10 }}> your comment: </Text>
+                                <Text style={{ marginLeft: 10 }}>{`${receiver.username}'s comment`}</Text>
                             </View>
                             <Text numberOfLines={2} ellipsizeMode='tail'>{commentReference.content}</Text>
                             {this.renderDate(createdAt)}
@@ -84,7 +85,7 @@ class MessageListCell extends React.Component {
                             }}>
                                 <Text style={{ fontWeight: 'bold' }}>{sender.username}</Text>
                                 <Icon name='ios-heart-outline' size={18} style={{ marginLeft: 10 }} />
-                                <Text style={{ marginLeft: 10 }}> your reply: </Text>
+                                <Text style={{ marginLeft: 10 }}>{`${receiver.username}'s reply`}</Text>
                             </View>
                             <Text numberOfLines={2} ellipsizeMode='tail'>{commentReference.content}</Text>
                             {this.renderDate(createdAt)}
@@ -134,7 +135,7 @@ class MessageListCell extends React.Component {
                                 alignItems: 'center'
                             }}>
                                 <Text style={{ fontWeight: 'bold' }}>{sender.username}</Text>
-                                <Text style={{ marginLeft: 10 }}> replied to you</Text>
+                                <Text style={{ marginLeft: 10 }}>{`replied to ${receiver.username}`}</Text>
                             </View>
                             <Text numberOfLines={2} ellipsizeMode='tail'>{replyReference.content}</Text>
                             {this.renderDate(createdAt)}
@@ -184,6 +185,7 @@ class MessageListCell extends React.Component {
         );
     }
 }
+export default withNavigation(FollowingMessasgeDetailListCell);
 
 const styles = StyleSheet.create({
     cell: {
@@ -201,5 +203,3 @@ const styles = StyleSheet.create({
         height: '100%'
     }
 })
-
-export default withNavigation(MessageListCell);

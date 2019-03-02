@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, StyleSheet, Text, Button, TouchableOpacity, TextInput } from 'react-native';
-import { Avatar } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { SecureStore, ImagePicker } from 'expo';
 import { connect } from 'react-redux';
 
+import Thumbnail from '../../components/Thumbnail';
 import processImage from '../../utils/imageProcessing';
 import allowPermissions from '../../utils/allowPermissions';
 import ActionSheet from 'react-native-actionsheet';
@@ -188,24 +188,23 @@ class ProfileSetting extends React.Component {
                     }}
 
                 />
-                {this.state.imageUri === '' ?
-                    <Avatar
-                        large
-                        rounded
-                        icon={{ name: 'user', type: 'font-awesome' }}
-                        activeOpacity={0.7}
+                <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={this.showActionSheet}
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 30,
+                        width: '80%',
+                        height: 80
+                    }}
+                >
+                    <Thumbnail
                         onPress={this.showActionSheet}
-                        containerStyle={{ marginTop: 30 }}
-                    /> :
-                    <Avatar
-                        large
-                        rounded
-                        onPress={this.showActionSheet}
-                        activeOpacity={0.7}
-                        containerStyle={{ marginTop: 30 }}
-                        source={{ uri: this.state.imageUri }}
+                        style={{ marginTop: 30, width: 80, height: 80 }}
+                        source={this.state.imageUri}
                     />
-                }
+                </TouchableOpacity>
                 <View style={styles.profile}>
                     <View style={styles.itemCol}>
                         <View style={styles.itemLabel}>

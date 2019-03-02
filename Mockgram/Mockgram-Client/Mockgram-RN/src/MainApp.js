@@ -1,12 +1,16 @@
 import React from 'react';
+import { TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator, createStackNavigator } from 'react-navigation';
 import { connect } from 'react-redux';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Ionicon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Home from './screens/HomeScreen';
 import Discovery from './screens/DiscoveryScreen';
 import Profile from './screens/ProfileScreen';
+import UserList from './pages/Profile/UserList';
 import UserProfile from './pages/Profile/UserProfile';
+import PostDetail from './pages/Profile/PostDetail';
 import Post from './screens/PostScreen';
 import Message from './screens/MessageScreen';
 import Login from './screens/LoginScreen';
@@ -26,7 +30,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Home,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <Icon name="md-home" color={tintColor} size={28} />
+                <Ionicon name="md-home" color={tintColor} size={28} />
             )
         }
     },
@@ -34,7 +38,7 @@ const MainAppTabNavigator = createBottomTabNavigator({
         screen: Discovery,
         navigationOptions: {
             tabBarIcon: ({ tintColor }) => (
-                <Icon name="md-search" color={tintColor} size={28} />
+                <Ionicon name="md-search" color={tintColor} size={28} />
             )
         }
     },
@@ -96,14 +100,55 @@ const MainAppTabNavigator = createBottomTabNavigator({
  * not including modals and other util pages
  */
 const MainAppStackNavigator = createStackNavigator({
-    MainApp: MainAppTabNavigator,
-    UserProfile: UserProfile
-}, {
-        headerMode: 'none',
-        navigationOptions: {
-            headerVisible: false
-        }
-    });
+    MainApp: {
+        screen: MainAppTabNavigator,
+        navigationOptions: () => ({
+            header: null
+        })
+    },
+    UserList: {
+        screen: UserList,
+        navigationOptions: ({ navigation }) => ({
+            title: navigation.getParam('type', 'Follower'),
+            headerLeft: (
+                <TouchableOpacity style={{ marginLeft: 20 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}>
+                    <Icon name='chevron-left' size={20} />
+                </TouchableOpacity>
+            )
+        })
+    },
+    UserProfile: {
+        screen: UserProfile,
+        navigationOptions: ({ navigation }) => ({
+            title: navigation.getParam('title', 'username'),
+            headerLeft: (
+                <TouchableOpacity style={{ marginLeft: 20 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}>
+                    <Icon name='chevron-left' size={20} />
+                </TouchableOpacity>
+            )
+        })
+    },
+    PostDetail: {
+        screen: PostDetail,
+        navigationOptions: ({ navigation }) => ({
+            title: 'Post',
+            headerLeft: (
+                <TouchableOpacity style={{ marginLeft: 20 }}
+                    onPress={() => {
+                        navigation.goBack();
+                    }}>
+                    <Icon name='chevron-left' size={20} />
+                </TouchableOpacity>
+            )
+        })
+    }
+});
 
 /**
  * RootNavigator contains all the pages in this app

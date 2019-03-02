@@ -67,7 +67,9 @@ const User = new Schema({
         unique: true
     },
     gender: {
-        type: String
+        // 'M' for Male and 'F' for Female
+        type: String,
+        default: 'M'
     },
     followers: {
         type: [{
@@ -239,6 +241,63 @@ User.statics.searchUser = function (searchValue, userId, limit) {
                 '_id': -1
             }
         }
+    ])
+}
+
+User.statics.getUserList = function (userId, limit, lastQueryDataIds, type = 'Following') {
+    return this.aggregate([
+        {
+            $match: {
+                _id: userId
+            }
+        },
+        {
+            $project: {
+                "users": {
+                    $cond: {
+                        if: { $eq: [type, 'Follower'] },
+                        then: {
+                            $setDifference: ["$followers", lastQueryDataIds]
+                        },
+                        else: {
+                            $setDifference: ["$following", lastQueryDataIds]
+                        }
+                    }
+                },
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "users",
+                foreignField: '_id',
+                as: "users"
+            }
+        },
+        { $unwind: "$users" },
+        {
+            $project: {
+                'users': {
+                    '_id': 1,
+                    'avatar': 1,
+                    'username': 1,
+                    'nickname': 1,
+                    'bio': 1,
+                    'gender': 1,
+                    'followed': {
+                        $in: [userId, "$users.followers"]
+                    },
+                }
+
+            }
+        },
+        {
+            $sort: {
+                'users.username': 1
+            }
+        },
+        { $limit: limit },
+        { $replaceRoot: { newRoot: "$users" } }
     ])
 }
 

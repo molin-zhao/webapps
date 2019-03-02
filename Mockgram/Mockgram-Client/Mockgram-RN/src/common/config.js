@@ -4,5 +4,7 @@ export default config = {
     commentReturnLimit: 10,
     replyReturnLimit: 10,
     followingReturnLimit: 5,
-    searchReturnLimit: 10
+    searchReturnLimit: 10,
+    userListReturnLimit: 10,
+    messageReturnLimit: 10
 }

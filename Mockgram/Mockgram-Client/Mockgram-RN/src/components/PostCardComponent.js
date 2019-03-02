@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
 
 import window from '../utils/getDeviceInfo';
-import { userAvatar } from '../utils/getUserInfo';
 import baseUrl from '../common/baseUrl';
 import { dateConverter, numberConverter } from '../utils/unitConverter';
 import { addClientProfilePosts, removeClientProfilePost } from '../redux/actions/profileActions';
@@ -91,9 +90,6 @@ export class Right extends React.Component {
         );
     }
 }
-
-
-
 
 class PostCardComponent extends React.Component {
     constructor(props) {
@@ -197,14 +193,41 @@ class PostCardComponent extends React.Component {
         );
     }
 
+    /**
+     * if you need to update some components of the dataSource,
+     * you should declare another variable object to hold the reference of the dataSource,
+     * otherwise you cannot make any changes by directly manipulating the dataSource from props. 
+     */
     render() {
         const { dataSource } = this.state;
+        const { client, navigation } = this.props;
         return (
             <Card key={dataSource._id}>
                 <CardItemRow>
                     <Left>
-                        <Thumbnail source={dataSource.postUser.avatar} style={{ height: 40, width: 40 }} />
-                        <this.renderHeader />
+                        <TouchableOpacity
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                width: '100%',
+                                height: '100%',
+                            }}
+                            onPress={() => {
+                                if (client && client.user._id === dataSource.creator) {
+                                    navigation.navigate('Profile')
+                                } else {
+                                    navigation.push('UserProfile', {
+                                        username: dataSource.postUser.username,
+                                        avatar: dataSource.postUser.avatar,
+                                        _id: dataSource.postUser._id
+                                    })
+                                }
+                            }}
+                        >
+                            <Thumbnail source={dataSource.postUser.avatar} style={{ height: 40, width: 40 }} />
+                            <this.renderHeader />
+                        </TouchableOpacity>
                     </Left>
                     <View style={styles.right}>
                         <Icon name="md-more" style={{ fontSize: 20 }} onPress={() => {

@@ -152,6 +152,7 @@ PostSchema.statics.getPosts = function (userId, lastQueryDataIds, limit, followi
 					"creator": 1,
 					"postUser.username": 1,
 					"postUser.avatar": 1,
+					"postUser._id": 1
 				}
 			},
 			{

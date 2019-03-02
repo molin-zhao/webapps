@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { SkypeIndicator } from 'react-native-indicators'
 import { connect } from 'react-redux';
+import { Header } from 'react-navigation';
 
 import PostCardComponent from '../../components/PostCardComponent';
 import baseUrl from '../../common/baseUrl';
@@ -16,7 +17,7 @@ class Home extends React.Component {
             data: [],
             error: null,
             hasMore: true,
-            loading: true,
+            loading: false,
             refreshing: false,
             loadingMore: false,
             fetching: false,
@@ -37,21 +38,24 @@ class Home extends React.Component {
         }
     }
 
-    componentDidMount() {
-        this.setState({
-            loading: true,
-            refreshing: false,
-            loadingMore: false
-        }, () => {
-            console.log('loading');
-            this.fetchPosts();
-        })
-    }
-
     componentDidUpdate(prevProps) {
         const { client, initialized } = this.props;
-        if (client !== prevProps.client) {
-            this.handleReload();
+        if (!prevProps.initialized && initialized) {
+            // app initialized for the first time
+            this.setState({
+                loading: true,
+                refreshing: false,
+                loadingMore: false
+            }, () => {
+                console.log('loading');
+                this.fetchPosts();
+            })
+
+        } else {
+            // app uninitialized or from initialized to uninitialized
+            if (initialized && client !== prevProps.client) {
+                this.handleReload();
+            }
         }
     }
 
@@ -175,54 +179,67 @@ class Home extends React.Component {
     renderFooter = () => {
         const { loading, loadingMore, refreshing, data, hasMore } = this.state;
         const { initialized } = this.props;
-        if (initialized && !loading && !loadingMore && refreshing && data.length === 0) {
+        if (initialized) {
+            if (!loading && !loadingMore && !refreshing && data.length === 0) {
+                return null;
+            }
             return (
-                <View style={{ height: window.height * 0.9, width: window.width, backgroundColor: "#fff", justifyContent: 'flex-start', alignItems: 'center' }}>
-                    <View style={{ marginTop: window.height * 0.4, height: "10%", width: "100%", justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ color: 'grey' }}>Temporarily no posts found</Text>
-                    </View>
+                <View style={styles.listFooter}>
+                    {hasMore ? <SkypeIndicator size={25} /> : <Text style={{ color: 'grey', fontSize: 12 }}> - No more posts - </Text>}
                 </View>
             );
         }
-        return (
-            <View style={styles.listFooter}>
-                {hasMore ? <SkypeIndicator size={25} /> : <Text style={{ color: 'grey', fontSize: 12 }}> - No more posts - </Text>}
-            </View>
-        );
+        return null;
     };
 
     listEmpty = () => {
+        if (this.state.error) {
+            return (
+                <View style={styles.errorMsgView}>
+                    <Text>{this.state.error}</Text>
+                </View >
+            );
+        }
         return (
-            <View style={{
-                flex: 1,
-                backgroundColor: '#fff'
-            }}></View>
+            <View style={styles.errorMsgView}>
+                <Text style={{ color: 'grey' }}>- Temporarily no posts found -</Text>
+            </View>
         );
     }
 
     renderPost = () => {
-        if (this.state.loading || this.state.refreshing || !this.props.initialized) {
-            return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
-        } else {
-            if (this.state.error) {
-                return (<View style={styles.errorMsgView}><Text>{this.state.error}</Text></View >);
+        const { initialized } = this.props;
+        if (initialized) {
+            if (this.state.loading) {
+                return (
+                    <View style={styles.errorMsgView}>
+                        <SkypeIndicator />
+                    </View>
+                )
+            } else {
+                return (
+                    <FlatList
+                        style={{ marginTop: 0, width: '100%', backgroundColor: '#fff' }}
+                        contentContainerStyle={{ backgroundColor: '#fff' }}
+                        data={this.state.data}
+                        renderItem={({ item }) => (
+                            <PostCardComponent dataSource={item} navigation={this.props.navigation} />
+                        )}
+                        ListEmptyComponent={this.listEmpty}
+                        keyExtractor={item => item._id}
+                        onRefresh={this.handleRefresh}
+                        refreshing={this.state.refreshing}
+                        ListFooterComponent={this.renderFooter}
+                        onEndReached={this.handleLoadMore}
+                        onEndReachedThreshold={0.2}
+                    />
+                );
             }
+        } else {
             return (
-                <FlatList
-                    style={{ marginTop: 0, width: '100%', backgroundColor: '#fff' }}
-                    contentContainerStyle={{ backgroundColor: '#fff' }}
-                    data={this.state.data}
-                    renderItem={({ item }) => (
-                        <PostCardComponent dataSource={item} navigation={this.props.navigation} />
-                    )}
-                    ListEmptyComponent={this.listEmpty}
-                    keyExtractor={item => item._id}
-                    onRefresh={this.handleRefresh}
-                    refreshing={this.state.refreshing}
-                    ListFooterComponent={this.renderFooter}
-                    onEndReached={this.handleLoadMore}
-                    onEndReachedThreshold={0.2}
-                />
+                <View style={styles.errorMsgView}>
+                    <SkypeIndicator />
+                </View>
             );
         }
     }
@@ -245,7 +262,8 @@ export default connect(mapStateToProps, null)(Home);
 
 const styles = StyleSheet.create({
     contentContainer: {
-        flexDirection: 'row',
+        height: window.height - Header.HEIGHT,
+        width: window.width,
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'flex-start',
@@ -259,10 +277,11 @@ const styles = StyleSheet.create({
         height: window.height * 0.1
     },
     errorMsgView: {
-        height: window.height * 0.85,
-        width: window.width,
-        flexDirection: 'row',
+        marginTop: -50,
+        backgroundColor: '#fff',
+        height: window.height - Header.HEIGHT,
+        width: '100%',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     }
 });

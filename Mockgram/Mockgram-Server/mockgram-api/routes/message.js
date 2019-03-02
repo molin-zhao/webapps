@@ -7,12 +7,6 @@ const { handleError } = require('../../mockgram-utils/utils/handleError');
 const User = require('../../mockgram-utils/models/user');
 const Message = require('../../mockgram-utils/models/message');
 
-router.post('/following', verifyAuthorization, (req, res) => {
-    let userId = req.user._id;
-    let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
-    let limit = req.body.limit;
-})
-
 /**
  * fetching new messages without paging
  * all unread messages return to client at once
@@ -50,6 +44,44 @@ router.post('/history', verifyAuthorization, (req, res) => {
         }).catch(err => {
             return handleError(res, err);
         })
+    })
+})
+
+router.post('/following', verifyAuthorization, (req, res) => {
+    let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
+    let limit = req.body.limit;
+    let userId = convertStringToObjectId(req.user._id);
+    User.getUserList(userId, limit, lastQueryDataIds).then(async users => {
+        const promises = users.map(async user => {
+            let recentMessage = await Message.getRecentMessage(user._id);
+            user.recentMessage = recentMessage.shift();
+            return user;
+        });
+        const data = await Promise.all(promises);
+        res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: data
+        })
+    }).catch(err => {
+        handleError(res, err);
+    })
+
+
+})
+
+router.post('/following/detail', verifyAuthorization, (req, res) => {
+    let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
+    let limit = req.body.limit;
+    let userId = convertStringToObjectId(req.body.userId);
+    Message.getFollowingMessage(userId, lastQueryDataIds, limit).then(messages => {
+        return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: messages
+        })
+    }).catch(err => {
+        return handleError(res, err);
     })
 })
 

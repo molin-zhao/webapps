@@ -10,7 +10,7 @@ import config from '../../common/config';
 import { getClientProfilePosts } from '../../redux/actions/profileActions';
 import window from '../../utils/getDeviceInfo';
 
-class ProfilePostGridView extends React.Component {
+class LikedPostsGridView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -19,6 +19,23 @@ class ProfilePostGridView extends React.Component {
             loadingMore: false,
             hasMore: true,
             error: null,
+            opacity: 0
+        }
+    }
+
+    show = () => {
+        if (this.state.opacity === 0) {
+            this.setState({
+                opacity: 1
+            })
+        }
+    }
+
+    hide = () => {
+        if (this.state.opacity === 1) {
+            this.setState({
+                opacity: 0
+            })
         }
     }
 
@@ -38,8 +55,8 @@ class ProfilePostGridView extends React.Component {
     }
 
     handleLoadMore = () => {
-        const { userId, type, dataSource } = this.props;
-        if (this.state.hasMore && !this.state.loading && !this.state.loadingMore) {
+        const { userId, dataSource, refreshing, type } = this.props;
+        if (this.state.hasMore && !this.state.loading && !this.state.loadingMore && !refreshing) {
             this.setState({
                 loadingMore: true
             }, () => {
@@ -49,7 +66,7 @@ class ProfilePostGridView extends React.Component {
     }
 
     handleLoadingAndReloading = () => {
-        const { userId, type, dataSource, fetchPosts } = this.props;
+        const { userId, dataSource, fetchPosts, type } = this.props;
         this.setState({
             loading: true
         }, () => {
@@ -58,36 +75,38 @@ class ProfilePostGridView extends React.Component {
     }
 
     renderEmpty = () => {
-        const { type } = this.props;
-        let data = this.props.dataSource ? this.props.dataSource : this.state.data;
-        if (!this.state.loading && !this.state.loadingMore && data.length === 0) {
-            if (type === 'CREATED') {
-                return (
-                    <View style={styles.postViewEmptyMsg}>
-                        <Icon name='ios-camera' style={{ fontSize: 32 }} />
-                        <Text style={{ fontSize: 20, fontWeight: '600' }}>Your posts</Text>
-                        <Text style={{ fontSize: 14, fontWeight: '300' }}>The photos you posted will appear on your profile</Text>
-                    </View>
-                );
-            } else if (type === 'LIKED') {
-                return (
-                    <View style={styles.postViewEmptyMsg}>
-                        <Icon name='ios-heart-outline' style={{ fontSize: 32 }} />
-                        <Text style={{ fontSize: 20, fontWeight: '600' }}>Liked posts</Text>
-                        <Text style={{ fontSize: 14, fontWeight: '300' }}>The posts you liked will appear on your profile</Text>
-                    </View>
-                );
-            } else if (type === 'MENTIONED') {
-                return (
-                    <View style={styles.postViewEmptyMsg}>
-                        <Icon name='ios-at-outline' style={{ fontSize: 32 }} />
-                        <Text style={{ fontSize: 20, fontWeight: '600' }}>Shared posts</Text>
-                        <Text style={{ fontSize: 14, fontWeight: '300' }}>The posts shared with you will appear on your profile</Text>
-                    </View>
-                );
-            } else {
-                return null;
+        const { refreshing, dataSource, type } = this.props;
+        const { data, loading, loadingMore } = this.state;
+        let _data = dataSource ? dataSource : data;
+        let title = dataSource ? 'your' : `user's`;
+        if (!loading && !loadingMore && !refreshing && _data.length === 0) {
+            switch (type) {
+                case 'LIKED':
+                    return (
+                        <View style={styles.postViewEmptyMsg}>
+                            <Icon name='ios-heart-outline' style={{ fontSize: 32 }} />
+                            <Text style={{ fontSize: 20, fontWeight: '600' }}>{`${title} liked posts`}</Text>
+                            <Text style={{ fontSize: 14, fontWeight: '300' }}>{`The posts liked will appear on ${title} profile`}</Text>
+                        </View>
+                    );
+                case 'MENTIONED':
+                    return (
+                        <View style={styles.postViewEmptyMsg}>
+                            <Icon name='ios-at-outline' style={{ fontSize: 32 }} />
+                            <Text style={{ fontSize: 20, fontWeight: '600' }}>{`${title} shared posts`}</Text>
+                            <Text style={{ fontSize: 14, fontWeight: '300', textAlign: 'center' }}>{`The posts shared or mentioned \nwill appear on ${title} profile`}</Text>
+                        </View>
+                    );
+                default:
+                    return (
+                        <View style={styles.postViewEmptyMsg}>
+                            <Icon name='ios-camera' style={{ fontSize: 32 }} />
+                            <Text style={{ fontSize: 20, fontWeight: '600' }}>{`${title} created posts`}</Text>
+                            <Text style={{ fontSize: 14, fontWeight: '300' }}>{`The created photos will appear on ${title} profile page`}</Text>
+                        </View>
+                    );
             }
+
         }
         return null;
     }
@@ -157,7 +176,7 @@ class ProfilePostGridView extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <View style={[styles.container, { opacity: this.state.opacity }]}>
                 {this.renderPostGridView()}
             </View>
         );
@@ -168,10 +187,11 @@ const mapDispatchToProps = dispatch => ({
     fetchPosts: (caller, dataSource, userId, type, limit) => dispatch(getClientProfilePosts(caller, dataSource, userId, type, limit))
 })
 
-export default connect(null, mapDispatchToProps)(ProfilePostGridView)
+export default connect(null, mapDispatchToProps, null, { withRef: true })(LikedPostsGridView);
 
 const styles = StyleSheet.create({
     container: {
+        position: 'absolute',
         backgroundColor: '#fff',
         justifyContent: 'flex-start',
         alignItems: 'center',

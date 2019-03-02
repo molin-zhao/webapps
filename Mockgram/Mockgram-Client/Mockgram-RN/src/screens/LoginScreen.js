@@ -47,7 +47,7 @@ export default LoginStackNavigator = createStackNavigator({
             headerLeft: (
                 <TouchableOpacity style={{ marginLeft: 20 }}
                     onPress={() => {
-                        navigation.popToTop();
+                        navigation.goBack();
                     }}>
                     <Icon name='chevron-left' size={20} />
                 </TouchableOpacity>
@@ -74,7 +74,7 @@ export default LoginStackNavigator = createStackNavigator({
             headerLeft: (
                 <TouchableOpacity style={{ marginLeft: 20 }}
                     onPress={() => {
-                        navigation.popToTop();
+                        navigation.goBack();
                     }}>
                     <Icon name='chevron-left' size={20} />
                 </TouchableOpacity>

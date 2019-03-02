@@ -17,8 +17,11 @@ export default class Thumbnail extends React.Component {
     render() {
         const { style, source } = this.props;
         return (
-            <Image style={[style, { borderRadius: style.height / 2 }]}
-                source={source ? { uri: source } : require('../static/user.png')} />
+            <Image
+                style={[style, { borderRadius: style.height / 2 }]}
+                source={source ? { uri: source } : require('../static/user.png')}
+                resizeMode='cover'
+            />
         );
     }
 };
