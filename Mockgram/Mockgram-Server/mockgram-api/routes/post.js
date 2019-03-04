@@ -76,6 +76,21 @@ router.get('/:id', (req, res) => {
     })
 });
 
+// get post detail
+router.post('/detail', (req, res) => {
+    let postId = convertStringToObjectId(req.body.postId);
+    let userId = convertStringToObjectId(req.body.userId);
+    Post.getPostDetail(postId, userId).then(post => {
+        let data = post.shift();
+        return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: data
+        })
+    }).catch(err => {
+        return handleError(res, err);
+    })
+})
 
 // get comments
 router.post('/comment', (req, res) => {

@@ -206,6 +206,7 @@ class PostCardComponent extends React.Component {
                 <CardItemRow>
                     <Left>
                         <TouchableOpacity
+                            activeOpacity={1}
                             style={{
                                 flexDirection: 'row',
                                 justifyContent: 'flex-start',
@@ -236,7 +237,7 @@ class PostCardComponent extends React.Component {
                     </View>
                 </CardItemRow>
                 <CardBody>
-                    <Image source={{ uri: dataSource.image }} style={{ height: window.width, width: window.width, flex: 1 }} resizeMode='cover' />
+                    <Image source={{ uri: dataSource.image }} style={{ height: window.width, width: window.width}} resizeMode='cover' />
                 </CardBody>
                 <CardItemRow style={[styles.cardItemRow, { marginTop: 10, height: 50 }]}>
                     <Left>

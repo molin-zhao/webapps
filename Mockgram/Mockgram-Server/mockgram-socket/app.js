@@ -122,7 +122,7 @@ io.on('connection', socket => {
         })
       }
     })
-  })
+  });
   socket.on('disconnect', () => {
     let socketId = socket.id;
     if (app.locals.sockets[socketId]) {
@@ -133,6 +133,20 @@ io.on('connection', socket => {
       console.log(Object.keys(app.locals.sockets));
     }).catch(err => {
       console.log(err);
+    })
+  });
+
+  socket.on('received-message', data => {
+    const { userId, messageId } = data;
+    User.updateOne({ _id: userId }, { $addToSet: { receivedMessage: messageId } }).then(() => {
+      console.log(`user '${userId}' received message: '${messageId}'`);
+    })
+  })
+
+  socket.on('recalled-message', data => {
+    const { userId, messageId } = data;
+    User.updateOne({ _id: userId }, { $pull: { receivedMessage: messageId } }).then(() => {
+      console.log(`recall message: '${messageId}' from user '${userId}'`);
     })
   })
 })

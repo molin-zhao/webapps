@@ -1,7 +1,5 @@
 import * as ActionTypes from './ActionTypes';
-
 import baseUrl from '../../common/baseUrl';
-import { parseIdFromObjectArray } from '../../utils/idParser';
 
 export const getMessage = (token) => dispatch => {
     if (token) {
@@ -30,7 +28,7 @@ export const updateLastMessageId = () => {
     }
 }
 
-export const addMessages = (messages) => ({
+export const addMessage = (messages) => ({
     type: ActionTypes.RECEIVE_MESSAGE,
     payload: messages
 })

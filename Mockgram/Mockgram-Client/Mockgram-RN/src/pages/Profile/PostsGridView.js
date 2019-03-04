@@ -19,22 +19,25 @@ class LikedPostsGridView extends React.Component {
             loadingMore: false,
             hasMore: true,
             error: null,
-            opacity: 0
+            opacity: 0,
+            zIndex: 0,
         }
     }
 
     show = () => {
-        if (this.state.opacity === 0) {
+        if (this.state.opacity === 0 && this.state.zIndex === 0) {
             this.setState({
-                opacity: 1
+                opacity: 1,
+                zIndex: 1
             })
         }
     }
 
     hide = () => {
-        if (this.state.opacity === 1) {
+        if (this.state.opacity === 1 && this.state.zIndex === 1) {
             this.setState({
-                opacity: 0
+                opacity: 0,
+                zIndex: 0
             })
         }
     }
@@ -148,7 +151,7 @@ class LikedPostsGridView extends React.Component {
     }
 
     renderPostGridView = () => {
-        const { navigation, numColumns } = this.props;
+        const { numColumns } = this.props;
         if (this.state.loading) {
             return (<View style={styles.errorMsgView}><BallIndicator /></View>);
         } else {
@@ -158,10 +161,11 @@ class LikedPostsGridView extends React.Component {
             return (
                 <FlatList
                     data={this.normalizeData()}
-                    style={{ backgroundColor: '#fff', width: '100%', marginTop: 0 }}
+                    style={{ backgroundColor: '#fff', width: '100%', flex: 1 }}
                     renderItem={({ item }) => (
-                        <PostGridViewImage dataSource={item} navigation={navigation} numColumns={numColumns} />
+                        <PostGridViewImage dataSource={item} numColumns={numColumns} />
                     )}
+                    horizontal={false}
                     ListFooterComponent={this.renderFooter}
                     ListEmptyComponent={this.renderEmpty}
                     numColumns={numColumns}
@@ -176,7 +180,7 @@ class LikedPostsGridView extends React.Component {
 
     render() {
         return (
-            <View style={[styles.container, { opacity: this.state.opacity }]}>
+            <View style={[styles.container, { opacity: this.state.opacity, zIndex: this.state.zIndex }]}>
                 {this.renderPostGridView()}
             </View>
         );
@@ -195,7 +199,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        flexWrap: 'wrap'
+        backgroundColor: 'green'
     },
     errorMsgView: {
         height: window.width * 0.4,

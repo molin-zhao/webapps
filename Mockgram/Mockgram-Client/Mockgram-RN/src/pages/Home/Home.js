@@ -223,7 +223,7 @@ class Home extends React.Component {
                         contentContainerStyle={{ backgroundColor: '#fff' }}
                         data={this.state.data}
                         renderItem={({ item }) => (
-                            <PostCardComponent dataSource={item} navigation={this.props.navigation} />
+                            <PostCardComponent dataSource={item} />
                         )}
                         ListEmptyComponent={this.listEmpty}
                         keyExtractor={item => item._id}

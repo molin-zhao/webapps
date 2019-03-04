@@ -26,20 +26,21 @@ export const message = (state = {
             return { ...state, socket: null };
 
         case ActionTypes.RECALL_MESSAGE:
+            // message should be an array!
             let message = action.payload;
-            let messageId = message._id;
-            let messageCopy = state.message.slice();
-            let lastMessageIdCopy = state.lastMessageId
-            for (let i = 0; i < messageCopy.length; i++) {
-                if (messageCopy[i]._id === messageId) {
-                    // remove this message
-                    messageCopy.splice(i, 1);
-                    if (messageId === lastMessageIdCopy) {
-                        lastMessageIdCopy = messageCopy[i];
+            let filteredMessage = state.message.slice();
+            let _lastMessageId = state.lastMessageId;
+            for (let i = 0; i < filteredMessage.length; i++) {
+                let messageId = filteredMessage[i]._id;
+                if (message.includes(messageId)) {
+                    filteredMessage.splice(i, 1);
+                    if (messageId === _lastMessageId) {
+                        _lastMessageId = filteredMessage[i];
                     }
                 }
             }
-            return { ...state, lastMessageId: lastMessageIdCopy, message: messageCopy };
+
+            return { ...state, lastMessageId: _lastMessageId, message: filteredMessage };
         default:
             return state
     }

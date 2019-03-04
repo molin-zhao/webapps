@@ -46,7 +46,7 @@ router.post('/recall', (req, res) => {
             if (socketId) {
                 let socket = app.locals.sockets[socketId];
                 if (socket) {
-                    socket.emit('recall-message', messageDoc);
+                    socket.emit('recall-message', [messageDoc._id]);
                 }
             }
         }

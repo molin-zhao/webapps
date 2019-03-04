@@ -109,6 +109,51 @@ const PostSchema = new Schema({
 		timestamps: true
 	});
 
+PostSchema.statics.getPostDetail = function (postId, userId = null) {
+	return this.aggregate([
+		{
+			$match: {
+				_id: postId
+			}
+		},
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'creator',
+				foreignField: '_id',
+				as: 'postUser'
+			}
+		},
+		{
+			$unwind: "$postUser"
+		},
+		{
+			$project: {
+				"_id": 1,
+				"liked": {
+					$in: [userId, "$likes"]
+				},
+				"likeCount": {
+					$size: "$likes"
+				},
+				"commentCount": {
+					$size: "$comments"
+				},
+				"sharedCount": {
+					$size: "$shared"
+				},
+				"image": 1,
+				"label": 1,
+				"description": 1,
+				"location": 1,
+				"createdAt": 1,
+				"creator": 1,
+				"postUser.username": 1,
+				"postUser.avatar": 1,
+			}
+		}
+	])
+}
 
 PostSchema.statics.getPosts = function (userId, lastQueryDataIds, limit, followings = null) {
 	if (followings) {
@@ -223,6 +268,7 @@ PostSchema.statics.getUserPosts = function (userId, lastQueryDataIds, limit, typ
 	};
 	if (type === 'LIKED') {
 		criteria.likes = userId;
+		criteria.creator = { $ne: userId }
 	} else if (type === 'CREATED') {
 		criteria.creator = userId;
 	} else {
@@ -240,6 +286,9 @@ PostSchema.statics.getUserPosts = function (userId, lastQueryDataIds, limit, typ
 				"image": 1,
 				"likeCount": {
 					$size: "$likes"
+				},
+				"commentCount": {
+					$size: '$comments'
 				},
 				"createdAt": 1
 			}

@@ -176,19 +176,29 @@ class MainApp extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        const { client, socket, getClientProfile, getMessage, addMessages, recallMessage } = this.props;
+        const { client, socket, getClientProfile, getMessage, addMessage, recallMessage } = this.props;
         if (prevProps.client !== client && client) {
             // client has value
             getClientProfile(client.token);
-            // getMessage(client.token);
+            getMessage(client.token);
         }
-        if (prevProps.socket !== socket && socket) {
+        if (prevProps.socket !== socket && socket && client) {
             // socket has been established
             socket.on('new-message', msg => {
-                addMessages(msg);
+                addMessage(msg);
+                let messageId = msg[0]._id;
+                socket.emit('received-message', {
+                    userId: client.user._id,
+                    messageId: messageId
+                });
             });
             socket.on('recall-message', msg => {
                 recallMessage(msg);
+                let messageId = msg[0];
+                socket.emit('recalled-message', {
+                    userId: client.user._id,
+                    messageId: messageId
+                });
             })
         }
     }

@@ -195,13 +195,12 @@ class ProfileSetting extends React.Component {
                         justifyContent: 'center',
                         alignItems: 'center',
                         marginTop: 30,
-                        width: '80%',
+                        width: 80,
                         height: 80
                     }}
                 >
                     <Thumbnail
-                        onPress={this.showActionSheet}
-                        style={{ marginTop: 30, width: 80, height: 80 }}
+                        style={{ width: 80, height: 80 }}
                         source={this.state.imageUri}
                     />
                 </TouchableOpacity>

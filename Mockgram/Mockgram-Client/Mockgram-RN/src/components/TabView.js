@@ -63,7 +63,7 @@ export default class TabView extends React.Component {
                 <View style={styles.tab}>
                     {this.renderTabBar()}
                 </View>
-                <View style={{ width: '100%' }}>
+                <View style={{ width: '100%', alignItems: 'center' }}>
                     {this.props.children.map((child, index) => {
                         return React.cloneElement(child, {
                             ref: index,
@@ -79,11 +79,13 @@ export default class TabView extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: '100%',
         justifyContent: 'flex-start',
         alignItems: 'center'
     },
     tab: {
-        width: window.width,
+        height: window.height * 0.05,
+        width: '100%',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',

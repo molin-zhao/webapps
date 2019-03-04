@@ -167,6 +167,8 @@ MessageSchema.statics.deleteMessage = function (message, callback) {
             }).catch(err => {
                 return callback(err, null)
             })
+        } else {
+            return callback(null, null);
         }
     }).catch(err => {
         return callback(err, null);
