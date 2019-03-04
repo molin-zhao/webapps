@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, StyleSheet, TextInput, Keyboard, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import Thumbnail from '../components/Thumbnail';
 
 import window from '../utils/getDeviceInfo';
 import { connect } from 'react-redux';
+import { dismissInput, popUpInput } from '../redux/actions/appActions';
 
 const INPUT_MARGIN = 20;
 const ITEM_MARGIN = 10;
@@ -20,42 +22,99 @@ class TextInputBox extends React.Component {
             textInputHeight: 40 + INPUT_MARGIN * 2 + ITEM_MARGIN * 2,
             textItemHeight: 40 + ITEM_MARGIN * 2,
             textHeight: 40,
-            showMoreOptions: false,
+            focused: false,
             moreOptionsHeight: new Animated.Value(0)
         }
     }
 
-    showMoreOptions = () => {
-        if (!this.state.showMoreOptions) {
-            this.setState({
-                showMoreOptions: true
-            }, () => {
-                Keyboard.dismiss();
-                Animated.timing(
-                    this.state.moreOptionsHeight,
-                    {
-                        toValue: INPUT_OPTION_HEIGHT,
-                        duration: INPUT_OPTION_DURATION
-                    }
-                ).start();
-            });
+    componentDidUpdate(prevProps) {
+        const { inputPoppedUp } = this.props;
+        if (prevProps.inputPoppedUp && !inputPoppedUp) {
+            // popped up flag from true to false, dismiss textinput box
+            this.hideMoreOptions();
         }
     }
 
-    hideMoreOptions = () => {
-        if (this.state.showMoreOptions) {
-            this.setState({
-                showMoreOptions: false
-            }, () => {
-                Animated.timing(
-                    this.state.moreOptionsHeight,
-                    {
-                        toValue: 0,
-                        duration: INPUT_OPTION_DURATION
-                    }
-                ).start();
-            });
+
+    componentDidMount() {
+        this.keyboardWillShowListener = Keyboard.addListener(
+            'keyboardWillShow',
+            this._keyboardWillShow,
+        );
+        this.keyboardWillHideListener = Keyboard.addListener(
+            'keyboardWillHide',
+            this._keyboardWillHide,
+        );
+    }
+
+    componentWillUnmount() {
+        this.keyboardWillShowListener.remove();
+        this.keyboardWillHideListener.remove();
+    }
+
+    _keyboardWillShow = () => {
+        /**
+         * listener for keyboard pop up and textinput being focused
+         */
+        const { inputPoppedUp } = this.props;
+        if (inputPoppedUp) {
+            this.hideMoreOptionsWithoutAnimation();
         }
+        this.setState({
+            focused: true
+        })
+    }
+
+    _keyboardWillHide = () => {
+        /**
+         * listener for keyboard dimiss and textinput isn't focused
+         */
+        this.setState({
+            focused: false
+        })
+    }
+
+    showMoreOptions = () => {
+        this.setState({
+            showMoreOptions: true
+        }, () => {
+            Keyboard.dismiss();
+            Animated.timing(
+                this.state.moreOptionsHeight,
+                {
+                    toValue: INPUT_OPTION_HEIGHT,
+                    duration: INPUT_OPTION_DURATION
+                }
+            ).start();
+        });
+    }
+
+    hideMoreOptionsWithoutAnimation = () => {
+        Animated.timing(
+            this.state.moreOptionsHeight,
+            {
+                toValue: 0,
+                duration: 0
+            }
+        ).start()
+        this.setState({
+            showMoreOptions: false
+        })
+
+    }
+
+    hideMoreOptions = () => {
+        this.setState({
+            showMoreOptions: false
+        }, () => {
+            Animated.timing(
+                this.state.moreOptionsHeight,
+                {
+                    toValue: 0,
+                    duration: INPUT_OPTION_DURATION
+                }
+            ).start();
+        });
     }
 
     updateHeight = (height) => {
@@ -70,16 +129,47 @@ class TextInputBox extends React.Component {
     }
 
     handleShowOptions = () => {
-        if (this.state.showMoreOptions) {
-            return this.hideMoreOptions();
+        // stick button been pressed
+        const { inputPoppedUp, popUpInput } = this.props;
+        if (this.state.focused) {
+            /**
+             * keyboard already popped up when pressing the button
+             * 1. dismiss the keyboard
+             * 2. show the option view
+             */
+            Keyboard.dismiss();
+            this.showMoreOptions();
+            this.setState({
+                focused: false
+            })
         } else {
-            return this.showMoreOptions();
+            /**
+             * keyboard didn't show up and textinput is not focused when pressing the button
+             * 1. check if the textinput box is already popped up
+             * 2. if textinput box alreay popped up, that means textinput box is showing options
+             *     1) hide the option view without animation
+             *     2) pop up keyboard and focus the textinput
+             * 3. otherwise the textinput box didn't popped up, should pop up textinput box
+             *     1) show to option view
+             *     2) update inputPoppedUp value
+             */
+            if (inputPoppedUp) {
+                this.hideMoreOptionsWithoutAnimation();
+                this._textInput.focus()
+                this.setState({
+                    focus: true
+                })
+            } else {
+                this.showMoreOptions();
+                popUpInput();
+            }
         }
     }
 
     render() {
-        const { textInputHeight, textItemHeight, textHeight } = this.state;
-        const { placeholder, profile, style } = this.props;
+        const { textInputHeight, textItemHeight, textHeight, focused } = this.state;
+        const { placeholder, profile, style, inputPoppedUp } = this.props;
+        let showKeyboardIcon = inputPoppedUp && !focused ;
         return (
             <View style={{ justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column' }}>
                 <View style={[styles.textInput, { height: textInputHeight }, style]}>
@@ -99,6 +189,7 @@ class TextInputBox extends React.Component {
                         alignItems: 'center'
                     }} >
                         <TextInput
+                            ref={o => this._textInput = o}
                             underlineColorAndroid="transparent"
                             style={{ fontSize: 17, width: '90%', marginLeft: window.width * 0.02, height: textHeight }}
                             placeholder={placeholder}
@@ -120,7 +211,7 @@ class TextInputBox extends React.Component {
                         />
                         <Icon name="ios-send" style={{ fontSize: window.width * 0.05, marginRight: window.width * 0.02, color: "#4696EC" }} />
                     </View>
-                    <Icon name="md-happy" style={{ fontSize: window.width * 0.05, marginLeft: window.width * 0.04 }}
+                    <FontAwesome name={showKeyboardIcon? 'keyboard-o' : 'smile-o'} style={{ fontSize: window.width * 0.05, marginLeft: window.width * 0.04 }}
                         onPress={() => {
                             this.handleShowOptions();
                         }} />
@@ -141,10 +232,16 @@ class TextInputBox extends React.Component {
 }
 
 const mapStateToProps = state => ({
-    profile: state.profile.profile
+    profile: state.profile.profile,
+    inputPoppedUp: state.app.inputPoppedUp
 })
 
-export default connect(mapStateToProps, null)(TextInputBox)
+const mapDispatchToProps = dispatch => ({
+    dismissInput: () => dispatch(dismissInput()),
+    popUpInput: () => dispatch(popUpInput())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(TextInputBox)
 
 const styles = StyleSheet.create({
     textInput: {

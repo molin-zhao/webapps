@@ -1,18 +1,16 @@
 import React from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { SearchBar } from 'react-native-elements';
 import { connect } from 'react-redux';
 
 import ListCell from '../../components/ListCell';
 import DismissKeyboad from '../../components/DismissKeyboard';
+import SearchBarView from '../../components/SearchBarView';
 import baseUrl from '../../common/baseUrl';
 
 import theme from '../../common/theme';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
 import { parseIdFromObjectArray } from '../../utils/idParser';
-
-
 
 
 class Discovery extends React.Component {
@@ -45,50 +43,23 @@ class Discovery extends React.Component {
     }
 
     componentDidMount() {
-        this.props.navigation.setParams({
+        const { navigation } = this.props;
+        navigation.setParams({
             container: this
-        });
+        })
     }
 
-    static navigationOptions = ({ navigation }) => ({
-        headerTitle: <SearchBar
-            onChangeText={(text) => {
-                // search bar is not empty
-                let container = navigation.getParam('container');
-                clearTimeout(container.state.timer);
-                container.setState({
-                    searchBarInput: text,
-                }, () => {
-                    if (text.length > 0) {
-                        container.setState({
-                            isSearching: true,
-                            timer: setTimeout(() => {
-                                container.setState({
-                                    searchValue: text,
-                                    timer: null
-                                }, () => {
-                                    clearTimeout(container.state.timer);
-                                    container.startSearch();
-                                });
-                            }, 1000)
-                        })
-                    } else {
-                        container.setState({
-                            isSearching: false,
-                            timer: null,
-                            searchValue: '',
-                        });
-                    }
-                })
-            }}
-            placeholder='search...'
-            round
-            lightTheme
-            icon={{ type: 'font-awesome', name: 'search' }}
-            containerStyle={{ borderBottomWidth: 0, borderTopWidth: 0, backgroundColor: 'white', width: window.width }}
-            inputStyle={{ backgroundColor: 'white', borderWidth: 1, borderColor: 'lightgrey' }}
-        />
-    });
+    static navigationOptions = ({ navigation }) => {
+        let container = navigation.getParam('container');
+        if (container) {
+            return {
+                headerTitle: <SearchBarView
+                    style={{ width: window.width, height: '80%' }}
+                    container={container} />,
+            };
+        }
+        return null;
+    };
 
     startSearch = () => {
         const { client } = this.props;
@@ -192,6 +163,7 @@ class Discovery extends React.Component {
 
     render() {
         return (
+
             <DismissKeyboad>
                 <View style={styles.container}>
                     <View style={styles.tabBarTop}>

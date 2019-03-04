@@ -28,4 +28,6 @@ export const UPDATE_LAST_MESSAGE_ID = 'UPDATE_LAST_MESSAGE_ID';
 
 // app related action types
 export const APP_FINISH_INIT = 'APP_FINISH_INIT';
+export const POP_UP_TEXT_INPUT = 'POP_UP_TEXT_INPUT';
+export const DISMISS_TEXT_INPUT = 'DISMISS_TEXT_INPUT';
 
