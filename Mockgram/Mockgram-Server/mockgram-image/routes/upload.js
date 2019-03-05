@@ -39,7 +39,6 @@ router.post('/post', multipart(), verifyUser, (req, res) => {
     });
 });
 
-
 router.post('/profile', multipart(), verifyUser, (req, res) => {
     uploadImage({
         dest: image.avatar,

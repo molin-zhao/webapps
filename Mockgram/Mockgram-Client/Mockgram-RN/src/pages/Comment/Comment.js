@@ -173,7 +173,7 @@ class CommentPage extends React.Component {
                 <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
                     <DismissKeyboard>
                         <View style={styles.contentContainer}>
-                            <this.renderComment />
+                            {this.renderComment()}
                         </View>
                     </DismissKeyboard>
                     <TextInputBox />
