@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import ViewMoreText from 'react-native-view-more-text';
+import ActionSheet from 'react-native-actionsheet';
+
 import Thumbnail from './Thumbnail';
 
 import { connect } from 'react-redux';
@@ -99,8 +101,12 @@ class PostCardComponent extends React.Component {
         }
     }
 
+    showActionSheet = () => {
+        this.ActionSheet.show();
+    }
+
     handleLike = () => {
-        const { client, addLikePostToProfile, removeLikePostFromProfile } = this.props;
+        const { client, addLikePostToProfile, removeLikePostFromProfile, navigation } = this.props;
         const { dataSource } = this.state;
         if (client && client.token) {
             const url = `${baseUrl.api}/post/liked`;
@@ -112,7 +118,6 @@ class PostCardComponent extends React.Component {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: client.user._id,
                     postId: dataSource._id,
                     addLike: !dataSource.liked
                 })
@@ -134,6 +139,8 @@ class PostCardComponent extends React.Component {
                     });
                 }
             })
+        } else {
+            navigation.navigate('Auth');
         }
     }
 
@@ -151,7 +158,7 @@ class PostCardComponent extends React.Component {
     }
 
     handleMoreOptions = () => {
-        console.log("more options");
+        this.showActionSheet()
     }
 
     renderHeader = () => {
@@ -237,7 +244,7 @@ class PostCardComponent extends React.Component {
                     </View>
                 </CardItemRow>
                 <CardBody>
-                    <Image source={{ uri: dataSource.image }} style={{ height: window.width, width: window.width}} resizeMode='cover' />
+                    <Image source={{ uri: dataSource.image }} style={{ height: window.width, width: window.width }} resizeMode='cover' />
                 </CardBody>
                 <CardItemRow style={[styles.cardItemRow, { marginTop: 10, height: 50 }]}>
                     <Left>
@@ -326,6 +333,21 @@ class PostCardComponent extends React.Component {
                         <Text style={{ fontSize: 12, color: 'grey' }}>{`published ${dateConverter(dataSource.createdAt)}`}</Text>
                     </View>
                 </CardItemCol>
+                <ActionSheet
+                    ref={o => this.ActionSheet = o}
+                    options={['Share', 'Mute', 'Cancel']}
+                    cancelButtonIndex={2}
+                    destructiveButtonIndex={1}
+                    onPress={index => {
+                        if (index === 0) {
+                            console.log('Share post');
+                        } else if (index === 1) {
+                            console.log('Mute post');
+                        } else {
+                            // PASS
+                        }
+                    }}
+                />
             </Card>
         );
     }

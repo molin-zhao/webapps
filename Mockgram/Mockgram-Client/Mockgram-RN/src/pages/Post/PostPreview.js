@@ -2,11 +2,13 @@ import React from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity, TextInput, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Location, Permissions, SecureStore } from 'expo'
+import { connect } from 'react-redux';
+
 import window from '../../utils/getDeviceInfo';
 import baseUrl from '../../common/baseUrl';
 
 
-export default class PostPreview extends React.Component {
+class PostPreview extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -18,7 +20,7 @@ export default class PostPreview extends React.Component {
             switchValue: false
         }
     }
-    static navigationOptions = ({ navigation, navigationOptions }) => {
+    static navigationOptions = ({ navigation }) => {
         const { params = {} } = navigation.state;
         return {
             headerStyle: {
@@ -56,6 +58,7 @@ export default class PostPreview extends React.Component {
     }
 
     makePost = () => {
+        const { client, navigation } = this.props;
         let fileName = this.state.image.uri.split('/').pop();
         let match = /\.(\w+)$/.exec(fileName);
         let type = match ? `image/${match[1]}` : `image`;
@@ -69,18 +72,17 @@ export default class PostPreview extends React.Component {
         formData.append('description', this.state.description);
         formData.append('label', this.state.label);
         formData.append('location', JSON.stringify(this.state.location));
-        formData.append('id', global.userinfo.user._id);
         fetch(`${baseUrl.upload}/upload/post`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'multipart/form-data',
-                Authorization: global.userinfo.token
+                Authorization: client.token
             },
             body: formData
         }).then(res => res.json()).then(resJson => {
             console.log(resJson);
-            this.props.navigation.navigate('Home');
+            navigation.navigate('Home');
         })
     }
 
@@ -199,6 +201,17 @@ export default class PostPreview extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    client: state.client.client
+})
+
+const mapDispatchToProps = dispatch => ({
+    updateHomeFeed: (post) => dispatch(updateHomeFeed(post))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(PostPreview);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

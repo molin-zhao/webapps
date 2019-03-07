@@ -97,12 +97,12 @@ router.post('/comment', (req, res) => {
     let postId = convertStringToObjectId(req.body.postId);
     let creatorId = convertStringToObjectId(req.body.creatorId);
     let limit = req.body.limit;
-    let userId = req.body.userId;//client id, who sent the request
+    let userId = convertStringToObjectId(req.body.userId);
     let lastQueryDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
     Post.getAllComment(postId, lastQueryDataIds, userId, limit).exec(async (err, comments) => {
         if (err) return handleError(res, err);
         const promises = comments.map(async (comment) => {
-            let result = await CommentModel.getPostCreatorReply(comment._id, creatorId);
+            let result = await CommentModel.getPostCreatorReply(comment._id, creatorId, userId);
             comment.replyByPostCreator = result.shift();
             return comment;
         });
@@ -122,7 +122,7 @@ router.post('/comment/reply', (req, res) => {
     let commentId = convertStringToObjectId(req.body.commentId);
     let lastDataIds = convertStringArrToObjectIdArr(req.body.lastQueryDataIds);
     let limit = req.body.limit;
-    let clientId = req.body.userId;
+    let clientId = convertStringToObjectId(req.body.userId);
     CommentModel.getAllReply(commentId, lastDataIds, clientId, limit).exec((err, replies) => {
         if (err) return handleError(res, err);
         return res.json({
@@ -154,16 +154,76 @@ router.put('/comment/reply', verifyAuthorization, (req, res) => {
         from: from,
         to: to,
         mentioned: mentioned
-    }).then((reply) => {
-        CommentModel.updateOne({ _id: commentId }, {
+    }).then(reply => {
+        CommentModel.findOneAndUpdate({ _id: commentId }, {
             $addToSet: { replies: reply._id }
-        }).exec((err, comment) => {
-            if (err) return handleError(res, err);
-            return res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG,
-                data: reply
-            });
+        }).then(comment => {
+            let message = {
+                receiver: reply.to,
+                sender: reply.from,
+                messageType: 'ReplyComment',
+                postReference: comment.postId,
+                commentReference: comment._id,
+                replyReference: reply._id
+            }
+            return Message.createMessage(message, (err, result) => {
+                if (err) return handleError(res, err);
+                return agent.post(`${serverNodes.socketServer}/message/push`).send({
+                    message: result
+                }).set('Accept', 'application/json').end((err) => {
+                    if (err) return handleError(res, err);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG,
+                        data: reply
+                    })
+                });
+            })
+        }).catch(err => {
+            return handleError(res, err);
+        })
+    })
+})
+
+/**
+ * add a comment to the post  
+ */
+router.put('/comment', verifyAuthorization, (req, res) => {
+    let content = req.body.content;
+    let commentBy = req.user._id;
+    let postId = req.body.postId;
+    let mentioned = req.body.mentioned;
+    CommentModel.create({
+        content,
+        commentBy,
+        postId,
+        mentioned
+    }).then(comment => {
+        Post.findOneAndUpdate({ _id: postId }, {
+            $addToSet: { comments: comment._id }
+        }).then(post => {
+            let message = {
+                receiver: post.creator,
+                sender: userId,
+                messageType: 'CommentPost',
+                postReference: post._id,
+                commentReference: comment._id
+            }
+            return Message.createMessage(message, (err, result) => {
+                if (err) return handleError(res, err);
+                return agent.post(`${serverNodes.socketServer}/message/push`).send({
+                    message: result
+                }).set('Accept', 'application/json').end((err) => {
+                    if (err) return handleError(res, err);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG,
+                        data: comment
+                    })
+                });
+            })
+        }).catch(err => {
+            return handleError(res, err);
         })
     })
 })
@@ -172,7 +232,7 @@ router.put('/comment/reply', verifyAuthorization, (req, res) => {
  * add like or dislike to a post
  */
 router.put('/liked', verifyAuthorization, (req, res) => {
-    let userId = convertStringToObjectId(req.body.userId);
+    let userId = convertStringToObjectId(req.user._id);
     let postId = req.body.postId;
     let addLike = req.body.addLike;
     let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
@@ -236,16 +296,46 @@ router.put('/liked', verifyAuthorization, (req, res) => {
  * add like or dislike to a comment
  */
 router.put('/comment/liked', verifyAuthorization, (req, res) => {
-    let userId = convertStringToObjectId(req.body.userId);
+    let userId = convertStringToObjectId(req.user._id);
     let commentId = req.body.commentId;
     let addLike = req.body.addLike;
     let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
-    CommentModel.updateOne({ _id: commentId }, update).exec((err, comment) => {
+    CommentModel.findOneAndUpdate({ _id: commentId }, update).exec((err, comment) => {
         if (err) handleError(res, err);
-        return res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG,
-        })
+        let message = {
+            receiver: comment.commentBy,
+            sender: userId,
+            messageType: 'LikeComment',
+            postReference: comment.postId,
+            commentReference: comment._id
+        }
+        if (addLike) {
+            return Message.createMessage(message, (err, result) => {
+                if (err) return handleError(res, err);
+                return agent.post(`${serverNodes.socketServer}/message/push`).send({
+                    message: result
+                }).set('Accept', 'application/json').end((err) => {
+                    if (err) return handleError(res, err);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
+                    })
+                });
+            });
+        } else {
+            return Message.deleteMessage(message, (err, result) => {
+                if (err) return handleError(res, err);
+                return agent.post(`${serverNodes.socketServer}/message/recall`).send({
+                    message: result
+                }).set('Accept', 'application/json').end(err => {
+                    if (err) return handleError(res, err);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
+                    })
+                })
+            })
+        }
     })
 })
 
@@ -253,16 +343,49 @@ router.put('/comment/liked', verifyAuthorization, (req, res) => {
  * add like or dislike to a reply
  */
 router.put('/comment/reply/liked', verifyAuthorization, (req, res) => {
-    let userId = convertStringToObjectId(req.body.userId);
+    let userId = convertStringToObjectId(req.user._id);
     let replyId = req.body.replyId;
+    let postId = req.body.postId;
     let addLike = req.body.addLike;
     let update = addLike ? { $addToSet: { likes: userId } } : { $pull: { likes: userId } };
-    Reply.updateOne({ _id: replyId }, update).exec((err, reply) => {
+    Reply.findOneAndUpdate({ _id: replyId }, update).exec((err, reply) => {
         if (err) handleError(res, err);
-        return res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG,
-        })
+        let commentId = reply.commentId;
+        let message = {
+            receiver: reply.from,
+            sender: userId,
+            messageType: 'LikeReply',
+            commentReference: commentId,
+            replyReference: reply._id,
+            postReference: postId
+        }
+        if (addLike) {
+            return Message.createMessage(message, (err, result) => {
+                if (err) return handleError(res, err);
+                return agent.post(`${serverNodes.socketServer}/message/push`).send({
+                    message: result
+                }).set('Accept', 'application/json').end((err) => {
+                    if (err) return handleError(res, err);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
+                    })
+                });
+            });
+        } else {
+            return Message.deleteMessage(message, (err, result) => {
+                if (err) return handleError(res, err);
+                return agent.post(`${serverNodes.socketServer}/message/recall`).send({
+                    message: result
+                }).set('Accept', 'application/json').end(err => {
+                    if (err) return handleError(res, err);
+                    return res.json({
+                        status: response.SUCCESS.OK.CODE,
+                        msg: response.SUCCESS.OK.MSG
+                    })
+                })
+            })
+        }
     })
 })
 

@@ -42,7 +42,7 @@ const CommentSchema = new Schema({
         timestamps: true
     });
 
-CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) {
+CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId, userId) {
     return this.aggregate([
         {
             $match: {
@@ -92,6 +92,9 @@ CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId) 
         {
             $project: {
                 "replies": {
+                    "liked": {
+                        $in: [userId, "$likes"]
+                    },
                     "likeCount": {
                         $size: "$likes"
                     },
@@ -139,7 +142,8 @@ CommentSchema.statics.getAllReply = function (commentId, lastDataIds, clientId, 
             $project: {
                 "replies": {
                     $setDifference: ["$replies", lastDataIds]
-                }
+                },
+                "postId": 1
             }
         },
         {
@@ -203,7 +207,8 @@ CommentSchema.statics.getAllReply = function (commentId, lastDataIds, clientId, 
                         "avatar": 1
                     },
                     "createdAt": 1,
-                    "content": 1
+                    "content": 1,
+                    "postId": "$postId"
                 }
             }
         },

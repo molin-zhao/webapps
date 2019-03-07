@@ -12,3 +12,12 @@ export const popUpInput = () => ({
 export const dismissInput = () => ({
     type: ActionTypes.DISMISS_TEXT_INPUT
 })
+
+export const updateMessageReceiver = receiver => ({
+    type: ActionTypes.UPDATE_MESSAGE_RECEIVER,
+    payload: receiver
+})
+
+export const removeMessageReceiver = () => ({
+    type: ActionTypes.REMOVE_MESSAGE_RECEIVER
+})

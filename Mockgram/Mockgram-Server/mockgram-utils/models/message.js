@@ -18,7 +18,7 @@ const MessageSchema = new Schema({
     messageType: {
         type: String,
         required: true,
-        enum: ['CommentPost', 'ReplyReply', 'ReplyComment', 'LikeReply', 'LikeComment', 'LikePost', 'Follow']
+        enum: ['CommentPost', 'ReplyComment', 'LikeReply', 'LikeComment', 'LikePost', 'Follow']
     },
     commentReference: {
         type: Schema.Types.ObjectId,

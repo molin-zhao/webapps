@@ -66,6 +66,7 @@ export default class TabView extends React.Component {
                 <View style={{ width: '100%', alignItems: 'center' }}>
                     {this.props.children.map((child, index) => {
                         return React.cloneElement(child, {
+                            onRef: index,
                             ref: index,
                             key: index
                         })

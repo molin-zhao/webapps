@@ -11,7 +11,7 @@ export default class ImageFilterPage extends React.Component {
             selectedFilter: 0
         }
     }
-    static navigationOptions = ({ navigation, navigationOptions }) => {
+    static navigationOptions = ({ navigation }) => {
         return {
             headerStyle: {
                 borderBottomColor: 'transparent',

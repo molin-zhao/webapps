@@ -2,7 +2,12 @@ import * as ActionTypes from '../actions/ActionTypes';
 
 export const app = (state = {
     initialized: false,
-    inputPoppedUp: false
+    inputPoppedUp: false,
+    messageReceiver: {
+        _id: '',
+        username: '',
+        messageType: ''
+    },
 }, action) => {
     switch (action.type) {
         case ActionTypes.APP_FINISH_INIT:

@@ -2,12 +2,55 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import ViewMoreText from 'react-native-view-more-text';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { connect } from 'react-redux';
+import { withNavigation } from 'react-navigation';
 
 import { dateConverter } from '../utils/unitConverter';
 import Thumbnail from './Thumbnail';
 import CreatorTag from './CreatorTag';
+import theme from '../common/theme';
+import baseUrl from '../common/baseUrl';
 
-export default class CommentListCell extends React.Component {
+class CommentListCell extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            dataSource: this.props.dataSource
+        }
+    }
+
+    handleLiked = () => {
+        /**
+         * comment like
+         */
+        const { client, navigation } = this.props;
+        const { dataSource } = this.state;
+        if (client && client.token) {
+            const url = `${baseUrl.api}/post/comment/liked`;
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: client.token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    commentId: dataSource._id,
+                    addLike: !dataSource.liked
+                })
+            }).then(res => res.json()).then(res => {
+                if (res.status === 200) {
+                    dataSource.likeCount = dataSource.liked ? dataSource.likeCount - 1 : dataSource.likeCount + 1;
+                    dataSource.liked = !dataSource.liked;
+                    this.setState({
+                        dataSource: dataSource
+                    });
+                }
+            })
+        } else {
+            navigation.navigate('Auth');
+        }
+    }
 
     renderViewAllReply = (replyLength) => {
         const { navigation } = this.props;
@@ -22,7 +65,7 @@ export default class CommentListCell extends React.Component {
                             })
                         }}
                     >
-                        <Text style={{ color: '#4696EC', fontSize: 13, fontWeight: 'bold' }}>
+                        <Text style={{ color: theme.primaryBlue, fontSize: 13, fontWeight: 'bold' }}>
                             {`View all ${replyLength} replies`}
                         </Text>
                     </TouchableOpacity>
@@ -55,7 +98,7 @@ export default class CommentListCell extends React.Component {
                                             activeOpacity={0.8}
                                             onPress={onPress}
                                             style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-                                            <Text style={{ color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
+                                            <Text style={{ color: theme.primaryBlue }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
                                         </TouchableOpacity>);
 
                                 }}
@@ -65,7 +108,7 @@ export default class CommentListCell extends React.Component {
                                             activeOpacity={0.8}
                                             onPress={onPress}
                                             style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-                                            <Text style={{ color: '#4696EC' }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
+                                            <Text style={{ color: theme.primaryBlue }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
                                         </TouchableOpacity>);
                                 }}
                             >
@@ -81,7 +124,13 @@ export default class CommentListCell extends React.Component {
                                 <TouchableOpacity
                                     activeOpacity={0.8}
                                     style={styles.commentMetaIcon}>
-                                    <Icon name="ios-thumbs-up" style={{ color: replyByPostCreator.liked ? '#eb765a' : 'grey' }} />
+                                    <Icon
+                                        name="ios-thumbs-up"
+                                        style={{ color: replyByPostCreator.liked ? theme.primaryColor : 'grey' }}
+                                        onPress={() => {
+                                            this.handleLiked();
+                                        }}
+                                    />
                                     <Text style={{ color: 'grey', fontSize: 12 }}>{replyByPostCreator.likeCount}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -95,7 +144,8 @@ export default class CommentListCell extends React.Component {
     }
 
     render() {
-        const { dataSource, creatorId } = this.props;
+        const { creatorId } = this.props;
+        const { dataSource } = this.state;
         return (
             <View key={dataSource._id} style={styles.commentListWrapper}>
                 <View style={styles.commentContainer}>
@@ -118,7 +168,7 @@ export default class CommentListCell extends React.Component {
                                             activeOpacity={0.8}
                                             onPress={onPress}
                                             style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-                                            <Text style={{ color: '#4696EC' }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
+                                            <Text style={{ color: theme.primaryBlue }} onPress={onPress}>{`show more `}<Icon name="md-arrow-dropdown" /></Text>
                                         </TouchableOpacity>);
 
                                 }}
@@ -128,7 +178,7 @@ export default class CommentListCell extends React.Component {
                                             activeOpacity={0.8}
                                             onPress={onPress}
                                             style={{ marginTop: 2, height: 15, flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-                                            <Text style={{ color: '#4696EC' }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
+                                            <Text style={{ color: theme.primaryBlue }}>{`show less `}<Icon name="md-arrow-dropup" /></Text>
                                         </TouchableOpacity>);
                                 }}
                             >
@@ -144,7 +194,11 @@ export default class CommentListCell extends React.Component {
                                 <TouchableOpacity
                                     activeOpacity={0.8}
                                     style={styles.commentMetaIcon}>
-                                    <Icon name="ios-thumbs-up" style={{ color: dataSource.liked ? '#eb765a' : 'grey' }} />
+                                    <Icon
+                                        name="ios-thumbs-up"
+                                        style={{ color: dataSource.liked ? theme.primaryColor : 'grey' }}
+                                        onPress={this.handleLiked}
+                                    />
                                     <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
@@ -164,6 +218,12 @@ export default class CommentListCell extends React.Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    client: state.client.client
+})
+
+export default connect(mapStateToProps, null)(withNavigation(CommentListCell))
 
 const styles = StyleSheet.create({
     commentListWrapper: {

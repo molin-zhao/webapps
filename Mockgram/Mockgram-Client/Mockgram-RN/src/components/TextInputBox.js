@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TextInput, Keyboard, Animated } from 'react-native';
+import { View, StyleSheet, TextInput, Keyboard, Animated, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { withNavigation } from 'react-navigation';
@@ -8,8 +8,9 @@ import Thumbnail from '../components/Thumbnail';
 
 import window from '../utils/getDeviceInfo';
 import { connect } from 'react-redux';
-import { popUpInput, dismissInput } from '../redux/actions/appActions';
+import { popUpInput, dismissInput, removeMessageReceiver } from '../redux/actions/appActions';
 import baseUrl from '../common/baseUrl';
+import theme from '../common/theme';
 
 const INPUT_MARGIN = 20;
 const ITEM_MARGIN = 10;
@@ -184,7 +185,7 @@ class TextInputBox extends React.Component {
     }
 
     handleSend = () => {
-        const { type, receiver, client, navigation } = this.props;
+        const { messageReceiver, client, navigation } = this.props;
         if (!client || !client.token) {
             navigation.navigate('Auth');
         }
@@ -207,13 +208,13 @@ class TextInputBox extends React.Component {
                 <View style={[styles.textInput, { height: textInputHeight }, style]}>
                     <Thumbnail
                         source={profile ? profile.avatar : null}
-                        style={{ marginLeft: window.width * 0.04, width: window.width * 0.1, height: window.width * 0.1, borderRadius: window.width * 0.1 / 2 }}
+                        style={{ marginLeft: window.width * 0.05, width: window.width * 0.1, height: window.width * 0.1, borderRadius: window.width * 0.1 / 2 }}
                     />
                     <View style={{
                         borderWidth: 1,
                         borderRadius: 15,
                         borderColor: 'lightgrey',
-                        marginLeft: window.width * 0.04,
+                        marginLeft: window.width * 0.05,
                         width: window.width * 0.6,
                         height: textItemHeight,
                         flexDirection: 'row',
@@ -221,9 +222,10 @@ class TextInputBox extends React.Component {
                         alignItems: 'center'
                     }} >
                         <TextInput
+                            placeholderTextColor='lightgrey'
                             ref={o => this._textInput = o}
                             underlineColorAndroid="transparent"
-                            style={{ fontSize: 17, width: '90%', marginLeft: window.width * 0.02, height: textHeight }}
+                            style={{ fontSize: 14, width: '90%', marginLeft: window.width * 0.02, height: textHeight }}
                             placeholder={placeholder}
                             onChangeText={(value) => {
                                 this.setState({
@@ -237,7 +239,7 @@ class TextInputBox extends React.Component {
                             }}
                             onKeyPress={({ nativeEvent }) => {
                                 if (nativeEvent.key === 'Backspace') {
-                                    console.log('delete');
+                                    //TODO delete logic goes here
                                 }
                             }}
                         />
@@ -247,26 +249,31 @@ class TextInputBox extends React.Component {
                                 fontSize:
                                     window.width * 0.05,
                                 marginRight: window.width * 0.02,
-                                color: "#4696EC"
+                                color: theme.primaryBlue
                             }}
                             onPress={() => {
                                 this.handleSend()
                             }}
                         />
                     </View>
-                    <FontAwesome name={inputPoppedUp && showOptions ? 'keyboard-o' : 'smile-o'} style={{ fontSize: window.width * 0.05, marginLeft: window.width * 0.04 }}
-                        onPress={() => {
-                            this.handleShowOptions();
-                        }} />
-                    <Icon name="md-add" style={{ fontSize: window.width * 0.05, marginLeft: window.width * 0.04 }}
-                        onPress={() => {
-                            this.handleShowOptions();
-                        }} />
+                    <View style={{
+                        height: '100%',
+                        marginLeft: window.width * 0.05,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <FontAwesome
+                            size={24}
+                            name={inputPoppedUp && showOptions ? 'keyboard-o' : 'smile-o'}
+                            onPress={() => {
+                                this.handleShowOptions();
+                            }} />
+                    </View>
                 </View>
                 <Animated.View
                     style={[{ width: '100%', justifyContent: 'center', alignItems: 'center' }, { height: this.state.moreOptionsHeight }]}
                 >
-                    <View style={{ width: '100%', height: '100%', backgroundColor: 'lightgrey' }}></View>
+                    <Text style={{ color: 'grey', fontSize: 20 }}>Stickers</Text>
                 </Animated.View>
             </View>
         );
@@ -277,12 +284,14 @@ class TextInputBox extends React.Component {
 const mapStateToProps = state => ({
     profile: state.profile.profile,
     inputPoppedUpOutside: state.app.inputPoppedUp,
-    client: state.client.client
+    client: state.client.client,
+    messageReceiver: state.app.messageReceiver
 })
 
 const mapDispatchToProps = dispatch => ({
     popUpInput: () => dispatch(popUpInput()),
-    dismissInput: () => dispatch(dismissInput())
+    dismissInput: () => dispatch(dismissInput()),
+    removeMessageReceiver: () => dispatch(removeMessageReceiver())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(withNavigation(TextInputBox));

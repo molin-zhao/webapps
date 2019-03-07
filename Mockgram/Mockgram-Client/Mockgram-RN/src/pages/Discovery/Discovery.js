@@ -1,12 +1,13 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { connect } from 'react-redux';
 
 import ListCell from '../../components/ListCell';
 import DismissKeyboad from '../../components/DismissKeyboard';
 import SearchBarView from '../../components/SearchBarView';
-import baseUrl from '../../common/baseUrl';
+import PostRecommend from '../Recommend/PostRecommend';
 
+import baseUrl from '../../common/baseUrl';
 import theme from '../../common/theme';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
@@ -33,6 +34,7 @@ class Discovery extends React.Component {
             typing: false,
             searchBarInput: '',
             timer: null,
+            focused: false,
             activeIndex: 0, // by default the first tab
             activeColor: theme.primaryColor,
             inactiveColor: 'black',
@@ -49,11 +51,23 @@ class Discovery extends React.Component {
         })
     }
 
+    componentDidUpdate(prevProps, prevStates) {
+        const { focused, searchBarInput } = this.state;
+        if (!prevStates.focused && focused && !searchBarInput) {
+            this._postRecommend.hide();
+        }
+
+        if (prevStates.focused && !focused && !searchBarInput || prevStates.searchBarInput && !searchBarInput && !focused) {
+            this._postRecommend.show();
+        }
+    }
+
     static navigationOptions = ({ navigation }) => {
         let container = navigation.getParam('container');
         if (container) {
             return {
                 headerTitle: <SearchBarView
+                    ref={o => this.searchBarView = o}
                     style={{ width: window.width, height: '80%' }}
                     container={container} />,
             };
@@ -92,7 +106,6 @@ class Discovery extends React.Component {
                 searchValue: this.state.searchValue
             })
         }).then(res => res.json()).then(res => {
-            console.log(res);
             if (category === 'people') {
                 this.setState({
                     peopleSearchResult: this.state.loadingMore ? lastQueryData.concat(res.data) : res.data,
@@ -166,20 +179,26 @@ class Discovery extends React.Component {
 
             <DismissKeyboad>
                 <View style={styles.container}>
-                    <View style={styles.tabBarTop}>
-                        <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(0)}>
-                            <Text style={{ fontSize: 15, color: this.activeStyle(0) }}>People</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(1)}>
-                            <Text style={{ fontSize: 15, color: this.activeStyle(1) }}>Tag</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(2)}>
-                            <Text style={{ fontSize: 15, color: this.activeStyle(2) }}>Place</Text>
-                        </TouchableOpacity>
+                    <View style={[styles.content, { zIndex: 1 }]}>
+                        <View style={styles.tabBarTop}>
+                            <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(0)}>
+                                <Text style={{ fontSize: 15, color: this.activeStyle(0) }}>People</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(1)}>
+                                <Text style={{ fontSize: 15, color: this.activeStyle(1) }}>Tag</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity activeOpacity={0.5} style={styles.tabBarTab} onPress={() => this.tabSelected(2)}>
+                                <Text style={{ fontSize: 15, color: this.activeStyle(2) }}>Place</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.tabView}>
+                            <this.renderSection />
+                        </View>
                     </View>
-                    <View style={styles.tabView}>
-                        <this.renderSection />
-                    </View>
+                    <PostRecommend
+                        onRef={o => this._postRecommend = o}
+                        style={{ opacity: 1, zIndex: 1 }}
+                    />
                 </View>
             </DismissKeyboad>
         );
@@ -195,15 +214,23 @@ export default connect(mapStateToProps, null)(Discovery);
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        width: '100%',
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'flex-start',
+    },
+    content: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff'
     },
     tabBarTop: {
         flexDirection: 'row',
         flexWrap: 'nowrap',
         height: window.width * 0.15,
-        width: window.width,
+        width: '100%',
         borderBottomColor: 'lightgrey',
         borderBottomWidth: 0.5,
         justifyContent: 'space-between'
@@ -219,7 +246,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        width: window.width,
+        width: '100%',
         marginTop: 0,
     }
 });

@@ -21,7 +21,7 @@ import AuthIcon from './components/AuthIcon';
 import { getClientInfo } from './redux/actions/clientActions';
 import { getClientProfile } from './redux/actions/profileActions';
 import { finishAppInitialize } from './redux/actions/appActions';
-import { getMessage, addMessages, recallMessage } from './redux/actions/messageActions';
+import { getMessage, addMessage, recallMessage } from './redux/actions/messageActions';
 import theme from './common/theme';
 
 
@@ -223,7 +223,7 @@ const mapDispatchToProps = dispatch => ({
     getClientProfile: (token) => dispatch(getClientProfile(token)),
     getMessage: (token) => dispatch(getMessage(token)),
     finishAppInitialize: () => dispatch(finishAppInitialize()),
-    addMessages: (messages) => dispatch(addMessages(messages)),
+    addMessage: (messages) => dispatch(addMessage(messages)),
     recallMessage: (message) => dispatch(recallMessage(message))
 })
 

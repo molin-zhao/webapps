@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Header } from 'react-navigation';
 
 import PostCardComponent from '../../components/PostCardComponent';
+
+import { updateHomeFeed, reloadHomeFeed } from '../../redux/actions/feedActions';
 import baseUrl from '../../common/baseUrl';
 import config from '../../common/config';
 import window from '../../utils/getDeviceInfo';
@@ -14,7 +16,6 @@ class Home extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [],
             error: null,
             hasMore: true,
             loading: false,
@@ -25,7 +26,7 @@ class Home extends React.Component {
         };
     }
 
-    static navigationOptions = ({ navigation }) => {
+    static navigationOptions = () => {
         return {
             title: 'Mockgram',
             headerStyle: {
@@ -47,7 +48,6 @@ class Home extends React.Component {
                 refreshing: false,
                 loadingMore: false
             }, () => {
-                console.log('loading');
                 this.fetchPosts();
             })
 
@@ -65,7 +65,7 @@ class Home extends React.Component {
          * use status to check if the network request is interrupted
          * the criteria is the value of status has been changed after receving server response 
          * */
-
+        const { homeFeed, updateFeed, loadOrReloadFeed } = this.props;
         const url = `${baseUrl.api}/post`;
         const { client } = this.props;
         this.setState({
@@ -81,14 +81,19 @@ class Home extends React.Component {
                 body: JSON.stringify({
                     limit: config.postReturnLimit,
                     userId: client ? client.user._id : null,
-                    lastQueryDataIds: (this.state.loading || this.state.refreshing) ? [] : parseIdFromObjectArray(this.state.data)
+                    lastQueryDataIds: this.state.loadingMore ? parseIdFromObjectArray(homeFeed) : []
                 })
             }).then(res => res.json()).then(res => {
                 if (!this.state.interrupt) {
                     this.setState({
-                        data: (this.state.loading || this.state.refreshing) ? res.data : this.state.data.concat(...res.data),
                         error: res.status === 200 ? null : res.msg,
                         hasMore: res.data.length < config.postReturnLimit ? false : true,
+                    }, () => {
+                        if (this.state.loadingMore) {
+                            updateFeed(res.data);
+                        } else {
+                            loadOrReloadFeed(res.data)
+                        }
                     })
                 } else {
                     this.setState({
@@ -102,9 +107,9 @@ class Home extends React.Component {
                     loadingMore: false,
                     fetching: false
                 })
-            }).catch(error => {
+            }).catch(err => {
                 this.setState({
-                    error: "Network request failed",
+                    error: err,
                     loading: false,
                     refreshing: false,
                     loadingMore: false,
@@ -131,7 +136,6 @@ class Home extends React.Component {
             refreshing: false,
             loadingMore: false
         }, () => {
-            console.log('reloading');
             this.fetchPosts()
         })
     }
@@ -177,10 +181,11 @@ class Home extends React.Component {
     };
 
     renderFooter = () => {
-        const { loading, loadingMore, refreshing, data, hasMore } = this.state;
+        const { loading, loadingMore, refreshing, hasMore } = this.state;
+        const { homeFeed } = this.props;
         const { initialized } = this.props;
         if (initialized) {
-            if (!loading && !loadingMore && !refreshing && data.length === 0) {
+            if (!loading && !loadingMore && !refreshing && homeFeed.length === 0) {
                 return null;
             }
             return (
@@ -208,7 +213,7 @@ class Home extends React.Component {
     }
 
     renderPost = () => {
-        const { initialized } = this.props;
+        const { initialized, homeFeed } = this.props;
         if (initialized) {
             if (this.state.loading) {
                 return (
@@ -221,7 +226,7 @@ class Home extends React.Component {
                     <FlatList
                         style={{ marginTop: 0, width: '100%', backgroundColor: '#fff' }}
                         contentContainerStyle={{ backgroundColor: '#fff' }}
-                        data={this.state.data}
+                        data={homeFeed}
                         renderItem={({ item }) => (
                             <PostCardComponent dataSource={item} />
                         )}
@@ -255,10 +260,16 @@ class Home extends React.Component {
 
 const mapStateToProps = state => ({
     client: state.client.client,
-    initialized: state.app.initialized
+    initialized: state.app.initialized,
+    homeFeed: state.feed.homeFeed
 })
 
-export default connect(mapStateToProps, null)(Home);
+const mapDispatchToProps = dispatch => ({
+    loadOrReloadFeed: (feeds) => dispatch(reloadHomeFeed(feeds)),
+    updateFeed: (feeds) => dispatch(updateHomeFeed(feeds)),
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
 
 const styles = StyleSheet.create({
     contentContainer: {

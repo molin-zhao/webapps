@@ -3,6 +3,8 @@ import { View, StyleSheet, Text, KeyboardAvoidingView, TouchableOpacity } from '
 import Icon from 'react-native-vector-icons/Ionicons';
 import ViewMoreText from 'react-native-view-more-text';
 import { BallIndicator } from 'react-native-indicators';
+import { connect } from 'react-redux';
+import { withNavigation } from 'react-navigation';
 
 import Header from '../../components/Header';
 import DismissKeyboard from '../../components/DismissKeyboard';
@@ -17,7 +19,7 @@ import config from '../../common/config';
 import baseUrl from '../../common/baseUrl';
 
 
-export default class CommentDetail extends React.Component {
+class CommentDetail extends React.Component {
 
     renderComment = (dataSource) => {
         return (
@@ -86,8 +88,9 @@ export default class CommentDetail extends React.Component {
     }
 
     render() {
-        const { navigation } = this.props;
+        const { navigation, client } = this.props;
         const dataSource = navigation.getParam('dataSource');
+        const creatorId = navigation.getParam('creatorId')
         return (
             <View style={styles.container}>
                 <Header
@@ -111,7 +114,7 @@ export default class CommentDetail extends React.Component {
                 <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
                     <DismissKeyboard>
                         <DynamicListView
-                            itemProps={{ creatorId: navigation.getParam("creatorId") }}
+                            itemProps={{ creatorId: creatorId }}
                             request={{
                                 url: `${baseUrl.api}/post/comment/reply`,
                                 method: 'POST',
@@ -121,7 +124,8 @@ export default class CommentDetail extends React.Component {
                                 },
                                 body: {
                                     limit: config.replyReturnLimit,
-                                    commentId: dataSource._id
+                                    commentId: dataSource._id,
+                                    userId: client && client.user ? client.user._id : null
                                 }
                             }}
                             renderItem={ReplyListCell}
@@ -136,6 +140,11 @@ export default class CommentDetail extends React.Component {
     }
 }
 
+const mapStateToProps = state => ({
+    client: state.client.client
+})
+
+export default connect(mapStateToProps, null)(withNavigation(CommentDetail));
 
 const styles = StyleSheet.create({
     container: {
