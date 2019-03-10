@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
 
-import { dateConverter } from '../utils/unitConverter';
+import { dateConverter, numberConverter } from '../utils/unitConverter';
 import Thumbnail from './Thumbnail';
 import CreatorTag from './CreatorTag';
 import theme from '../common/theme';
@@ -15,7 +15,63 @@ class CommentListCell extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            dataSource: this.props.dataSource
+            dataSource: this.props.dataSource,
+            creatorId: this.props.creatorId
+        }
+    }
+
+    componentDidMount() {
+        // console.log(this.state.dataSource);
+    }
+
+    handleReply = () => {
+        const { client, navigation, controller } = this.props;
+        const { dataSource } = this.state;
+        if (client && client.user) {
+            // user token is required for a comment or reply
+            controller._textInput.updateMessageReceiver({
+                _id: dataSource.commentBy._id,
+                username: dataSource.commentBy.username,
+                commentId: dataSource._id,
+                postId: dataSource.postId,
+                type: 'reply'
+            });
+        } else {
+            navigation.navigate('Auth');
+        }
+    }
+
+    handleLikeReplyByCreator = () => {
+        /**
+         * reply like
+         */
+        const { client, navigation } = this.props;
+        const { dataSource } = this.state;
+        if (client && client.token) {
+            const url = `${baseUrl.api}/post/comment/reply/liked`;
+            fetch(url, {
+                method: 'PUT',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: client.token,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    replyId: dataSource.replyByPostCreator._id,
+                    postId: dataSource.postId,
+                    addLike: !dataSource.replyByPostCreator.liked
+                })
+            }).then(res => res.json()).then(res => {
+                if (res.status === 200) {
+                    dataSource.replyByPostCreator.likeCount = dataSource.replyByPostCreator.liked ? dataSource.replyByPostCreator.likeCount - 1 : dataSource.replyByPostCreator.likeCount + 1;
+                    dataSource.replyByPostCreator.liked = !dataSource.replyByPostCreator.liked;
+                    this.setState({
+                        dataSource: dataSource
+                    });
+                }
+            })
+        } else {
+            navigation.navigate('Auth');
         }
     }
 
@@ -61,7 +117,8 @@ class CommentListCell extends React.Component {
                         style={{ width: '98%', height: '100%', justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'row' }}
                         onPress={() => {
                             navigation.navigate('CommentDetail', {
-                                ...this.props
+                                dataSource: this.state.dataSource,
+                                creatorId: this.state.creatorId
                             })
                         }}
                     >
@@ -128,10 +185,10 @@ class CommentListCell extends React.Component {
                                         name="ios-thumbs-up"
                                         style={{ color: replyByPostCreator.liked ? theme.primaryColor : 'grey' }}
                                         onPress={() => {
-                                            this.handleLiked();
+                                            this.handleLikeReplyByCreator()
                                         }}
                                     />
-                                    <Text style={{ color: 'grey', fontSize: 12 }}>{replyByPostCreator.likeCount}</Text>
+                                    <Text style={{ color: 'grey', fontSize: 12 }}>{numberConverter(replyByPostCreator.likeCount)}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -139,13 +196,11 @@ class CommentListCell extends React.Component {
                 </View>
             );
         }
-
         return null;
     }
 
     render() {
-        const { creatorId } = this.props;
-        const { dataSource } = this.state;
+        const { dataSource, creatorId } = this.state;
         return (
             <View key={dataSource._id} style={styles.commentListWrapper}>
                 <View style={styles.commentContainer}>
@@ -197,15 +252,23 @@ class CommentListCell extends React.Component {
                                     <Icon
                                         name="ios-thumbs-up"
                                         style={{ color: dataSource.liked ? theme.primaryColor : 'grey' }}
-                                        onPress={this.handleLiked}
+                                        onPress={() => {
+                                            this.handleLiked()
+                                        }}
                                     />
-                                    <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
+                                    <Text style={{ color: 'grey', fontSize: 12 }}>{numberConverter(dataSource.likeCount)}</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     activeOpacity={0.8}
                                     style={styles.commentMetaIcon}
                                 >
-                                    <Icon name="ios-chatboxes" style={{ color: 'grey' }} />
+                                    <Icon
+                                        name="ios-chatboxes"
+                                        style={{ color: 'grey' }}
+                                        onPress={() => {
+                                            this.handleReply();
+                                        }}
+                                    />
                                     <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.replyCount}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -220,7 +283,7 @@ class CommentListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-    client: state.client.client
+    client: state.client.client,
 })
 
 export default connect(mapStateToProps, null)(withNavigation(CommentListCell))

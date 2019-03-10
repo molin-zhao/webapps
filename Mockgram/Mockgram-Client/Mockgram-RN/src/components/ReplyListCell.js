@@ -22,6 +22,23 @@ class ReplyListCell extends React.Component {
         }
     }
 
+    handleReply = () => {
+        const { client, navigation, controller } = this.props;
+        const { dataSource } = this.state;
+        if (client && client.user) {
+            // user token is required for a comment or reply
+            controller._textInput.updateMessageReceiver({
+                _id: dataSource.from._id,
+                username: dataSource.from.username,
+                commentId: dataSource.commentId,
+                postId: dataSource.postId,
+                type: 'reply'
+            });
+        } else {
+            navigation.navigate('Auth');
+        }
+    }
+
     handleLike = () => {
         /**
          * reply like
@@ -54,12 +71,10 @@ class ReplyListCell extends React.Component {
         } else {
             navigation.navigate('Auth');
         }
-
-
     }
 
     render() {
-        const { dataSource, itemProps } = this.props;
+        const { dataSource, creatorId } = this.props;
         return (
             <View key={dataSource._id} style={styles.container}>
                 <View style={styles.replyUserAvatar}>
@@ -70,11 +85,16 @@ class ReplyListCell extends React.Component {
                         <Text style={{ fontWeight: "bold", fontSize: 14 }}>
                             {dataSource.from.username}
                         </Text>
-                        <CreatorTag byCreator={(dataSource.from._id === itemProps.creatorId)} />
+                        <CreatorTag byCreator={(dataSource.from._id === creatorId)} />
                         <Icon name="md-arrow-dropright" style={{ marginLeft: 3, color: 'grey' }} />
                         <Text style={{ marginLeft: 3, fontWeight: 'bold', fontSize: 12 }}>{dataSource.to.username}</Text>
                     </View>
-                    <View style={styles.replyContents}>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => {
+                            this.handleReply()
+                        }}
+                        style={styles.replyContents}>
                         <ViewMoreText
                             numberOfLines={1}
                             renderViewMore={(onPress) => {
@@ -97,12 +117,11 @@ class ReplyListCell extends React.Component {
                                     </TouchableOpacity>);
                             }}
                         >
-
                             <Text style={{ fontWeight: 'normal' }}>
                                 {dataSource.content}
                             </Text>
                         </ViewMoreText>
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.replyMeta}>
                         <Text style={{ fontSize: 12, color: 'grey' }}>{dateConverter(dataSource.createdAt)}</Text>
                         <View style={{

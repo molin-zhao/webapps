@@ -135,7 +135,7 @@ export default class DynamicContentList extends React.Component {
     }
 
     renderContent = () => {
-        const { navigation, itemProps } = this.props;
+        const { itemProps } = this.props;
         if (this.state.loading) {
             return (
                 <View style={styles.errorMsgView}>

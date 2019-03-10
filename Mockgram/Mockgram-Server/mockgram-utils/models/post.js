@@ -378,7 +378,8 @@ PostSchema.statics.getAllComment = function (postId, lastComments, userId, limit
 					},
 					"liked": {
 						$in: [userId, "$comments.likes"]
-					}
+					},
+					"postId": 1
 				}
 			}
 		},

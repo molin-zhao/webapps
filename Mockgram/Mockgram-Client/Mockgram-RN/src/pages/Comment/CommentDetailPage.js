@@ -1,40 +1,42 @@
 import React from 'react';
-import { Text, View, StyleSheet, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Text, KeyboardAvoidingView, FlatList, TouchableWithoutFeedback } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { SkypeIndicator, BallIndicator } from 'react-native-indicators';
+import { BallIndicator, SkypeIndicator } from 'react-native-indicators';
 import { connect } from 'react-redux';
+import { withNavigation } from 'react-navigation';
 
-import CommentListCell from '../../components/CommentListCell';
-import TextInputBox from '../../components/TextInputBox';
 import Header from '../../components/Header';
+import TextInputBox from '../../components/TextInputBox';
+import ReplyListCell from '../../components/ReplyListCell';
+import CommentDetail from '../../components/CommentDetail';
 
 import config from '../../common/config';
 import baseUrl from '../../common/baseUrl';
 import { parseIdFromObjectArray } from '../../utils/idParser';
-import window from '../../utils/getDeviceInfo';
 
-class CommentPage extends React.Component {
+
+class CommentDetailPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             data: [],
-            postId: this.props.navigation.getParam('postId', null),
-            creatorId: this.props.navigation.getParam('creatorId', null),
+            dataSource: this.props.navigation.getParam('dataSource'),
+            creatorId: this.props.navigation.getParam('creatorId'),
             loading: false,
             loadingMore: false,
             hasMore: true,
             fetching: false,
-            interrupt: false
+            interrupt: false,
+            error: null
         }
     }
 
     componentDidMount() {
         this.setState({
-            loading: true,
-            data: []
+            loading: true
         }, () => {
-            this.fetchComment();
-        });
+            this.fetchReplies();
+        })
     }
 
     componentWillUpdate(nextProps) {
@@ -44,24 +46,24 @@ class CommentPage extends React.Component {
         }
     }
 
-    fetchComment = () => {
+    fetchReplies = () => {
+        const { dataSource } = this.state;
         const { client } = this.props;
-        const url = `${baseUrl.api}/post/comment`;
+        const url = `${baseUrl.api}/post/comment/reply`;
         this.setState({
             fetching: true
         }, () => {
-            fetch(url, {
+            return fetch(url, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    lastQueryDataIds: this.state.loadingMore ? parseIdFromObjectArray(this.state.data) : [],
-                    postId: this.state.postId,
-                    creatorId: this.state.creatorId,
-                    limit: config.commentReturnLimit,
-                    userId: client && client.user ? client.user._id : null
+                    limit: config.replyReturnLimit,
+                    commentId: dataSource._id,
+                    userId: client && client.user ? client.user._id : null,
+                    lastQueryDataIds: this.state.loadingMore ? parseIdFromObjectArray(this.state.data) : []
                 })
             }).then(res => res.json()).then(res => {
                 if (this.state.interrupt) {
@@ -70,9 +72,9 @@ class CommentPage extends React.Component {
                     })
                 } else {
                     this.setState({
-                        data: this.state.loadingMore === true ? [...this.state.data, ...res.data] : res.data,
+                        data: this.state.loadingMore ? this.state.data.concat(res.data) : res.data,
                         error: res.status === 200 ? null : res.msg,
-                        hasMore: res.data.length < config.commentReturnLimit ? false : true,
+                        hasMore: res.data.length < config.replyReturnLimit ? false : true,
                     });
                 }
             }).then(() => {
@@ -80,17 +82,19 @@ class CommentPage extends React.Component {
                     loading: false,
                     loadingMore: false,
                     fetching: false
-                })
-            }).catch(error => {
+                });
+            }).catch(err => {
+                console.log(err);
                 this.setState({
-                    error: error,
+                    error: err,
                     loading: false,
                     loadingMore: false,
                     fetching: false
                 });
-            });
+
+            })
         })
-    };
+    }
 
     handleReload = () => {
         if (this.state.fetching) {
@@ -102,7 +106,7 @@ class CommentPage extends React.Component {
             loading: true,
             loadingMore: false
         }, () => {
-            this.fetchComment();
+            this.fetchReplies();
         })
     }
 
@@ -113,7 +117,8 @@ class CommentPage extends React.Component {
                     loadingMore: true
                 },
                 () => {
-                    this.fetchComment();
+                    console.log("loading more");
+                    this.fetchReplies()
                 }
             );
         }
@@ -127,20 +132,19 @@ class CommentPage extends React.Component {
         );
     };
 
-
-    renderComment = () => {
+    renderReplies = () => {
         if (this.state.loading) {
             return (<View style={styles.errorMsgView}><SkypeIndicator /></View>);
         } else {
             if (this.state.error) {
-                return (<View style={styles.errorMsgView}><Text>{this.state.error}</Text></View >);
+                return (<View style={styles.errorMsgView}><Text>{`Network request error`}</Text></View >);
             }
             return (
                 <FlatList
                     style={{ marginTop: 0, width: '100%', flex: 1 }}
                     data={this.state.data}
                     renderItem={({ item }) => (
-                        <CommentListCell
+                        <ReplyListCell
                             dataSource={item}
                             creatorId={this.state.creatorId}
                             controller={this}
@@ -158,54 +162,66 @@ class CommentPage extends React.Component {
 
     render() {
         const { navigation } = this.props;
-        const { postId } = this.state;
+        const { dataSource } = this.state;
         return (
             <View style={styles.container}>
                 <Header
-                    headerTitle="All Comments"
+                    headerTitle="comments"
                     rightIconButton={
                         <Icon name="md-close" style={{ fontSize: 24 }} />
                     }
                     rightButtonOnPress={() => {
                         navigation.dismiss();
                     }}
+
+                    leftIconButton={
+                        <Icon name="md-arrow-back" style={{ fontSize: 24 }} />
+                    }
+
+                    leftButtonOnPress={() => {
+                        navigation.goBack()
+                    }}
                 />
                 <KeyboardAvoidingView behavior="padding" style={{ flex: 1, width: '100%', flexDirection: 'column' }}>
+                    <CommentDetail dataSource={dataSource} />
                     <TouchableWithoutFeedback
                         onPress={() => {
                             this._textInput.dismiss();
                         }}
                     >
                         <View style={styles.contentContainer}>
-                            {this.renderComment()}
+                            {this.renderReplies()}
                         </View>
                     </TouchableWithoutFeedback>
                     <TextInputBox
                         controller={this}
                         onRef={o => this._textInput = o}
-                        defaultMessageReceiver={
-                            {
-                                _id: '',
-                                username: '',
-                                commentId: '',
-                                postId: postId,
-                                type: 'comment'
-                            }
-                        }
-                    />
+                        defaultMessageReceiver={{
+                            _id: dataSource.commentBy._id,
+                            username: dataSource.commentBy.username,
+                            commentId: dataSource._id,
+                            postId: dataSource.postId,
+                            type: 'reply'
+                        }} />
                 </KeyboardAvoidingView>
             </View>
         );
     }
 }
+
+const mapStateToProps = state => ({
+    client: state.client.client
+})
+
+export default connect(mapStateToProps, null)(withNavigation(CommentDetailPage));
+
 const styles = StyleSheet.create({
     container: {
-        width: window.width,
-        height: window.height,
+        flex: 1,
         flexDirection: 'column',
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         backgroundColor: '#fff',
     },
     contentContainer: {
@@ -233,9 +249,3 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     }
 });
-
-const mapStateToProps = state => ({
-    client: state.client.client
-})
-
-export default connect(mapStateToProps, null)(CommentPage);

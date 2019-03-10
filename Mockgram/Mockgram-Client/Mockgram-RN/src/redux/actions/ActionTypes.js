@@ -28,10 +28,6 @@ export const UPDATE_LAST_MESSAGE_ID = 'UPDATE_LAST_MESSAGE_ID';
 
 // app related action types
 export const APP_FINISH_INIT = 'APP_FINISH_INIT';
-export const POP_UP_TEXT_INPUT = 'POP_UP_TEXT_INPUT';
-export const DISMISS_TEXT_INPUT = 'DISMISS_TEXT_INPUT';
-export const UPDATE_MESSAGE_RECEIVER = 'UPDATE_MESSAGE_RECEIVER';
-export const REMOVE_MESSAGE_RECEIVER = 'REMOVE_MESSAGE_RECEIVER';
 
 // feed related action types
 export const RELOAD_HOME_FEED = 'RELOAD_HOME_FEED';

@@ -1,9 +1,8 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { connect } from 'react-redux';
 
 import ListCell from '../../components/ListCell';
-import DismissKeyboad from '../../components/DismissKeyboard';
 import SearchBarView from '../../components/SearchBarView';
 import PostRecommend from '../Recommend/PostRecommend';
 
@@ -177,7 +176,11 @@ class Discovery extends React.Component {
     render() {
         return (
 
-            <DismissKeyboad>
+            <TouchableWithoutFeedback
+                onPress={() => {
+                    Keyboard.dismiss()
+                }}
+            >
                 <View style={styles.container}>
                     <View style={[styles.content, { zIndex: 1 }]}>
                         <View style={styles.tabBarTop}>
@@ -200,7 +203,7 @@ class Discovery extends React.Component {
                         style={{ opacity: 1, zIndex: 1 }}
                     />
                 </View>
-            </DismissKeyboad>
+            </TouchableWithoutFeedback>
         );
     }
 }

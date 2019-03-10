@@ -45,15 +45,13 @@ class Home extends React.Component {
             // app initialized for the first time
             this.setState({
                 loading: true,
-                refreshing: false,
-                loadingMore: false
             }, () => {
                 this.fetchPosts();
             })
 
         } else {
             // app uninitialized or from initialized to uninitialized
-            if (initialized && client !== prevProps.client) {
+            if (initialized && client != prevProps.client) {
                 this.handleReload();
             }
         }

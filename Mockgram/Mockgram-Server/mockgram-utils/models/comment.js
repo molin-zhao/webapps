@@ -92,6 +92,7 @@ CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId, 
         {
             $project: {
                 "replies": {
+                    "_id": 1,
                     "liked": {
                         $in: [userId, "$likes"]
                     },
@@ -208,7 +209,8 @@ CommentSchema.statics.getAllReply = function (commentId, lastDataIds, clientId, 
                     },
                     "createdAt": 1,
                     "content": 1,
-                    "postId": "$postId"
+                    "postId": "$postId",
+                    "commentId": 1,
                 }
             }
         },
