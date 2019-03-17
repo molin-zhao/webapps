@@ -120,12 +120,25 @@ class CommentPage extends React.Component {
     };
 
     renderFooter = () => {
+        const { data, hasMore } = this.state;
+        if (data.length !== 0) {
+            return (
+                <View style={styles.listFooter}>
+                    {hasMore ? <BallIndicator size={20} /> : <Text style={{ color: 'grey', fontSize: 12 }}>- No more comments -</Text>}
+                </View>
+            );
+        }
+        return null;
+    };
+
+    renderEmpty = () => {
         return (
-            <View style={styles.listFooter}>
-                {this.state.hasMore ? <BallIndicator size={20} /> : <Text style={{ color: 'grey', fontSize: 12 }}>- No more comments -</Text>}
+            <View style={styles.errorMsgView}>
+                <Icon name="md-paper" size={window.height * 0.05} />
+                <Text>- Be the first to leave a comment -</Text>
             </View>
         );
-    };
+    }
 
 
     renderComment = () => {
@@ -143,11 +156,12 @@ class CommentPage extends React.Component {
                         <CommentListCell
                             dataSource={item}
                             creatorId={this.state.creatorId}
-                            controller={this}
+                            textInputController={this._textInput}
                         />
                     )}
                     keyExtractor={item => item._id}
                     ListFooterComponent={this.renderFooter}
+                    ListEmptyComponent={this.renderEmpty}
                     onEndReached={this.handleLoadMore}
                     onEndReachedThreshold={0.2}
                 />
@@ -181,7 +195,6 @@ class CommentPage extends React.Component {
                         </View>
                     </TouchableWithoutFeedback>
                     <TextInputBox
-                        controller={this}
                         onRef={o => this._textInput = o}
                         defaultMessageReceiver={
                             {
@@ -189,7 +202,8 @@ class CommentPage extends React.Component {
                                 username: '',
                                 commentId: '',
                                 postId: postId,
-                                type: 'comment'
+                                type: 'comment',
+                                dataCallbackController: this
                             }
                         }
                     />
@@ -228,7 +242,6 @@ const styles = StyleSheet.create({
     errorMsgView: {
         height: window.height * 0.85,
         width: window.width,
-        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center'
     }

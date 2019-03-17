@@ -5,9 +5,9 @@ import window from '../utils/getDeviceInfo';
 
 export default class Header extends React.Component {
     render() {
-        const { headerTitle, leftIconButton, rightIconButton, titleOnPress, leftButtonOnPress, rightButtonOnPress } = this.props;
+        const { headerTitle, leftIconButton, rightIconButton, titleOnPress, leftButtonOnPress, rightButtonOnPress, style } = this.props;
         return (
-            <View style={[styles.header, { ...this.props.style }]}>
+            <View style={[styles.header, style]}>
                 <TouchableOpacity activeOpacity={0.8} style={styles.headerLeft} onPress={leftButtonOnPress}>
                     {leftIconButton}
                 </TouchableOpacity>

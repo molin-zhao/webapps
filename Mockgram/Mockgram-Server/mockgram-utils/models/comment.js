@@ -42,6 +42,73 @@ const CommentSchema = new Schema({
         timestamps: true
     });
 
+
+CommentSchema.statics.createComment = function (comment, callback) {
+    return this.findOne(comment).exec((err, doc) => {
+        if (err) return callback(err, null);
+        if (!doc) {
+            return this.create(comment).then(commentDoc => {
+                return this.aggregate([
+                    {
+                        $match: {
+                            _id: commentDoc._id
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'mentioned',
+                            foreignField: '_id',
+                            as: 'mentioned'
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'users',
+                            localField: 'commentBy',
+                            foreignField: '_id',
+                            as: 'commentBy'
+                        }
+                    },
+                    { $unwind: "$commentBy" },
+                    {
+                        $project: {
+                            "_id": 1,
+                            "createdAt": 1,
+                            "content": 1,
+                            "likeCount": {
+                                $size: "$likes"
+                            },
+                            "replyCount": {
+                                $size: "$replies"
+                            },
+                            "commentBy": {
+                                "username": 1,
+                                "avatar": 1,
+                                "_id": 1,
+                            },
+                            "mentioned": {
+                                "_id": 1,
+                                "username": 1,
+                                "avatar": 1
+                            },
+                            "postId": 1
+                        }
+                    }
+                ]).then(resultArray => {
+                    return callback(null, resultArray);
+                }).catch(err => {
+                    return callback(err, null);
+                })
+            }).catch(err => {
+                return callback(err, null);
+            })
+        } else {
+            return callback(null, null);
+        }
+    })
+}
+
 CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId, userId) {
     return this.aggregate([
         {
@@ -91,6 +158,7 @@ CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId, 
         },
         {
             $project: {
+                "postId": 1,
                 "replies": {
                     "_id": 1,
                     "liked": {
@@ -115,7 +183,9 @@ CommentSchema.statics.getPostCreatorReply = function (commentId, postCreatorId, 
                         "avatar": 1
                     },
                     "createdAt": 1,
-                    "content": 1
+                    "content": 1,
+                    "commentId": 1,
+                    "postId": "$postId"
                 }
             }
         },

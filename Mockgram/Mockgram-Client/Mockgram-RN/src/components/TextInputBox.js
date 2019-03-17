@@ -24,7 +24,8 @@ const initMessageReceiver = {
     useranme: '',
     commentId: '',
     postId: '',
-    type: 'comment'
+    type: 'comment',
+    dataCallbackController: null
 }
 
 class TextInputBox extends React.Component {
@@ -50,7 +51,7 @@ class TextInputBox extends React.Component {
             inputPoppedUp: false,
             keyboardPoppedUp: false,
             currentMessageReceiver: this.props.defaultMessageReceiver,
-            updateMessageReceiver: initMessageReceiver,
+            updateMessageReceiver: this.props.defaultMessageReceiver,
             mentioned: []
         }
     }
@@ -67,10 +68,12 @@ class TextInputBox extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevStates) {
-        const { updateMessageReceiver } = this.state;
-        const { defaultMessageReceiver } = prevProps;
+        const { updateMessageReceiver, currentMessageReceiver } = this.state;
+        const { defaultMessageReceiver } = this.props;
         if (!isEqual(updateMessageReceiver, prevStates.updateMessageReceiver)) {
-            if (isEqual(defaultMessageReceiver, prevStates.currentMessageReceiver)) {
+            // outside updated updateMessageReceiver has been changed
+            console.log('changed');
+            if (isEqual(defaultMessageReceiver, currentMessageReceiver)) {
                 this._updateCurrentReceiver(updateMessageReceiver);
             } else {
                 this.ActionSheet.show();
@@ -205,10 +208,9 @@ class TextInputBox extends React.Component {
     }
 
     _handleSend = () => {
-        const { client, navigation, controller } = this.props;
+        const { client, navigation, defaultMessageReceiver } = this.props;
         const { currentMessageReceiver } = this.state;
         if (client && client.token) {
-            console.log(currentMessageReceiver);
             const url = currentMessageReceiver.type === 'comment' ?
                 `${baseUrl.api}/post/comment`
                 : `${baseUrl.api}/post/comment/reply`;
@@ -236,13 +238,19 @@ class TextInputBox extends React.Component {
                     },
                     body: JSON.stringify(body)
                 }).then(res => res.json()).then(res => {
-                    controller.setState({
-                        data: controller.data.push(res.data),
-                        error: res.status === 200 ? null : res.msg
-                    })
+                    if (currentMessageReceiver.dataCallbackController) {
+                        currentMessageReceiver.dataCallbackController.setState({
+                            data: currentMessageReceiver.dataCallbackController.state.data.concat(res.data),
+                            error: res.status === 200 ? null : res.msg
+                        })
+                    }
                 }).then(() => {
                     this.setState({
                         sending: false
+                    }, () => {
+                        this._clear();
+                        this._updateCurrentReceiver(defaultMessageReceiver);
+                        this.dismiss();
                     })
                 }).catch(err => {
                     console.log(err);
@@ -256,15 +264,27 @@ class TextInputBox extends React.Component {
         }
     }
 
+    _clear = () => {
+        this._textInput.clear();
+        this.setState({
+            inputValue: ''
+        });
+    }
+
     _updateCurrentReceiver = receiver => {
         const { defaultMessageReceiver } = this.props;
-        this.setState({
-            currentMessageReceiver: receiver
-        }, () => {
-            if (!isEqual(defaultMessageReceiver, receiver)) {
+        if (isEqual(receiver, defaultMessageReceiver)) {
+            this.setState({
+                currentMessageReceiver: defaultMessageReceiver,
+                updateMessageReceiver: defaultMessageReceiver
+            })
+        } else {
+            this.setState({
+                currentMessageReceiver: receiver
+            }, () => {
                 this._textInput.focus();
-            }
-        })
+            })
+        }
     }
 
     _renderReplyIndicator = () => {
@@ -281,11 +301,11 @@ class TextInputBox extends React.Component {
                     }}>
                         <PacmanIndicator size={window.height * 0.03} />
                     </View>
-                    <Text style={{ fontSize: 14, color: '#fff' }}>`repling to `</Text>
+                    <Text style={{ fontSize: 14, color: 'grey' }}>`repling to `</Text>
                     <Text style={{ fontSize: 14, fontWeight: 'bold', color: theme.primaryBlue }}>{`${currentMessageReceiver.username}`}</Text>
                     <TouchableOpacity
                         onPress={() => {
-                            this._textInput.clear();
+                            this._clear();
                             this._updateCurrentReceiver(defaultMessageReceiver);
                             this.dismiss();
                         }}
@@ -353,7 +373,15 @@ class TextInputBox extends React.Component {
     }
 
     render() {
-        const { textInputHeight, textItemHeight, textHeight, inputPoppedUp, showOptions, currentMessageReceiver, updateMessageReceiver } = this.state;
+        const {
+            textInputHeight,
+            textItemHeight,
+            textHeight,
+            inputPoppedUp,
+            showOptions,
+            currentMessageReceiver,
+            updateMessageReceiver
+        } = this.state;
         const { profile, style } = this.props;
         return (
             <View style={{ justifyContent: 'flex-start', alignItems: 'center', flexDirection: 'column' }}>
@@ -380,7 +408,7 @@ class TextInputBox extends React.Component {
                             underlineColorAndroid="transparent"
                             style={{ fontSize: 14, width: '85%', marginLeft: window.width * 0.02, height: textHeight }}
                             placeholder={this._renderPlaceHolder()}
-                            onChangeText={(value) => {
+                            onChangeText={value => {
                                 this.setState({
                                     inputValue: value
                                 })
@@ -395,6 +423,7 @@ class TextInputBox extends React.Component {
                                     //TODO delete logic goes here
                                 }
                             }}
+                            value={this.state.inputValue}
                         />
                         {this._renderSendButton()}
                     </View>
@@ -489,7 +518,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: -40,
         zIndex: 1,
-        backgroundColor: 'lightgrey',
+        backgroundColor: theme.primaryGrey,
         height: window.height * 0.035,
         width: window.width * 0.98,
         borderRadius: 5,

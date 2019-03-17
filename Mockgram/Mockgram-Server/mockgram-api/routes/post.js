@@ -145,43 +145,58 @@ router.post('/comment/reply', (req, res) => {
 router.put('/comment/reply', verifyAuthorization, (req, res) => {
     let commentId = req.body.commentId;
     let content = req.body.content;
-    let from = req.body.from;
+    let from = req.user._id;
     let to = req.body.to;
     let mentioned = req.body.mentioned;
-    Reply.create({
+    let reply = {
         commentId: commentId,
         content: content,
         from: from,
         to: to,
         mentioned: mentioned
-    }).then(reply => {
-        CommentModel.findOneAndUpdate({ _id: commentId }, {
-            $addToSet: { replies: reply._id }
-        }).then(comment => {
-            let message = {
-                receiver: reply.to,
-                sender: reply.from,
-                messageType: 'ReplyComment',
-                postReference: comment.postId,
-                commentReference: comment._id,
-                replyReference: reply._id
-            }
-            return Message.createMessage(message, (err, result) => {
-                if (err) return handleError(res, err);
-                return agent.post(`${serverNodes.socketServer}/message/push`).send({
-                    message: result
-                }).set('Accept', 'application/json').end((err) => {
-                    if (err) return handleError(res, err);
-                    return res.json({
-                        status: response.SUCCESS.OK.CODE,
-                        msg: response.SUCCESS.OK.MSG,
-                        data: reply
+    }
+    Reply.createReply(reply, (err, replyResultArr) => {
+        if (err) return handleError(res, err);
+        if (replyResultArr) {
+            let replyResult = replyResultArr.shift();
+            if (replyResult) {
+                CommentModel.findOneAndUpdate({ _id: commentId }, {
+                    $addToSet: { replies: replyResult._id }
+                }).then(comment => {
+                    let message = {
+                        receiver: replyResult.to._id,
+                        sender: replyResult.from._id,
+                        messageType: 'ReplyComment',
+                        postReference: comment.postId,
+                        commentReference: comment._id,
+                        replyReference: replyResult._id
+                    }
+                    return Message.createMessage(message, (err, result) => {
+                        if (err) return handleError(res, err);
+                        return agent.post(`${serverNodes.socketServer}/message/push`).send({
+                            message: result
+                        }).set('Accept', 'application/json').end((err) => {
+                            if (err) return handleError(res, err);
+                            let liked = false;
+                            let postId = comment.postId;
+                            replyResult.liked = liked;
+                            replyResult.postId = postId;
+                            return res.json({
+                                status: response.SUCCESS.OK.CODE,
+                                msg: response.SUCCESS.OK.MSG,
+                                data: replyResult
+                            })
+                        });
                     })
-                });
-            })
-        }).catch(err => {
-            return handleError(res, err);
-        })
+                }).catch(err => {
+                    return handleError(res, err);
+                })
+            } else {
+                return handleError(res, err, response.ERROR.SERVER_ERROR);
+            }
+        } else {
+            return handleError(res, err, response.ERROR.SERVER_ERROR);
+        }
     })
 })
 
@@ -193,38 +208,51 @@ router.put('/comment', verifyAuthorization, (req, res) => {
     let commentBy = req.user._id;
     let postId = req.body.postId;
     let mentioned = req.body.mentioned;
-    CommentModel.create({
-        content,
-        commentBy,
-        postId,
-        mentioned
-    }).then(comment => {
-        Post.findOneAndUpdate({ _id: postId }, {
-            $addToSet: { comments: comment._id }
-        }).then(post => {
-            let message = {
-                receiver: post.creator,
-                sender: userId,
-                messageType: 'CommentPost',
-                postReference: post._id,
-                commentReference: comment._id
-            }
-            return Message.createMessage(message, (err, result) => {
-                if (err) return handleError(res, err);
-                return agent.post(`${serverNodes.socketServer}/message/push`).send({
-                    message: result
-                }).set('Accept', 'application/json').end((err) => {
-                    if (err) return handleError(res, err);
-                    return res.json({
-                        status: response.SUCCESS.OK.CODE,
-                        msg: response.SUCCESS.OK.MSG,
-                        data: comment
+    let comment = {
+        content: content,
+        commentBy: commentBy,
+        postId: postId,
+        mentioned: mentioned
+    }
+    CommentModel.createComment(comment, (err, commentResultArr) => {
+        if (err) return handleError(res, err);
+        if (commentResultArr) {
+            let commentResult = commentResultArr.shift();
+            if (commentResult) {
+                return Post.findOneAndUpdate({ _id: postId }, {
+                    $addToSet: { comments: commentResult._id }
+                }).then(post => {
+                    let message = {
+                        receiver: post.creator,
+                        sender: commentBy,
+                        messageType: 'CommentPost',
+                        postReference: post._id,
+                        commentReference: commentResult._id
+                    }
+                    return Message.createMessage(message, (err, result) => {
+                        if (err) return handleError(res, err);
+                        return agent.post(`${serverNodes.socketServer}/message/push`).send({
+                            message: result
+                        }).set('Accept', 'application/json').end((err) => {
+                            if (err) return handleError(res, err);
+                            let commentByPostCreator = post.creator === commentBy ? true : false;
+                            let liked = false;
+                            commentResult.commentByPostCreator = commentByPostCreator;
+                            commentResult.liked = liked;
+                            return res.json({
+                                status: response.SUCCESS.OK.CODE,
+                                msg: response.SUCCESS.OK.MSG,
+                                data: commentResult
+                            })
+                        });
                     })
                 });
-            })
-        }).catch(err => {
-            return handleError(res, err);
-        })
+            } else {
+                return handleError(res, err, response.ERROR.SERVER_ERROR);
+            }
+        } else {
+            return handleError(res, err, response.ERROR.SERVER_ERROR);
+        }
     })
 })
 

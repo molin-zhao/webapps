@@ -14,6 +14,8 @@ import PostDetail from './pages/Profile/PostDetail';
 import Post from './screens/PostScreen';
 import Message from './screens/MessageScreen';
 import Login from './screens/LoginScreen';
+import ImageFilter from './screens/ImageFilterScreen';
+
 import CommentPage from './pages/Comment/Comment';
 import MessageBadgeIcon from './components/MessageBadgeIcon';
 import AuthIcon from './components/AuthIcon';
@@ -157,7 +159,8 @@ const MainAppStackNavigator = createStackNavigator({
 const RootNavigator = createStackNavigator({
     Main: MainAppStackNavigator,
     Comment: CommentPage,
-    Auth: Login
+    Auth: Login,
+    ImageFilter: ImageFilter
 }, {
         mode: 'modal',
         headerMode: 'none',

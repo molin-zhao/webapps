@@ -1,20 +1,17 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import ViewMoreText from 'react-native-view-more-text';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
 
 import Thumbnail from './Thumbnail';
 import CreatorTag from './CreatorTag';
-
-import { dateConverter } from '../utils/unitConverter';
 import baseUrl from '../common/baseUrl';
 import theme from '../common/theme';
+import { numberConverter, dateConverter } from '../utils/unitConverter';
 
-
-class ReplyListCell extends React.Component {
-
+class CommentListCellMetaReplyCell extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -22,25 +19,7 @@ class ReplyListCell extends React.Component {
         }
     }
 
-    handleReply = () => {
-        const { client, navigation, textInputController, dataCallbackController } = this.props;
-        const { dataSource } = this.state;
-        if (client && client.user) {
-            // user token is required for a comment or reply
-            textInputController.updateMessageReceiver({
-                _id: dataSource.from._id,
-                username: dataSource.from.username,
-                commentId: dataSource.commentId,
-                postId: dataSource.postId,
-                type: 'reply',
-                dataCallbackController: dataCallbackController
-            });
-        } else {
-            navigation.navigate('Auth');
-        }
-    }
-
-    handleLike = () => {
+    handleLikeMeta = () => {
         const { client, navigation } = this.props;
         const { dataSource } = this.state;
         if (client && client.token) {
@@ -72,27 +51,21 @@ class ReplyListCell extends React.Component {
     }
 
     render() {
-        const { dataSource, creatorId } = this.props;
+        const { dataSource } = this.state;
+        const { creatorId } = this.props;
         return (
-            <View key={dataSource._id} style={styles.container}>
-                <View style={styles.replyUserAvatar}>
-                    <Thumbnail source={dataSource.from.avatar} style={{ width: 40, height: 40 }} />
-                </View>
-                <View style={styles.replyContentWrapper}>
-                    <View style={styles.replyUsername}>
-                        <Text style={{ fontWeight: "bold", fontSize: 14 }}>
+            <View key={dataSource._id} style={styles.replyContainer}>
+                <View style={styles.replyContents}>
+                    <View style={styles.username}>
+                        <Thumbnail source={dataSource.from.avatar} style={{ width: 16, height: 16 }} />
+                        <Text style={{ marginLeft: 3, fontWeight: "bold", fontSize: 12 }}>
                             {dataSource.from.username}
                         </Text>
-                        <CreatorTag byCreator={(dataSource.from._id === creatorId)} />
+                        <CreatorTag byCreator={dataSource.from._id === creatorId} />
                         <Icon name="md-arrow-dropright" style={{ marginLeft: 3, color: 'grey' }} />
                         <Text style={{ marginLeft: 3, fontWeight: 'bold', fontSize: 12 }}>{dataSource.to.username}</Text>
                     </View>
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => {
-                            this.handleReply()
-                        }}
-                        style={styles.replyContents}>
+                    <View style={styles.commentContents}>
                         <ViewMoreText
                             numberOfLines={1}
                             renderViewMore={(onPress) => {
@@ -115,33 +88,26 @@ class ReplyListCell extends React.Component {
                                     </TouchableOpacity>);
                             }}
                         >
+
                             <Text style={{ fontWeight: 'normal' }}>
                                 {dataSource.content}
                             </Text>
                         </ViewMoreText>
-                    </TouchableOpacity>
-                    <View style={styles.replyMeta}>
+                    </View>
+                    <View style={styles.commentMeta}>
                         <Text style={{ fontSize: 12, color: 'grey' }}>{dateConverter(dataSource.createdAt)}</Text>
-                        <View style={{
-                            width: '30%',
-                            height: '100%',
-                            position: 'absolute',
-                            right: 0,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexDirection: 'row'
-                        }}>
+                        <View style={{ width: '30%', height: '100%', position: 'absolute', right: 0, justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <TouchableOpacity
                                 activeOpacity={0.8}
-                                style={styles.replyMetaIcon}>
+                                style={styles.commentMetaIcon}>
                                 <Icon
                                     name="ios-thumbs-up"
                                     style={{ color: dataSource.liked ? theme.primaryColor : 'grey' }}
                                     onPress={() => {
-                                        this.handleLike()
+                                        this.handleLikeMeta();
                                     }}
                                 />
-                                <Text style={{ color: 'grey', fontSize: 12 }}>{dataSource.likeCount}</Text>
+                                <Text style={{ color: 'grey', fontSize: 12 }}>{numberConverter(dataSource.likeCount)}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -155,32 +121,37 @@ const mapStateToProps = state => ({
     client: state.client.client
 })
 
-export default connect(mapStateToProps, null)(withNavigation(ReplyListCell));
+export default connect(mapStateToProps, null)(withNavigation(CommentListCellMetaReplyCell));
 
 const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        flexDirection: 'row',
+    replyContainer: {
+        width: '85%',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    replyUserAvatar: {
-        width: '15%',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    replyContentWrapper: {
-        width: '85%',
-        justifyContent: 'flex-start',
-        alignItems: 'center'
+        marginLeft: '15%',
     },
     replyContents: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        width: '98%'
+    },
+    username: {
+        width: '98%',
+        height: 20,
+        marginTop: 10,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+    },
+    commentContents: {
         width: '98%',
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
     },
-    replyMeta: {
+    commentMeta: {
         width: '98%',
         height: 20,
         marginTop: 2,
@@ -189,18 +160,12 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         alignItems: 'center',
     },
-    replyUsername: {
-        width: '98%',
-        height: 20,
-        marginTop: 10,
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-    },
-    replyMetaIcon: {
-        flex: 1,
+    commentMetaIcon: {
+        width: '50%',
+        height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
+        marginLeft: '3%'
     }
 })

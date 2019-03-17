@@ -106,16 +106,16 @@ class FollowingMessasgeUserListCell extends React.Component {
             let messageType = message.messageType;
             switch (messageType) {
                 case 'LikePost':
-                    return `Liked a post // ${message.postReference.description}`;
+                    return `Liked a post · ${message.postReference.description}`;
                 case 'LikeComment':
-                    return `Liked a comment // ${message.commentReference.content}`;
+                    return `Liked a comment · ${message.commentReference.content}`;
                 case 'LikeReply':
-                    return `Liked a reply // ${message.replyReference.content}`;
+                    return `Liked a reply · ${message.replyReference.content}`;
                 case 'CommentPost':
-                    return `Commented on a post // ${message.postReference.description}`;
+                    return `Commented on a post · ${message.postReference.description}`;
                 case 'ReplyReply':
                 case 'ReplyComment':
-                    return `Replied to a comment // ${message.commentReference.content}`;
+                    return `Replied to a comment · ${message.commentReference.content}`;
                 case 'Follow':
                     return `Followed user ${message.receiver.username}`;
                 default:

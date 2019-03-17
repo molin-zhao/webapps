@@ -147,7 +147,8 @@ class CommentDetailPage extends React.Component {
                         <ReplyListCell
                             dataSource={item}
                             creatorId={this.state.creatorId}
-                            controller={this}
+                            textInputController={this._textInput}
+                            dataCallbackController={this}
                         />
                     )}
                     keyExtractor={item => item._id}
@@ -194,14 +195,14 @@ class CommentDetailPage extends React.Component {
                         </View>
                     </TouchableWithoutFeedback>
                     <TextInputBox
-                        controller={this}
                         onRef={o => this._textInput = o}
                         defaultMessageReceiver={{
                             _id: dataSource.commentBy._id,
                             username: dataSource.commentBy.username,
                             commentId: dataSource._id,
                             postId: dataSource.postId,
-                            type: 'reply'
+                            type: 'reply',
+                            dataCallbackController: this
                         }} />
                 </KeyboardAvoidingView>
             </View>
