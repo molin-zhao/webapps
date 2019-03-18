@@ -1,18 +1,26 @@
 import React from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity, TextInput, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Ionicon from 'react-native-vector-icons/Ionicons';
 import { Location, Permissions, SecureStore } from 'expo'
 import { connect } from 'react-redux';
+import DropdownAlert from 'react-native-dropdownalert';
+import { addToHeadOfHomeFeed } from '../../redux/actions/feedActions';
+import { UIActivityIndicator } from 'react-native-indicators';
+
+import Header from '../../components/Header';
 
 import window from '../../utils/getDeviceInfo';
 import baseUrl from '../../common/baseUrl';
+import theme from '../../common/theme';
 
 
 class PostPreview extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            image: this.props.navigation.getParam('image', null),
+            uploading: false,
+            imageUri: this.props.navigation.getParam('imageUri', null),
             description: '',
             location: null,
             label: '',
@@ -20,31 +28,7 @@ class PostPreview extends React.Component {
             switchValue: false
         }
     }
-    static navigationOptions = ({ navigation }) => {
-        const { params = {} } = navigation.state;
-        return {
-            headerStyle: {
-                borderBottomColor: 'transparent',
-                borderBottomWidth: 0,
-                shadowColor: 'transparent',
-                elevation: 0
-            },
-            headerRight: (
-                <TouchableOpacity style={{ marginRight: 20 }}
-                    onPress={() => params.handlePost()}>
-                    <Text style={{ color: 'black', fontSize: 15 }}>Post</Text>
-                </TouchableOpacity>
-            ),
-            headerLeft: (
-                <TouchableOpacity style={{ marginLeft: 20 }}
-                    onPress={() => {
-                        navigation.popToTop();
-                    }}>
-                    <Icon name='chevron-left' size={20} />
-                </TouchableOpacity>
-            )
-        }
-    }
+
     componentWillMount() {
         SecureStore.getItemAsync('permission_location').then(permissionData => {
             if (permissionData) {
@@ -58,32 +42,58 @@ class PostPreview extends React.Component {
     }
 
     makePost = () => {
-        const { client, navigation } = this.props;
-        let fileName = this.state.image.uri.split('/').pop();
+        const { imageUri, description, label, location } = this.state;
+        const { client, navigation, addToHomeFeed } = this.props;
+        let fileName = imageUri.split('/').pop();
         let match = /\.(\w+)$/.exec(fileName);
         let type = match ? `image/${match[1]}` : `image`;
 
         let formData = new FormData();
         formData.append('post', {
-            uri: this.state.image.uri,
+            uri: imageUri,
             name: fileName,
             type: type
         });
-        formData.append('description', this.state.description);
-        formData.append('label', this.state.label);
-        formData.append('location', JSON.stringify(this.state.location));
-        fetch(`${baseUrl.upload}/upload/post`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'multipart/form-data',
-                Authorization: client.token
-            },
-            body: formData
-        }).then(res => res.json()).then(resJson => {
-            console.log(resJson);
-            navigation.navigate('Home');
-        })
+        formData.append('description', description);
+        formData.append('label', label);
+        formData.append('location', JSON.stringify(location));
+        if (client) {
+            this.setState({
+                uploading: true
+            }, () => {
+                fetch(`${baseUrl.upload}/upload/post`, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'multipart/form-data',
+                        Authorization: client.token
+                    },
+                    body: formData
+                }).then(res => res.json()).then(resJson => {
+                    this.setState({
+                        uploading: false
+                    }, () => {
+                        if (resJson.status === 200) {
+                            this._alert.alertWithType('success', 'Success', 'Your post was uploaded');
+                            addToHomeFeed(resJson.data);
+                            setTimeout(() => {
+                                navigation.navigate('Home');
+                            }, 4000)
+                        } else {
+                            this._alert.alertWithType('warn', 'Error', 'Your post was not upload successfully, try upload your post later');
+                        }
+                    })
+                }).catch(err => {
+                    this.setState({
+                        uploading: false
+                    }, () => {
+                        this._alert.alertWithType('warn', 'Error', 'Your post was not upload successfully, try upload your post later');
+                    })
+                })
+            })
+        } else {
+            navigation.navigate('Auth')
+        }
     }
 
     generateLocation = (coords, address) => {
@@ -146,12 +156,42 @@ class PostPreview extends React.Component {
         }
     }
 
+    renderHeaderRightButton = () => {
+        const { uploading } = this.state;
+        if (uploading) {
+            return (
+                <UIActivityIndicator size={20} color={theme.primaryBlue} />
+            );
+        }
+        return (
+            <Ionicon name='md-send' size={20} color={theme.primaryBlue} />
+        );
+    }
+
     render() {
-        const image = this.props.navigation.getParam('image', null);
         return (
             <View style={styles.container}>
+                <Header
+                    style={{ backgroundColor: 'transparent' }}
+                    headerTitle='Edit your post'
+                    rightIconButton={
+                        this.renderHeaderRightButton()
+                    }
+                    rightButtonOnPress={() => {
+                        this.makePost()
+                    }}
+                    leftIconButton={
+                        <Icon name='chevron-left' size={20} />
+                    }
+                    leftButtonOnPress={() => {
+                        const { navigation } = this.props;
+                        navigation.dismiss();
+                    }}
+                />
                 <View style={styles.descriptionView}>
-                    <Image source={{ uri: image.uri }} style={{ marginLeft: 5, width: window.width * 0.25, height: window.width * 0.25 }} />
+                    <Image
+                        source={{ uri: this.state.imageUri }}
+                        style={{ marginLeft: 5, width: window.width * 0.25, height: window.width * 0.25 }} />
                     <TextInput multiline={true}
                         numberOfLines={4}
                         placeholder='Write a description'
@@ -197,6 +237,9 @@ class PostPreview extends React.Component {
                         {this.state.switchValue && this.state.location ? this.state.location.city : 'add a place'}
                     </Text>
                 </View>
+                <DropdownAlert
+                    closeInterval={3000}
+                    ref={o => this._alert = o} />
             </View>
         );
     }
@@ -204,11 +247,11 @@ class PostPreview extends React.Component {
 
 const mapStateToProps = state => ({
     client: state.client.client
-})
+});
 
 const mapDispatchToProps = dispatch => ({
-    updateHomeFeed: (post) => dispatch(updateHomeFeed(post))
-})
+    addToHomeFeed: feed => dispatch(addToHeadOfHomeFeed(feed))
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostPreview);
 

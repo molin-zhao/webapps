@@ -9,7 +9,7 @@ export const feed = (state = {
         case ActionTypes.UPDATE_HOME_FEED:
             return { ...state, homeFeed: state.homeFeed.concat(action.payload) }
         case ActionTypes.ADD_TO_HEAD_HOME_FEED:
-            return { ...state, homeFeed: state.homeFeed.unshift(action.payload) }
+            return { ...state, homeFeed: action.payload.concat(state.homeFeed) }
         default:
             return state
     }

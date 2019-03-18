@@ -397,6 +397,65 @@ PostSchema.statics.getAllComment = function (postId, lastComments, userId, limit
 	])
 }
 
+PostSchema.statics.createPost = function (post, callback) {
+	return this.findOne(post).exec((err, doc) => {
+		if (err) return callback(err, null);
+		if (doc) return callback(null, null);
+		return this.create(post).then(doc => {
+			let postId = doc._id;
+			return this.aggregate([
+				{
+					$match: {
+						_id: postId
+					}
+				},
+				{
+					$lookup: {
+						from: 'users',
+						localField: 'creator',
+						foreignField: '_id',
+						as: 'postUser'
+					}
+				},
+				{
+					$unwind: "$postUser"
+				},
+				{
+					$project: {
+						"liked": {
+							$in: ["$creator", "$likes"]
+						},
+						"likeCount": {
+							$size: "$likes"
+						},
+						"commentCount": {
+							$size: "$comments"
+						},
+						"sharedCount": {
+							$size: "$shared"
+						},
+						"image": 1,
+						"label": 1,
+						"description": 1,
+						"location": 1,
+						"createdAt": 1,
+						"creator": 1,
+						"postUser.username": 1,
+						"postUser.avatar": 1,
+						"postUser._id": 1
+					}
+				}
+			]).then(res => {
+				return callback(null, res);
+			}).catch(err => {
+				return callback(err, null);
+			})
+		}).catch(err => {
+			return callback(err, null);
+		})
+	})
+}
+
 exports.Post = mongoose.model('Post', PostSchema);
 exports.Location = LocationSchema;
 exports.Polygon = PolygonSchema;

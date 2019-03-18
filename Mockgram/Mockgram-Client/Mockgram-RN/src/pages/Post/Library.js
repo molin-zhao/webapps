@@ -28,6 +28,7 @@ export default class Libray extends React.Component {
         let capturedImage = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             aspect: [1, 1],
+            quality: 1
         });
         if (!capturedImage.cancelled) {
             let processedImage = await processImage(capturedImage.uri);

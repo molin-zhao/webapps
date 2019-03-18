@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multipart = require('connect-multiparty');
-const { uploadImage } = require('../../mockgram-utils/utils/fileUpload');
+const { uploadImage, getFileName } = require('../../mockgram-utils/utils/fileUpload');
 const { verifyAuthorization, verifyUser } = require('../../mockgram-utils/utils/verify');
 const User = require('../../mockgram-utils/models/user');
 const { Post } = require('../../mockgram-utils/models/post');
@@ -13,29 +13,35 @@ router.all('*', verifyAuthorization, (req, res, next) => {
     next();
 });
 
-router.post('/post', multipart(), verifyUser, (req, res) => {
-    uploadImage({
-        dest: image.post,
-        limit: image.limit
-    }, req.files.post, (err, fileName) => {
+router.post('/post', multipart(), async (req, res) => {
+    let file = req.files.post;
+    let dest = image.post;
+    let limit = image.limit;
+    const result = await getFileName(dest, file);
+    if (result.err) {
+        return handleError(res, result.err);
+    }
+    let fileName = result.fileName;
+    let fileLocation = result.fileLocation;
+    let imagePersistencePath = `${image.postQuery}${fileName}`;
+    let locationJson = JSON.parse(req.body.location);
+    let post = {
+        creator: req.user._id,
+        image: imagePersistencePath,
+        description: req.body.description,
+        label: req.body.label,
+        location: locationJson
+    }
+    Post.createPost(post, (err, result) => {
         if (err) return handleError(res, err);
-        // everything is ok, save it to the database
-        let imagePersistencePath = `${image.postQuery}${fileName}`;
-        let locationJson = JSON.parse(req.body.location);
-        Post.create({
-            creator: req.body.id,
-            image: imagePersistencePath,
-            description: req.body.description,
-            label: req.body.label,
-            location: locationJson
-        }, (err, post) => {
+        uploadImage(limit, fileLocation, file, err => {
             if (err) return handleError(res, err);
             return res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG,
-                data: post
-            });
-        });
+                data: result
+            })
+        })
     });
 });
 

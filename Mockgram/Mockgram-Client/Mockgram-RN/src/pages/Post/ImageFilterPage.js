@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Animated, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, Animated, TouchableWithoutFeedback, PixelRatio } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import window from '../../utils/getDeviceInfo';
 import { Surface } from 'gl-react-expo';
@@ -7,6 +7,7 @@ import GLImage from 'gl-react-image';
 import { Header } from 'react-navigation';
 import MyHeader from '../../components/Header';
 import { SkypeIndicator, BallIndicator } from 'react-native-indicators';
+import { takeSnapshotAsync } from 'expo';
 
 import Modal from '../../components/Modal';
 
@@ -40,6 +41,15 @@ const modalStyle = {
     alignItems: 'center'
 }
 
+const targetPixelCount = 720;
+const pixelRatio = PixelRatio.get();
+const pixels = targetPixelCount / pixelRatio;
+const opt = {
+    format: 'jpg',
+    height: pixels,
+    width: pixels
+}
+
 export default class ImageFilterPage extends React.Component {
     constructor(props) {
         super(props);
@@ -69,31 +79,6 @@ export default class ImageFilterPage extends React.Component {
         const { filterSelection, imageUri, mainImageInit } = this.state;
         return (
             <View style={styles.mainImage}>
-                <View style={[{ position: 'absolute', width: '100%', height: '100%', backgroundColor: 'transparent' }, { opacity: mainImageInit ? 1 : 0 }]}>
-                    <Surface
-                        style={{ width: '100%', height: '100%', borderRadius: 10 }} onLoad={() => {
-                            this.setState({
-                                mainImageInit: true
-                            })
-                        }}>
-                        <Normal on={filterSelection === shaderNames.Normal}>
-                            <Brannan on={filterSelection === shaderNames.Brannan}>
-                                <Earlybird on={filterSelection === shaderNames.Earlybird}>
-                                    <Hudson on={filterSelection === shaderNames.Hudson}>
-                                        <Nashville on={filterSelection === shaderNames.Nashville}>
-                                            <Valencia on={filterSelection === shaderNames.Valencia}>
-                                                <GLImage
-                                                    source={{ uri: imageUri.uri }}
-                                                    resizeMode='contain'
-                                                />
-                                            </Valencia>
-                                        </Nashville>
-                                    </Hudson>
-                                </Earlybird>
-                            </Brannan>
-                        </Normal>
-                    </Surface>
-                </View>
                 <View
                     style={{
                         zIndex: 1,
@@ -108,6 +93,33 @@ export default class ImageFilterPage extends React.Component {
                     }}
                 >
                     {this._renderMainImageIndicator()}
+                </View>
+                <View
+                    ref={o => this._mainImageView = o}
+                    style={[{ position: 'absolute', width: '100%', height: '100%', backgroundColor: 'transparent' }, { opacity: mainImageInit ? 1 : 0 }]}>
+                    <Surface
+                        style={{ width: '100%', height: '100%' }} onLoad={() => {
+                            this.setState({
+                                mainImageInit: true
+                            })
+                        }}>
+                        <Normal on={filterSelection === shaderNames.Normal}>
+                            <Brannan on={filterSelection === shaderNames.Brannan}>
+                                <Earlybird on={filterSelection === shaderNames.Earlybird}>
+                                    <Hudson on={filterSelection === shaderNames.Hudson}>
+                                        <Nashville on={filterSelection === shaderNames.Nashville}>
+                                            <Valencia on={filterSelection === shaderNames.Valencia}>
+                                                <GLImage
+                                                    source={{ uri: imageUri.uri }}
+                                                    resizeMode='center'
+                                                />
+                                            </Valencia>
+                                        </Nashville>
+                                    </Hudson>
+                                </Earlybird>
+                            </Brannan>
+                        </Normal>
+                    </Surface>
                 </View>
             </View>
         );
@@ -214,7 +226,7 @@ export default class ImageFilterPage extends React.Component {
                     { borderWidth: filterSelection === filterName ? 2 : 0 }
                 ]}>
                     <Surface
-                        style={{ width: window.width * 0.23, height: window.width * 0.23 }}
+                        style={{ width: window.width * 0.23, height: window.width * 0.23, borderRadius: 2 }}
                         onLoad={() => {
                             this._filterInitialized(filterName)
                         }}
@@ -413,6 +425,14 @@ export default class ImageFilterPage extends React.Component {
         );
     }
 
+    next = async () => {
+        const { navigation } = this.props;
+        const result = await takeSnapshotAsync(this._mainImageView, opt);
+        navigation.push('PostPreview', {
+            imageUri: result
+        })
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -425,13 +445,7 @@ export default class ImageFilterPage extends React.Component {
                             <Text style={{ color: 'black', fontSize: 15 }}>Next</Text>
                         }
                         rightButtonOnPress={() => {
-                            const { filteredImageUri } = this.state;
-                            const { navigation } = this.props;
-                            if (filteredImageUri) {
-                                navigation.navigate('PostPreview', {
-                                    image: filteredImageUri
-                                });
-                            }
+                            this.next();
                         }}
                         leftIconButton={
                             <Icon name='chevron-left' size={20} />
@@ -489,8 +503,7 @@ const styles = StyleSheet.create({
         width: window.width * 0.85,
         height: window.width * 0.85,
         justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 10
+        alignItems: 'center'
     },
     filterImageCell: {
         marginHorizontal: 5,
@@ -499,7 +512,7 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     filterImage: {
-        borderRadius: 2,
+        borderRadius: 4,
         height: window.width * 0.25,
         width: window.width * 0.25,
         justifyContent: 'center',

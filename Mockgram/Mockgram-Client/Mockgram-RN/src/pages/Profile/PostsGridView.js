@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        backgroundColor: 'green'
+        backgroundColor: '#fff'
     },
     errorMsgView: {
         height: window.width * 0.4,
