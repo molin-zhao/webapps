@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { verifyAuthorization } = require('../../mockgram-utils/utils/verify');
-const response = require('../../mockgram-utils/utils/response');
-const { convertStringToObjectId, convertStringArrToObjectIdArr } = require('../../mockgram-utils/utils/converter');
-const { handleError } = require('../../mockgram-utils/utils/handleError');
-const User = require('../../mockgram-utils/models/user');
-const Message = require('../../mockgram-utils/models/message');
+const { verifyAuthorization } = require('../../utils/verify');
+const response = require('../../utils/response');
+const { convertStringToObjectId, convertStringArrToObjectIdArr } = require('../../utils/converter');
+const { handleError } = require('../../utils/handleError');
+const User = require('../../models/user');
+const Message = require('../../models/message');
 
 /**
  * fetching new messages without paging

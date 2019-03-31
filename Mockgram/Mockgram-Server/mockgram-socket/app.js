@@ -12,12 +12,12 @@ const indexRouter = require('./routes/index');
 const messageRouter = require('./routes/message');
 
 // utils
-const response = require('../mockgram-utils/utils/response');
+const response = require('../utils/response');
 const config = require('../config');
-const { normalizePort } = require('../mockgram-utils/utils/tools');
+const { normalizePort } = require('../utils/tools');
 
 // models
-const User = require('../mockgram-utils/models/user');
+const User = require('../models/user');
 
 /**
  * config app

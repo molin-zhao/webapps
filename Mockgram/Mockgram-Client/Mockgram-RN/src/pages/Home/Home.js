@@ -282,8 +282,8 @@ const styles = StyleSheet.create({
     },
     listFooter: {
         alignItems: 'center',
-        justifyContent: 'center',
-        height: window.height * 0.1
+        justifyContent: 'flex-start',
+        height: 2 * Header.HEIGHT
     },
     errorMsgView: {
         marginTop: -50,

@@ -3,17 +3,17 @@ const router = express.Router();
 const agent = require('superagent');
 
 // utils
-const response = require('../../mockgram-utils/utils/response');
-const { handleError } = require('../../mockgram-utils/utils/handleError');
-const { convertStringArrToObjectIdArr, convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
-const { verifyAuthorization } = require('../../mockgram-utils/utils/verify');
+const response = require('../../utils/response');
+const { handleError } = require('../../utils/handleError');
+const { convertStringArrToObjectIdArr, convertStringToObjectId } = require('../../utils/converter');
+const { verifyAuthorization } = require('../../utils/verify');
 
 // models
-const { Post } = require('../../mockgram-utils/models/post');
-const User = require('../../mockgram-utils/models/user');
-const CommentModel = require('../../mockgram-utils/models/comment');
-const Reply = require('../../mockgram-utils/models/reply');
-const Message = require('../../mockgram-utils/models/message');
+const { Post } = require('../../models/post');
+const User = require('../../models/user');
+const CommentModel = require('../../models/comment');
+const Reply = require('../../models/reply');
+const Message = require('../../models/message');
 
 // configs
 const { serverNodes } = require('../../config');

@@ -2,12 +2,11 @@ const express = require('express');
 const router = express.Router();
 
 // models
-const User = require('../../mockgram-utils/models/user');
+const User = require('../../models/user');
 
 // utils
-const { handleError } = require('../../mockgram-utils/utils/handleError');
-const response = require('../../mockgram-utils/utils/response');
-const { convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
+const { handleError } = require('../../utils/handleError');
+const response = require('../../utils/response');
 
 /**
  * get like on post message

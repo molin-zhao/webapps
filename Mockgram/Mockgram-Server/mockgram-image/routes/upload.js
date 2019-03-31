@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const multipart = require('connect-multiparty');
-const { uploadImage, getFileName } = require('../../mockgram-utils/utils/fileUpload');
-const { verifyAuthorization, verifyUser } = require('../../mockgram-utils/utils/verify');
-const User = require('../../mockgram-utils/models/user');
-const { Post } = require('../../mockgram-utils/models/post');
-const response = require('../../mockgram-utils/utils/response');
+const { uploadImage, getFileName } = require('../../utils/fileUpload');
+const { verifyAuthorization, verifyUser } = require('../../utils/verify');
+const User = require('../../models/user');
+const { Post } = require('../../models/post');
+const response = require('../../utils/response');
 const { image } = require('../../config');
-const { handleError } = require('../../mockgram-utils/utils/handleError');
+const { handleError } = require('../../utils/handleError');
 
 router.all('*', verifyAuthorization, (req, res, next) => {
     next();

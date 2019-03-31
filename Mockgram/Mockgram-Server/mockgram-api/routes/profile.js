@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const verify = require('../../mockgram-utils/utils/verify');
-const User = require('../../mockgram-utils/models/user');
-const Post = require('../../mockgram-utils/models/post').Post;
-const handleError = require('../../mockgram-utils/utils/handleError').handleError;
-const response = require('../../mockgram-utils/utils/response');
-const { convertStringToObjectId, convertStringArrToObjectIdArr, arrSeparateByDate } = require('../../mockgram-utils/utils/converter');
+const verify = require('../../utils/verify');
+const User = require('../../models/user');
+const Post = require('../../models/post').Post;
+const handleError = require('../../utils/handleError').handleError;
+const response = require('../../utils/response');
+const { convertStringToObjectId, convertStringArrToObjectIdArr, arrSeparateByDate } = require('../../utils/converter');
 
 // get personal user profile with provided token
 router.get('/', verify.verifyAuthorization, (req, res) => {

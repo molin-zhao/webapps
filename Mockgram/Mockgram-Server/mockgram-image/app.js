@@ -5,14 +5,16 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const response = require('../utils/response');
 
 // utils
 const config = require('../config');
-const { normalizePort } = require('../mockgram-utils/utils/tools');
+const { normalizePort } = require('../utils/tools');
 
 // routers
 const indexRouter = require('./routes/index');
 const uploadRouter = require('./routes/upload');
+const serviceRouter = require('./routes/service');
 
 const app = express();
 
@@ -48,6 +50,7 @@ app.use(express.static(path.join(__dirname, 'public/upload/image')));
 // set up routers
 app.use('/', indexRouter);
 app.use('/upload', uploadRouter);
+app.use('/service', serviceRouter);
 
 // catch 404 and handle response
 app.use(function (req, res, next) {

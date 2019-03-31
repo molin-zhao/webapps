@@ -30,7 +30,9 @@ class UserProfile extends React.Component {
             refreshing: false,
             loading: false,
             error: null,
-            followActionProcessing: false
+            followActionProcessing: false,
+            interrupt: false,
+            fetching: true
         }
 
     }
@@ -46,48 +48,67 @@ class UserProfile extends React.Component {
         }
     }
 
+    componentDidUpdate(prevProps) {
+        const { client } = this.props;
+        if (prevProps.client != client) {
+            if (this.state.fetching) {
+                this.setState({
+                    interrupt: true
+                }, () => {
+                    this.fetchUserProfile();
+                })
+            }
+        }
+    }
+
     fetchUserProfile = () => {
         const { client } = this.props;
         const { initialProfile } = this.state;
-        return fetch(`${baseUrl.api}/profile`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userId: initialProfile._id,
-                clientId: client && client.user ? client.user._id : null
-            })
-        }).then(res => res.json()).then(res => {
-            if (res.status === 200) {
-                this.setState({
-                    profile: res.data
+        this.setState({
+            fetching: true
+        }, () => {
+            return fetch(`${baseUrl.api}/profile`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: initialProfile._id,
+                    clientId: client && client.user ? client.user._id : null
                 })
-            } else {
+            }).then(res => res.json()).then(res => {
+                if (this.state.interrupt) {
+                    this.setState({
+                        interrupt: false
+                    })
+                } else {
+                    this.setState({
+                        profile: res.data,
+                        error: res.status === 200 ? null : res.msg
+                    })
+                }
+            }).then(() => {
                 this.setState({
-                    error: res.msg
+                    loading: false,
+                    refreshing: false,
+                    fetching: false
                 })
-            }
-        }).then(() => {
-            this.setState({
-                loading: false,
-                refreshing: false
-            })
-        }).catch(err => {
-            this.setState({
-                refreshing: false,
-                loading: false,
-                error: err
-            }, () => {
-                console.log(err)
+            }).catch(err => {
+                this.setState({
+                    refreshing: false,
+                    loading: false,
+                    fetching: false,
+                    error: err
+                }, () => {
+                    console.log(err)
+                })
             })
         })
     }
 
     onRefresh = () => {
         if (!this.state.refreshing) {
-            const { client } = this.props;
             this.setState({
                 refreshing: true
             }, () => {

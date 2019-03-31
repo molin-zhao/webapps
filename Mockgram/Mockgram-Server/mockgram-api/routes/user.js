@@ -5,11 +5,11 @@ const { check } = require('express-validator/check');
 const { validationResult } = require('express-validator/check');
 const agent = require('superagent');
 
-const User = require('../../mockgram-utils/models/user');
-const Message = require('../../mockgram-utils/models/message');
-const { verifyAuthorization } = require('../../mockgram-utils/utils/verify');
-const response = require('../../mockgram-utils/utils/response');
-const { handleError } = require('../../mockgram-utils/utils/handleError');
+const User = require('../../models/user');
+const Message = require('../../models/message');
+const { verifyAuthorization } = require('../../utils/verify');
+const response = require('../../utils/response');
+const { handleError } = require('../../utils/handleError');
 const { serverNodes } = require('../../config');
 
 const checkFormValidation = [

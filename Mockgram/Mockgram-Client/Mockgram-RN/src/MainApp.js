@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, AppState } from 'react-native';
 import { createBottomTabNavigator, createStackNavigator } from 'react-navigation';
 import { connect } from 'react-redux';
 import Ionicon from 'react-native-vector-icons/Ionicons';
@@ -170,12 +170,38 @@ const RootNavigator = createStackNavigator({
     })
 
 class MainApp extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            appState: AppState.currentState
+        }
+    }
 
     async componentDidMount() {
+        AppState.addEventListener('change', this._handleAppStateChange);
         const { getClientInfo, finishAppInitialize } = this.props;
         console.log('app starts');
         await getClientInfo();
         finishAppInitialize()
+    }
+
+    componentWillMount() {
+        AppState.removeEventListener('change', this._handleAppStateChange);
+    }
+
+    _handleAppStateChange = (nextAppState) => {
+        const { appState } = this.state;
+        if (appState.match(/inactive|background/) && nextAppState === 'active') {
+            console.log('App comes to foreground!');
+        } else if (appState.match(/active/) && nextAppState === 'background') {
+            console.log('App comes to background');
+        } else {
+            // nextAppState is inactive
+            console.log('App is temporarily inactive');
+        }
+        this.setState({
+            appState: nextAppState
+        })
     }
 
     componentDidUpdate(prevProps) {

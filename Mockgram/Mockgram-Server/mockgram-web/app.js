@@ -1,8 +1,9 @@
+const http = require('http');
 const express = require('express');
 const path = require('path');
 const ejs = require('ejs');
 const logger = require('morgan');
-const indexRouter = require('./routes/index');
+const { normalizePort } = require('../utils/tools');
 
 const app = express();
 
@@ -13,12 +14,12 @@ app.set('view engine', 'html');
 app.use(logger('dev'));
 
 // set static directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public/mockgram-web')));
 
-
-// set up router
-app.use('/', indexRouter);
-
+// index.html
+app.use('/', (req, res)=>{
+  return res.render('index.html')
+})
 
 // catch 404 and handle response
 app.use(function (req, res, next) {
@@ -36,4 +37,21 @@ app.use(function (err, req, res, next) {
   });
 });
 
-module.exports = app;
+/**
+ * Get port from environment and store in Express.
+ */
+
+let port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+const server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);

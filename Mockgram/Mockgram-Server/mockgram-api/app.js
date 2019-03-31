@@ -16,9 +16,9 @@ const profileRouter = require('./routes/profile');
 const messageRouter = require('./routes/message');
 
 // utils
-const response = require('../mockgram-utils/utils/response');
+const response = require('../utils/response');
 const config = require('../config');
-const { normalizePort } = require('../mockgram-utils/utils/tools');
+const { normalizePort } = require('../utils/tools');
 
 // set up app
 const app = express();

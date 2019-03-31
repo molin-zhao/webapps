@@ -1,0 +1,64 @@
+<div class="container">
+  <h3>Image Object Detection</h3>
+  <form>
+    <div class="form-group">
+      <label for="image">Upload an image:</label>
+      <input #file (change)="preview(file.files)" accept="image/*" type="file" class="form-control-file" id="image">
+    </div>
+  </form>
+  <span class="text-danger" style="font-size: 14px" *ngIf="message">{{message}}</span>
+  <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center">
+    <div class="image-preview">
+      <img [src]="imageUrl" *ngIf="imageUrl" style="object-fit: cover">
+    </div>
+    <div style="height:20px; width: 100%"></div>
+    <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">
+      <ng-container *ngIf="!uploading; then uploadBtn; else processingBtn"></ng-container>
+      <ng-template #uploadBtn>
+        <ng-container *ngIf="imageUrl; else uploadBtnDisabled">
+          <button class="btn btn-info" style="width:150px" type="button" (click)="uploadFile()">upload</button>
+        </ng-container>
+        <ng-template #uploadBtnDisabled>
+          <button class="btn btn-info" style="width:150px" type="button" disabled>upload</button>
+        </ng-template>
+      </ng-template>
+      <ng-template #processingBtn>
+        <button class="btn btn-info" style="width:150px" type="button" disabled>
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          processing...
+        </button>
+      </ng-template>
+    </div>
+    <div style="height:20px; width: 100%"></div>
+    <div *ngIf="response">
+      <ng-container *ngIf="response.status === 200; then tableDiv; else errorDiv"></ng-container>
+      <ng-template #tableDiv>
+        <ng-container *ngIf="response.data.length > 0; then data; else emptyData"></ng-container>
+        <ng-template #data>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Object</th>
+                <th scope="col">Probability</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of response.data; index as i">
+                <th scope="row">{{i+1}}</th>
+                <td>{{showKey(d)}}</td>
+                <td>{{showValue(d)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-template>
+        <ng-template #emptyData>
+          <img src="../../../assets/empty.jpg" style="width:100px; height: 100px; object-fit: cover">
+        </ng-template>
+      </ng-template>
+      <ng-template #errorDiv>
+        <span class="text-danger">{{response.msg}}</span>
+      </ng-template>
+    </div>
+  </div>
+</div>

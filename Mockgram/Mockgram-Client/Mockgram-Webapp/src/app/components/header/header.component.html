@@ -1,0 +1,18 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+  <a style="display: flex; align-items: center" class="navbar-brand">
+    <img src="../../../assets/mockgram-icon.png" style="height:35px; height:35px; border-radius:17.5px;">
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar"
+    aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div id="navbar" class="navbar-collapse collapse">
+    <ul class="navbar-nav mr-auto">
+      <li *ngFor="let navItem of navItems" class="nav-item" (click)="nav(navItem)"
+        [class.active]="activatedRouter == navItem.link">
+        <a class="nav-link" style="font-size: 14px"><i [class]="navItem.iconName" aria-hidden="true"></i>&nbsp;
+          {{navItem.name}}</a>
+      </li>
+    </ul>
+  </div>
+</nav>

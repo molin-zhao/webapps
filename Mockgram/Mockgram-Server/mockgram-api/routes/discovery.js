@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const verification = require('../../mockgram-utils/utils/verify');
-const User = require('../../mockgram-utils/models/user');
-const Post = require('../../mockgram-utils/models/post').Post;
-const handleError = require('../../mockgram-utils/utils/handleError').handleError;
-const response = require('../../mockgram-utils/utils/response');
-const { convertStringToObjectId } = require('../../mockgram-utils/utils/converter');
+const verification = require('../../utils/verify');
+const User = require('../../models/user');
+const { Post } = require('../../models/post');
+const { handleError } = require('../../utils/handleError');
+const response = require('../../utils/response');
+const { convertStringToObjectId } = require('../../utils/converter');
 
 // var celebrity = FindCelebrity();
 

@@ -1,8 +1,0 @@
-{
-    "name": "mockgram-utils",
-    "version": "0.0.0",
-    "private": true,
-    "scripts": {
-        "start": "PORT=3034 node ./bin/www"
-    }
-}
