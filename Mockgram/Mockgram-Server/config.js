@@ -29,17 +29,23 @@ module.exports = {
     port: 6379,
     host: "localhost"
   },
-  // facebook Oauth callback
-  facebook: {
-    clientID: "328004181080220",
-    clientSecret: "6ca8e960afa81c9956f1fd32cea0d11e",
-    callbackURL: "https://api.mockgram.molinz.com/user/auth/facebook/callback"
-  },
   serverNodes: {
     apiServer: "http://172.20.10.11:3031",
     uploadServer: "http://172.20.10.11:3032",
     socketServer: "http://172.20.10.11:3033",
     webServer: "http://172.20.10.11:3030",
     mlServer: "http://172.20.10.11:8000"
+  },
+  // facebook Oauth callback
+  facebook: {
+    clientID: "328004181080220",
+    clientSecret: "6ca8e960afa81c9956f1fd32cea0d11e",
+    callbackURL: "http://localhost:3031/user/auth/facebook/callback"
+  },
+  google: {
+    clientID:
+      "796012448488-0fcfsi3sh26ob0pgf47qqpfov95b0ov6.apps.googleusercontent.com",
+    clientSecret: "EIN0dF9yrA0rUnYc-Ey-umkg",
+    callbackURL: "http://localhost:3031/user/auth/google/callback"
   }
 };
