@@ -31,7 +31,7 @@ router.post("/object-detection", cors(), multipart(), async (req, res) => {
       .set("Accept", "application/json")
       .end(async (err, resp) => {
         if (err) return handleError(res, err);
-        // await deteleFileAsync(fileLocation);
+        await deteleFileAsync(fileLocation);
         let djangoRes = JSON.parse(resp.text);
         if (djangoRes.status !== 200) {
           return res.json({

@@ -108,11 +108,11 @@ __webpack_require__.r(__webpack_exports__);
 
 var AppComponent = /** @class */ (function () {
     function AppComponent() {
-        this.title = 'mockgram-web';
+        this.title = "mockgram-web";
     }
     AppComponent = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Component"])({
-            selector: 'app-root',
+            selector: "app-root",
             template: __webpack_require__(/*! ./app.component.html */ "./src/app/app.component.html"),
             styles: [__webpack_require__(/*! ./app.component.css */ "./src/app/app.component.css")]
         })
@@ -138,15 +138,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm5/http.js");
-/* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
-/* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
-/* harmony import */ var _components_header_header_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/header/header.component */ "./src/app/components/header/header.component.ts");
-/* harmony import */ var _components_footer_footer_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/footer/footer.component */ "./src/app/components/footer/footer.component.ts");
-/* harmony import */ var _components_content_content_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/content/content.component */ "./src/app/components/content/content.component.ts");
-/* harmony import */ var _pages_home_home_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./pages/home/home.component */ "./src/app/pages/home/home.component.ts");
-/* harmony import */ var _pages_api_api_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./pages/api/api.component */ "./src/app/pages/api/api.component.ts");
-/* harmony import */ var _pages_service_service_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./pages/service/service.component */ "./src/app/pages/service/service.component.ts");
-/* harmony import */ var _pages_download_download_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./pages/download/download.component */ "./src/app/pages/download/download.component.ts");
+/* harmony import */ var ng2_img_max__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ng2-img-max */ "./node_modules/ng2-img-max/dist/ng2-img-max.js");
+/* harmony import */ var _app_routing_module__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./app-routing.module */ "./src/app/app-routing.module.ts");
+/* harmony import */ var _app_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./app.component */ "./src/app/app.component.ts");
+/* harmony import */ var _components_header_header_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/header/header.component */ "./src/app/components/header/header.component.ts");
+/* harmony import */ var _components_footer_footer_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./components/footer/footer.component */ "./src/app/components/footer/footer.component.ts");
+/* harmony import */ var _components_content_content_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./components/content/content.component */ "./src/app/components/content/content.component.ts");
+/* harmony import */ var _pages_home_home_component__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./pages/home/home.component */ "./src/app/pages/home/home.component.ts");
+/* harmony import */ var _pages_api_api_component__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./pages/api/api.component */ "./src/app/pages/api/api.component.ts");
+/* harmony import */ var _pages_service_service_component__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./pages/service/service.component */ "./src/app/pages/service/service.component.ts");
+/* harmony import */ var _pages_download_download_component__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./pages/download/download.component */ "./src/app/pages/download/download.component.ts");
+
 
 
 
@@ -166,22 +168,18 @@ var AppModule = /** @class */ (function () {
     AppModule = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_2__["NgModule"])({
             declarations: [
-                _app_component__WEBPACK_IMPORTED_MODULE_5__["AppComponent"],
-                _components_header_header_component__WEBPACK_IMPORTED_MODULE_6__["HeaderComponent"],
-                _components_footer_footer_component__WEBPACK_IMPORTED_MODULE_7__["FooterComponent"],
-                _components_content_content_component__WEBPACK_IMPORTED_MODULE_8__["ContentComponent"],
-                _pages_home_home_component__WEBPACK_IMPORTED_MODULE_9__["HomeComponent"],
-                _pages_api_api_component__WEBPACK_IMPORTED_MODULE_10__["ApiComponent"],
-                _pages_service_service_component__WEBPACK_IMPORTED_MODULE_11__["ServiceComponent"],
-                _pages_download_download_component__WEBPACK_IMPORTED_MODULE_12__["DownloadComponent"]
+                _app_component__WEBPACK_IMPORTED_MODULE_6__["AppComponent"],
+                _components_header_header_component__WEBPACK_IMPORTED_MODULE_7__["HeaderComponent"],
+                _components_footer_footer_component__WEBPACK_IMPORTED_MODULE_8__["FooterComponent"],
+                _components_content_content_component__WEBPACK_IMPORTED_MODULE_9__["ContentComponent"],
+                _pages_home_home_component__WEBPACK_IMPORTED_MODULE_10__["HomeComponent"],
+                _pages_api_api_component__WEBPACK_IMPORTED_MODULE_11__["ApiComponent"],
+                _pages_service_service_component__WEBPACK_IMPORTED_MODULE_12__["ServiceComponent"],
+                _pages_download_download_component__WEBPACK_IMPORTED_MODULE_13__["DownloadComponent"]
             ],
-            imports: [
-                _angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["BrowserModule"],
-                _app_routing_module__WEBPACK_IMPORTED_MODULE_4__["AppRoutingModule"],
-                _angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClientModule"]
-            ],
+            imports: [_angular_platform_browser__WEBPACK_IMPORTED_MODULE_1__["BrowserModule"], _app_routing_module__WEBPACK_IMPORTED_MODULE_5__["AppRoutingModule"], _angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClientModule"], ng2_img_max__WEBPACK_IMPORTED_MODULE_4__["Ng2ImgMaxModule"]],
             providers: [],
-            bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_5__["AppComponent"]]
+            bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_6__["AppComponent"]]
         })
     ], AppModule);
     return AppModule;
@@ -589,48 +587,67 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var src_app_service_object_detection_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! src/app/service/object-detection.service */ "./src/app/service/object-detection.service.ts");
+/* harmony import */ var ng2_img_max__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ng2-img-max */ "./node_modules/ng2-img-max/dist/ng2-img-max.js");
+
 
 
 
 var ServiceComponent = /** @class */ (function () {
-    function ServiceComponent(objectDetectionService) {
+    function ServiceComponent(objectDetectionService, ng2ImgMax) {
+        var _this = this;
         this.objectDetectionService = objectDetectionService;
+        this.ng2ImgMax = ng2ImgMax;
         this.uploading = false;
         this.imageFile = null;
         this.response = null;
-    }
-    ServiceComponent.prototype.ngOnInit = function () { };
-    ServiceComponent.prototype.preview = function (files) {
-        var _this = this;
-        if (!files || files.length === 0) {
-            return;
-        }
-        var mimeType = files[0].type;
-        if (mimeType.match(/image\/*/) == null) {
-            this.message = "Only image is supported";
-        }
-        var reader = new FileReader();
-        this.imagePath = files;
-        this.imageFile = files[0];
-        reader.readAsDataURL(this.imageFile);
-        reader.onload = function (e) {
-            _this.imageUrl = reader.result;
+        this.preview = function (files) {
+            if (!files || files.length === 0) {
+                return;
+            }
+            var mimeType = files[0].type;
+            if (mimeType.match(/image\/*/) == null) {
+                _this.message = "Only image is supported";
+            }
+            var reader = new FileReader();
+            _this.imageFile = files[0];
+            reader.readAsDataURL(_this.imageFile);
+            reader.onload = function (e) {
+                _this.imageUrl = reader.result;
+            };
         };
-    };
-    ServiceComponent.prototype.uploadFile = function () {
-        var _this = this;
-        if (this.imageFile) {
-            var image = new FormData();
-            image.append("image", this.imageFile);
-            this.uploading = true;
-            this.message = "";
-            this.response = null;
-            this.objectDetectionService.objectDetection(image).subscribe(function (res) {
+        this.sendToServer = function (image) {
+            var uploadImage = new FormData();
+            uploadImage.append("image", image);
+            _this.uploading = true;
+            _this.message = "";
+            _this.response = null;
+            _this.objectDetectionService.objectDetection(uploadImage).subscribe(function (res) {
                 _this.response = res;
                 _this.uploading = false;
             });
-        }
-    };
+        };
+        this.uploadFile = function () {
+            if (_this.imageFile) {
+                if (_this.imageFile.size > 1024 * 1024) {
+                    return _this.ng2ImgMax.compressImage(_this.imageFile, 1).subscribe(function (result) {
+                        var resultFile = _this.blobToFile(result);
+                        return _this.sendToServer(resultFile);
+                    }, function (error) {
+                        console.log(error);
+                    });
+                }
+                return _this.sendToServer(_this.imageFile);
+            }
+        };
+        this.blobToFile = function (blob) {
+            var blob_obj = blob;
+            return new File([blob], blob_obj.name, {
+                lastModified: Date.now(),
+                type: "image/jpeg"
+            });
+        };
+    }
+    ServiceComponent.prototype.ngOnInit = function () { };
     ServiceComponent.prototype.showKey = function (data) {
         return Object.keys(data)[0];
     };
@@ -643,7 +660,8 @@ var ServiceComponent = /** @class */ (function () {
             template: __webpack_require__(/*! ./service.component.html */ "./src/app/pages/service/service.component.html"),
             styles: [__webpack_require__(/*! ./service.component.css */ "./src/app/pages/service/service.component.css")]
         }),
-        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [src_app_service_object_detection_service__WEBPACK_IMPORTED_MODULE_2__["ObjectDetectionService"]])
+        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [src_app_service_object_detection_service__WEBPACK_IMPORTED_MODULE_2__["ObjectDetectionService"],
+            ng2_img_max__WEBPACK_IMPORTED_MODULE_3__["Ng2ImgMaxService"]])
     ], ServiceComponent);
     return ServiceComponent;
 }());
@@ -680,7 +698,7 @@ var ObjectDetectionService = /** @class */ (function () {
     };
     ObjectDetectionService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
-            providedIn: 'root'
+            providedIn: "root"
         }),
         tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [_angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpClient"]])
     ], ObjectDetectionService);

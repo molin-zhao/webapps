@@ -1,18 +1,17 @@
 import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { connect } from "react-redux";
-import ActionSheet from "react-native-actionsheet";
 import { withNavigation } from "react-navigation";
-import Icon from "react-native-vector-icons/Ionicons";
 
 import Button from "./Button";
 import Thumbnail from "./Thumbnail";
+import Icon from "react-native-vector-icons/Ionicons";
+import ActionSheet from "react-native-actionsheet";
 
-import baseUrl from "../common/baseUrl";
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
 
-class UserListCell extends React.Component {
+class RecommendUserCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -20,6 +19,29 @@ class UserListCell extends React.Component {
       dataSource: this.props.dataSource
     };
   }
+  renderPosts = () => {
+    const { dataSource } = this.state;
+    if (dataSource.posts.length === 0) {
+      return (
+        <Text
+          style={{ fontWeight: "bold", color: "grey" }}
+        >{`User has no posts`}</Text>
+      );
+    }
+    return dataSource.posts.map(post => {
+      return (
+        <Image
+          key={post._id}
+          style={{
+            width: window.width * 0.15,
+            height: window.width * 0.15,
+            borderRadius: 5
+          }}
+          source={{ uri: post.image }}
+        />
+      );
+    });
+  };
 
   showActionSheet = () => {
     this.ActionSheet.show();
@@ -71,16 +93,12 @@ class UserListCell extends React.Component {
         }
       );
     } else {
-      navigation.navigate("Auth");
+      navigation.push("Auth");
     }
   };
 
   renderButton = () => {
-    const { client } = this.props;
     const { dataSource } = this.state;
-    if (client && client.user._id === dataSource._id) {
-      return null;
-    }
     let followStyle = {
       backgroundColor: theme.primaryColor
     };
@@ -91,7 +109,7 @@ class UserListCell extends React.Component {
     return (
       <Button
         containerStyle={[
-          { width: 90, height: 40 },
+          { width: 80, height: 40 },
           dataSource.followed ? followingStyle : followStyle
         ]}
         loading={this.state.loading}
@@ -113,77 +131,52 @@ class UserListCell extends React.Component {
   };
 
   render() {
-    const { dataSource, client, navigation } = this.props;
+    const { dataSource } = this.state;
+    const { itemWidth, itemHeight } = this.props;
     return (
       <View
-        style={{
-          borderWidth: 0,
-          width: window.width,
-          height: 80,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "flex-start"
-        }}
+        style={[styles.container, { width: itemWidth, height: itemHeight }]}
       >
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => {
-            if (client && client.user._id === dataSource._id) {
-              navigation.navigate("Profile");
-            } else {
-              navigation.push("UserProfile", {
-                username: dataSource.username,
-                avatar: dataSource.avatar,
-                _id: dataSource._id
-              });
-            }
-          }}
-          style={{
-            flex: 3,
-            flexDirection: "row",
-            justifyContent: "flex-start",
-            alignItems: "center"
-          }}
-        >
+        <View style={styles.userDescription}>
           <View
             style={{
-              width: "20%",
+              width: "30%",
+              height: "100%",
               justifyContent: "center",
               alignItems: "center"
             }}
           >
             <Thumbnail
+              style={{ height: 50, width: 50 }}
               source={dataSource.avatar}
-              style={{ width: 40, height: 40 }}
             />
           </View>
           <View
             style={{
-              width: "80%",
-              justifyContent: "center",
+              width: "70%",
+              height: "100%",
+              justifyContent: "space-around",
               alignItems: "flex-start"
             }}
           >
-            <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-              {dataSource.username}
+            <Text ellipsizeMode="tail">
+              {dataSource.username ? dataSource.username : dataSource.nickname}
             </Text>
-            <Text>{dataSource.nickname}</Text>
+            <Text ellipsizeMode="tail" numberOfLines={3}>
+              {dataSource.bio}
+            </Text>
           </View>
-        </TouchableOpacity>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
+        </View>
+        <View style={styles.userPost}>{this.renderPosts()}</View>
+        <View style={styles.userFollowButton}>
+          <Text>{`follower: ${dataSource.followerCount}`}</Text>
           {this.renderButton()}
         </View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
           title="Confirm this action to unfollow user"
           message={`\nDo you want to unfollow user ${
-            dataSource.username
+            dataSource.username ? dataSource.username : dataSource.nickname
           }?\nYou will not receive any updates and messages from this user`}
           options={["confirm", "cancel"]}
           cancelButtonIndex={1}
@@ -206,4 +199,38 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   null
-)(withNavigation(UserListCell));
+)(withNavigation(RecommendUserCard));
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: theme.primaryGrey,
+    width: "100%",
+    height: "100%",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    borderColor: "grey",
+    borderWidth: 2,
+    borderRadius: 20
+  },
+  userDescription: {
+    width: "100%",
+    height: "30%",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "row"
+  },
+  userPost: {
+    width: "90%",
+    height: "50%",
+    justifyContent: "space-around",
+    flexDirection: "row",
+    alignItems: "center",
+    flexWrap: "wrap"
+  },
+  userFollowButton: {
+    width: "100%",
+    height: "20%",
+    justifyContent: "space-around",
+    alignItems: "center"
+  }
+});

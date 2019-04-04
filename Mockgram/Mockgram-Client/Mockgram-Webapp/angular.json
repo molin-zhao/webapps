@@ -26,6 +26,7 @@
               "src/styles.css"
             ],
             "scripts": [
+              "./node_modules/blueimp-canvas-to-blob/js/canvas-to-blob.min.js",
               "src/assets/js/jquery.min.js",
               "src/assets/js/main.js",
               "src/assets/js/bootstrap.min.js"

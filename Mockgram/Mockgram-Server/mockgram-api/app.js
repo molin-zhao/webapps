@@ -6,6 +6,7 @@ const logger = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const useragent = require("express-useragent");
+const passport = require("passport");
 
 // routers
 const indexRouter = require("./routes/index");
@@ -14,12 +15,12 @@ const postRouter = require("./routes/post");
 const discoveryRouter = require("./routes/discovery");
 const profileRouter = require("./routes/profile");
 const messageRouter = require("./routes/message");
+const recommendRouter = require("./routes/recommend");
 
 // utils
 const response = require("../utils/response");
 const config = require("../config");
 const { normalizePort } = require("../utils/tools");
-const { googleStrategy, facebookStrategy } = require("../utils/authenticate");
 
 // set up app
 const app = express();
@@ -57,6 +58,9 @@ app.use(
 // parse application/json
 app.use(bodyParser.json());
 app.use(cookieParser());
+// set up passport strategy
+app.use(passport.initialize());
+app.use(passport.session());
 
 // set up routers
 app.use("/", indexRouter);
@@ -65,10 +69,7 @@ app.use("/post", postRouter);
 app.use("/discovery", discoveryRouter);
 app.use("/profile", profileRouter);
 app.use("/message", messageRouter);
-
-// set up passport strategy
-googleStrategy();
-facebookStrategy();
+app.use("/recommend", recommendRouter);
 
 // catch 404 and handle response
 app.use(function(req, res, next) {
@@ -80,6 +81,7 @@ app.use(function(req, res, next) {
 
 // catch 500 and handle response
 app.use(function(err, req, res, next) {
+  console.log(err);
   return res.status(500).json({
     status: response.ERROR.SERVER_ERROR.CODE,
     msg: response.ERROR.SERVER_ERROR.MSG

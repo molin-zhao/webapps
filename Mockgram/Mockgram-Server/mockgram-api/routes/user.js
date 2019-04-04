@@ -4,13 +4,18 @@ const passport = require("passport");
 const { check } = require("express-validator/check");
 const { validationResult } = require("express-validator/check");
 const agent = require("superagent");
-
 const User = require("../../models/user");
 const Message = require("../../models/message");
-const { verifyAuthorization } = require("../../utils/verify");
+const authenticate = require("../../utils/authenticate")(User);
 const response = require("../../utils/response");
 const { handleError } = require("../../utils/handleError");
 const { serverNodes } = require("../../config");
+
+// set up passport for OAuth login
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+passport.use(authenticate.facebookStrategy);
+passport.use(authenticate.googleStrategy);
 
 const checkFormValidation = [
   // Check validity
@@ -109,36 +114,50 @@ router.get("/logout", (req, res) => {
  * facebook
  * google
  */
-router.get(
-  "/auth/facebook",
+router.get("/auth/facebook", (req, res, next) => {
+  let redirectUrl = req.query.redirectUrl;
   passport.authenticate("facebook", {
-    scope: ["profile"]
-  })
-);
-
-router.get(
-  "/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile"]
-  })
-);
+    session: false,
+    state: redirectUrl
+  })(req, res, next);
+});
 
 router.get(
   "/auth/facebook/callback",
-  passport.authenticate("facebook"),
-  (req, res) => {}
+  passport.authenticate("facebook", {
+    failureRedirect: "/auth/facebook"
+  }),
+  (req, res) => {
+    return User.loginOAuth(req.user, req, res);
+  }
 );
+
+router.get("/auth/google", (req, res, next) => {
+  let redirectUrl = req.query.redirectUrl;
+  passport.authenticate("google", {
+    session: false,
+    state: redirectUrl,
+    scope: ["profile"]
+  })(req, res, next);
+});
 
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google"),
-  (req, res) => {}
+  passport.authenticate("google", {
+    failureRedirect: "/auth/google"
+  }),
+  (req, res) => {
+    res.json({
+      user: req.user
+    });
+    // return User.loginOAuth(req.user, req, res);
+  }
 );
 
 /**
  * util routers
  */
-router.put("/follow", verifyAuthorization, (req, res) => {
+router.put("/follow", authenticate.verifyAuthorization, (req, res) => {
   let followerId = req.user._id;
   let followingId = req.body.followingId;
   let type = req.body.type;
@@ -230,7 +249,7 @@ router.put("/follow", verifyAuthorization, (req, res) => {
   }
 });
 
-router.get("/token/verify", verifyAuthorization, (req, res) => {
+router.get("/token/verify", authenticate.verifyAuthorization, (req, res) => {
   console.log(req.user);
   return res.json({
     status: response.SUCCESS.OK.CODE,
