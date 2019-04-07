@@ -9,9 +9,10 @@ const Post = require("../../models/post").Post;
 const { verifyAuthorization } = require("../../utils/authenticate")(User);
 const response = require("../../utils/response");
 const { handleError } = require("../../utils/handleError");
+const { convertStringToObjectId } = require("../../utils/converter");
 
 router.get("/user", verifyAuthorization, (req, res) => {
-  let userId = req.user._id;
+  let userId = convertStringToObjectId(req.user._id);
   let limit = parseInt(req.query.limit);
   User.aggregate([
     {
@@ -59,7 +60,6 @@ router.get("/user", verifyAuthorization, (req, res) => {
         return user;
       });
       const result = await Promise.all(promises);
-      console.log(result);
       res.json({
         status: response.SUCCESS.OK.CODE,
         msg: response.SUCCESS.OK.MSG,

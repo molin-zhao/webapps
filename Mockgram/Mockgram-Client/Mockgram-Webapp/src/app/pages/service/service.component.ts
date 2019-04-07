@@ -36,19 +36,27 @@ export class ServiceComponent implements OnInit {
       this.imageUrl = reader.result;
     };
   };
+
   sendToServer = image => {
     let uploadImage = new FormData();
     uploadImage.append("image", image);
-    this.uploading = true;
-    this.message = "";
-    this.response = null;
-    this.objectDetectionService.objectDetection(uploadImage).subscribe(res => {
-      this.response = res;
-      this.uploading = false;
-    });
+    this.objectDetectionService.objectDetection(uploadImage).subscribe(
+      res => {
+        this.response = res;
+        this.uploading = false;
+      },
+      err => {
+        console.log(err);
+        this.message = err;
+        this.uploading = false;
+      }
+    );
   };
 
   uploadFile = () => {
+    this.uploading = true;
+    this.message = "";
+    this.response = null;
     if (this.imageFile) {
       if (this.imageFile.size > 1024 * 1024) {
         return this.ng2ImgMax.compressImage(this.imageFile, 1).subscribe(
@@ -58,6 +66,8 @@ export class ServiceComponent implements OnInit {
           },
           error => {
             console.log(error);
+            this.message = error;
+            this.uploading = false;
           }
         );
       }

@@ -618,15 +618,19 @@ var ServiceComponent = /** @class */ (function () {
         this.sendToServer = function (image) {
             var uploadImage = new FormData();
             uploadImage.append("image", image);
-            _this.uploading = true;
-            _this.message = "";
-            _this.response = null;
             _this.objectDetectionService.objectDetection(uploadImage).subscribe(function (res) {
                 _this.response = res;
+                _this.uploading = false;
+            }, function (err) {
+                console.log(err);
+                _this.message = err;
                 _this.uploading = false;
             });
         };
         this.uploadFile = function () {
+            _this.uploading = true;
+            _this.message = "";
+            _this.response = null;
             if (_this.imageFile) {
                 if (_this.imageFile.size > 1024 * 1024) {
                     return _this.ng2ImgMax.compressImage(_this.imageFile, 1).subscribe(function (result) {
@@ -634,6 +638,8 @@ var ServiceComponent = /** @class */ (function () {
                         return _this.sendToServer(resultFile);
                     }, function (error) {
                         console.log(error);
+                        _this.message = error;
+                        _this.uploading = false;
                     });
                 }
                 return _this.sendToServer(_this.imageFile);

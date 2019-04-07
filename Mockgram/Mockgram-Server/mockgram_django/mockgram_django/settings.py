@@ -65,9 +65,10 @@ WSGI_APPLICATION = 'mockgram_django.wsgi.application'
 
 DATABASES = {
     'default': {
-      'ENGINE' : 'djongo',
+      'ENGINE' : 'django.db.backends.postgresql_psycopg2',
       'NAME' : 'mockgram',
-      'HOST': 'localhost'
+      'HOST': 'localhost',
+      'PORT': '5432'
     }
 }
 
