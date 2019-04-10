@@ -26,7 +26,8 @@ class Home extends React.Component {
       refreshing: false,
       loadingMore: false,
       fetching: false,
-      interrupt: false
+      interrupt: false,
+      gotServerResponse: false
     };
   }
 
@@ -34,7 +35,7 @@ class Home extends React.Component {
     return {
       title: "Mockgram",
       headerStyle: {
-        backgroundColor: "white"
+        backgroundColor: "#fff"
       },
       headerTitleStyle: {
         color: "black",
@@ -58,6 +59,7 @@ class Home extends React.Component {
           loading: true
         },
         () => {
+          console.log("loading");
           this.fetchPosts();
         }
       );
@@ -126,10 +128,12 @@ class Home extends React.Component {
               loading: false,
               refreshing: false,
               loadingMore: false,
-              fetching: false
+              fetching: false,
+              gotServerResponse: true
             });
           })
           .catch(err => {
+            console.log(err);
             this.setState({
               error: err,
               loading: false,
@@ -240,26 +244,43 @@ class Home extends React.Component {
   };
 
   listEmpty = () => {
-    if (this.state.error) {
-      return (
-        <View style={styles.errorMsgView}>
-          <Text>{this.state.error}</Text>
-        </View>
-      );
+    const { fetching, error, gotServerResponse } = this.state;
+    if (gotServerResponse && !fetching) {
+      if (error) {
+        return this.renderError();
+      } else {
+        return <UserRecommend />;
+      }
     }
-    return <UserRecommend />;
+    return null;
+  };
+
+  renderError = () => {
+    const { error } = this.state;
+    return (
+      <View style={styles.errorMsgView}>
+        <Text>{error.sourceURL ? "Network request failed" : error}</Text>
+      </View>
+    );
+  };
+
+  renderLoading = () => {
+    return (
+      <View style={styles.errorMsgView}>
+        <SkypeIndicator />
+      </View>
+    );
   };
 
   renderPost = () => {
     const { initialized, homeFeed } = this.props;
     if (initialized) {
       if (this.state.loading) {
-        return (
-          <View style={styles.errorMsgView}>
-            <SkypeIndicator />
-          </View>
-        );
+        return this.renderLoading();
       } else {
+        if (this.state.error) {
+          return this.renderError();
+        }
         return (
           <FlatList
             style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
@@ -272,16 +293,12 @@ class Home extends React.Component {
             refreshing={this.state.refreshing}
             ListFooterComponent={this.renderFooter}
             onEndReached={this.handleLoadMore}
-            onEndReachedThreshold={0.2}
+            onEndReachedThreshold={0.1}
           />
         );
       }
     } else {
-      return (
-        <View style={styles.errorMsgView}>
-          <SkypeIndicator />
-        </View>
-      );
+      return this.renderLoading();
     }
   };
 
@@ -323,9 +340,8 @@ const styles = StyleSheet.create({
     height: 2 * Header.HEIGHT
   },
   errorMsgView: {
-    marginTop: -50,
     backgroundColor: "#fff",
-    height: window.height - Header.HEIGHT,
+    height: window.height - 2 * Header.HEIGHT,
     width: "100%",
     alignItems: "center",
     justifyContent: "center"

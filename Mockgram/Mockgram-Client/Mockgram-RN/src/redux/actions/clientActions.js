@@ -5,6 +5,9 @@ import * as LocalKeys from "../../common/localKeys";
 import baseUrl from "../../common/baseUrl";
 import { createSocket } from "../../utils/socket";
 
+const successResult = { result: "success" };
+const errorResult = { result: "error" };
+
 export const clientLogin = loginForm => dispatch => {
   return fetch(`${baseUrl.api}/user/login`, {
     method: "POST",
@@ -47,35 +50,48 @@ export const clientLogout = () => dispatch => {
 };
 
 export const getClientInfo = () => dispatch => {
-  return SecureStore.getItemAsync(LocalKeys.CLIENT_INFO).then(info => {
-    if (info) {
-      let clientInfo = JSON.parse(info);
-      return fetch(`${baseUrl.api}/user/token/verify`, {
-        headers: {
-          authorization: clientInfo.token
-        },
-        method: "GET"
-      })
-        .then(res => res.json())
-        .then(resJson => {
-          if (resJson.status !== 200) {
-            // token is expired
-            console.log("local token expired");
-            return SecureStore.deleteItemAsync(LocalKeys.CLIENT_INFO).then(
-              () => {
-                console.log("removed local client infomation");
-                dispatch(removeClientInfo());
-              }
-            );
-          } else {
-            dispatch(addClientInfo(clientInfo));
-            dispatch(connectSocket(createSocket(baseUrl.socket, clientInfo)));
-          }
-        });
-    } else {
-      dispatch(removeClientInfo());
-    }
-  });
+  return SecureStore.getItemAsync(LocalKeys.CLIENT_INFO)
+    .then(info => {
+      if (info) {
+        let clientInfo = JSON.parse(info);
+        return fetch(`${baseUrl.api}/user/token/verify`, {
+          headers: {
+            authorization: clientInfo.token
+          },
+          method: "GET"
+        })
+          .then(res => res.json())
+          .then(resJson => {
+            if (resJson.status !== 200) {
+              // token is expired
+              return SecureStore.deleteItemAsync(LocalKeys.CLIENT_INFO)
+                .then(() => {
+                  dispatch(removeClientInfo());
+                  return Promise.resolve(successResult);
+                })
+                .catch(err => {
+                  console.log(err);
+                  return Promise.reject(errorResult);
+                });
+            } else {
+              dispatch(addClientInfo(clientInfo));
+              dispatch(connectSocket(createSocket(baseUrl.socket, clientInfo)));
+              return Promise.resolve(successResult);
+            }
+          })
+          .catch(err => {
+            console.log(err);
+            return Promise.reject(errorResult);
+          });
+      } else {
+        dispatch(removeClientInfo());
+        return Promise.resolve(successResult);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      return Promise.reject(errorResult);
+    });
 };
 
 // dispatch objects

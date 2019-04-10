@@ -107,7 +107,7 @@ class UserRecommend extends React.Component {
             style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
           >
             <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-              Follow people to see there story
+              Follow people to see their story
             </Text>
           </View>
           <View

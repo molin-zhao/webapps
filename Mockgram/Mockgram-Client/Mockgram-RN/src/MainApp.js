@@ -206,12 +206,17 @@ class MainApp extends React.Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     AppState.addEventListener("change", this._handleAppStateChange);
     const { getClientInfo, finishAppInitialize } = this.props;
     console.log("app starts");
-    await getClientInfo();
-    finishAppInitialize();
+    getClientInfo()
+      .then(() => {
+        finishAppInitialize();
+      })
+      .catch(() => {
+        finishAppInitialize();
+      });
   }
 
   componentWillMount() {

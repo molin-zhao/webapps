@@ -23,8 +23,8 @@ from .utils import label_map_util
 
 MODEL_NAME = 'ssd_mobilenet_v2_coco_2018_03_29'
 LABEL_NAME = 'mscoco_label_map.pbtxt'
-PATH_TO_FROZEN_GRAPH = os.path.join('ml_version/object_detection/', MODEL_NAME + '/frozen_inference_graph.pb')
-PATH_TO_LABELS = os.path.join('ml_version/object_detection/','label/'+LABEL_NAME)
+PATH_TO_FROZEN_GRAPH = os.path.join('object_detection/', MODEL_NAME + '/frozen_inference_graph.pb')
+PATH_TO_LABELS = os.path.join('object_detection/','label/'+LABEL_NAME)
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
