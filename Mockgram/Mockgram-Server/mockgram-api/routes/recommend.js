@@ -3,13 +3,16 @@ const router = express.Router();
 
 // models
 const User = require("../../models/user");
-const Post = require("../../models/post").Post;
+const Post = require("../../models/post");
 
 // utils
 const { verifyAuthorization } = require("../../utils/authenticate")(User);
 const response = require("../../utils/response");
 const { handleError } = require("../../utils/handleError");
-const { convertStringToObjectId } = require("../../utils/converter");
+const {
+  convertStringToObjectId,
+  convertStringArrToObjectIdArr
+} = require("../../utils/converter");
 
 router.get("/user", verifyAuthorization, (req, res) => {
   let userId = convertStringToObjectId(req.user._id);
@@ -71,6 +74,21 @@ router.get("/user", verifyAuthorization, (req, res) => {
     });
 });
 
-router.get("/post", verifyAuthorization, (req, res) => {});
+router.post("/post", (req, res) => {
+  let userId = convertStringToObjectId(req.body.userId);
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  let limit = parseInt(req.body.limit);
+  // TODO - for test
+  Post.getPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
+    if (err) return handleError(res, err);
+    return res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG,
+      data: posts
+    });
+  });
+});
 
 module.exports = router;

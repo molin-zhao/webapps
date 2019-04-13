@@ -2,10 +2,10 @@ import React from "react";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { createStackNavigator } from "react-navigation";
-import LoginPage from "../pages/Login/Login";
-import RegisterPage from "../pages/Login/Register";
+import LoginPage from "./Login";
+import RegisterPage from "./Register";
 
-export default (LoginStackNavigator = createStackNavigator({
+export default (LoginIndex = createStackNavigator({
   Login: {
     screen: LoginPage,
     navigationOptions: ({ navigation }) => ({

@@ -3,7 +3,7 @@ const router = express.Router();
 
 // models
 const User = require("../../models/user");
-const { Post } = require("../../models/post");
+const Post = require("../../models/post");
 
 // utils
 const authenticate = require("../../utils/authenticate")(User);

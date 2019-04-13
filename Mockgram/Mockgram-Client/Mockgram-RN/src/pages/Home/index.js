@@ -16,7 +16,7 @@ import window from "../../utils/getDeviceInfo";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import UserRecommend from "../Recommend/UserRecommend";
 
-class Home extends React.Component {
+class HomeIndex extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -321,7 +321,7 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Home);
+)(HomeIndex);
 
 const styles = StyleSheet.create({
   contentContainer: {

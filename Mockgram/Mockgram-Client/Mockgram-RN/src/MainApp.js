@@ -8,22 +8,26 @@ import { connect } from "react-redux";
 import Ionicon from "react-native-vector-icons/Ionicons";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-import Home from "./screens/HomeScreen";
-import Discovery from "./screens/DiscoveryScreen";
-import Profile from "./screens/ProfileScreen";
+// sreens
+import Home from "./screens/Home";
+import Discovery from "./screens/Discovery";
+import Message from "./screens/Message";
+import Profile from "./screens/Profile";
+import Post from "./screens/Post";
+
+// pages
 import UserList from "./pages/Profile/UserList";
 import UserProfile from "./pages/Profile/UserProfile";
 import PostDetail from "./pages/Profile/PostDetail";
-import Post from "./screens/PostScreen";
-import Message from "./screens/MessageScreen";
-import Login from "./screens/LoginScreen";
-import ImageFilter from "./screens/ImageFilterScreen";
-import InitPage from "./pages/InitPage/InitPage";
+import InitPage from "./pages/InitPage";
+import CommentPage from "./pages/Comment";
+import Login from "./pages/Login";
 
-import CommentPage from "./pages/Comment/Comment";
+// components
 import MessageBadgeIcon from "./components/MessageBadgeIcon";
-import AuthIcon from "./components/AuthIcon";
 
+// actions and utils
+import store from "./redux";
 import { getClientInfo } from "./redux/actions/clientActions";
 import { getClientProfile } from "./redux/actions/profileActions";
 import { finishAppInitialize } from "./redux/actions/appActions";
@@ -41,7 +45,13 @@ const MainAppTabNavigator = createBottomTabNavigator(
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
           <Ionicon name="md-home" color={tintColor} size={28} />
-        )
+        ),
+        tabBarOnPress: ({ navigation, defaultHandler }) => {
+          if (navigation.isFocused()) {
+            console.log("double tapped");
+          }
+          defaultHandler();
+        }
       }
     },
     Discovery: {
@@ -56,49 +66,48 @@ const MainAppTabNavigator = createBottomTabNavigator(
       screen: Post,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <AuthIcon
-            name="ios-add-circle-outline"
-            color={tintColor}
-            size={28}
-            router={{
-              target: "Post",
-              auth: "Auth"
-            }}
-          />
-        )
+          <Ionicon name="ios-add-circle-outline" color={tintColor} size={28} />
+        ),
+        tabBarOnPress: ({ navigation, defaultHandler }) => {
+          const client = store.getState().client.client;
+          if (client) {
+            defaultHandler();
+          } else {
+            navigation.navigate("Auth");
+          }
+        }
       }
     },
     Message: {
       screen: Message,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <MessageBadgeIcon
-            name="ios-mail"
-            color={tintColor}
-            size={28}
-            auth={true}
-            router={{
-              target: "Message",
-              auth: "Auth"
-            }}
-          />
-        )
+          <MessageBadgeIcon name="ios-mail" color={tintColor} size={28} />
+        ),
+        tabBarOnPress: ({ navigation, defaultHandler }) => {
+          const client = store.getState().client.client;
+          if (client) {
+            defaultHandler();
+          } else {
+            navigation.navigate("Auth");
+          }
+        }
       }
     },
     Profile: {
       screen: Profile,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <AuthIcon
-            name="md-person"
-            color={tintColor}
-            size={28}
-            router={{
-              target: "Profile",
-              auth: "Auth"
-            }}
-          />
-        )
+          <Ionicon name="md-person" color={tintColor} size={28} />
+        ),
+        tabBarOnPress: ({ navigation, defaultHandler }) => {
+          const client = store.getState().client.client;
+          if (client) {
+            defaultHandler();
+          } else {
+            navigation.navigate("Auth");
+          }
+        }
       }
     }
   },
@@ -110,7 +119,7 @@ const MainAppTabNavigator = createBottomTabNavigator(
       activeTintColor: theme.primaryColor,
       inactiveTintColor: "black",
       style: {
-        backgroundColor: "white"
+        backgroundColor: "#fff"
       }
     }
   }
@@ -121,11 +130,11 @@ const MainAppTabNavigator = createBottomTabNavigator(
  * not including modals and other util pages
  */
 const MainAppStackNavigator = createStackNavigator({
-  MainApp: {
+  Main: {
     screen: MainAppTabNavigator,
-    navigationOptions: () => ({
+    navigationOptions: {
       header: null
-    })
+    }
   },
   UserList: {
     screen: UserList,
@@ -186,7 +195,6 @@ const RootNavigator = createStackNavigator(
     Main: MainAppStackNavigator,
     Comment: CommentPage,
     Auth: Login,
-    ImageFilter: ImageFilter,
     InitPage: InitPage
   },
   {
@@ -206,17 +214,12 @@ class MainApp extends React.Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     AppState.addEventListener("change", this._handleAppStateChange);
     const { getClientInfo, finishAppInitialize } = this.props;
     console.log("app starts");
-    getClientInfo()
-      .then(() => {
-        finishAppInitialize();
-      })
-      .catch(() => {
-        finishAppInitialize();
-      });
+    await getClientInfo();
+    finishAppInitialize();
   }
 
   componentWillMount() {

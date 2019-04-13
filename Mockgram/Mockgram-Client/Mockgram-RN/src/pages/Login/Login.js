@@ -219,6 +219,7 @@ class Login extends React.Component {
             placeholder="Email or username"
             onChangeText={value => this.setState({ loginName: value })}
             value={this.state.loginName}
+            underlineColorAndroid="transparent"
           />
         </View>
         <View style={styles.formInput}>
@@ -231,6 +232,7 @@ class Login extends React.Component {
             }
             secureTextEntry={true}
             value={this.state.loginPassword}
+            underlineColorAndroid="transparent"
           />
         </View>
         {this.renderLoginError(this.props.errMsg)}

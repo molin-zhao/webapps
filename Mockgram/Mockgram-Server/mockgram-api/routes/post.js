@@ -3,7 +3,7 @@ const router = express.Router();
 const agent = require("superagent");
 
 // models
-const { Post } = require("../../models/post");
+const Post = require("../../models/post");
 const User = require("../../models/user");
 const CommentModel = require("../../models/comment");
 const Reply = require("../../models/reply");
@@ -361,6 +361,56 @@ router.put("/liked", authenticate.verifyAuthorization, (req, res) => {
             msg: response.SUCCESS.OK.MSG
           });
         }
+      });
+    }
+  });
+});
+
+router.put("/shared", authenticate.verifyAuthorization, (req, res) => {
+  let userId = convertStringToObjectId(req.user._id);
+  let postId = convertStringToObjectId(req.body.postId);
+  Post.findOne({ _id: postId, shared: userId }).exec((err, doc) => {
+    if (err) return handleError(res, err);
+    if (doc) {
+      return res.json({
+        status: response.SUCCESS.ACCEPTED.CODE,
+        msg: response.SUCCESS.ACCEPTED.MSG
+      });
+    } else {
+      Post.findOneAndUpdate(
+        { _id: postId },
+        { $addToSet: { shared: userId } }
+      ).exec((err, post) => {
+        if (err) return handleError(res, err);
+        let message = {
+          receiver: post.creator,
+          sender: userId,
+          messageType: "SharePost",
+          postReference: post._id
+        };
+        return Message.createMessage(message, (err, msg) => {
+          if (err) return handleError(res, err);
+          if (msg) {
+            agent
+              .post(`${serverNodes.socketServer}/message/push`)
+              .send({
+                message: msg
+              })
+              .set("Accept", "application/json")
+              .end(err => {
+                if (err) return handleError(res, err);
+                return res.json({
+                  status: response.SUCCESS.OK.CODE,
+                  msg: response.SUCCESS.OK.MSG
+                });
+              });
+          } else {
+            return res.json({
+              status: response.SUCCESS.OK.CODE,
+              msg: response.SUCCESS.OK.MSG
+            });
+          }
+        });
       });
     }
   });

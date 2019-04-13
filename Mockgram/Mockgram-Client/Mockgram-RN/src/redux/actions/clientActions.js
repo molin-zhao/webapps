@@ -50,6 +50,7 @@ export const clientLogout = () => dispatch => {
 };
 
 export const getClientInfo = () => dispatch => {
+  console.log("get client info");
   return SecureStore.getItemAsync(LocalKeys.CLIENT_INFO)
     .then(info => {
       if (info) {

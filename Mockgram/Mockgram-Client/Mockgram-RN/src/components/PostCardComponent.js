@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Share
+} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import ViewMoreText from "react-native-view-more-text";
 import ActionSheet from "react-native-actionsheet";
@@ -152,8 +159,80 @@ class PostCardComponent extends React.Component {
     });
   };
 
-  handleShare = () => {
-    console.log("share");
+  handleShare = async () => {
+    const { client } = this.props;
+    try {
+      const result = await Share.share(
+        {
+          message: "check this out"
+        },
+        {
+          excludedActivityTypes: [
+            "com.apple.UIKit.activity.PostToFacebook",
+            "com.apple.UIKit.activity.PostToTwitter",
+            "com.apple.UIKit.activity.PostToWeibo",
+            "com.apple.UIKit.activity.Message",
+            "com.apple.UIKit.activity.Mail",
+            "com.apple.UIKit.activity.Print",
+            "com.apple.UIKit.activity.CopyToPasteboard",
+            "com.apple.UIKit.activity.AssignToContact",
+            "com.apple.UIKit.activity.SaveToCameraRoll",
+            "com.apple.UIKit.activity.AddToReadingList",
+            "com.apple.UIKit.activity.PostToFlickr",
+            "com.apple.UIKit.activity.PostToVimeo",
+            "com.apple.UIKit.activity.PostToTencentWeibo",
+            "com.apple.UIKit.activity.AirDrop",
+            "com.apple.UIKit.activity.OpenInIBooks",
+            "com.apple.UIKit.activity.MarkupAsPDF",
+            "com.apple.reminders.RemindersEditorExtension", //Reminders
+            "com.apple.mobilenotes.SharingExtension", // Notes
+            "com.apple.mobileslideshow.StreamShareService", // iCloud Photo Sharing
+            "com.linkedin.LinkedIn.ShareExtension", //LinkedIn
+            "pinterest.ShareExtension", //Pinterest
+            "com.google.GooglePlus.ShareExtension", //Google +
+            "com.tumblr.tumblr.Share-With-Tumblr", //Tumblr
+            "wefwef.YammerShare", //Yammer
+            "com.hootsuite.hootsuite.HootsuiteShareExt", //HootSuite
+            "net.naan.TwitterFonPro.ShareExtension-Pro", //Echofon
+            "com.hootsuite.hootsuite.HootsuiteShareExt", //HootSuite
+            "net.whatsapp.WhatsApp.ShareExtension" //WhatsApp
+          ]
+        }
+      );
+      if (result.action === Share.sharedAction) {
+        if (client && client.token) {
+          const { dataSource } = this.state;
+          const url = `${baseUrl.api}/post/shared`;
+          fetch(url, {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              Authorization: client.token,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              postId: dataSource._id
+            })
+          })
+            .then(res => res.json())
+            .then(res => {
+              if (res.status === 200) {
+                dataSource.sharedCount = dataSource.sharedCount + 1;
+                this.setState({
+                  dataSource: dataSource
+                });
+              }
+            })
+            .catch(err => {
+              alert(err.message);
+            });
+        }
+      } else if (result.action === Share.dismissedAction) {
+        console.log("dismiss");
+      }
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   handleMoreOptions = () => {

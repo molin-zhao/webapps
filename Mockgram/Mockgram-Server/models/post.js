@@ -1,60 +1,5 @@
-var mongoose = require("mongoose");
-var Schema = mongoose.Schema;
-
-const PointSchema = new Schema({
-  type: {
-    //Point
-    type: String,
-    required: true
-  },
-  coordinates: {
-    latitude: {
-      type: Number
-    },
-    longitude: {
-      type: Number
-    }
-  }
-});
-
-const PolygonSchema = new Schema({
-  type: {
-    type: String,
-    enum: ["Polygon"],
-    required: true
-  },
-  coordinates: {
-    // rectangular area with four coordinates
-    type: [[Number]],
-    required: true
-  }
-});
-
-// location should be a name with longitude and latitude
-const LocationSchema = new Schema({
-  name: {
-    type: String
-  },
-  country: {
-    type: String
-  },
-  city: {
-    type: String
-  },
-  region: {
-    type: String
-  },
-  postalCode: {
-    type: String
-  },
-  isoCountryCode: {
-    type: String
-  },
-  street: {
-    type: String
-  },
-  coordinates: PointSchema
-});
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const PostSchema = new Schema(
   {
@@ -75,7 +20,10 @@ const PostSchema = new Schema(
       ref: "User",
       required: true
     },
-    location: LocationSchema,
+    location: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Location"
+    },
     likes: {
       type: [
         {
@@ -324,10 +272,10 @@ PostSchema.statics.getUserPosts = function(
   let criteria = {
     _id: { $nin: lastQueryDataIds }
   };
-  if (type === "LIKED") {
+  if (type === "Liked") {
     criteria.likes = userId;
     criteria.creator = { $ne: userId };
-  } else if (type === "CREATED") {
+  } else if (type === "Created") {
     criteria.creator = userId;
   } else {
     // 'MENTIONED'
@@ -523,6 +471,4 @@ PostSchema.statics.createPost = function(post, callback) {
   });
 };
 
-exports.Post = mongoose.model("Post", PostSchema);
-exports.Location = LocationSchema;
-exports.Polygon = PolygonSchema;
+module.exports = mongoose.model("Post", PostSchema);

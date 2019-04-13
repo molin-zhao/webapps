@@ -4,7 +4,7 @@ import { withNavigation } from "react-navigation";
 
 import window from "../../utils/getDeviceInfo";
 
-class InitPage extends React.Component {
+class InitPageIndex extends React.Component {
   componentDidMount() {
     const { navigation } = this.props;
     setTimeout(() => {
@@ -33,4 +33,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigation(InitPage);
+export default withNavigation(InitPageIndex);

@@ -3,13 +3,16 @@ const router = express.Router();
 
 // models
 const User = require("../../models/user");
-const { Post } = require("../../models/post");
+const Post = require("../../models/post");
 
 // utils
 const authenticate = require("../../utils/authenticate")(User);
 const { handleError } = require("../../utils/handleError");
 const response = require("../../utils/response");
-const { convertStringToObjectId } = require("../../utils/converter");
+const {
+  convertStringToObjectId,
+  convertStringArrToObjectIdArr
+} = require("../../utils/converter");
 
 // var celebrity = FindCelebrity();
 
@@ -17,10 +20,11 @@ router.post("/search/people", (req, res) => {
   let search = req.body.searchValue;
   let userId = convertStringToObjectId(req.body.userId);
   let limit = req.body.limit;
-  console.log(req.body);
-  User.searchUser(search, userId, limit)
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  User.searchUser(search, userId, limit, lastQueryDataIds)
     .then(user => {
-      console.log(user);
       res.json({
         status: response.SUCCESS.OK.CODE,
         msg: response.SUCCESS.OK.MSG,
@@ -35,45 +39,23 @@ router.post("/search/people", (req, res) => {
 router.post("/search/tag", (req, res) => {
   let search = req.body.searchValue;
   let limit = req.body.limit;
-  Post.find({
-    $or: [
-      { description: { $regex: ".*" + search + ".*" } },
-      {
-        label: { $regex: ".*" + search + ".*" }
-      }
-    ]
-  })
-    .populate("creator")
-    .exec((err, post) => {
-      if (err) return handleError(res, err);
-      res.json({
-        status: response.SUCCESS.OK.CODE,
-        msg: response.SUCCESS.OK.MSG,
-        data: post
-      });
-    });
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  Post.searchPostByTag(search, limit, lastQueryDataIds)
+    .then()
+    .catch();
 });
 
 router.post("/search/place", (req, res) => {
   let search = req.body.searchValue;
   let limit = req.body.limit;
-  Post.find({
-    $or: [
-      { "location.name": { $regex: ".*" + search + ".*" } },
-      { "location.street": { $regex: ".*" + search + ".*" } },
-      { "location.city": { $regex: ".*" + search + ".*" } },
-      { "location.region": { $regex: ".*" + search + ".*" } }
-    ]
-  })
-    .populate("creator")
-    .exec((err, post) => {
-      if (err) return handleError(res, err);
-      res.json({
-        status: response.SUCCESS.OK.CODE,
-        msg: response.SUCCESS.OK.MSG,
-        data: post
-      });
-    });
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  Post.searchPostByPlace(search, limit, lastQueryDataIds)
+    .then()
+    .catch();
 });
 
 router.post("/suggest/people/:id", (req, res) => {

@@ -80,13 +80,17 @@ router.post("/register", checkFormValidation, (req, res) => {
             username: req.body.username,
             password: req.body.password
           });
-          newUser.save(err => {
-            if (err) return handleError(res, err);
-            return res.json({
-              status: response.SUCCESS.OK.CODE,
-              msg: response.SUCCESS.OK.MSG
+          newUser
+            .save()
+            .then(() => {
+              return res.json({
+                status: response.SUCCESS.OK.CODE,
+                msg: response.SUCCESS.OK.MSG
+              });
+            })
+            .catch(err => {
+              return handleError(res, err);
             });
-          });
         }
       })
       .catch(err => {

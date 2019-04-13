@@ -19,8 +19,27 @@ module.exports = User => {
       if (token) {
         return jwt.verify(token, secretKey, (err, decoded) => {
           if (err) return handleError(res, err.message);
-          req.user = decoded;
-          next();
+          let userId = decoded._id;
+          return User.findOne({ _id: userId })
+            .select("loginStatus")
+            .then(user => {
+              if (
+                user &&
+                user.loginStatus &&
+                user.loginStatus.token === token
+              ) {
+                req.user = decoded;
+                next();
+              } else {
+                return res.json({
+                  status: response.ERROR.UNAUTHORIZED.CODE,
+                  msg: response.ERROR.UNAUTHORIZED.MSG
+                });
+              }
+            })
+            .catch(err => {
+              return handleError(res, err);
+            });
         });
       } else {
         return res.json({

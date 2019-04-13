@@ -4,39 +4,11 @@ const { handleError } = require("../utils/handleError");
 const authenticate = require("../utils/authenticate")();
 const response = require("../utils/response");
 const { getRemoteIpAddress, getRemoteDeviceType } = require("../utils/tools");
-const PolygonSchema = require("./post").Polygon;
-const LocationSchema = require("./post").Location;
 const Schema = mongoose.Schema;
 const bcrypt = require("bcrypt");
 const SALT_FACTOR = 8;
 
-const PrivacySchema = new Schema(
-  {
-    // activity_area is used for collecting posts within this area
-    activityArea: PolygonSchema,
-    // location is used for positioning the user and the user can manually change it
-    location: LocationSchema
-  },
-  {
-    timestamps: true
-  }
-);
-
-const LoginStatusSchema = new Schema(
-  {
-    token: String,
-    socketId: String,
-    deviceType: String,
-    ipAddress: String,
-    lastLoginTime: Date,
-    lastLogoutTime: Date
-  },
-  {
-    timestamps: true
-  }
-);
-
-const User = new Schema(
+const UserSchema = new Schema(
   {
     authMethod: {
       type: String,
@@ -91,8 +63,34 @@ const User = new Schema(
       ],
       default: []
     },
-    privacy: PrivacySchema,
-    loginStatus: LoginStatusSchema,
+    privacy: {
+      // activity_area is used for collecting posts within this area
+      activityArea: {
+        type: {
+          type: String,
+          enum: ["Polygon"],
+          required: true
+        },
+        coordinates: {
+          // rectangular area with four coordinates
+          type: [[Number]],
+          required: true
+        }
+      },
+      // location is used for positioning the user and the user can manually change it
+      location: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Location"
+      }
+    },
+    loginStatus: {
+      token: String,
+      socketId: String,
+      deviceType: String,
+      ipAddress: String,
+      lastLoginTime: Date,
+      lastLogoutTime: Date
+    },
     receivedMessage: {
       type: [
         {
@@ -134,7 +132,7 @@ const User = new Schema(
   }
 );
 
-User.pre("save", function(next) {
+UserSchema.pre("save", function(next) {
   if (this.method !== "Local") {
     next();
   } else {
@@ -150,7 +148,7 @@ User.pre("save", function(next) {
   }
 });
 
-User.statics.loginOAuth = function(user, req, res) {
+UserSchema.statics.loginOAuth = function(user, req, res) {
   /**
    * token format:
    *   _id: '5bc9fa9387f14a5d7d10531a',
@@ -192,7 +190,7 @@ User.statics.loginOAuth = function(user, req, res) {
     });
 };
 
-User.statics.login = function(criteria, req, res) {
+UserSchema.statics.login = function(criteria, req, res) {
   let password = req.body.password;
   return this.findOne(criteria)
     .select("password")
@@ -245,7 +243,7 @@ User.statics.login = function(criteria, req, res) {
     });
 };
 
-User.statics.getUserProfile = function(userId, clientId = null) {
+UserSchema.statics.getUserProfile = function(userId, clientId = null) {
   // if a user request a personal account, return privacy settings, second param will be true
   return this.aggregate([
     {
@@ -283,14 +281,22 @@ User.statics.getUserProfile = function(userId, clientId = null) {
   ]);
 };
 
-User.statics.searchUser = function(searchValue, userId, limit) {
+UserSchema.statics.searchUser = function(
+  searchValue,
+  userId,
+  limit,
+  lastQueryDataIds
+) {
   return this.aggregate([
     {
       $match: {
         $or: [
           { username: { $regex: ".*" + searchValue + ".*" } },
           { nickname: { $regex: ".*" + searchValue + ".*" } }
-        ]
+        ],
+        _id: {
+          $nin: lastQueryDataIds
+        }
       }
     },
     {
@@ -321,7 +327,7 @@ User.statics.searchUser = function(searchValue, userId, limit) {
   ]);
 };
 
-User.statics.getUserList = function(
+UserSchema.statics.getUserList = function(
   userId,
   limit,
   lastQueryDataIds,
@@ -382,4 +388,4 @@ User.statics.getUserList = function(
   ]);
 };
 
-module.exports = mongoose.model("User", User);
+module.exports = mongoose.model("User", UserSchema);
