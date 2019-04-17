@@ -9,6 +9,7 @@ import {
   Keyboard
 } from "react-native";
 import { connect } from "react-redux";
+import Icon from "react-native-vector-icons/Ionicons";
 
 import ListCell from "../../components/ListCell";
 import SearchBarView from "../../components/SearchBarView";
@@ -37,7 +38,6 @@ class DiscoveryIndex extends React.Component {
 
       isSearching: false,
       searchValue: "",
-      typing: false,
       searchBarInput: "",
       timer: null,
       focused: false,
@@ -80,8 +80,22 @@ class DiscoveryIndex extends React.Component {
         headerTitle: (
           <SearchBarView
             ref={o => (this.searchBarView = o)}
-            style={{ width: window.width, height: "80%" }}
+            containerStyle={{ width: window.width, height: "80%" }}
+            searchBarDefaultWidth={window.width * 0.9}
+            searchBarFocusedWidht={window.width * 0.8}
+            duration={100}
             container={container}
+            rightIcon={() => {
+              return (
+                <Icon
+                  name="md-qr-scanner"
+                  size={18}
+                  onPress={() => {
+                    console.log("scanning");
+                  }}
+                />
+              );
+            }}
           />
         )
       };
@@ -162,8 +176,7 @@ class DiscoveryIndex extends React.Component {
         activeIndex: index
       },
       () => {
-        if (this.state.searchValue !== "") {
-          console.log("should search");
+        if (this.state.searchValue) {
           this.startSearch();
         }
       }
@@ -192,7 +205,7 @@ class DiscoveryIndex extends React.Component {
         </View>
       );
     } else {
-      if (this.state.searchValue !== "") {
+      if (this.state.searchValue) {
         // page should search for user input
         if (this.state.activeIndex === 0) {
           return (
@@ -289,9 +302,7 @@ class DiscoveryIndex extends React.Component {
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.tabView}>
-              <this.renderSection />
-            </View>
+            <View style={styles.tabView}>{this.renderSection()}</View>
           </View>
           <PostRecommend
             onRef={o => (this._postRecommend = o)}

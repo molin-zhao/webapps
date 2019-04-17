@@ -18,6 +18,12 @@ class PostIndex extends React.Component {
     super(props);
   }
 
+  static navigationOptions = () => {
+    return {
+      header: null
+    };
+  };
+
   render() {
     return (
       <ScrollableTabView

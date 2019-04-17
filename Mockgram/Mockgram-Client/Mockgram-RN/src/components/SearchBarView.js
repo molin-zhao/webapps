@@ -17,11 +17,18 @@ import theme from "../common/theme";
 
 export default class SearchBarView extends React.Component {
   static defaultProps = {
-    style: { width: window.width, height: 50 }
+    containerStyle: { width: window.width, height: 50 },
+    searchBarDefaultWidth: window.width,
+    searchBarFocusedWidth: window.width * 0.8,
+    duration: 100
   };
 
   static propTypes = {
-    style: PropTypes.object
+    containerStyle: PropTypes.object,
+    container: PropTypes.object,
+    duration: PropTypes.number,
+    searchBarDefaultWidth: PropTypes.number,
+    searchBarFocusedWidth: PropTypes.number
   };
 
   constructor(props) {
@@ -30,8 +37,10 @@ export default class SearchBarView extends React.Component {
       focused: false,
       text: "",
       container: this.props.container,
-      searchBarWidth: new Animated.Value(this.props.style.width * 0.9),
-      buttonWidth: new Animated.Value(this.props.style.width * 0.1)
+      searchBarWidth: new Animated.Value(this.props.searchBarDefaultWidth),
+      buttonWidth: new Animated.Value(
+        this.props.containerStyle.width - this.props.searchBarDefaultWidth
+      )
     };
   }
 
@@ -136,35 +145,42 @@ export default class SearchBarView extends React.Component {
   };
 
   searchBarShrink = () => {
-    let width = this.props.style.width;
+    let containerWidth = this.props.containerStyle.width;
+    let searchBarFocusedWidth = this.props.searchBarFocusedWidth;
+    let buttonWidth = containerWidth - searchBarFocusedWidth;
+    let animateDuration = this.props.duration;
     Animated.parallel([
       Animated.timing(this.state.searchBarWidth, {
-        toValue: width * 0.8,
-        duration: 100
+        toValue: searchBarFocusedWidth,
+        duration: animateDuration
       }),
       Animated.timing(this.state.buttonWidth, {
-        toValue: width * 0.2,
-        duration: 100
+        toValue: buttonWidth,
+        duration: animateDuration
       })
     ]).start();
   };
 
   searchBarExtend = () => {
-    let width = this.props.style.width;
+    let containerWidth = this.props.containerStyle.width;
+    let searchBarDefaultWidth = this.props.searchBarDefaultWidth;
+    let buttonWidth = containerWidth - searchBarDefaultWidth;
+    let animateDuration = this.props.duration;
     Animated.parallel([
       Animated.timing(this.state.searchBarWidth, {
-        toValue: width * 0.9,
-        duration: 100
+        toValue: searchBarDefaultWidth,
+        duration: animateDuration
       }),
       Animated.timing(this.state.buttonWidth, {
-        toValue: width * 0.1,
-        duration: 100
+        toValue: buttonWidth,
+        duration: animateDuration
       })
     ]).start();
   };
 
   renderButton = () => {
     const { focused, text } = this.state;
+    const { rightIcon } = this.props;
     if (focused || (!focused && text)) {
       return (
         <TouchableOpacity
@@ -198,21 +214,13 @@ export default class SearchBarView extends React.Component {
         </TouchableOpacity>
       );
     }
-    return (
-      <Icon
-        name="md-qr-scanner"
-        size={18}
-        onPress={() => {
-          console.log("scanning");
-        }}
-      />
-    );
+    return rightIcon();
   };
 
   render() {
-    const { style } = this.props;
+    const { containerStyle } = this.props;
     return (
-      <View style={[styles.searchBarViewContainer, style]}>
+      <View style={[styles.searchBarViewContainer, containerStyle]}>
         <Animated.View
           style={[
             { justifyContent: "center", alignItems: "center", height: "100%" },

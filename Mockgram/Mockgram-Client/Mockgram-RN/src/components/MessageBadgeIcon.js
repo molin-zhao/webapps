@@ -1,13 +1,11 @@
 import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { connect } from "react-redux";
-import { withNavigation } from "react-navigation";
 
 import Badge from "../components/Badge";
 import { messageCountNormalizer } from "../utils/unitConverter";
 import { getNewMessageCount } from "../utils/arrayEditor";
-import { updateLastMessageId } from "../redux/actions/messageActions";
 
 class MessageBadgeIcon extends React.Component {
   constructor(props) {
@@ -15,31 +13,14 @@ class MessageBadgeIcon extends React.Component {
   }
 
   render() {
-    const {
-      color,
-      size,
-      name,
-      client,
-      message,
-      lastMessageId,
-      updateLastMessageId
-    } = this.props;
+    const { color, size, name, message, lastMessageId } = this.props;
     let badgeCount = messageCountNormalizer(
       getNewMessageCount(message, lastMessageId)
     );
     return (
       <View style={styles.container}>
         <Badge val={badgeCount} />
-        <Icon
-          name={name}
-          color={color}
-          size={size}
-          onPress={() => {
-            if (client) {
-              updateLastMessageId();
-            }
-          }}
-        />
+        <Icon name={name} color={color} size={size} />
       </View>
     );
   }
@@ -53,16 +34,10 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    updateLastMessageId: () => dispatch(updateLastMessageId())
-  };
-};
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
-)(withNavigation(MessageBadgeIcon));
+  null
+)(MessageBadgeIcon);
 
 const styles = StyleSheet.create({
   container: {

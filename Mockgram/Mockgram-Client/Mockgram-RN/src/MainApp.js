@@ -22,6 +22,7 @@ import PostDetail from "./pages/Profile/PostDetail";
 import InitPage from "./pages/InitPage";
 import CommentPage from "./pages/Comment";
 import Login from "./pages/Login";
+import ImageFilter from "./pages/ImageFilter";
 
 // components
 import MessageBadgeIcon from "./components/MessageBadgeIcon";
@@ -31,6 +32,7 @@ import store from "./redux";
 import { getClientInfo } from "./redux/actions/clientActions";
 import { getClientProfile } from "./redux/actions/profileActions";
 import { finishAppInitialize } from "./redux/actions/appActions";
+import { updateLastMessageId } from "./redux/actions/messageActions";
 import {
   getMessage,
   addMessage,
@@ -87,6 +89,7 @@ const MainAppTabNavigator = createBottomTabNavigator(
         tabBarOnPress: ({ navigation, defaultHandler }) => {
           const client = store.getState().client.client;
           if (client) {
+            updateLastMessageId();
             defaultHandler();
           } else {
             navigation.navigate("Auth");
@@ -192,6 +195,7 @@ const MainAppStackNavigator = createStackNavigator({
  */
 const RootNavigator = createStackNavigator(
   {
+    ImageFilter: ImageFilter,
     Main: MainAppStackNavigator,
     Comment: CommentPage,
     Auth: Login,
@@ -218,8 +222,8 @@ class MainApp extends React.Component {
     AppState.addEventListener("change", this._handleAppStateChange);
     const { getClientInfo, finishAppInitialize } = this.props;
     console.log("app starts");
-    await getClientInfo();
-    finishAppInitialize();
+    // await getClientInfo();
+    // finishAppInitialize();
   }
 
   componentWillMount() {
