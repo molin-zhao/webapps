@@ -228,6 +228,7 @@ class PostPreview extends React.Component {
             const { navigation } = this.props;
             navigation.dismiss();
           }}
+          headerTitleStyle={{ fontSize: 14, fontWeight: "bold" }}
         />
         <View style={styles.descriptionView}>
           {/* <Image
@@ -265,10 +266,18 @@ class PostPreview extends React.Component {
           }}
         >
           <View style={styles.itemLabel}>
-            <Icon name="hashtag" size={16} style={{ marginLeft: 10 }} />
-            <Text style={{ marginLeft: 10 }}>Tag</Text>
+            <Icon
+              name="hashtag"
+              size={theme.iconSm - 2}
+              style={{ marginLeft: theme.paddingToWindow }}
+            />
+            <Text style={{ marginLeft: theme.paddingToWindow }}>Tag</Text>
           </View>
-          <Icon name="arrow-right" size={15} style={{ marginRight: 10 }} />
+          <Icon
+            name="arrow-right"
+            size={theme.iconSm}
+            style={{ marginRight: theme.paddingToWindow }}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.item}
@@ -278,10 +287,18 @@ class PostPreview extends React.Component {
           }}
         >
           <View style={styles.itemLabel}>
-            <Icon name="at" size={18} style={{ marginLeft: 10 }} />
-            <Text style={{ marginLeft: 10 }}>Mention</Text>
+            <Icon
+              name="at"
+              size={theme.iconSm}
+              style={{ marginLeft: theme.paddingToWindow }}
+            />
+            <Text style={{ marginLeft: theme.paddingToWindow }}>Mention</Text>
           </View>
-          <Icon name="arrow-right" size={15} style={{ marginRight: 10 }} />
+          <Icon
+            name="arrow-right"
+            size={theme.iconSm}
+            style={{ marginRight: theme.paddingToWindow }}
+          />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.item}
@@ -291,10 +308,18 @@ class PostPreview extends React.Component {
           }}
         >
           <View style={styles.itemLabel}>
-            <Icon name="map-marker" size={18} style={{ marginLeft: 10 }} />
-            <Text style={{ marginLeft: 10 }}>Location</Text>
+            <Icon
+              name="map-marker"
+              size={theme.iconSm}
+              style={{ marginLeft: theme.paddingToWindow }}
+            />
+            <Text style={{ marginLeft: theme.paddingToWindow }}>Location</Text>
           </View>
-          <Icon name="arrow-right" size={15} style={{ marginRight: 10 }} />
+          <Icon
+            name="arrow-right"
+            size={theme.iconSm}
+            style={{ marginRight: theme.paddingToWindow }}
+          />
         </TouchableOpacity>
         <DropdownAlert closeInterval={3000} ref={o => (this._alert = o)} />
       </View>

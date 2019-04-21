@@ -15,7 +15,7 @@ import { Surface } from "gl-react-expo";
 import GLImage from "gl-react-image";
 import { Header } from "react-navigation";
 import MyHeader from "../../components/Header";
-import { SkypeIndicator, BallIndicator } from "react-native-indicators";
+import { SkypeIndicator } from "react-native-indicators";
 import { takeSnapshotAsync } from "expo";
 
 import Modal from "../../components/Modal";
@@ -40,7 +40,7 @@ const shaderNames = {
 
 const modalStyle = {
   width: window.width,
-  height: window.height * 0.25,
+  height: window.height * 0.3,
   borderTopWidth: 1,
   borderTopColor: "lightgrey",
   borderTopLeftRadius: 10,
@@ -198,11 +198,11 @@ export default class ImageFilterPage extends React.Component {
     }
   };
 
-  renderFilterImage = (filterName, key) => {
+  renderFilterImage = filterName => {
     const { filterSelection } = this.state;
     return (
       <TouchableOpacity
-        key={key}
+        key={filterName}
         activeOpacity={0.8}
         onPress={() => {
           this._setFilterName(filterName);
@@ -274,12 +274,12 @@ export default class ImageFilterPage extends React.Component {
             showsHorizontalScrollIndicator={false}
             horizontal={true}
           >
-            {this.renderFilterImage(shaderNames.Normal, 0)}
-            {this.renderFilterImage(shaderNames.Brannan, 1)}
-            {this.renderFilterImage(shaderNames.Earlybird, 2)}
-            {this.renderFilterImage(shaderNames.Hudson, 3)}
-            {this.renderFilterImage(shaderNames.Nashville, 4)}
-            {this.renderFilterImage(shaderNames.Valencia, 5)}
+            {this.renderFilterImage(shaderNames.Normal)}
+            {this.renderFilterImage(shaderNames.Brannan)}
+            {this.renderFilterImage(shaderNames.Earlybird)}
+            {this.renderFilterImage(shaderNames.Hudson)}
+            {this.renderFilterImage(shaderNames.Nashville)}
+            {this.renderFilterImage(shaderNames.Valencia)}
           </ScrollView>
         </View>
       </Modal>

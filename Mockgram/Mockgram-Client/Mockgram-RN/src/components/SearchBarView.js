@@ -20,23 +20,27 @@ export default class SearchBarView extends React.Component {
     containerStyle: { width: window.width, height: 50 },
     searchBarDefaultWidth: window.width,
     searchBarFocusedWidth: window.width * 0.8,
-    duration: 100
+    duration: 100,
+    rightIcon: () => null
   };
 
   static propTypes = {
     containerStyle: PropTypes.object,
-    container: PropTypes.object,
     duration: PropTypes.number,
     searchBarDefaultWidth: PropTypes.number,
-    searchBarFocusedWidth: PropTypes.number
+    searchBarFocusedWidth: PropTypes.number,
+    onFocus: PropTypes.func,
+    lostFocus: PropTypes.func,
+    rightIcon: PropTypes.func
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      focused: false,
       text: "",
-      container: this.props.container,
+      focused: false,
+
+      // animatation properties
       searchBarWidth: new Animated.Value(this.props.searchBarDefaultWidth),
       buttonWidth: new Animated.Value(
         this.props.containerStyle.width - this.props.searchBarDefaultWidth
@@ -77,69 +81,61 @@ export default class SearchBarView extends React.Component {
   }
 
   _keyboardWillShow = () => {
+    const { onFocus } = this.props;
     if (!this.state.text) {
       this.searchBarShrink();
     }
-    const { container } = this.state;
     this.setState(
       {
         focused: true
       },
       () => {
-        container.setState({
-          focused: true
-        });
+        onFocus();
       }
     );
   };
 
   _keyboardWillHide = () => {
+    const { lostFocus } = this.props;
     if (!this.state.text) {
       this.searchBarExtend();
     }
-    const { container } = this.state;
     this.setState(
       {
         focused: false
       },
       () => {
-        container.setState({
-          focused: false
-        });
+        lostFocus();
       }
     );
   };
 
   _keyboardDidShow = () => {
+    const { onFocus } = this.props;
     if (!this.state.text) {
       this.searchBarShrink();
     }
-    const { container } = this.state;
     this.setState(
       {
         focused: true
       },
       () => {
-        container.setState({
-          focused: true
-        });
+        onFocus();
       }
     );
   };
 
   _keyboardDidHide = () => {
+    const { lostFocus } = this.props;
     if (!this.state.text) {
       this.searchBarExtend();
     }
-    const { container } = this.state;
     this.setState(
       {
         focused: false
       },
       () => {
-        container.setState({
-          focused: false
-        });
+        lostFocus();
       }
     );
   };
@@ -178,8 +174,25 @@ export default class SearchBarView extends React.Component {
     ]).start();
   };
 
+  onChangeText = text => {
+    const { onChangeText } = this.props;
+    this.setState(
+      {
+        text
+      },
+      () => {
+        onChangeText(text);
+      }
+    );
+  };
+
+  clearInput = () => {
+    this._textInput.clear();
+    this.onChangeText("");
+  };
+
   renderButton = () => {
-    const { focused, text } = this.state;
+    const { text, focused } = this.state;
     const { rightIcon } = this.props;
     if (focused || (!focused && text)) {
       return (
@@ -191,16 +204,13 @@ export default class SearchBarView extends React.Component {
             width: "100%"
           }}
           onPress={() => {
-            let _focused = this._textInput.isFocused();
             this.setState(
               {
                 text: ""
               },
               () => {
-                this.state.container.setState({
-                  searchBarInput: ""
-                });
-                if (_focused) {
+                this.clearInput();
+                if (this._textInput.isFocused()) {
                   Keyboard.dismiss();
                 } else {
                   this.searchBarExtend();
@@ -244,48 +254,7 @@ export default class SearchBarView extends React.Component {
               autoCorrect={false}
               style={{ width: "85%" }}
               underlineColorAndroid="transparent"
-              onChangeText={text => {
-                // search bar is not empty
-                this.setState(
-                  {
-                    text
-                  },
-                  () => {
-                    let container = this.state.container;
-                    clearTimeout(container.state.timer);
-                    container.setState(
-                      {
-                        searchBarInput: text
-                      },
-                      () => {
-                        if (text.length > 0) {
-                          container.setState({
-                            isSearching: true,
-                            timer: setTimeout(() => {
-                              container.setState(
-                                {
-                                  searchValue: text,
-                                  timer: null
-                                },
-                                () => {
-                                  clearTimeout(container.state.timer);
-                                  container.startSearch();
-                                }
-                              );
-                            }, 1000)
-                          });
-                        } else {
-                          container.setState({
-                            isSearching: false,
-                            timer: null,
-                            searchValue: ""
-                          });
-                        }
-                      }
-                    );
-                  }
-                );
-              }}
+              onChangeText={this.onChangeText}
               placeholder="search..."
               value={this.state.text}
             />

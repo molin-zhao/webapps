@@ -4,6 +4,7 @@ const router = express.Router();
 // models
 const User = require("../../models/user");
 const Post = require("../../models/post");
+const Tag = require("../../models/tag");
 
 // utils
 const authenticate = require("../../utils/authenticate")(User);
@@ -13,8 +14,6 @@ const {
   convertStringToObjectId,
   convertStringArrToObjectIdArr
 } = require("../../utils/converter");
-
-// var celebrity = FindCelebrity();
 
 router.post("/search/people", (req, res) => {
   let search = req.body.searchValue;
@@ -121,39 +120,50 @@ router.post("/suggest/people/:id", (req, res) => {
   });
 });
 
-function FindCelebrity() {
-  User.find({}, function(err, users) {
-    if (err) {
-      console.log("can't get all users from mongodb.");
-      var emptyList = [];
-      return emptyList;
-    }
-    var influenceList = [];
-    users.forEach(function(user) {
-      var userInf = 0;
-      var followers = user.counts.followers;
-      var following = user.counts.following;
-      if (following != 0) userInf = followers / following;
-      var influObj = {
-        _id: user._id,
-        inf: userInf,
-        avatar: user.avatar,
-        username: user.username,
-        nickname: user.nickname
-      };
-      influenceList.push(influObj);
-    });
-
-    influenceList.sort(function(a, b) {
-      return b.inf - a.inf;
-    });
-    var top10 = influenceList.slice(0, 10);
-    return top10;
+router.get("/recommend/tag", (req, res) => {
+  let limitParam = parseInt(req.params.limit);
+  let limit = limitParam ? limitParam : 10;
+  //TODO
+  res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG,
+    data: []
   });
-}
+});
 
-router.post("/like/post/:id", (req, res) => {});
-router.post("/like/comment/:id", (req, res) => {});
-router.post("/follow/:id", authenticate.verifyAuthorization, (req, res) => {});
+router.get("/hot/tag", async (req, res) => {
+  let limitParam = parseInt(req.params.limit);
+  let limit = limitParam ? limitParam : 10;
+  let result = await Tag.getHotTags(limit);
+  console.log(result);
+  res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG
+  });
+});
+
+router.get("/hot/activity", async (req, res) => {
+  let limitParam = parseInt(req.params.limit);
+  let limit = limitParam ? limitParam : 10;
+  let result = await Tag.getHotActivites(limit);
+  console.log(result);
+  res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG
+  });
+});
+
+router.get("/hot/alltypes", async (req, res) => {
+  let limitParam = parseInt(req.params.limit);
+  let limit = limitParam ? limitParam : 10;
+  let tagResult = await Tag.getHotTags(limit);
+  let activityResult = await Tag.getHotActivites(limit);
+  res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG,
+    tag: tagResult,
+    activity: activityResult
+  });
+});
 
 module.exports = router;

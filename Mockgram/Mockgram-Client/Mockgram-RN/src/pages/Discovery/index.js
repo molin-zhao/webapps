@@ -64,10 +64,7 @@ class DiscoveryIndex extends React.Component {
       this._postRecommend.hide();
     }
 
-    if (
-      (prevStates.focused && !focused && !searchBarInput) ||
-      (prevStates.searchBarInput && !searchBarInput && !focused)
-    ) {
+    if (prevStates.focused && !focused && !searchBarInput) {
       // search bar lost focus, show the recommend page
       this._postRecommend.show();
     }
@@ -79,12 +76,10 @@ class DiscoveryIndex extends React.Component {
       return {
         headerTitle: (
           <SearchBarView
-            ref={o => (this.searchBarView = o)}
             containerStyle={{ width: window.width, height: "80%" }}
             searchBarDefaultWidth={window.width * 0.9}
             searchBarFocusedWidht={window.width * 0.8}
             duration={100}
-            container={container}
             rightIcon={() => {
               return (
                 <Icon
@@ -95,6 +90,49 @@ class DiscoveryIndex extends React.Component {
                   }}
                 />
               );
+            }}
+            onChangeText={text => {
+              clearTimeout(container.state.timer);
+              container.setState(
+                {
+                  searchBarInput: text
+                },
+                () => {
+                  if (text.length > 0) {
+                    container.setState({
+                      isSearching: true,
+                      timer: setTimeout(() => {
+                        container.setState(
+                          {
+                            searchValue: text,
+                            timer: null
+                          },
+                          () => {
+                            clearTimeout(container.state.timer);
+                            container.startSearch();
+                          }
+                        );
+                      }, 1000)
+                    });
+                  } else {
+                    container.setState({
+                      isSearching: false,
+                      timer: null,
+                      searchValue: ""
+                    });
+                  }
+                }
+              );
+            }}
+            onFocus={() => {
+              container.setState({
+                focused: true
+              });
+            }}
+            lostFocus={() => {
+              container.setState({
+                focused: false
+              });
             }}
           />
         )
