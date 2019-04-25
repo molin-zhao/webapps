@@ -82,20 +82,21 @@ class UserListCell extends React.Component {
       return null;
     }
     let followStyle = {
-      backgroundColor: theme.primaryColor
+      backgroundColor: theme.primaryColor,
+      width: 90,
+      height: 40
     };
     let followingStyle = {
       backgroundColor: "lightgrey",
-      borderColor: "black"
+      borderColor: "black",
+      width: 90,
+      height: 40
     };
     return (
       <Button
-        containerStyle={[
-          { width: 90, height: 40 },
-          dataSource.followed ? followingStyle : followStyle
-        ]}
+        containerStyle={dataSource.followed ? followingStyle : followStyle}
         loading={this.state.loading}
-        titleStyle={[{ fontSize: 14, color: "#fff" }]}
+        titleStyle={{ fontSize: 14, color: "#fff" }}
         iconRight={() => {
           if (dataSource.followed) {
             return <Icon name="md-checkmark" color="#fff" size={18} />;

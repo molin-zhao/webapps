@@ -200,6 +200,7 @@ const RootNavigator = createStackNavigator(
     Comment: CommentPage,
     Auth: Login,
     InitPage: InitPage
+    // ImageFilter: ImageFilter
   },
   {
     mode: "modal",

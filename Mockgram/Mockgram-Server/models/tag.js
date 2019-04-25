@@ -5,7 +5,8 @@ const TagSchema = new Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
+      unique: true
     },
     quotedCount: {
       type: Number,
@@ -28,7 +29,7 @@ const TagSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["Tag", "Activity"],
+      enum: ["Tag", "Topic"],
       required: true,
       default: "Tag"
     },
@@ -48,11 +49,11 @@ TagSchema.statics.updateCount = function(tagId, userId) {
   );
 };
 
-TagSchema.statics.getHotActivites = function(limit) {
+TagSchema.statics.getHotTopics = function(limit) {
   return this.aggregate([
     {
       $match: {
-        type: "Activity"
+        type: "Topic"
       }
     },
     {
@@ -165,6 +166,61 @@ TagSchema.statics.getHotTags = function(limit) {
         data: null
       });
     });
+};
+
+TagSchema.statics.searchTags = function(value, lastQueryDataIds, limit = 20) {
+  return this.aggregate([
+    {
+      $match: {
+        name: {
+          $regex: `.*${value}.*`,
+          $options: "six"
+        },
+        _id: {
+          $nin: lastQueryDataIds
+        }
+      }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "creator",
+        foreignField: "_id",
+        as: "creator"
+      }
+    },
+    { $unwind: "$creator" },
+    {
+      $project: {
+        _id: 1,
+        quotedCount: 1,
+        participantsCount: {
+          $size: "$participants"
+        },
+        name: 1,
+        type: 1,
+        creator: {
+          _id: 1,
+          avatar: 1,
+          username: 1,
+          nickname: 1
+        }
+      }
+    },
+    {
+      $limit: limit
+    },
+    {
+      $sort: {
+        type: 1,
+        participantsCount: -1,
+        quotedCount: -1,
+        name: -1,
+        createdAt: -1,
+        _id: -1
+      }
+    }
+  ]);
 };
 
 module.exports = mongoose.model("Tag", TagSchema);

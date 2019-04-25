@@ -6,23 +6,28 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
-  Linking
+  Linking,
+  KeyboardAvoidingView
 } from "react-native";
 import { SecureStore, WebBrowser } from "expo";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { CheckBox } from "react-native-elements";
 import { connect } from "react-redux";
 
 import window from "../../utils/getDeviceInfo";
+import theme from "../../common/theme";
 import * as LocalKeys from "../../common/localKeys";
 import {
   clientLogin,
   loginError,
   oAuthLogin
 } from "../../redux/actions/clientActions";
+
 import Modal from "../../components/Modal";
 import Header from "../../components/Header";
 import SocialIcon from "../../components/SocialIcon";
+import CheckBox from "../../components/CheckBox";
+import IconInput from "../../components/IconInput";
+
 import baseURL from "../../common/baseUrl";
 
 const modalStyle = {
@@ -168,13 +173,18 @@ class Login extends React.Component {
           <Header
             style={{ height: "20%", marginTop: 10 }}
             headerTitle="Login mode"
-            rightIconButton={<Icon name="chevron-down" size={20} />}
-            rightButtonOnPress={() => {
-              // confirm filter selection
-              this.setState({
-                loginModeModalVisible: false
-              });
-            }}
+            rightIconButton={() => (
+              <Icon
+                name="chevron-down"
+                size={20}
+                onPress={() => {
+                  // confirm filter selection
+                  this.setState({
+                    loginModeModalVisible: false
+                  });
+                }}
+              />
+            )}
           />
           <View
             style={{
@@ -208,84 +218,96 @@ class Login extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Image
-          style={{ marginTop: 30, width: 100, height: 100, borderRadius: 25 }}
-          source={require("../../static/favicon.png")}
-        />
-        <View style={styles.formInput}>
-          <Icon name="user" size={20} />
-          <TextInput
-            style={{ marginLeft: 10, fontSize: 14, width: "80%" }}
+        <KeyboardAvoidingView
+          style={{
+            flex: 1,
+            justifyContent: "flex-start",
+            alignItems: "center"
+          }}
+        >
+          <Image
+            style={{ marginTop: 30, width: 100, height: 100, borderRadius: 25 }}
+            source={require("../../static/favicon.png")}
+          />
+          <IconInput
+            icon={() => <Icon name="user" size={20} />}
             placeholder="Email or username"
             onChangeText={value => this.setState({ loginName: value })}
             value={this.state.loginName}
-            underlineColorAndroid="transparent"
           />
-        </View>
-        <View style={styles.formInput}>
-          <Icon name="unlock-alt" size={20} />
-          <TextInput
-            style={{ marginLeft: 10, fontSize: 14, width: "80%" }}
+          <IconInput
+            icon={() => <Icon name="unlock-alt" size={20} />}
             placeholder="Password"
             onChangeText={password =>
               this.setState({ loginPassword: password })
             }
             secureTextEntry={true}
             value={this.state.loginPassword}
-            underlineColorAndroid="transparent"
           />
-        </View>
-        {this.renderLoginError(this.props.errMsg)}
-        <TouchableOpacity
-          onPress={() => this.setState({ rememberMe: !this.state.rememberMe })}
-        >
-          <View style={styles.formCheckbox}>
-            <CheckBox
-              containerStyle={{
+          {this.renderLoginError(this.props.errMsg)}
+          <TouchableOpacity
+            onPress={() =>
+              this.setState({ rememberMe: !this.state.rememberMe })
+            }
+          >
+            <View style={styles.formCheckbox}>
+              <CheckBox
+                containerStyle={{ width: "100%", height: "100%" }}
+                title="Remember me"
+                checked={this.state.rememberMe}
+                onPress={() => {
+                  this.setState({
+                    rememberMe: !this.state.rememberMe
+                  });
+                }}
+              />
+            </View>
+          </TouchableOpacity>
+          <View style={styles.formButton}>
+            <Text
+              style={{
+                fontSize: 18,
                 backgroundColor: null,
-                borderWidth: 0
+                color: theme.primaryColor
               }}
-              center
-              title="Remember me"
-              checked={this.state.rememberMe}
-              onPress={() => {
-                this.setState({
-                  rememberMe: !this.state.rememberMe
-                });
-              }}
-            />
+              onPress={() => this.handleLogin()}
+            >
+              Login
+            </Text>
           </View>
-        </TouchableOpacity>
-        <View style={styles.formButton}>
-          <Text
-            style={{ fontSize: 18, backgroundColor: null, color: "#eb765a" }}
-            onPress={() => this.handleLogin()}
-          >
-            Login
-          </Text>
-        </View>
-        <View style={styles.formButton}>
-          <Text
-            style={{ fontSize: 14, backgroundColor: null, color: "#eb765a" }}
-            onPress={() => {
-              const { loginModeModalVisible } = this.state;
-              if (!loginModeModalVisible) {
-                this.setState({
-                  loginModeModalVisible: true
-                });
-              }
-            }}
-          >
-            Change login mode
-          </Text>
-          <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>|</Text>
-          <Text
-            style={{ fontSize: 14, backgroundColor: null, color: "#eb765a" }}
-            onPress={() => this.props.navigation.navigate("Register")}
-          >
-            Register
-          </Text>
-        </View>
+          <View style={styles.formButton}>
+            <Text
+              style={{
+                fontSize: 14,
+                backgroundColor: null,
+                color: theme.primaryColor
+              }}
+              onPress={() => {
+                const { loginModeModalVisible } = this.state;
+                if (!loginModeModalVisible) {
+                  this.setState({
+                    loginModeModalVisible: true
+                  });
+                }
+              }}
+            >
+              Change login mode
+            </Text>
+            <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>
+              |
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                backgroundColor: null,
+                color: theme.primaryColor
+              }}
+              onPress={() => this.props.navigation.navigate("Register")}
+            >
+              Register
+            </Text>
+          </View>
+        </KeyboardAvoidingView>
         {this.renderLoginModeModal()}
       </View>
     );
@@ -299,19 +321,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start"
   },
-  formInput: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    width: window.width * 0.7,
-    height: 50,
-    marginTop: 50
-  },
   formCheckbox: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    width: window.width / 2.5,
+    width: window.width * 0.3,
     height: 50,
     backgroundColor: null,
     marginTop: 50

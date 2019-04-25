@@ -33,7 +33,8 @@ class PostPreview extends React.Component {
       imageUri: this.props.navigation.getParam("imageUri", null),
       description: "",
       location: null,
-      label: "",
+      selectedTags: {},
+      mentionedUsers: {},
       allowLoation: false,
       switchValue: false
     };
@@ -148,6 +149,7 @@ class PostPreview extends React.Component {
       }
     };
   };
+
   getLocationAsync = async value => {
     if (value) {
       // add a location
@@ -208,26 +210,37 @@ class PostPreview extends React.Component {
     if (uploading) {
       return <UIActivityIndicator size={20} color={theme.primaryBlue} />;
     }
-    return <Ionicon name="md-send" size={20} color={theme.primaryBlue} />;
+    return (
+      <Ionicon
+        name="md-send"
+        size={20}
+        color={theme.primaryBlue}
+        onPress={() => {
+          this.makePost();
+        }}
+      />
+    );
   };
 
   render() {
-    const { imageUri } = this.state;
+    const { imageUri, selectedTags, mentionedUsers } = this.state;
     const { navigation } = this.props;
     return (
       <View style={styles.container}>
         <Header
           style={{ backgroundColor: "transparent" }}
           headerTitle="Edit your post"
-          rightIconButton={this.renderHeaderRightButton()}
-          rightButtonOnPress={() => {
-            this.makePost();
-          }}
-          leftIconButton={<Icon name="chevron-left" size={20} />}
-          leftButtonOnPress={() => {
-            const { navigation } = this.props;
-            navigation.dismiss();
-          }}
+          rightIconButton={this.renderHeaderRightButton}
+          leftIconButton={() => (
+            <Icon
+              name="chevron-left"
+              size={20}
+              onPress={() => {
+                const { navigation } = this.props;
+                navigation.dismiss();
+              }}
+            />
+          )}
           headerTitleStyle={{ fontSize: 14, fontWeight: "bold" }}
         />
         <View style={styles.descriptionView}>
@@ -262,7 +275,14 @@ class PostPreview extends React.Component {
           style={styles.item}
           activeOpacity={1}
           onPress={() => {
-            navigation.navigate("TagPage");
+            navigation.navigate("TagPage", {
+              passSelectedTagsBack: selectedTags => {
+                this.setState({
+                  selectedTags
+                });
+              },
+              selectedTags
+            });
           }}
         >
           <View style={styles.itemLabel}>
@@ -273,17 +293,42 @@ class PostPreview extends React.Component {
             />
             <Text style={{ marginLeft: theme.paddingToWindow }}>Tag</Text>
           </View>
-          <Icon
-            name="arrow-right"
-            size={theme.iconSm}
-            style={{ marginRight: theme.paddingToWindow }}
-          />
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center"
+            }}
+          >
+            <Text
+              style={{
+                marginRight: theme.paddingToWindow,
+                color: "grey"
+              }}
+            >
+              {Object.keys(selectedTags).length > 0
+                ? `${Object.keys(selectedTags).length} tag(s)`
+                : null}
+            </Text>
+            <Icon
+              name="arrow-right"
+              size={theme.iconSm}
+              style={{ marginRight: theme.paddingToWindow }}
+            />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.item}
           activeOpacity={1}
           onPress={() => {
-            navigation.navigate("MentionPage");
+            navigation.navigate("MentionPage", {
+              passMentionedUsersBack: mentionedUsers => {
+                this.setState({
+                  mentionedUsers
+                });
+              },
+              mentionedUsers
+            });
           }}
         >
           <View style={styles.itemLabel}>
@@ -294,11 +339,29 @@ class PostPreview extends React.Component {
             />
             <Text style={{ marginLeft: theme.paddingToWindow }}>Mention</Text>
           </View>
-          <Icon
-            name="arrow-right"
-            size={theme.iconSm}
-            style={{ marginRight: theme.paddingToWindow }}
-          />
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center"
+            }}
+          >
+            <Text
+              style={{
+                marginRight: theme.paddingToWindow,
+                color: "grey"
+              }}
+            >
+              {Object.keys(mentionedUsers).length > 0
+                ? `${Object.keys(mentionedUsers).length} tag(s)`
+                : null}
+            </Text>
+            <Icon
+              name="arrow-right"
+              size={theme.iconSm}
+              style={{ marginRight: theme.paddingToWindow }}
+            />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.item}
@@ -348,9 +411,23 @@ export default createStackNavigator(
         };
       }
     },
-    TagPage,
+    TagPage: {
+      screen: TagPage,
+      navigationOptions: () => {
+        return {
+          header: null
+        };
+      }
+    },
     MentionPage,
-    LocationPage
+    LocationPage: {
+      screen: LocationPage,
+      navigationOptions: () => {
+        return {
+          header: null
+        };
+      }
+    }
   },
   {
     cardStyle: {

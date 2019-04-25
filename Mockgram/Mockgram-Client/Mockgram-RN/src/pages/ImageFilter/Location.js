@@ -1,6 +1,9 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
+import { createStackNavigator } from "react-navigation";
+
+import CreateLocation from "./CreateLocation";
 
 class Location extends React.Component {
   constructor(props) {
@@ -13,11 +16,15 @@ class Location extends React.Component {
       shadowColor: "transparent",
       elevation: 0
     },
+    title: "Add Location",
+    headerTitleStyle: {
+      fontSize: 14
+    },
     headerLeft: (
       <TouchableOpacity
         style={{ marginLeft: 20 }}
         onPress={() => {
-          navigation.goBack();
+          navigation.popToTop();
         }}
       >
         <Icon name="chevron-left" size={20} />
@@ -30,4 +37,14 @@ class Location extends React.Component {
   }
 }
 
-export default Location;
+export default createStackNavigator(
+  {
+    Location,
+    CreateLocation
+  },
+  {
+    cardStyle: {
+      backgroundColor: "#fff"
+    }
+  }
+);

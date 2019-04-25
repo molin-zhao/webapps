@@ -1,30 +1,97 @@
 import React from "react";
-import { TouchableOpacity, View, StyleSheet } from "react-native";
+import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 
 import window from "../utils/getDeviceInfo";
-import Proptyps from "prop-types";
+import Proptypes from "prop-types";
+import { stringTrimmer } from "../utils/unitConverter";
+import theme from "../common/theme";
 
 class TagLabel extends React.Component {
   static defaultProps = {
-    label: () => null,
-    button: () => null
+    button: () => null,
+    dataSource: {
+      name: "label"
+    },
+    defaultContainerStyle: {
+      backgroundColor: "lightgrey"
+    },
+    selectedContainerStyle: {
+      backgroundColor: theme.primaryGrey
+    },
+    defaultLabelStyle: {
+      color: "black"
+    },
+    selectedLabelStyle: {
+      color: "grey"
+    },
+    selected: false
   };
   static propTypes = {
-    label: Proptyps.func,
-    button: Proptyps.func
+    button: Proptypes.func,
+    onPress: Proptypes.func,
+    dataSource: Proptypes.object,
+    selected: Proptypes.bool,
+
+    // style properties
+    defaultContainerStyle: Proptypes.object,
+    selectedContainerStyle: Proptypes.object,
+    defaultLabelStyle: Proptypes.object,
+    selectedLabelStyle: Proptypes.object
+  };
+
+  renderButton = () => {
+    const { button } = this.props;
+    if (button()) {
+      return <View style={styles.button}>{button()}</View>;
+    } else {
+      return null;
+    }
+  };
+
+  renderSelectedStyle = style => {
+    const { selected } = this.props;
+    if (selected) {
+      return style;
+    }
+    return null;
   };
 
   render() {
-    const { labelOnPress, label, button } = this.props;
+    const {
+      onPress,
+      dataSource,
+      defaultContainerStyle,
+      selectedContainerStyle,
+      defaultLabelStyle,
+      selectedLabelStyle
+    } = this.props;
     return (
-      <View style={styles.container}>
-        <View style={labelContainer}>
-          <View style={{ width: 5, backgroundColor: "transparent" }} />
-          <TouchableOpacity onPress={labelOnPress} style={styles.label}>
-            {label()}
+      <View style={styles.border}>
+        <View
+          style={[
+            styles.container,
+            defaultContainerStyle,
+            this.renderSelectedStyle(selectedContainerStyle)
+          ]}
+        >
+          <View style={{ width: 15 }} />
+          <TouchableOpacity
+            onPress={onPress}
+            style={styles.labelContainer}
+            activeOpacity={0.9}
+          >
+            <Text
+              style={[
+                { fontSize: 12 },
+                defaultLabelStyle,
+                this.renderSelectedStyle(selectedLabelStyle)
+              ]}
+            >
+              {stringTrimmer(dataSource.name)}
+            </Text>
           </TouchableOpacity>
-          {button()}
-          <View style={{ width: 5, backgroundColor: "transparent" }} />
+          {this.renderButton()}
+          <View style={{ width: 15 }} />
         </View>
       </View>
     );
@@ -32,25 +99,28 @@ class TagLabel extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    height: window.height * 0.05,
+  border: {
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    height: 40
+  },
+  container: {
+    marginLeft: 5,
+    marginRight: 5,
+    height: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    borderRadius: 15
   },
   labelContainer: {
     height: "90%",
-    borderRadius: 5,
-    borderColor: "black",
-    backgroundColor: "lightgrey",
-    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center"
   },
-  label: {
-    flex: 1,
+  button: {
     justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "transparent"
+    alignItems: "center"
   }
 });
 

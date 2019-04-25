@@ -121,7 +121,7 @@ router.post("/suggest/people/:id", (req, res) => {
 });
 
 router.get("/recommend/tag", (req, res) => {
-  let limitParam = parseInt(req.params.limit);
+  let limitParam = parseInt(req.query.limit);
   let limit = limitParam ? limitParam : 10;
   //TODO
   res.json({
@@ -131,38 +131,65 @@ router.get("/recommend/tag", (req, res) => {
   });
 });
 
-router.get("/hot/tag", async (req, res) => {
-  let limitParam = parseInt(req.params.limit);
+router.get("/tag/hot", async (req, res) => {
+  let limitParam = parseInt(req.query.limit);
   let limit = limitParam ? limitParam : 10;
   let result = await Tag.getHotTags(limit);
-  console.log(result);
-  res.json({
-    status: response.SUCCESS.OK.CODE,
-    msg: response.SUCCESS.OK.MSG
-  });
-});
-
-router.get("/hot/activity", async (req, res) => {
-  let limitParam = parseInt(req.params.limit);
-  let limit = limitParam ? limitParam : 10;
-  let result = await Tag.getHotActivites(limit);
-  console.log(result);
-  res.json({
-    status: response.SUCCESS.OK.CODE,
-    msg: response.SUCCESS.OK.MSG
-  });
-});
-
-router.get("/hot/alltypes", async (req, res) => {
-  let limitParam = parseInt(req.params.limit);
-  let limit = limitParam ? limitParam : 10;
-  let tagResult = await Tag.getHotTags(limit);
-  let activityResult = await Tag.getHotActivites(limit);
   res.json({
     status: response.SUCCESS.OK.CODE,
     msg: response.SUCCESS.OK.MSG,
-    tag: tagResult,
-    activity: activityResult
+    tag: result
+  });
+});
+
+router.get("/topic/hot", async (req, res) => {
+  let limitParam = parseInt(req.query.limit);
+  let limit = limitParam ? limitParam : 10;
+  let result = await Tag.getHotTopics(limit);
+  res.json({
+    status: response.SUCCESS.OK.CODE,
+    msg: response.SUCCESS.OK.MSG,
+    topic: result
+  });
+});
+
+router.get("/tag/available", (req, res) => {
+  let tagName = req.query.value;
+  Tag.findOne({
+    name: tagName,
+    type: "Tag"
+  }).exec((err, doc) => {
+    if (err) return handleError(res, err);
+    if (doc) {
+      return res.json({
+        status: response.SUCCESS.ACCEPTED.CODE,
+        msg: response.SUCCESS.ACCEPTED.MSG
+      });
+    }
+    return res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG
+    });
+  });
+});
+
+router.get("/topic/available", (req, res) => {
+  let topicName = req.query.value;
+  Tag.findOne({
+    name: topicName,
+    type: "Topic"
+  }).exec((err, doc) => {
+    if (err) return handleError(res, err);
+    if (doc) {
+      return res.json({
+        status: response.SUCCESS.ACCEPTED.CODE,
+        msg: response.SUCCESS.ACCEPTED.MSG
+      });
+    }
+    return res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG
+    });
   });
 });
 

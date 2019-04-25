@@ -1,12 +1,27 @@
 import React from "react";
-import { StyleSheet, View, TextInput } from "react-native";
-import { BallIndicator } from "react-native-indicators";
+import { StyleSheet, View, TextInput, Text } from "react-native";
+import { SkypeIndicator } from "react-native-indicators";
 import Icon from "react-native-vector-icons/Ionicons";
+import PropTypes from "prop-types";
 
 import theme from "../common/theme";
 import config from "../common/config";
+import window from "../utils/getDeviceInfo";
 
 class AjaxInput extends React.Component {
+  static defaultProps = {
+    containerStyle: {
+      width: window.width * 0.7,
+      height: 70
+    },
+    icon: () => null,
+    label: () => null
+  };
+
+  static propTypes = {
+    containerStyle: PropTypes.object
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -21,34 +36,50 @@ class AjaxInput extends React.Component {
   }
 
   startSearch = () => {
-    const { fetchUrl } = this.props;
-    return fetch(fetchUrl, { method: "GET" })
-      .then(res => res.json())
-      .then(resJson => {
-        if (resJson.status === 200) {
+    const { fetchUrl, onValid, onInValid } = this.props;
+    const { searchValue } = this.state;
+    if (fetchUrl) {
+      return fetch(`${fetchUrl}?value=${searchValue}`, { method: "GET" })
+        .then(res => res.json())
+        .then(resJson => {
+          console.log(resJson);
+          if (resJson.status === 200) {
+            this.setState(
+              {
+                isValid: true,
+                isSearching: false
+              },
+              () => {
+                onValid(searchValue);
+              }
+            );
+          } else {
+            this.setState(
+              {
+                isValid: false,
+                isSearching: false
+              },
+              () => {
+                onInValid(searchValue);
+              }
+            );
+          }
+        })
+        .catch(err => {
           this.setState({
-            isValid: true,
             isSearching: false
           });
-        } else {
-          this.setState({
-            isValid: false,
-            isSearching: false
-          });
-        }
-      })
-      .catch(err => {
-        this.setState({
-          isSearching: false
         });
-      });
+    } else {
+      console.log(searchValue);
+    }
   };
 
   renderIndicator = () => {
     const { text, isSearching, isValid } = this.state;
     if (text) {
       if (isSearching) {
-        return <BallIndicator size={theme.iconMd} color="lightgrey" />;
+        return <SkypeIndicator size={theme.iconSm} color="lightgrey" />;
       } else {
         if (isValid) {
           return (
@@ -61,53 +92,118 @@ class AjaxInput extends React.Component {
     return null;
   };
 
+  renderLabel = () => {
+    const { icon, label } = this.props;
+    if (icon()) {
+      return <View style={styles.formIcon}>{icon()}</View>;
+    } else if (label()) {
+      return <View style={styles.formLabel}>{label()}</View>;
+    } else {
+      return null;
+    }
+  };
+
+  renderTextColor = () => {
+    const { isSearching, isValid } = this.state;
+    if (isSearching) {
+      return "black";
+    } else {
+      if (isValid) {
+        return theme.primaryGreen;
+      }
+      return theme.primaryDanger;
+    }
+  };
+
+  renderInValid = () => {
+    const { searchValue, isValid, isSearching } = this.state;
+    if (!isSearching && searchValue && !isValid) {
+      return (
+        <Text
+          ellipsizeMode="tail"
+          style={{ fontSize: 12, color: theme.primaryDanger, width: "90%" }}
+        >{`'${searchValue}' has been created`}</Text>
+      );
+    }
+    return <Text style={{ fontSize: 14, width: "90%" }}>{``}</Text>;
+  };
+
   render() {
-    const { placeholder, containerStyle } = this.props;
+    const { placeholder, containerStyle, onInValid } = this.props;
     const { timer } = this.state;
     return (
       <View style={[styles.formInput, containerStyle]}>
-        <TextInput
-          style={{ marginLeft: 10, fontSize: 14, width: "80%" }}
-          placeholder={placeholder}
-          onChangeText={text =>
-            this.setState({ text }, () => {
-              clearTimeout(timer);
-              if (text.length > 0) {
-                this.setState({
-                  isSearching: true,
-                  timer: setTimeout(() => {
+        <View style={[styles.formDivision, { height: "65%" }]}>
+          {this.renderLabel()}
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              flex: 6
+            }}
+          >
+            <TextInput
+              style={{
+                fontSize: 14,
+                width: "90%",
+                color: this.renderTextColor()
+              }}
+              placeholder={placeholder}
+              onChangeText={text =>
+                this.setState({ text }, () => {
+                  clearTimeout(timer);
+                  if (text.length > 0) {
+                    this.setState({
+                      isSearching: true,
+                      timer: setTimeout(() => {
+                        this.setState(
+                          {
+                            searchValue: text,
+                            timer: null
+                          },
+                          () => {
+                            clearTimeout(timer);
+                            this.startSearch();
+                          }
+                        );
+                      }, config.ajaxQueryDuration)
+                    });
+                  } else {
                     this.setState(
                       {
-                        searchValue: text,
-                        timer: null
+                        isSearching: false,
+                        timer: null,
+                        searchValue: ""
                       },
                       () => {
-                        clearTimeout(timer);
-                        this.startSearch();
+                        onInValid("");
                       }
                     );
-                  }, config.ajaxQueryDuration)
-                });
-              } else {
-                this.setState({
-                  isSearching: false,
-                  timer: null,
-                  searchValue: ""
-                });
+                  }
+                })
               }
-            })
-          }
-          value={this.state.text}
-          underlineColorAndroid="transparent"
-        />
-        <View
-          style={{
-            width: "20%",
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          {this.renderIndicator()}
+              value={this.state.text}
+              underlineColorAndroid="transparent"
+            />
+          </View>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            {this.renderIndicator()}
+          </View>
+        </View>
+        <View style={[styles.formDivision, { height: "35%" }]}>
+          <View style={{ flex: 3 }} />
+          <View
+            style={{ flex: 6, justifyContent: "center", alignItems: "center" }}
+          >
+            {this.renderInValid()}
+          </View>
+          <View style={{ flex: 1 }} />
         </View>
       </View>
     );
@@ -126,11 +222,24 @@ export default AjaxInput;
 
 const styles = StyleSheet.create({
   formInput: {
-    flexDirection: "row",
     justifyContent: "flex-start",
+    alignItems: "center"
+  },
+  formDivision: {
+    width: "100%",
+    justifyContent: "center",
     alignItems: "center",
-    width: window.width * 0.7,
-    height: 50,
-    marginTop: 50
+    flexDirection: "row"
+  },
+  formLabel: {
+    flex: 3,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center"
+  },
+  formIcon: {
+    flex: 3,
+    justifyContent: "center",
+    alignItems: "center"
   }
 });

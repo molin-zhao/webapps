@@ -9,6 +9,6 @@ export default (config = {
   messageReturnLimit: 10,
   recommendPostReturnLimit: 24,
   tagLimit: 10,
-  hotTagAndActivityLimit: 10,
+  hotTagAndTopicLimit: 10,
   ajaxQueryDuration: 1000 // millisecond
 });

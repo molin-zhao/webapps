@@ -1,29 +1,35 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { getStatusBarHeight } from "react-native-status-bar-height";
-import window from "../utils/getDeviceInfo";
+import Proptypes from "prop-types";
+import { Header } from "react-navigation";
 
-export default class Header extends React.Component {
+export default class CustomHeader extends React.Component {
+  static defaultProps = {
+    leftIconButton: () => null,
+    rightIconButton: () => null,
+    headerTitle: "title"
+  };
+
+  static propTypes = {
+    leftIconButton: Proptypes.func,
+    rightIconButton: Proptypes.func,
+    titleOnPress: Proptypes.func,
+    headerTitle: Proptypes.string
+  };
+
   render() {
     const {
       headerTitle,
       leftIconButton,
       rightIconButton,
       titleOnPress,
-      leftButtonOnPress,
-      rightButtonOnPress,
       style,
       headerTitleStyle
     } = this.props;
     return (
       <View style={[styles.header, style]}>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.headerLeft}
-          onPress={leftButtonOnPress}
-        >
-          {leftIconButton}
-        </TouchableOpacity>
+        <View style={styles.headerLeft}>{leftIconButton()}</View>
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles.headerMiddle}
@@ -31,13 +37,7 @@ export default class Header extends React.Component {
         >
           <Text style={headerTitleStyle}>{headerTitle}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.headerRight}
-          onPress={rightButtonOnPress}
-        >
-          {rightIconButton}
-        </TouchableOpacity>
+        <View style={styles.headerRight}>{rightIconButton()}</View>
       </View>
     );
   }
@@ -46,7 +46,7 @@ export default class Header extends React.Component {
 const styles = StyleSheet.create({
   header: {
     marginTop: getStatusBarHeight(),
-    height: window.height * 0.1 - getStatusBarHeight() / 2,
+    height: Header.HEIGHT,
     width: "100%",
     backgroundColor: "#fff",
     flexDirection: "row",

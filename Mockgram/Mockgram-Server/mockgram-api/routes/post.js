@@ -8,6 +8,7 @@ const User = require("../../models/user");
 const CommentModel = require("../../models/comment");
 const Reply = require("../../models/reply");
 const Message = require("../../models/message");
+const Tag = require("../../models/tag");
 
 // utils
 const response = require("../../utils/response");
@@ -538,5 +539,82 @@ router.put(
     });
   }
 );
+
+/**
+ * tag and topic related logic
+ */
+router.post("/create/tag", (req, res) => {
+  let tagName = req.body.name;
+  let creator = "5bc9fa9387f14a5d7d10531a";
+  Tag.create({
+    name: tagName,
+    creator,
+    type: "Tag"
+  })
+    .then(doc => {
+      if (doc) {
+        return res.json({
+          status: response.SUCCESS.OK.CODE,
+          msg: response.SUCCESS.OK.MSG
+        });
+      } else {
+        return res.json({
+          status: response.SUCCESS.ACCEPTED.CODE,
+          msg: response.SUCCESS.ACCEPTED.MSG
+        });
+      }
+    })
+    .catch(err => {
+      return handleError(res, err);
+    });
+});
+
+router.post("/create/topic", (req, res) => {
+  let topicName = req.body.name;
+  let topicDescription = req.body.description;
+  let creator = "5bc9fa9387f14a5d7d10531a";
+  Tag.create({
+    name: topicName,
+    description: topicDescription,
+    creator,
+    type: "Topic"
+  })
+    .then(doc => {
+      if (doc) {
+        return res.json({
+          status: response.SUCCESS.OK.CODE,
+          msg: response.SUCCESS.OK.MSG
+        });
+      } else {
+        return res.json({
+          status: response.SUCCESS.ACCEPTED.CODE,
+          msg: response.SUCCESS.ACCEPTED.MSG
+        });
+      }
+    })
+    .catch(err => {
+      return handleError(res, err);
+    });
+});
+
+router.post("/search/tag", (req, res) => {
+  let searchValue = req.body.value;
+  let limit = parseInt(req.body.limit);
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  Tag.searchTags(searchValue, lastQueryDataIds, limit)
+    .then(doc => {
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: doc,
+        value: searchValue
+      });
+    })
+    .catch(err => {
+      return handleError(res, err);
+    });
+});
 
 module.exports = router;

@@ -29,8 +29,8 @@ export default class TagListCell extends React.Component {
         <View style={styles.cellLeftContainer}>
           <View style={styles.thumbnail}>
             <Image
-              source={{ uri: require("../static/hashtag.png") }}
-              style={{ width: 50, height: 50, borderRadius: 25 }}
+              source={require("../static/hashtag.png")}
+              style={{ width: 40, height: 40, borderRadius: 20 }}
             />
           </View>
           <View

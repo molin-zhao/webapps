@@ -244,24 +244,36 @@ export default class ImageFilterPage extends React.Component {
           <MyHeader
             style={{ height: "20%", marginTop: 10 }}
             headerTitle="Choose a filter"
-            rightIconButton={<Icon name="check" size={20} />}
-            rightButtonOnPress={() => {
-              // confirm filter selection
-              const { filterSelection } = this.state;
-              this.setState({
-                filterModalVisible: false,
-                filterChoosed: filterSelection
-              });
+            rightIconButton={() => {
+              return (
+                <Icon
+                  name="check"
+                  size={20}
+                  onPress={() => {
+                    // confirm filter selection
+                    const { filterSelection } = this.state;
+                    this.setState({
+                      filterModalVisible: false,
+                      filterChoosed: filterSelection
+                    });
+                  }}
+                />
+              );
             }}
-            leftIconButton={<Icon name="chevron-down" size={20} />}
-            leftButtonOnPress={() => {
-              // cancel filter selection
-              const { filterChoosed } = this.state;
-              this.setState({
-                filterModalVisible: false,
-                filterSelection: filterChoosed
-              });
-            }}
+            leftIconButton={() => (
+              <Icon
+                name="chevron-down"
+                size={20}
+                onPress={() => {
+                  // cancel filter selection
+                  const { filterChoosed } = this.state;
+                  this.setState({
+                    filterModalVisible: false,
+                    filterSelection: filterChoosed
+                  });
+                }}
+              />
+            )}
           />
           <ScrollView
             style={{ height: "80%" }}
@@ -293,19 +305,29 @@ export default class ImageFilterPage extends React.Component {
           <MyHeader
             style={{ height: "20%", marginTop: 10 }}
             headerTitle="Add tags"
-            rightIconButton={<Icon name="check" size={20} />}
-            rightButtonOnPress={() => {
-              // confirm filter selection
-              this.setState({
-                metaModalVisible: false
-              });
-            }}
-            leftIconButton={<Icon name="chevron-down" size={20} />}
-            leftButtonOnPress={() => {
-              this.setState({
-                metaModalVisible: false
-              });
-            }}
+            rightIconButton={() => (
+              <Icon
+                name="check"
+                size={20}
+                onPress={() => {
+                  // confirm filter selection
+                  this.setState({
+                    metaModalVisible: false
+                  });
+                }}
+              />
+            )}
+            leftIconButton={() => (
+              <Icon
+                name="chevron-down"
+                size={20}
+                onPress={() => {
+                  this.setState({
+                    metaModalVisible: false
+                  });
+                }}
+              />
+            )}
           />
           <View
             style={{
@@ -425,16 +447,30 @@ export default class ImageFilterPage extends React.Component {
           <MyHeader
             style={{ backgroundColor: "transparent" }}
             headerTitle="Edit your photo"
-            rightIconButton={
-              <Text style={{ color: "black", fontSize: 15 }}>Next</Text>
-            }
-            rightButtonOnPress={() => {
-              this.next();
+            rightIconButton={() => {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                  onPress={() => {
+                    this.next();
+                  }}
+                >
+                  <Text style={{ color: "black", fontSize: 15 }}>Next</Text>
+                </TouchableOpacity>
+              );
             }}
-            leftIconButton={<Icon name="chevron-left" size={20} />}
-            leftButtonOnPress={() => {
-              const { navigation } = this.props;
-              navigation.dismiss();
+            leftIconButton={() => {
+              return (
+                <Icon
+                  name="chevron-left"
+                  size={20}
+                  onPress={() => {
+                    const { navigation } = this.props;
+                    navigation.dismiss();
+                  }}
+                />
+              );
             }}
           />
           {this.renderMainImage()}
