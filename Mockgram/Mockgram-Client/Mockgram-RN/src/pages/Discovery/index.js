@@ -166,7 +166,7 @@ class DiscoveryIndex extends React.Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        limit: config.searchReturnLimit,
+        limit: config.SEARCH_RETURN_LIMIT,
         userId: client ? client.user._id : null,
         lastQueryDataIds:
           this.state.loading || this.state.refreshing

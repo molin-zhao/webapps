@@ -6,9 +6,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Text,
-  ScrollView,
-  FlatList,
-  ActivityIndicator
+  FlatList
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicon from "react-native-vector-icons/Ionicons";
@@ -20,6 +18,7 @@ import SearchBarView from "../../components/SearchBarView";
 import TagLabel from "../../components/TagLabel";
 import CreateTag from "./CreateTag";
 import CreateTopic from "./CreateTopic";
+import SectionTitle from "../../components/SectionTitle";
 
 import window from "../../utils/getDeviceInfo";
 import baseUrl from "../../common/baseUrl";
@@ -29,6 +28,7 @@ import { numberConverter } from "../../utils/unitConverter";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 
 class Tag extends React.Component {
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -36,18 +36,14 @@ class Tag extends React.Component {
       isSearching: false,
       searchValue: "",
       returnValue: "",
-      hotTagLoading: false,
-      hotTopicLoading: false,
-      recommendLoading: false,
+      loading: false,
       hasMore: true,
       loadingMore: false,
 
       // data
       selectedTags: this.props.navigation.getParam("selectedTags", {}),
-      hotTags: {},
-      hotTopics: {},
+      hotTagAndTopic: [],
       searchedTags: [],
-      suggestedTags: [],
       error: null
     };
   }
@@ -67,6 +63,24 @@ class Tag extends React.Component {
       <TouchableOpacity
         style={{ marginLeft: 20 }}
         onPress={() => {
+          navigation.popToTop();
+        }}
+      >
+        <Icon name="chevron-left" size={20} />
+      </TouchableOpacity>
+    ),
+    headerRight: (
+      <TouchableOpacity
+        style={{
+          marginRight: 10,
+          height: Header.HEIGHT * 0.5,
+          width: Header.HEIGHT * 0.8,
+          borderRadius: Header.HEIGHT * 0.1,
+          backgroundColor: theme.primaryGreen,
+          alignItems: "center",
+          justifyContent: "center"
+        }}
+        onPress={() => {
           let passSelectedTagsBack = navigation.getParam(
             "passSelectedTagsBack"
           );
@@ -75,27 +89,28 @@ class Tag extends React.Component {
           navigation.popToTop();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <Text style={{ color: "#fff", fontSize: 12 }}>Done</Text>
       </TouchableOpacity>
     )
   });
 
   componentDidMount() {
+    this.mounted = true;
     this.props.navigation.setParams({
       getSelectedTags: () => this.state.selectedTags
     });
     this.setState(
       {
-        hotTagLoading: true,
-        hotTopicLoading: true,
-        recommendLoading: true
+        loading: true
       },
       () => {
-        this.fetchRecommendTags();
-        this.fetchHotTags();
-        this.fetchHotTopics();
+        this.fetchHotTagsAndTopics();
       }
     );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   _renderTagListCellBtn = id => {
@@ -170,86 +185,43 @@ class Tag extends React.Component {
     );
   };
 
-  fetchRecommendTags = () => {
+  fetchHotTagsAndTopics = () => {
     return fetch(
-      `${baseUrl.api}/discovery/recommend/tag?limit=${
-        config.hotTagAndTopicLimit
+      `${baseUrl.api}/discovery/tag-topic/hot?limit=${
+        config.HOT_TAG_TOPIC_RETURN_LIMIT
       }`,
-      {
-        method: "GET"
-      }
-    )
-      .then(res => res.json())
-      .then(resJson => {
-        this.setState({
-          recommendLoading: false
-        });
-      })
-      .catch(err => {
-        this.setState({
-          recommendLoading: false,
-          error: err
-        });
-      });
-  };
-
-  fetchHotTopics = () => {
-    return fetch(
-      `${baseUrl.api}/discovery/topic/hot?limit=${config.hotTagAndTopicLimit}`,
       { method: "GET" }
     )
       .then(res => res.json())
       .then(resJson => {
         if (resJson.status === 200) {
-          this.setState({
-            hotTopics: resJson.topic
-          });
+          if (this.mounted) {
+            this.setState({
+              hotTagAndTopic: resJson.data
+            });
+          }
         } else {
-          this.setState({
-            error: resJson.msg
-          });
+          if (this.mounted) {
+            this.setState({
+              error: resJson.msg
+            });
+          }
         }
       })
       .then(() => {
-        this.setState({
-          hotTopicLoading: false
-        });
-      })
-      .catch(err => {
-        this.setState({
-          error: err,
-          hotTopicLoading: false
-        });
-      });
-  };
-
-  fetchHotTags = () => {
-    return fetch(
-      `${baseUrl.api}/discovery/tag/hot?limit=${config.hotTagAndTopicLimit}`,
-      { method: "GET" }
-    )
-      .then(res => res.json())
-      .then(resJson => {
-        if (resJson.status === 200) {
+        if (this.mounted) {
           this.setState({
-            hotTags: resJson.tag
-          });
-        } else {
-          this.setState({
-            error: resJson.msg
+            loading: false
           });
         }
       })
-      .then(() => {
-        this.setState({
-          hotTagLoading: false
-        });
-      })
       .catch(err => {
-        this.setState({
-          error: err,
-          hotTagLoading: false
-        });
+        if (this.mounted) {
+          this.setState({
+            error: err,
+            loading: false
+          });
+        }
       });
   };
 
@@ -266,7 +238,7 @@ class Tag extends React.Component {
       },
       body: JSON.stringify({
         value: searchValue,
-        limit: config.tagLimit,
+        limit: config.SEARCH_RETURN_LIMIT,
         lastQueryDataIds: isLoadingMore
           ? parseIdFromObjectArray(searchedTags)
           : []
@@ -275,278 +247,189 @@ class Tag extends React.Component {
       .then(res => res.json())
       .then(resJson => {
         if (resJson.status === 200) {
-          this.setState({
-            searchedTags:
-              this.state.returnValue === this.state.searchValue
-                ? this.state.searchedTags.concat(resJson.data)
-                : resJson.data,
-            returnValue: resJson.value,
-            hasMore: resJson.data.length < config.tagLimit ? false : true
-          });
+          if (this.mounted) {
+            this.setState({
+              searchedTags:
+                this.state.returnValue === this.state.searchValue
+                  ? this.state.searchedTags.concat(resJson.data)
+                  : resJson.data,
+              returnValue: resJson.value,
+              hasMore:
+                resJson.data.length < config.HOT_TAG_TOPIC_RETURN_LIMIT
+                  ? false
+                  : true
+            });
+          }
         } else {
+          if (this.mounted) {
+            this.setState({
+              error: resJson.msg,
+              returnValue: "",
+              hasMore: false
+            });
+          }
+        }
+      })
+      .catch(err => {
+        if (this.mounted) {
           this.setState({
-            error: resJson.msg,
-            returnValue: "",
-            hasMore: false
+            error: err
           });
         }
       });
   };
 
-  _renderHotTags = () => {
-    const { hotTags, hotTagLoading, selectedTags } = this.state;
-    if (hotTagLoading) {
-      return (
-        <View style={styles.sectionEmpty}>
-          <SkypeIndicator size={25} />
-        </View>
-      );
-    }
-    if (hotTags.err) {
-      return (
-        <View style={styles.sectionEmpty}>
-          <Text>Request Popular Tags Error</Text>
-        </View>
-      );
-    }
-    if (hotTags.data && hotTags.data.length > 0) {
-      return (
-        <View
-          style={{
-            marginTop: 10,
-            marginBottom: 10,
-            width: "98%",
-            justifyContent: "flex-start",
-            alignItems: "flex-start",
-            flexDirection: "row",
-            flexWrap: "wrap"
-          }}
-        >
-          {hotTags.data.map(item => {
-            return (
-              <TagLabel
-                key={item._id}
-                dataSource={item}
-                selected={Object.keys(selectedTags).includes(item._id)}
-                onPress={() => {
-                  this.addToSelectedTags(item);
-                }}
-              />
-            );
-          })}
-        </View>
-      );
-    }
-    return (
-      <View style={styles.sectionEmpty}>
-        <Text>No Popular Tags</Text>
-      </View>
-    );
-  };
-
-  _renderHotTopics = () => {
-    const { hotTopics, hotTopicLoading, selectedTags } = this.state;
-    if (hotTopicLoading) {
-      return (
-        <View style={styles.sectionEmpty}>
-          <SkypeIndicator size={25} />
-        </View>
-      );
-    }
-    if (hotTopics.err) {
-      return (
-        <View style={styles.sectionEmpty}>
-          <Text>Request Popular Topics Error</Text>
-        </View>
-      );
-    }
-
-    if (hotTopics.data && hotTopics.data.length > 0) {
-      return (
-        <FlatList
-          extraData={this.state}
-          data={hotTopics.data}
-          renderItem={({ item }) => {
-            return (
-              <View
-                style={{
-                  marginTop: 10,
-                  width: window.width * 0.98,
-                  justifyContent: "center",
-                  alignItems: "flex-start"
-                }}
-              >
-                <View
-                  style={{ justifyContent: "center", alignItems: "flex-start" }}
-                >
-                  <TagLabel
-                    key={item._id}
-                    dataSource={item}
-                    selected={Object.keys(selectedTags).includes(item._id)}
-                    onPress={() => {
-                      this.addToSelectedTags(item);
-                    }}
-                  />
-                </View>
-                <View
-                  style={{
-                    width: "100%",
-                    justifyContent: "flex-start",
-                    alignItems: "flex-start"
-                  }}
-                >
-                  <Text
-                    style={{
-                      marginLeft: 10,
-                      marginTop: 10,
-                      fontSize: 12,
-                      color: "grey"
-                    }}
-                  >{`${numberConverter(
-                    item.participantsCount
-                  )} people participated`}</Text>
-                  <Text
-                    style={{
-                      marginLeft: 10,
-                      marginTop: 10,
-                      width: "90%"
-                    }}
-                    ellipsizeMode="tail"
-                    numberOfLines={3}
-                  >
-                    {item.description}
-                  </Text>
-                </View>
-              </View>
-            );
-          }}
-          keyExtractor={item => item._id}
-        />
-      );
-    }
-    return (
-      <View style={styles.sectionEmpty}>
-        <Text>No Popular Topics</Text>
-      </View>
-    );
-  };
-
-  _renderFooter = () => {
-    const { loadingMore, hasMore } = this.state;
-    if (loadingMore || hasMore) {
-      return <SkypeIndicator size={theme.iconSm} color="grey" />;
-    }
-    return (
-      <View
-        style={{
-          height: 80,
-          justifyContent: "center",
-          alignItems: "center"
-        }}
-      >
-        <Text style={{ color: "grey", fontSize: 12 }}>
-          {" "}
-          - No more relevant tags -{" "}
-        </Text>
-      </View>
-    );
-  };
-
-  _renderSearchResults = () => {
-    const {
-      isSearching,
-      searchBarInput,
-      searchedTags,
-      suggestedTags
-    } = this.state;
-    if (isSearching) {
-      return (
-        <View style={styles.searchingIndicator}>
-          <Text
-            style={{ fontWeight: "bold", fontSize: 13, color: "lightgrey" }}
+  _renderHotTagsAndTopicsSection = itemObject => {
+    const { selectedTags } = this.state;
+    if (itemObject.type === "tag") {
+      if (itemObject.data && itemObject.data.length > 0) {
+        return (
+          <View
+            style={{
+              marginTop: 10,
+              marginBottom: 10,
+              width: "98%",
+              justifyContent: "flex-start",
+              alignItems: "flex-start",
+              flexDirection: "row",
+              flexWrap: "wrap"
+            }}
           >
-            Searching for {searchBarInput} ...
-          </Text>
-          <ActivityIndicator size="small" color="lightgrey" />
+            {itemObject.data.map(item => {
+              return (
+                <TagLabel
+                  key={item._id}
+                  dataSource={item}
+                  selected={Object.keys(selectedTags).includes(item._id)}
+                  onPress={() => {
+                    this.addToSelectedTags(item);
+                  }}
+                />
+              );
+            })}
+          </View>
+        );
+      }
+      return (
+        <View style={styles.sectionEmpty}>
+          <Text>No Popular Tags</Text>
         </View>
       );
     } else {
-      if (searchBarInput && searchedTags.length !== 0) {
+      if (itemObject.data && itemObject.data.length > 0) {
         return (
           <FlatList
             extraData={this.state}
-            data={searchedTags}
-            keyExtractor={item => item._id}
+            data={itemObject.data}
             renderItem={({ item }) => {
-              return this.tagListCell(item);
+              return (
+                <View
+                  style={{
+                    marginTop: 10,
+                    width: window.width * 0.98,
+                    justifyContent: "center",
+                    alignItems: "flex-start"
+                  }}
+                >
+                  <View
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <TagLabel
+                      key={item._id}
+                      dataSource={item}
+                      selected={Object.keys(selectedTags).includes(item._id)}
+                      onPress={() => {
+                        this.addToSelectedTags(item);
+                      }}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      width: "100%",
+                      justifyContent: "flex-start",
+                      alignItems: "flex-start"
+                    }}
+                  >
+                    <Text
+                      style={{
+                        marginLeft: 10,
+                        marginTop: 10,
+                        fontSize: 12,
+                        color: "grey"
+                      }}
+                    >{`${numberConverter(
+                      item.participantsCount
+                    )} people participated`}</Text>
+                    <Text
+                      style={{
+                        marginLeft: 10,
+                        marginTop: 10,
+                        width: "90%"
+                      }}
+                      ellipsizeMode="tail"
+                      numberOfLines={3}
+                    >
+                      {item.description}
+                    </Text>
+                  </View>
+                </View>
+              );
             }}
-            ListFooterComponent={this._renderFooter}
-            onEndReached={this.handleLoadMore}
-            onEndReachedThreshold={0.1}
+            keyExtractor={item => item._id}
           />
         );
       }
       return (
-        <FlatList
-          data={suggestedTags}
-          keyExtractor={item => item._id}
-          renderItem={({ item }) => {
-            return (
-              <View>
-                <Text>{item.name}</Text>
-              </View>
-            );
-          }}
-        />
+        <View style={styles.sectionEmpty}>
+          <Text>No Popular Topics</Text>
+        </View>
       );
     }
   };
 
   renderHotTagsAndTopics = () => {
     const { navigation } = this.props;
+    const { hotTagAndTopic } = this.state;
     return (
-      <View
-        style={{
-          width: window.width,
-          justifyContent: "flex-start",
-          alignItems: "center"
+      <FlatList
+        data={hotTagAndTopic}
+        keyExtractor={item => item.type}
+        ListHeaderComponent={this.renderContentHeader}
+        stickyHeaderIndices={[0]}
+        renderItem={({ item, index }) => {
+          return (
+            <View key={index} style={styles.section}>
+              <SectionTitle
+                iconLabel={() => (
+                  <Ionicon
+                    name={item.type === "tag" ? "ios-bonfire" : "ios-people"}
+                    size={theme.iconSm}
+                  />
+                )}
+                iconRight={() => (
+                  <Icon
+                    name="plus"
+                    style={{ marginRight: 10 }}
+                    size={theme.iconSm}
+                    onPress={() => {
+                      if (item.type === "tag") {
+                        navigation.navigate("CreateTag");
+                      } else {
+                        navigation.navigate("CreateTopic");
+                      }
+                    }}
+                  />
+                )}
+                label={`Popular ${item.type}(s)`}
+              />
+              {this._renderHotTagsAndTopicsSection(item)}
+            </View>
+          );
         }}
-      >
-        <View style={styles.section}>
-          <View style={styles.sectionTitle}>
-            <View style={styles.sectionLabel}>
-              <Ionicon name="md-bonfire" size={theme.iconSm} />
-              <Text style={{ marginLeft: 10 }}>Popular tags</Text>
-            </View>
-            <Icon
-              name="plus"
-              style={{ marginRight: 10 }}
-              size={theme.iconSm}
-              onPress={() => {
-                navigation.navigate("CreateTag");
-              }}
-            />
-          </View>
-          {this._renderHotTags()}
-        </View>
-        <View style={styles.section}>
-          <View style={styles.sectionTitle}>
-            <View style={styles.sectionLabel}>
-              <Ionicon name="ios-people" size={theme.iconSm} />
-              <Text style={{ marginLeft: 10 }}>Popular topics</Text>
-            </View>
-            <Icon
-              name="plus"
-              style={{ marginRight: 10 }}
-              size={theme.iconSm}
-              onPress={() => {
-                navigation.navigate("CreateTopic");
-              }}
-            />
-          </View>
-          {this._renderHotTopics()}
-        </View>
-      </View>
+      />
     );
   };
 
@@ -574,8 +457,8 @@ class Tag extends React.Component {
                 defaultLabelStyle={{ color: "#fff" }}
                 button={() => {
                   return (
-                    <Icon
-                      name="times"
+                    <Ionicon
+                      name="md-close"
                       color={theme.primaryGrey}
                       size={theme.iconSm}
                       style={{ marginLeft: 5 }}
@@ -592,37 +475,6 @@ class Tag extends React.Component {
       );
     }
     return null;
-  };
-
-  renderSearchResultView = () => {
-    const { focused, searchBarInput } = this.state;
-    if (focused || searchBarInput) {
-      return (
-        <View
-          style={{
-            width: window.width,
-            flex: 1,
-            zIndex: 1,
-            backgroundColor: "#fff",
-            justifyContent: "flex-start",
-            alignItems: "center"
-          }}
-        >
-          {this._renderSearchResults()}
-        </View>
-      );
-    }
-    return (
-      <ScrollView
-        contentContainerStyle={{
-          width: window.width,
-          flex: 1,
-          backgroundColor: "#fff"
-        }}
-      >
-        {this.renderHotTagsAndTopics()}
-      </ScrollView>
-    );
   };
 
   addToSelectedTags = tag => {
@@ -647,29 +499,134 @@ class Tag extends React.Component {
     }
   };
 
-  handleLoadMore = () => {
-    const { hasMore, loadingMore, isSearching } = this.state;
-    if (!isSearching && !loadingMore && hasMore) {
-      this.setState(
-        {
-          loadingMore: true
-        },
-        () => {
-          this.startSearch()
-            .then(() => {
-              this.setState({
-                loadingMore: false
-              });
-            })
-            .catch(err => {
-              this.setState({
-                loadingMore: false,
-                error: err
-              });
-            });
-        }
+  renderContentHeader = () => {
+    return (
+      <View
+        style={{
+          justifyContent: "flex-start",
+          alignItems: "center",
+          width: "100%",
+          backgroundColor: "#fff"
+        }}
+      >
+        {this.renderSelectedTags()}
+        <View style={{ width: "100%", height: Header.HEIGHT }}>
+          <SearchBarView
+            containerStyle={{ width: window.width, height: "80%" }}
+            searchBarDefaultWidth={window.width * 0.9}
+            searchBarFocusedWidth={window.width * 0.85}
+            duration={100}
+            onChangeText={text => {
+              clearTimeout(this.state.timer);
+              if (text.length > 0) {
+                this.setState({
+                  isSearching: true,
+                  timer: setTimeout(() => {
+                    this.setState(
+                      {
+                        searchValue: text,
+                        timer: null
+                      },
+                      () => {
+                        clearTimeout(this.state.timer);
+                        this.startSearch()
+                          .then(() => {
+                            this.setState({
+                              isSearching: false
+                            });
+                          })
+                          .catch(err => {
+                            this.setState({
+                              isSearching: false,
+                              error: err
+                            });
+                          });
+                      }
+                    );
+                  }, 1000)
+                });
+              } else {
+                this.setState({
+                  isSearching: false,
+                  timer: null,
+                  searchValue: ""
+                });
+              }
+            }}
+            rightIcon={() => {
+              return (
+                <Text style={{ fontWeight: "bold", fontSize: 12 }}>{`${
+                  Object.keys(this.state.selectedTags).length
+                }/${config.TAG_SELECT_LIMIT}`}</Text>
+              );
+            }}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  renderContentView = () => {
+    const { searchValue, searchedTags } = this.state;
+    if (searchValue && searchedTags) {
+      return (
+        <FlatList
+          ListHeaderComponent={this.renderContentHeader}
+          stickyHeaderIndices={[0]}
+          extraData={this.state}
+          data={searchedTags}
+          keyExtractor={item => item._id}
+          renderItem={({ item }) => {
+            return this.tagListCell(item);
+          }}
+          ListFooterComponent={() => {
+            const { loadingMore, hasMore } = this.state;
+            if (loadingMore || hasMore) {
+              return <SkypeIndicator size={theme.iconSm} color="grey" />;
+            }
+            return (
+              <View
+                style={{
+                  height: 80,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <Text style={{ color: "grey", fontSize: 12 }}>
+                  {` - No more relevant tags - `}
+                </Text>
+              </View>
+            );
+          }}
+          onEndReached={() => {
+            const { hasMore, loadingMore, isSearching } = this.state;
+            if (!isSearching && !loadingMore && hasMore) {
+              this.setState(
+                {
+                  loadingMore: true
+                },
+                () => {
+                  this.startSearch()
+                    .then(() => {
+                      this.setState({
+                        loadingMore: false
+                      });
+                    })
+                    .catch(err => {
+                      this.setState({
+                        loadingMore: false,
+                        error: err
+                      });
+                    });
+                }
+              );
+            }
+          }}
+          onEndReachedThreshold={0.1}
+        />
       );
     }
+    return this.renderHotTagsAndTopics();
   };
 
   render() {
@@ -678,80 +635,9 @@ class Tag extends React.Component {
         onPress={() => {
           Keyboard.dismiss();
         }}
+        style={styles.container}
       >
-        <View style={styles.container}>
-          {this.renderSelectedTags()}
-          <View style={{ width: "100%", height: Header.HEIGHT }}>
-            <SearchBarView
-              containerStyle={{ width: window.width, height: "80%" }}
-              searchBarDefaultWidth={window.width * 0.9}
-              searchBarFocusedWidht={window.width * 0.8}
-              duration={100}
-              onChangeText={text => {
-                clearTimeout(this.state.timer);
-                this.setState(
-                  {
-                    searchBarInput: text
-                  },
-                  () => {
-                    if (text.length > 0) {
-                      this.setState({
-                        isSearching: true,
-                        timer: setTimeout(() => {
-                          this.setState(
-                            {
-                              searchValue: text,
-                              timer: null
-                            },
-                            () => {
-                              clearTimeout(this.state.timer);
-                              this.startSearch()
-                                .then(() => {
-                                  this.setState({
-                                    isSearching: false
-                                  });
-                                })
-                                .catch(err => {
-                                  this.setState({
-                                    isSearching: false,
-                                    error: err
-                                  });
-                                });
-                            }
-                          );
-                        }, 1000)
-                      });
-                    } else {
-                      this.setState({
-                        isSearching: false,
-                        timer: null,
-                        searchValue: ""
-                      });
-                    }
-                  }
-                );
-              }}
-              onFocus={() => {
-                this.setState({
-                  focused: true
-                });
-              }}
-              lostFocus={() => {
-                this.setState({
-                  focused: false
-                });
-              }}
-              rightIcon={() => {
-                return (
-                  <Text style={{ fontWeight: "bold", fontSize: 12 }}>{`${
-                    Object.keys(this.state.selectedTags).length
-                  }/${config.tagLimit}`}</Text>
-                );
-              }}
-            />
-          </View>
-          {this.renderSearchResultView()}
-        </View>
+        {this.renderContentView()}
       </TouchableWithoutFeedback>
     );
   }
@@ -766,22 +652,6 @@ const styles = StyleSheet.create({
   },
   section: {
     width: "100%",
-    justifyContent: "flex-start",
-    alignItems: "center"
-  },
-  sectionTitle: {
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    width: "100%",
-    height: window.height * 0.05,
-    backgroundColor: theme.primaryGrey,
-    borderBottomColor: "lightgrey",
-    borderBottomWidth: 1
-  },
-  sectionLabel: {
-    marginLeft: theme.paddingToWindow,
-    flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center"
   },

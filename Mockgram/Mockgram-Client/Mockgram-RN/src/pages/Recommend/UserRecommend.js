@@ -39,7 +39,7 @@ class UserRecommend extends React.Component {
         },
         () => {
           return fetch(
-            `${baseUrl.api}/recommend/user?limit=${config.userListReturnLimit}`,
+            `${baseUrl.api}/recommend/user?limit=${config.USER_RETURN_LIMIT}`,
             {
               method: "GET",
               headers: {

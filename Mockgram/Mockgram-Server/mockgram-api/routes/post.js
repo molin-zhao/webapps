@@ -1,6 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const agent = require("superagent");
+const nodeGeocoder = require("node-geocoder");
+const geocode = nodeGeocoder({
+  provider: "openstreetmap",
+  httpAdapter: "https"
+});
 
 // models
 const Post = require("../../models/post");
@@ -9,6 +14,7 @@ const CommentModel = require("../../models/comment");
 const Reply = require("../../models/reply");
 const Message = require("../../models/message");
 const Tag = require("../../models/tag");
+const Location = require("../../models/location");
 
 // utils
 const response = require("../../utils/response");
@@ -597,6 +603,71 @@ router.post("/create/topic", (req, res) => {
     });
 });
 
+router.post("/create/location", (req, res) => {
+  let name = req.body.name;
+  let address = req.body.address;
+  let coordinates = req.body.coordinates;
+  let creator = "5bc9fa9387f14a5d7d10531a";
+  let polygons = req.body.polygons;
+  geocode
+    .reverse({
+      lat: coordinates[1],
+      lon: coordinates[0]
+    })
+    .then(async geoRes => {
+      let geoInfo = geoRes[0];
+      // polygons must be closed rings
+      // the first and the last coordinate of the polygon must be same
+      let polygonRings = await polygons.map(polygon => {
+        return polygon.concat([polygon[0]]);
+      });
+      let newLocation = {
+        name,
+        address,
+        creator,
+        meta: {
+          country: geoInfo.country,
+          city: geoInfo.city,
+          street: geoInfo.streetName,
+          state: geoInfo.state,
+          zipcode: geoInfo.zipcode,
+          isoCountryCode: geoInfo.countryCode,
+          formattedAddress: geoInfo.formattedAddress
+        },
+        loc: {
+          type: "Point",
+          coordinates: coordinates
+        }
+      };
+      if (polygonRings.length > 0) {
+        newLocation.area = {
+          type: "Polygon",
+          coordinates: polygonRings
+        };
+      }
+      Location.create(newLocation)
+        .then(doc => {
+          if (doc) {
+            return res.json({
+              status: response.SUCCESS.OK.CODE,
+              msg: response.SUCCESS.OK.MSG
+            });
+          } else {
+            return res.json({
+              status: response.SUCCESS.ACCEPTED.CODE,
+              msg: response.SUCCESS.ACCEPTED.MSG
+            });
+          }
+        })
+        .catch(err => {
+          return handleError(res, err);
+        });
+    })
+    .catch(err => {
+      return handleError(res, err);
+    });
+});
+
 router.post("/search/tag", (req, res) => {
   let searchValue = req.body.value;
   let limit = parseInt(req.body.limit);
@@ -615,6 +686,78 @@ router.post("/search/tag", (req, res) => {
     .catch(err => {
       return handleError(res, err);
     });
+});
+
+// search location by string value
+router.post("/search/location/name", (req, res) => {
+  let searchValue = req.body.value;
+  let limit = parseInt(req.body.limit);
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  Location.searchLocationsByName(searchValue, lastQueryDataIds, limit)
+    .then(doc => {
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: doc,
+        value: searchValue
+      });
+    })
+    .catch(err => {
+      return handleError(res, err);
+    });
+});
+
+router.post("/search/location/coordinate", (req, res) => {
+  let coordinate = req.body.coordinate;
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  let limit = parseInt(req.body.limit);
+  let maxDistance = parseInt(req.body.maxDistance);
+  Location.searchLocationsByCoords(
+    coordinate,
+    lastQueryDataIds,
+    limit,
+    maxDistance
+  )
+    .then(doc => {
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: doc,
+        value: coordinate
+      });
+    })
+    .catch(err => {
+      return handleError(res, err);
+    });
+});
+
+router.post("/search/following", async (req, res) => {
+  let searchValue = req.body.value;
+  let limit = req.body.limit;
+  let lastQueryDataIds = convertStringArrToObjectIdArr(
+    req.body.lastQueryDataIds
+  );
+  let userId = convertStringToObjectId("5bc9fa9387f14a5d7d10531a");
+  try {
+    let searchedUsers = await User.searchFollowingUser(
+      userId,
+      searchValue,
+      lastQueryDataIds,
+      limit
+    );
+    res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG,
+      data: searchedUsers,
+      value: searchValue
+    });
+  } catch (err) {
+    return handleError(res, err);
+  }
 });
 
 module.exports = router;

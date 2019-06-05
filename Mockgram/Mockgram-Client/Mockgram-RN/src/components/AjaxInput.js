@@ -129,71 +129,94 @@ class AjaxInput extends React.Component {
   };
 
   render() {
-    const { placeholder, containerStyle, onInValid } = this.props;
+    const {
+      placeholder,
+      containerStyle,
+      onInValid,
+      textInputContainerStyle
+    } = this.props;
     const { timer } = this.state;
     return (
       <View style={[styles.formInput, containerStyle]}>
         <View style={[styles.formDivision, { height: "65%" }]}>
           {this.renderLabel()}
           <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              flex: 6
-            }}
+            style={[
+              {
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "65%",
+                height: "100%",
+                marginLeft: "5%"
+              },
+              textInputContainerStyle
+            ]}
           >
-            <TextInput
+            <View
               style={{
-                fontSize: 14,
-                width: "90%",
-                color: this.renderTextColor()
+                justifyContent: "center",
+                alignItems: "center",
+                width: "80%",
+                height: "100%"
               }}
-              placeholder={placeholder}
-              onChangeText={text =>
-                this.setState({ text }, () => {
-                  clearTimeout(timer);
-                  if (text.length > 0) {
-                    this.setState({
-                      isSearching: true,
-                      timer: setTimeout(() => {
-                        this.setState(
-                          {
-                            searchValue: text,
-                            timer: null
-                          },
-                          () => {
-                            clearTimeout(timer);
-                            this.startSearch();
-                          }
-                        );
-                      }, config.ajaxQueryDuration)
-                    });
-                  } else {
-                    this.setState(
-                      {
-                        isSearching: false,
-                        timer: null,
-                        searchValue: ""
-                      },
-                      () => {
-                        onInValid("");
-                      }
-                    );
-                  }
-                })
-              }
-              value={this.state.text}
-              underlineColorAndroid="transparent"
-            />
-          </View>
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            {this.renderIndicator()}
+            >
+              <TextInput
+                style={{
+                  fontSize: 14,
+                  width: "95%",
+                  color: this.renderTextColor()
+                }}
+                placeholder={placeholder}
+                onChangeText={text =>
+                  this.setState({ text }, () => {
+                    clearTimeout(timer);
+                    if (text.length > 0) {
+                      this.setState({
+                        isSearching: true,
+                        timer: setTimeout(() => {
+                          this.setState(
+                            {
+                              searchValue: text,
+                              timer: null
+                            },
+                            () => {
+                              clearTimeout(timer);
+                              this.startSearch();
+                            }
+                          );
+                        }, config.ajaxQueryDuration)
+                      });
+                    } else {
+                      this.setState(
+                        {
+                          isSearching: false,
+                          timer: null,
+                          searchValue: ""
+                        },
+                        () => {
+                          onInValid("");
+                        }
+                      );
+                    }
+                  })
+                }
+                value={this.state.text}
+                underlineColorAndroid="transparent"
+              />
+            </View>
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginLeft: 5,
+                width: "15%",
+                height: "100%",
+                marginLeft: "5%"
+              }}
+            >
+              {this.renderIndicator()}
+            </View>
           </View>
         </View>
         <View style={[styles.formDivision, { height: "35%" }]}>
@@ -232,13 +255,15 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   formLabel: {
-    flex: 3,
+    width: "30%",
+    height: "100%",
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center"
   },
   formIcon: {
-    flex: 3,
+    width: "30%",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center"
   }

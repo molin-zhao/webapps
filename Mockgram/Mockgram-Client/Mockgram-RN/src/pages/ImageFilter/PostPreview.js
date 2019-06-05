@@ -5,18 +5,23 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  TextInput
+  TouchableWithoutFeedback,
+  TextInput,
+  Keyboard
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import Ionicon from "react-native-vector-icons/Ionicons";
-import { Location, Permissions, SecureStore } from "expo";
+import { Location, Permissions } from "expo";
 import { connect } from "react-redux";
-import DropdownAlert from "react-native-dropdownalert";
-import { addToHeadOfHomeFeed } from "../../redux/actions/feedActions";
-import { UIActivityIndicator } from "react-native-indicators";
+import {
+  addToHeadOfHomeFeed,
+  uploadingPost,
+  uploadedPost
+} from "../../redux/actions/feedActions";
 import { createStackNavigator } from "react-navigation";
 
-import Header from "../../components/Header";
+import DropdownAlert from "../../components/DropdownAlert";
+import PostRightButton from "../../components/HeaderRightButton";
 import TagPage from "./Tag";
 import MentionPage from "./Mention";
 import LocationPage from "./Location";
@@ -29,32 +34,88 @@ class PostPreview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      uploading: false,
       imageUri: this.props.navigation.getParam("imageUri", null),
       description: "",
       location: null,
       selectedTags: {},
       mentionedUsers: {},
-      allowLoation: false,
-      switchValue: false
+      error: null,
+      info: "Success!"
     };
   }
 
-  componentWillMount() {
-    SecureStore.getItemAsync("permission_location").then(permissionData => {
-      if (permissionData) {
-        let permissionInfo = JSON.parse(permissionData);
-        if (permissionInfo.ALLOW_LOCATION) {
-          this.setState({ allowLoation: true });
-        }
-      }
+  static navigationOptions = ({ navigation }) => ({
+    headerStyle: {
+      borderBottomColor: "transparent",
+      borderBottomWidth: 0,
+      shadowColor: "transparent",
+      elevation: 0
+    },
+    title: "Edit your post",
+    headerTitleStyle: {
+      fontSize: 14
+    },
+    headerLeft: (
+      <TouchableOpacity
+        style={{ marginLeft: 20 }}
+        onPress={() => {
+          navigation.dismiss();
+        }}
+      >
+        <Icon name="chevron-left" size={20} />
+      </TouchableOpacity>
+    ),
+    headerRight: (
+      <TouchableOpacity
+        style={{ marginRight: 20 }}
+        onPress={() => {
+          let handlePost = navigation.getParam("handlePost");
+          return handlePost();
+        }}
+      >
+        <PostRightButton />
+      </TouchableOpacity>
+    )
+  });
+
+  componentDidMount() {
+    this.props.navigation.setParams({
+      handlePost: this.makePostTest
     });
-    this.props.navigation.setParams({ handlePost: this.makePost });
   }
 
+  makePostTest = () => {
+    const { uploadingPost, uploadedPost } = this.props;
+    uploadingPost();
+    setTimeout(() => {
+      this.setState(
+        {
+          info: null,
+          error: "Failed to upload your post"
+        },
+        () => {
+          this._dropdown.show();
+          uploadedPost();
+        }
+      );
+    }, 3000);
+  };
+
   makePost = () => {
-    const { imageUri, description, label, location } = this.state;
-    const { client, navigation, addToHomeFeed } = this.props;
+    const {
+      imageUri,
+      description,
+      selectedTags,
+      mentionedUsers,
+      location
+    } = this.state;
+    const {
+      client,
+      navigation,
+      addToHomeFeed,
+      uploadingPost,
+      uploadedPost
+    } = this.props;
     let fileName = imageUri.split("/").pop();
     let match = /\.(\w+)$/.exec(fileName);
     let type = match ? `image/${match[1]}` : `image`;
@@ -66,66 +127,62 @@ class PostPreview extends React.Component {
       type: type
     });
     formData.append("description", description);
-    formData.append("label", label);
+    formData.append("tags", Object.keys(selectedTags));
+    formData.append("mention", Object.keys(mentionedUsers));
     formData.append("location", JSON.stringify(location));
     if (client) {
-      this.setState(
-        {
-          uploading: true
+      uploadingPost();
+      fetch(`${baseUrl.upload}/upload/post`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "multipart/form-data",
+          Authorization: client.token
         },
-        () => {
-          fetch(`${baseUrl.upload}/upload/post`, {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "multipart/form-data",
-              Authorization: client.token
+        body: formData
+      })
+        .then(res => res.json())
+        .then(resJson => {
+          if (resJson.status === 200) {
+            addToHomeFeed(resJson.data);
+            setTimeout(() => {
+              navigation.navigate("Home");
+            }, 4000);
+            this.setState(
+              {
+                info: "Successfully uploaded your post!",
+                error: null
+              },
+              () => {
+                this._dropdown.show();
+                uploadedPost();
+              }
+            );
+          } else {
+            this.setState(
+              {
+                info: null,
+                error: "Failed to upload your post."
+              },
+              () => {
+                this._dropdown.show();
+                uploadedPost();
+              }
+            );
+          }
+        })
+        .catch(err => {
+          this.setState(
+            {
+              info: null,
+              error: "Network request failed."
             },
-            body: formData
-          })
-            .then(res => res.json())
-            .then(resJson => {
-              this.setState(
-                {
-                  uploading: false
-                },
-                () => {
-                  if (resJson.status === 200) {
-                    this._alert.alertWithType(
-                      "success",
-                      "Success",
-                      "Your post was uploaded"
-                    );
-                    addToHomeFeed(resJson.data);
-                    setTimeout(() => {
-                      navigation.navigate("Home");
-                    }, 4000);
-                  } else {
-                    this._alert.alertWithType(
-                      "warn",
-                      "Error",
-                      "Your post was not upload successfully, try upload your post later"
-                    );
-                  }
-                }
-              );
-            })
-            .catch(err => {
-              this.setState(
-                {
-                  uploading: false
-                },
-                () => {
-                  this._alert.alertWithType(
-                    "warn",
-                    "Error",
-                    "Your post was not upload successfully, try upload your post later"
-                  );
-                }
-              );
-            });
-        }
-      );
+            () => {
+              this._dropdown.show();
+              uploadedPost();
+            }
+          );
+        });
     } else {
       navigation.navigate("Auth");
     }
@@ -150,101 +207,109 @@ class PostPreview extends React.Component {
     };
   };
 
-  getLocationAsync = async value => {
-    if (value) {
-      // add a location
-      if (!this.state.allowLoation) {
-        let { status } = await Permissions.askAsync(Permissions.LOCATION);
-        if (status === "granted") {
-          this.setState({
-            allowLoation: true,
-            switchValue: true
-          });
-          let locationCoords = await Location.getCurrentPositionAsync({});
-          let locationAddress = await Location.reverseGeocodeAsync(
-            locationCoords.coords
-          );
-          let location = this.generateLocation(
-            locationCoords.coords,
-            locationAddress[0]
-          );
-          this.setState({
-            location: location
-          });
-          SecureStore.setItemAsync(
-            "permission_location",
-            JSON.stringify({
-              ALLOW_LOCATION: true
-            })
-          );
-        } else {
-          this.setState({
-            switchValue: false
-          });
-        }
-      } else {
-        this.setState({ switchValue: true });
-        let locationCoords = await Location.getCurrentPositionAsync({});
-        let locationAddress = await Location.reverseGeocodeAsync(
-          locationCoords.coords
+  getLocationAsync = async () => {
+    // check if app has already been granted access to location
+    const getLocationResponse = await Permissions.getAsync(
+      Permissions.LOCATION
+    );
+    if (getLocationResponse.status !== "granted") {
+      const askLocationResponse = await Permissions.askAsync(
+        Permissions.LOCATION
+      );
+      if (askLocationResponse.status !== "granted") {
+        return this.setState(
+          {
+            error: "You should allow permission to access your location"
+          },
+          () => {
+            this._dropdown.show();
+          }
         );
-        let location = this.generateLocation(
-          locationCoords.coords,
-          locationAddress[0]
-        );
-        this.setState({
-          location: location
-        });
       }
-    } else {
-      // remove location
-      this.setState({
-        switchValue: false,
-        location: null
-      });
     }
+    let { coords } = await Location.getCurrentPositionAsync();
+    const { latitude, longitude } = coords;
+    return { latitude, longitude };
   };
 
-  renderHeaderRightButton = () => {
-    const { uploading } = this.state;
-    if (uploading) {
-      return <UIActivityIndicator size={20} color={theme.primaryBlue} />;
+  renderDropdownAlert = () => {
+    const { error, info } = this.state;
+    if (!error) {
+      return (
+        <View style={[styles.dropdown, { borderColor: theme.primaryGreen }]}>
+          <View
+            style={{
+              marginLeft: theme.paddingToWindow,
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              alignItems: "center"
+            }}
+          >
+            <Ionicon
+              name="ios-checkmark-circle-outline"
+              size={theme.iconMd}
+              color={theme.primaryGreen}
+            />
+            <Text
+              style={{ marginLeft: 10, color: theme.primaryGreen }}
+            >{`${info}`}</Text>
+          </View>
+          <Ionicon
+            name="md-close"
+            size={theme.iconSm}
+            color="black"
+            style={{ marginRight: theme.paddingToWindow }}
+            onPress={() => {
+              this._dropdown.hide();
+            }}
+          />
+        </View>
+      );
     }
     return (
-      <Ionicon
-        name="md-send"
-        size={20}
-        color={theme.primaryBlue}
-        onPress={() => {
-          this.makePost();
-        }}
-      />
+      <View style={[styles.dropdown, { borderColor: theme.primaryDanger }]}>
+        <View
+          style={{
+            marginLeft: theme.paddingToWindow,
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            alignItems: "center"
+          }}
+        >
+          <Ionicon
+            name="ios-close-circle-outline"
+            size={theme.iconMd}
+            color={theme.primaryDanger}
+          />
+          <Text
+            style={{ marginLeft: 10, color: theme.primaryDanger }}
+          >{`${error}`}</Text>
+        </View>
+        <Ionicon
+          name="md-close"
+          size={theme.iconSm}
+          color="black"
+          style={{ marginRight: theme.paddingToWindow }}
+          onPress={() => {
+            this._dropdown.hide();
+          }}
+        />
+      </View>
     );
   };
 
   render() {
-    const { imageUri, selectedTags, mentionedUsers } = this.state;
+    const { imageUri, selectedTags, mentionedUsers, location } = this.state;
     const { navigation } = this.props;
     return (
-      <View style={styles.container}>
-        <Header
-          style={{ backgroundColor: "transparent" }}
-          headerTitle="Edit your post"
-          rightIconButton={this.renderHeaderRightButton}
-          leftIconButton={() => (
-            <Icon
-              name="chevron-left"
-              size={20}
-              onPress={() => {
-                const { navigation } = this.props;
-                navigation.dismiss();
-              }}
-            />
-          )}
-          headerTitleStyle={{ fontSize: 14, fontWeight: "bold" }}
-        />
-        <View style={styles.descriptionView}>
-          {/* <Image
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
+      >
+        <View style={styles.container}>
+          <View style={styles.descriptionView}>
+            {/* <Image
             source={{ uri: imageUri }}
             style={{
               marginLeft: 5,
@@ -252,140 +317,178 @@ class PostPreview extends React.Component {
               height: window.width * 0.25
             }}
           /> */}
-          <TextInput
-            multiline={true}
-            numberOfLines={4}
-            placeholder="Write a description"
-            style={{
-              marginLeft: 20,
-              marginRight: 5,
-              height: window.width * 0.25,
-              width: window.width * 0.65,
-              borderColor: null,
-              borderWidth: 0,
-              backgroundColor: "#fff"
+            <TextInput
+              multiline={true}
+              numberOfLines={4}
+              placeholder="Write a description"
+              style={{
+                marginLeft: 20,
+                marginRight: 5,
+                height: window.width * 0.25,
+                width: window.width * 0.65,
+                borderColor: null,
+                borderWidth: 0,
+                backgroundColor: "#fff"
+              }}
+              value={this.state.description}
+              onChangeText={text => {
+                this.setState({ description: text });
+              }}
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.item}
+            activeOpacity={1}
+            onPress={() => {
+              navigation.navigate("TagPage", {
+                passSelectedTagsBack: selectedTags => {
+                  this.setState({
+                    selectedTags
+                  });
+                },
+                selectedTags
+              });
             }}
-            value={this.state.description}
-            onChangeText={text => {
-              this.setState({ description: text });
+          >
+            <View style={styles.itemLabel}>
+              <Icon
+                name="hashtag"
+                size={theme.iconSm - 2}
+                style={{ marginLeft: theme.paddingToWindow }}
+              />
+              <Text style={{ marginLeft: theme.paddingToWindow }}>Tag</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                alignItems: "center"
+              }}
+            >
+              <Text
+                style={{
+                  marginRight: theme.paddingToWindow,
+                  color: "grey"
+                }}
+              >
+                {Object.keys(selectedTags).length > 0
+                  ? `${Object.keys(selectedTags).length} tag(s)`
+                  : null}
+              </Text>
+              <Icon
+                name="arrow-right"
+                size={theme.iconSm}
+                style={{ marginRight: theme.paddingToWindow }}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.item}
+            activeOpacity={1}
+            onPress={() => {
+              navigation.navigate("MentionPage", {
+                passMentionedUsersBack: mentionedUsers => {
+                  this.setState({
+                    mentionedUsers
+                  });
+                },
+                mentionedUsers
+              });
             }}
-          />
+          >
+            <View style={styles.itemLabel}>
+              <Icon
+                name="at"
+                size={theme.iconSm}
+                style={{ marginLeft: theme.paddingToWindow }}
+              />
+              <Text style={{ marginLeft: theme.paddingToWindow }}>Mention</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                alignItems: "center"
+              }}
+            >
+              <Text
+                style={{
+                  marginRight: theme.paddingToWindow,
+                  color: "grey"
+                }}
+              >
+                {Object.keys(mentionedUsers).length > 0
+                  ? `${Object.keys(mentionedUsers).length} user(s)`
+                  : null}
+              </Text>
+              <Icon
+                name="arrow-right"
+                size={theme.iconSm}
+                style={{ marginRight: theme.paddingToWindow }}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.item}
+            activeOpacity={1}
+            onPress={async () => {
+              let { latitude, longitude } = await this.getLocationAsync();
+              navigation.navigate("LocationPage", {
+                latitude,
+                longitude,
+                passChoosedLocationBack: location => {
+                  this.setState({
+                    location
+                  });
+                },
+                location
+              });
+            }}
+          >
+            <View style={styles.itemLabel}>
+              <Icon
+                name="map-marker"
+                size={theme.iconSm}
+                style={{ marginLeft: theme.paddingToWindow }}
+              />
+              <Text style={{ marginLeft: theme.paddingToWindow }}>
+                Location
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "flex-end",
+                alignItems: "center"
+              }}
+            >
+              <Text
+                style={{
+                  marginRight: theme.paddingToWindow,
+                  color: "grey",
+                  width: window.width * 0.25
+                }}
+                ellipsizeMode="tail"
+                numberOfLines={1}
+              >
+                {location ? `${location.name}` : null}
+              </Text>
+              <Icon
+                name="arrow-right"
+                size={theme.iconSm}
+                style={{ marginRight: theme.paddingToWindow }}
+              />
+            </View>
+          </TouchableOpacity>
+          <DropdownAlert
+            ref={o => (this._dropdown = o)}
+            timeout={3000}
+            animationDirection={"SlideInUp"}
+          >
+            {this.renderDropdownAlert()}
+          </DropdownAlert>
         </View>
-        <TouchableOpacity
-          style={styles.item}
-          activeOpacity={1}
-          onPress={() => {
-            navigation.navigate("TagPage", {
-              passSelectedTagsBack: selectedTags => {
-                this.setState({
-                  selectedTags
-                });
-              },
-              selectedTags
-            });
-          }}
-        >
-          <View style={styles.itemLabel}>
-            <Icon
-              name="hashtag"
-              size={theme.iconSm - 2}
-              style={{ marginLeft: theme.paddingToWindow }}
-            />
-            <Text style={{ marginLeft: theme.paddingToWindow }}>Tag</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center"
-            }}
-          >
-            <Text
-              style={{
-                marginRight: theme.paddingToWindow,
-                color: "grey"
-              }}
-            >
-              {Object.keys(selectedTags).length > 0
-                ? `${Object.keys(selectedTags).length} tag(s)`
-                : null}
-            </Text>
-            <Icon
-              name="arrow-right"
-              size={theme.iconSm}
-              style={{ marginRight: theme.paddingToWindow }}
-            />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.item}
-          activeOpacity={1}
-          onPress={() => {
-            navigation.navigate("MentionPage", {
-              passMentionedUsersBack: mentionedUsers => {
-                this.setState({
-                  mentionedUsers
-                });
-              },
-              mentionedUsers
-            });
-          }}
-        >
-          <View style={styles.itemLabel}>
-            <Icon
-              name="at"
-              size={theme.iconSm}
-              style={{ marginLeft: theme.paddingToWindow }}
-            />
-            <Text style={{ marginLeft: theme.paddingToWindow }}>Mention</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "flex-end",
-              alignItems: "center"
-            }}
-          >
-            <Text
-              style={{
-                marginRight: theme.paddingToWindow,
-                color: "grey"
-              }}
-            >
-              {Object.keys(mentionedUsers).length > 0
-                ? `${Object.keys(mentionedUsers).length} tag(s)`
-                : null}
-            </Text>
-            <Icon
-              name="arrow-right"
-              size={theme.iconSm}
-              style={{ marginRight: theme.paddingToWindow }}
-            />
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.item}
-          activeOpacity={1}
-          onPress={() => {
-            navigation.navigate("LocationPage");
-          }}
-        >
-          <View style={styles.itemLabel}>
-            <Icon
-              name="map-marker"
-              size={theme.iconSm}
-              style={{ marginLeft: theme.paddingToWindow }}
-            />
-            <Text style={{ marginLeft: theme.paddingToWindow }}>Location</Text>
-          </View>
-          <Icon
-            name="arrow-right"
-            size={theme.iconSm}
-            style={{ marginRight: theme.paddingToWindow }}
-          />
-        </TouchableOpacity>
-        <DropdownAlert closeInterval={3000} ref={o => (this._alert = o)} />
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
@@ -395,7 +498,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  addToHomeFeed: feed => dispatch(addToHeadOfHomeFeed(feed))
+  addToHomeFeed: feed => dispatch(addToHeadOfHomeFeed(feed)),
+  uploadingPost: () => dispatch(uploadingPost()),
+  uploadedPost: () => dispatch(uploadedPost())
 });
 
 export default createStackNavigator(
@@ -404,12 +509,7 @@ export default createStackNavigator(
       screen: connect(
         mapStateToProps,
         mapDispatchToProps
-      )(PostPreview),
-      navigationOptions: () => {
-        return {
-          header: null
-        };
-      }
+      )(PostPreview)
     },
     TagPage: {
       screen: TagPage,
@@ -466,5 +566,16 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "row"
+  },
+  dropdown: {
+    width: "95%",
+    height: "95%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+    borderWidth: 1,
+    borderRadius: 5,
+    zIndex: 1,
+    backgroundColor: "#fff"
   }
 });

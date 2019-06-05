@@ -93,7 +93,7 @@ class HomeIndex extends React.Component {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            limit: config.postReturnLimit,
+            limit: config.POST_RETURN_LIMIT,
             userId: client ? client.user._id : null,
             lastQueryDataIds: this.state.loadingMore
               ? parseIdFromObjectArray(homeFeed)
@@ -107,7 +107,7 @@ class HomeIndex extends React.Component {
                 {
                   error: res.status === 200 ? null : res.msg,
                   hasMore:
-                    res.data.length < config.postReturnLimit ? false : true
+                    res.data.length < config.POST_RETURN_LIMIT ? false : true
                 },
                 () => {
                   if (this.state.loadingMore) {
@@ -330,8 +330,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "flex-start",
-    borderTopWidth: 0,
-    borderBottomWidth: 0,
     marginTop: 0
   },
   listFooter: {

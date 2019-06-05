@@ -5,6 +5,7 @@ const router = express.Router();
 const User = require("../../models/user");
 const Post = require("../../models/post");
 const Tag = require("../../models/tag");
+const Location = require("../../models/location");
 
 // utils
 const authenticate = require("../../utils/authenticate")(User);
@@ -131,28 +132,35 @@ router.get("/recommend/tag", (req, res) => {
   });
 });
 
-router.get("/tag/hot", async (req, res) => {
+router.get("/tag-topic/hot", async (req, res) => {
   let limitParam = parseInt(req.query.limit);
   let limit = limitParam ? limitParam : 10;
-  let result = await Tag.getHotTags(limit);
-  res.json({
-    status: response.SUCCESS.OK.CODE,
-    msg: response.SUCCESS.OK.MSG,
-    tag: result
-  });
+  try {
+    let hotTags = await Tag.getHotTags(limit);
+    let hotTopics = await Tag.getHotTopics(limit);
+    res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG,
+      data: [
+        {
+          type: "tag",
+          data: hotTags
+        },
+        {
+          type: "topic",
+          data: hotTopics
+        }
+      ]
+    });
+  } catch (err) {
+    return handleError(res, err);
+  }
 });
 
-router.get("/topic/hot", async (req, res) => {
-  let limitParam = parseInt(req.query.limit);
-  let limit = limitParam ? limitParam : 10;
-  let result = await Tag.getHotTopics(limit);
-  res.json({
-    status: response.SUCCESS.OK.CODE,
-    msg: response.SUCCESS.OK.MSG,
-    topic: result
-  });
-});
-
+/**
+ * check name if exists in tag, topic and location database
+ * use for creating new documents in locations and tags
+ */
 router.get("/tag/available", (req, res) => {
   let tagName = req.query.value;
   Tag.findOne({
@@ -191,6 +199,30 @@ router.get("/topic/available", (req, res) => {
       msg: response.SUCCESS.OK.MSG
     });
   });
+});
+
+router.get("/location/available", (req, res) => {
+  let locationName = req.query.value;
+  Location.findOne({
+    name: locationName
+  }).exec((err, doc) => {
+    if (err) return handleError(res, err);
+    if (doc) {
+      return res.json({
+        status: response.SUCCESS.ACCEPTED.CODE,
+        msg: response.SUCCESS.ACCEPTED.MSG
+      });
+    }
+    return res.json({
+      status: response.SUCCESS.OK.CODE,
+      msg: response.SUCCESS.OK.MSG
+    });
+  });
+});
+
+router.get("/location/nearby", (req, res) => {
+  let lat = req.query.lat;
+  let long = req.query.long;
 });
 
 module.exports = router;

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Animated, StyleSheet } from "react-native";
+import { Animated, StyleSheet } from "react-native";
 import PropTypes from "prop-types";
 
 import window from "../utils/getDeviceInfo";
@@ -22,8 +22,11 @@ export default class Modal extends React.Component {
 
   constructor(props) {
     super(props);
+    let initVisibility = this.props.visible;
     this.state = {
-      bottom: new Animated.Value(-this.props.style.height)
+      bottom: new Animated.Value(
+        initVisibility === false ? -this.props.style.height : 0
+      )
     };
   }
 
@@ -58,12 +61,23 @@ export default class Modal extends React.Component {
     const { children, style } = this.props;
     return (
       <Animated.View
-        style={[styles.modal, style, { bottom: this.state.bottom }]}
+        style={[styles.modal, { bottom: this.state.bottom }, style]}
       >
         {children}
       </Animated.View>
     );
   }
+
+  // public method
+  slideToPosition = (height, duration) => {
+    const { visible } = this.props;
+    if (visible) {
+      Animated.timing(this.state.bottom, {
+        toValue: height,
+        duration: duration
+      }).start();
+    }
+  };
 }
 
 const styles = StyleSheet.create({

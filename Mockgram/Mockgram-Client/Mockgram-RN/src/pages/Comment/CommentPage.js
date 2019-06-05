@@ -75,7 +75,7 @@ class CommentPage extends React.Component {
               : [],
             postId: this.state.postId,
             creatorId: this.state.creatorId,
-            limit: config.commentReturnLimit,
+            limit: config.COMMENT_RETURN_LIMIT,
             userId: client && client.user ? client.user._id : null
           })
         })
@@ -93,7 +93,7 @@ class CommentPage extends React.Component {
                     : res.data,
                 error: res.status === 200 ? null : res.msg,
                 hasMore:
-                  res.data.length < config.commentReturnLimit ? false : true
+                  res.data.length < config.COMMENT_RETURN_LIMIT ? false : true
               });
             }
           })

@@ -388,4 +388,62 @@ UserSchema.statics.getUserList = function(
   ]);
 };
 
+UserSchema.statics.searchFollowingUser = function(
+  userId,
+  searchValue,
+  lastQueryDataIds,
+  limit = 20
+) {
+  return this.findOne({ _id: userId })
+    .select("following")
+    .then(doc => {
+      let following = doc.following;
+      return this.aggregate([
+        {
+          $match: {
+            $and: [
+              { _id: { $in: following } },
+              { _id: { $nin: lastQueryDataIds } }
+            ],
+            $or: [
+              {
+                username: {
+                  $regex: `.*${searchValue}.*`,
+                  $options: "six"
+                }
+              },
+              {
+                nickname: {
+                  $regex: `.*${searchValue}.*`,
+                  $options: "six"
+                }
+              }
+            ]
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            avatar: 1,
+            username: 1,
+            nickname: 1
+          }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $sort: {
+            username: 1,
+            nickname: 1,
+            _id: -1
+          }
+        }
+      ])
+        .then(users => Promise.resolve(users))
+        .catch(err => Promise.reject(err));
+    })
+    .catch(err => Promise.reject(err));
+};
+
 module.exports = mongoose.model("User", UserSchema);

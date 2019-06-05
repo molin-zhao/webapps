@@ -9,5 +9,8 @@ export default (theme = {
   iconSm: window.height * 0.02,
   iconMd: window.height * 0.03,
   iconLg: window.height * 0.04,
+  indicatorSm: window.width * 0.05,
+  indicatorMd: window.width * 0.08,
+  indicatorLg: window.width * 0.1,
   paddingToWindow: 10
 });

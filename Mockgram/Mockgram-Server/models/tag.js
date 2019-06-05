@@ -23,7 +23,7 @@ const TagSchema = new Schema(
       default: []
     },
     creator: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
@@ -96,16 +96,10 @@ TagSchema.statics.getHotTopics = function(limit) {
     }
   ])
     .then(doc => {
-      return Promise.resolve({
-        err: null,
-        data: doc
-      });
+      return Promise.resolve(doc);
     })
     .catch(err => {
-      return Promise.reject({
-        err: err,
-        data: null
-      });
+      return Promise.reject(err);
     });
 };
 
@@ -155,16 +149,10 @@ TagSchema.statics.getHotTags = function(limit) {
     }
   ])
     .then(doc => {
-      return Promise.resolve({
-        err: null,
-        data: doc
-      });
+      return Promise.resolve(doc);
     })
     .catch(err => {
-      return Promise.reject({
-        err: err,
-        data: null
-      });
+      return Promise.reject(err);
     });
 };
 

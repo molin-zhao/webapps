@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { getStatusBarHeight } from "react-native-status-bar-height";
+import { Constants } from "expo";
 import Proptypes from "prop-types";
 import { Header } from "react-navigation";
 
@@ -45,7 +45,7 @@ export default class CustomHeader extends React.Component {
 
 const styles = StyleSheet.create({
   header: {
-    marginTop: getStatusBarHeight(),
+    marginTop: Constants.statusBarHeight,
     height: Header.HEIGHT,
     width: "100%",
     backgroundColor: "#fff",

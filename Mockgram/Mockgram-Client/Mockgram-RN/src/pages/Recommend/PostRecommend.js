@@ -95,7 +95,7 @@ class PostRecommend extends React.Component {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            limit: config.recommendPostReturnLimit,
+            limit: config.RECOMMENDED_POST_RETURN_LIMIT,
             userId: client ? client.user._id : null,
             lastQueryDataIds: loadingMore ? parseIdFromObjectArray(data) : []
           })
@@ -106,7 +106,7 @@ class PostRecommend extends React.Component {
               this.setState({
                 error: resJson.status === 200 ? null : resJson.msg,
                 hasMore:
-                  resJson.data.length < config.recommendPostReturnLimit
+                  resJson.data.length < config.RECOMMENDED_POST_RETURN_LIMIT
                     ? false
                     : true,
                 data: loadingMore ? data.concat(resJson.data) : resJson.data

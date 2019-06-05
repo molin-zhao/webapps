@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import ScrollableTabView, {
   DefaultTabBar
 } from "react-native-scrollable-tab-view";
-import { getStatusBarHeight } from "react-native-status-bar-height";
+import { Constants } from "expo";
 import { Header } from "react-navigation";
 import { connect } from "react-redux";
 
@@ -55,8 +55,8 @@ export default connect(
 const styles = StyleSheet.create({
   container: {
     width: window.width,
-    height: window.height - Header.HEIGHT - getStatusBarHeight(),
-    marginTop: getStatusBarHeight(),
+    height: window.height - Header.HEIGHT - Constants.statusBarHeight,
+    marginTop: Constants.statusBarHeight,
     backgroundColor: "#fff"
   },
 

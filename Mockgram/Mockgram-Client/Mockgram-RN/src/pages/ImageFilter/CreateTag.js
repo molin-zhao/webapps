@@ -15,7 +15,7 @@ import { SkypeIndicator } from "react-native-indicators";
 
 import AjaxInput from "../../components/AjaxInput";
 import Button from "../../components/Button";
-import DropdowAlert from "../../components/DropdownAlert";
+import DropdownAlert from "../../components/DropdownAlert";
 
 import theme from "../../common/theme";
 import baseUrl from "../../common/baseUrl";
@@ -157,13 +157,18 @@ class CreateTag extends React.Component {
       >
         <KeyboardAvoidingView>
           <View style={styles.container}>
-            <DropdowAlert ref={o => (this._dropdown = o)} timeout={3000}>
+            <DropdownAlert ref={o => (this._dropdown = o)} timeout={3000}>
               {this.renderDropdownAlert()}
-            </DropdowAlert>
+            </DropdownAlert>
             <View style={styles.input}>
               <AjaxInput
                 label={() => {
                   return <Text>{`Name:`}</Text>;
+                }}
+                textInputContainerStyle={{
+                  borderWidth: 1,
+                  borderColor: "lightgrey",
+                  borderRadius: 10
                 }}
                 fetchUrl={`${baseUrl.api}/discovery/tag/available`}
                 placeholder="Create a name for tag..."

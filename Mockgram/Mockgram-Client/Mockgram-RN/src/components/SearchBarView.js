@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import PropTypes from "prop-types";
+import { UIActivityIndicator } from "react-native-indicators";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
@@ -21,7 +22,16 @@ export default class SearchBarView extends React.Component {
     searchBarDefaultWidth: window.width,
     searchBarFocusedWidth: window.width * 0.8,
     duration: 100,
-    rightIcon: () => null
+    onFocus: () => null,
+    lostFocus: () => null,
+
+    rightIcon: () => null,
+    searchingIndicator: () => (
+      <UIActivityIndicator size={theme.iconSm} color="lightgrey" />
+    ),
+
+    showSearchingIndicator: false,
+    searching: false
   };
 
   static propTypes = {
@@ -31,7 +41,12 @@ export default class SearchBarView extends React.Component {
     searchBarFocusedWidth: PropTypes.number,
     onFocus: PropTypes.func,
     lostFocus: PropTypes.func,
-    rightIcon: PropTypes.func
+
+    rightIcon: PropTypes.func,
+    searchingIndicator: PropTypes.func,
+
+    showSearchingIndicator: PropTypes.bool,
+    searching: PropTypes.bool
   };
 
   constructor(props) {
@@ -227,42 +242,74 @@ export default class SearchBarView extends React.Component {
     return rightIcon();
   };
 
+  renderSearchingIndicator = () => {
+    const {
+      searchingIndicator,
+      showSearchingIndicator,
+      searching
+    } = this.props;
+    if (showSearchingIndicator) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+        >
+          {searching ? searchingIndicator() : null}
+        </View>
+      );
+    }
+    return null;
+  };
+
   render() {
     const { containerStyle } = this.props;
     return (
       <View style={[styles.searchBarViewContainer, containerStyle]}>
         <Animated.View
           style={[
-            { justifyContent: "center", alignItems: "center", height: "100%" },
+            {
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%"
+            },
             { width: this.state.searchBarWidth }
           ]}
         >
           <View style={styles.searchBar}>
             <View
               style={{
-                width: "15%",
+                flex: 1,
                 height: "100%",
                 justifyContent: "center",
                 alignItems: "center"
               }}
             >
-              <Icon name="ios-search" size={18} />
+              <Icon name="ios-search" size={theme.iconSm} />
             </View>
             <TextInput
               ref={o => (this._textInput = o)}
               autoCapitalize="none"
               autoCorrect={false}
-              style={{ width: "85%" }}
+              style={{ flex: 8 }}
               underlineColorAndroid="transparent"
               onChangeText={this.onChangeText}
               placeholder="search..."
               value={this.state.text}
             />
+            {this.renderSearchingIndicator()}
           </View>
         </Animated.View>
         <Animated.View
           style={[
-            { justifyContent: "center", alignItems: "center", height: "100%" },
+            {
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%"
+            },
             { width: this.state.buttonWidth }
           ]}
         >
@@ -281,7 +328,7 @@ const styles = StyleSheet.create({
     borderWidth: 0
   },
   searchBar: {
-    width: "95%",
+    width: "96%",
     height: "100%",
     justifyContent: "flex-start",
     alignItems: "center",

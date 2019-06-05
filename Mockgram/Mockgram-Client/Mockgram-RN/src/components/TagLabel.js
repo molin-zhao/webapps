@@ -86,6 +86,8 @@ class TagLabel extends React.Component {
                 defaultLabelStyle,
                 this.renderSelectedStyle(selectedLabelStyle)
               ]}
+              ellipsizeMode="tail"
+              numberOfLines={1}
             >
               {stringTrimmer(dataSource.name)}
             </Text>
