@@ -8,8 +8,7 @@ import {
   TouchableWithoutFeedback
 } from "react-native";
 import { SkypeIndicator } from "react-native-indicators";
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicon from "react-native-vector-icons/Ionicons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import ActionSheet from "react-native-actionsheet";
 import { MapView } from "expo";
 const { Polygon, Marker } = MapView;
@@ -30,7 +29,8 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 class PolygonCreator extends React.Component {
   static propTypes = {
     coordinates: Proptypes.object,
-    onLocationCreated: Proptypes.func
+    onLocationCreated: Proptypes.func,
+    client: Proptypes.object
   };
   constructor(props) {
     super(props);
@@ -158,7 +158,7 @@ class PolygonCreator extends React.Component {
             borderRadius: 5
           }}
         >
-          <Icon
+          <FontAwesome
             name="trash"
             size={theme.iconSm}
             color="black"
@@ -188,7 +188,7 @@ class PolygonCreator extends React.Component {
             borderRadius: 5
           }}
         >
-          <Icon
+          <FontAwesome
             name="undo"
             size={theme.iconSm}
             color={theme.primaryDanger}
@@ -201,6 +201,7 @@ class PolygonCreator extends React.Component {
     }
     return null;
   };
+
   renderFinishBtn = () => {
     return (
       <TouchableOpacity
@@ -213,7 +214,7 @@ class PolygonCreator extends React.Component {
           borderRadius: 5
         }}
       >
-        <Icon
+        <FontAwesome
           name="check"
           size={theme.iconSm}
           color={theme.primaryGreen}
@@ -246,7 +247,7 @@ class PolygonCreator extends React.Component {
       );
     } else {
       return (
-        <Icon
+        <FontAwesome
           name="cog"
           size={theme.iconSm}
           color="black"
@@ -278,7 +279,7 @@ class PolygonCreator extends React.Component {
             return null;
           }
           return (
-            <Ionicon
+            <Ionicons
               name="ios-remove-circle-outline"
               size={theme.iconSm}
               color="#fff"
@@ -288,49 +289,53 @@ class PolygonCreator extends React.Component {
         iconRight={() => {
           if (created) {
             return (
-              <Ionicon name="md-checkmark" size={theme.iconSm} color="#fff" />
+              <Ionicons name="md-checkmark" size={theme.iconSm} color="#fff" />
             );
           }
           return null;
         }}
         disabled={!valid || created}
         onPress={() => {
-          return fetch(`${baseUrl.api}/post/create/location`, {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              name: locationDetails.name.trim(),
-              address: locationDetails.address.trim(),
-              polygons: polygons.map(polygon => polygon.coordinates),
-              coordinates: [markerPos.longitude, markerPos.latitude]
+          const { client } = this.props;
+          if (client && client.token) {
+            return fetch(`${baseUrl.api}/post/create/location`, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: this.props.client.token
+              },
+              body: JSON.stringify({
+                name: locationDetails.name.trim(),
+                address: locationDetails.address.trim(),
+                polygons: polygons.map(polygon => polygon.coordinates),
+                coordinates: [markerPos.longitude, markerPos.latitude]
+              })
             })
-          })
-            .then(res => res.json())
-            .then(resJson => {
-              if (resJson.status === 200) {
+              .then(res => res.json())
+              .then(resJson => {
+                if (resJson.status === 200) {
+                  this.setState({
+                    created: true
+                  });
+                } else {
+                  this.setState({
+                    created: false
+                  });
+                }
+              })
+              .then(() => {
                 this.setState({
-                  created: true
+                  creating: false
                 });
-              } else {
+              })
+              .catch(err => {
+                console.log(err);
                 this.setState({
-                  created: false
+                  creating: false
                 });
-              }
-            })
-            .then(() => {
-              this.setState({
-                creating: false
               });
-            })
-            .catch(err => {
-              console.log(err);
-              this.setState({
-                creating: false
-              });
-            });
+          }
         }}
         containerStyle={StyleSheet.flatten(styles.createBtn)}
         loadingIndicator={() => (
@@ -403,7 +408,7 @@ class PolygonCreator extends React.Component {
           >
             <Text>{`Area ${index + 1}`}</Text>
             {editing ? (
-              <Ionicon
+              <Ionicons
                 name="ios-trash"
                 size={theme.iconSm}
                 style={{ marginLeft: 2 }}

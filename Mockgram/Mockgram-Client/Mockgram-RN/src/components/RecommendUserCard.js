@@ -5,7 +5,7 @@ import { withNavigation } from "react-navigation";
 
 import Button from "./Button";
 import Thumbnail from "./Thumbnail";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import ActionSheet from "react-native-actionsheet";
 
 import window from "../utils/getDeviceInfo";
@@ -116,7 +116,7 @@ class RecommendUserCard extends React.Component {
         titleStyle={[{ fontSize: 14, color: "#fff" }]}
         iconRight={() => {
           if (dataSource.followed) {
-            return <Icon name="md-checkmark" color="#fff" size={18} />;
+            return <Ionicons name="md-checkmark" color="#fff" size={18} />;
           }
           return null;
         }}

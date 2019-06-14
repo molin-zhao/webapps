@@ -26,7 +26,8 @@ const MessageSchema = new Schema(
         "LikeComment",
         "LikePost",
         "Follow",
-        "SharePost"
+        "SharePost",
+        "PostMentioned"
       ]
     },
     commentReference: {
@@ -165,6 +166,117 @@ MessageSchema.statics.createMessage = function(message, callback) {
         });
     }
     return callback(null, null);
+  });
+};
+
+MessageSchema.statics.createMessages = function(messages) {
+  return new Promise((resolve, reject) => {
+    return this.insertMany(messages, (err, docs) => {
+      if (err) return reject(err);
+      let docIds = docs.map(doc => doc._id);
+      return this.aggregate([
+        {
+          $match: {
+            _id: { $in: docIds }
+          }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "sender",
+            foreignField: "_id",
+            as: "sender"
+          }
+        },
+        {
+          $unwind: "$sender"
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "receiver",
+            foreignField: "_id",
+            as: "receiver"
+          }
+        },
+        {
+          $unwind: "$receiver"
+        },
+        {
+          $lookup: {
+            from: "posts",
+            localField: "postReference",
+            foreignField: "_id",
+            as: "postReference"
+          }
+        },
+        {
+          $unwind: {
+            path: "$postReference",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: "comments",
+            localField: "commentReference",
+            foreignField: "_id",
+            as: "commentReference"
+          }
+        },
+        {
+          $unwind: {
+            path: "$commentReference",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: "replies",
+            localField: "replyReference",
+            foreignField: "_id",
+            as: "replyReference"
+          }
+        },
+        {
+          $unwind: {
+            path: "$replyReference",
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            messageType: 1,
+            createdAt: 1,
+            sender: {
+              _id: 1,
+              username: 1,
+              avatar: 1
+            },
+            receiver: {
+              _id: 1,
+              username: 1,
+              avatar: 1
+            },
+            postReference: {
+              _id: 1,
+              image: 1
+            },
+            commentReference: {
+              _id: 1,
+              content: 1
+            },
+            replyReference: {
+              _id: 1,
+              content: 1
+            }
+          }
+        }
+      ])
+        .then(msgs => resolve(msgs))
+        .catch(err => reject(err));
+    });
   });
 };
 

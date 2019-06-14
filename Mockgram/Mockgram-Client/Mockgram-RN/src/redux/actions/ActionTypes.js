@@ -28,6 +28,8 @@ export const UPDATE_LAST_MESSAGE_ID = "UPDATE_LAST_MESSAGE_ID";
 
 // app related action types
 export const APP_FINISH_INIT = "APP_FINISH_INIT";
+export const SET_APP_LOCALE = "SET_APP_LOCALE";
+export const GET_APP_LOCALE = "GET_APP_LOCALE";
 
 // feed related action types
 export const RELOAD_HOME_FEED = "RELOAD_HOME_FEED";

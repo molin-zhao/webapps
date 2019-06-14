@@ -9,8 +9,7 @@ import {
   FlatList
 } from "react-native";
 
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicon from "react-native-vector-icons/Ionicons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "react-navigation";
 import { SkypeIndicator } from "react-native-indicators";
 import { Constants } from "expo";
@@ -63,7 +62,7 @@ class Mention extends React.Component {
           navigation.popToTop();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={20} />
       </TouchableOpacity>
     ),
     headerRight: (
@@ -241,7 +240,7 @@ class Mention extends React.Component {
     if (mentionedUsers[item._id]) {
       // included
       return (
-        <Ionicon
+        <Ionicons
           name="ios-radio-button-on"
           size={theme.iconMd}
           color={theme.primaryGreen}
@@ -252,7 +251,7 @@ class Mention extends React.Component {
       );
     }
     return (
-      <Ionicon
+      <Ionicons
         name="ios-radio-button-off"
         size={theme.iconMd}
         color={
@@ -367,7 +366,7 @@ class Mention extends React.Component {
                     zIndex: 1
                   }}
                 >
-                  <Ionicon name="md-close" size={theme.iconSm} />
+                  <Ionicons name="md-close" size={theme.iconSm} />
                 </View>
               </TouchableOpacity>
             );
@@ -432,7 +431,7 @@ class Mention extends React.Component {
                 });
               }
             }}
-            rightIcon={() => {
+            rightFontAwesome={() => {
               return (
                 <Text style={{ fontWeight: "bold", fontSize: 12 }}>{`${
                   Object.keys(this.state.mentionedUsers).length

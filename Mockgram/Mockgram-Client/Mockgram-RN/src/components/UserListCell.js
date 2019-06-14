@@ -1,9 +1,9 @@
 import React from "react";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
 import ActionSheet from "react-native-actionsheet";
 import { withNavigation } from "react-navigation";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 import Button from "./Button";
 import Thumbnail from "./Thumbnail";
@@ -99,7 +99,7 @@ class UserListCell extends React.Component {
         titleStyle={{ fontSize: 14, color: "#fff" }}
         iconRight={() => {
           if (dataSource.followed) {
-            return <Icon name="md-checkmark" color="#fff" size={18} />;
+            return <Ionicons name="md-checkmark" color="#fff" size={18} />;
           }
           return null;
         }}

@@ -1,13 +1,13 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
 import { connect } from "react-redux";
+import { Ionicons } from "@expo/vector-icons";
 
 import Badge from "../components/Badge";
 import { messageCountNormalizer } from "../utils/unitConverter";
 import { getNewMessageCount } from "../utils/arrayEditor";
 
-class MessageBadgeIcon extends React.Component {
+class MessageBadgeIonicons extends React.Component {
   constructor(props) {
     super(props);
   }
@@ -20,7 +20,7 @@ class MessageBadgeIcon extends React.Component {
     return (
       <View style={styles.container}>
         <Badge val={badgeCount} />
-        <Icon name={name} color={color} size={size} />
+        <Ionicons name={name} color={color} size={size} />
       </View>
     );
   }
@@ -37,7 +37,7 @@ const mapStateToProps = state => {
 export default connect(
   mapStateToProps,
   null
-)(MessageBadgeIcon);
+)(MessageBadgeIonicons);
 
 const styles = StyleSheet.create({
   container: {

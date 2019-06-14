@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  TextInput,
-  KeyboardAvoidingView
-} from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
+import { SkypeIndicator } from "react-native-indicators";
 
 import Button from "../../components/Button";
 import IconInput from "../../components/IconInput";
@@ -14,6 +9,7 @@ import IconInput from "../../components/IconInput";
 import formValidation from "../../utils/formValidation";
 import baseUrl from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
+import theme from "../../common/theme";
 
 export default class Register extends React.Component {
   constructor(props) {
@@ -24,6 +20,7 @@ export default class Register extends React.Component {
       password: "",
       confirmPassword: "",
       valid: false,
+      processing: false,
       errors: {
         username: {
           status: false,
@@ -42,33 +39,34 @@ export default class Register extends React.Component {
           message: ""
         }
       },
-      registerError: ""
+      error: ""
     };
   }
-  allTouched() {
+
+  allTouched = () => {
     return (
       this.state.username !== "" &&
       this.state.email !== "" &&
       this.state.password !== "" &&
       this.state.confirmPassword !== ""
     );
-  }
+  };
 
-  renderRegisterError = () => {
-    if (this.state.registerError !== "") {
+  renderRegisterError = defaultMsg => {
+    const { error } = this.state;
+    if (error) {
       return (
         <Text style={styles.registerError}>
-          <Icon
+          <FontAwesome
             name="exclamation-circle"
             type="FontAwesome"
             style={{ fontSize: 15, color: "red", marginRight: 5 }}
           />
-          {this.state.registerError}
+          {typeof error === "string" ? error : defaultMsg}
         </Text>
       );
-    } else {
-      return <Text>{null}</Text>;
     }
+    return null;
   };
 
   register() {
@@ -90,7 +88,7 @@ export default class Register extends React.Component {
         if (resJson.status === 200) {
           // register success
           this.setState({
-            registerError: ""
+            error: ""
           });
           this.props.navigation.navigate("Login", {
             loginName: this.state.username,
@@ -101,9 +99,21 @@ export default class Register extends React.Component {
         } else {
           // register error
           this.setState({
-            registerError: resJson.msg
+            error: resJson.msg
           });
         }
+      })
+      .then(() => {
+        this.setState({
+          processing: false
+        });
+      })
+      .catch(err => {
+        this.setState({
+          processing: false,
+          error: err
+        });
+        console.log(err);
       });
   }
 
@@ -118,7 +128,7 @@ export default class Register extends React.Component {
           }}
         >
           <IconInput
-            icon={() => <Icon name="envelope" size={20} />}
+            icon={() => <FontAwesome name="envelope" size={20} />}
             placeholder="Email"
             onChangeText={email => {
               this.setState({ email });
@@ -139,7 +149,7 @@ export default class Register extends React.Component {
               : null}
           </Text>
           <IconInput
-            icon={() => <Icon name="user" size={20} />}
+            icon={() => <FontAwesome name="user" size={20} />}
             placeholder="Username"
             onChangeText={username => {
               this.setState({ username });
@@ -160,7 +170,7 @@ export default class Register extends React.Component {
               : null}
           </Text>
           <IconInput
-            icon={() => <Icon name="key" size={20} />}
+            icon={() => <FontAwesome name="key" size={20} />}
             placeholder="Password"
             onChangeText={password => {
               this.setState({ password });
@@ -182,7 +192,7 @@ export default class Register extends React.Component {
               : null}
           </Text>
           <IconInput
-            icon={() => <Icon name="lock" size={20} />}
+            icon={() => <FontAwesome name="lock" size={20} />}
             placeholder="Confirm password"
             onChangeText={confirmPassword => {
               this.setState({ confirmPassword });
@@ -203,19 +213,26 @@ export default class Register extends React.Component {
               ? this.state.errors.confirmPassword.message
               : null}
           </Text>
-          {this.renderRegisterError()}
+          {this.renderRegisterError("Register error")}
           <Button
+            loading={this.state.processing}
             title="Register"
             titleStyle={{ color: "#fff", fontSize: 14, fontWeight: "bold" }}
-            iconLeft={() => {
-              if (!this.state.valid || !this.allTouched()) {
-                return <Icon name="ban" size={18} color="#fff" />;
-              }
-              return null;
-            }}
             disabled={!this.state.valid || !this.allTouched()}
-            onPress={() => this.register()}
-            containerStyle={StyleSheet.flatten(styles.loginBtn)}
+            onPress={() => {
+              this.setState(
+                {
+                  processing: true
+                },
+                () => {
+                  this.register();
+                }
+              );
+            }}
+            containerStyle={StyleSheet.flatten(styles.registerBtn)}
+            loadingIndicator={() => (
+              <SkypeIndicator size={theme.iconSm} color={theme.primaryGrey} />
+            )}
           />
         </KeyboardAvoidingView>
       </View>
@@ -235,25 +252,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     width: window.width * 0.7,
-    height: 50,
-    marginTop: 35
+    height: theme.inputHeight,
+    marginTop: theme.marginTop
   },
   formButton: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     width: window.width * 0.6,
-    marginTop: 35
+    marginTop: theme.marginTop
   },
-  loginBtn: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 35,
-    height: 50,
-    width: window.width * 0.3,
-    backgroundColor: "#eb765a",
-    borderRadius: 10
+  registerBtn: {
+    marginTop: theme.marginTop,
+    height: theme.inputHeight,
+    width: Math.floor(window.width * 0.6),
+    backgroundColor: theme.primaryColor,
+    borderRadius: theme.inputHeight / 2
   },
   registerError: {
     flexDirection: "row",

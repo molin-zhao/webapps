@@ -7,9 +7,14 @@ const PostSchema = new Schema(
       type: String,
       required: true
     },
-    label: {
-      type: String,
-      default: ""
+    tags: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Tag"
+        }
+      ],
+      default: []
     },
     description: {
       type: String,
@@ -85,6 +90,39 @@ PostSchema.statics.getPostDetail = function(postId, userId = null) {
       $unwind: "$postUser"
     },
     {
+      $lookup: {
+        from: "users",
+        localField: "mentioned",
+        foreignField: "_id",
+        as: "mentioned"
+      }
+    },
+    {
+      $unwind: "$mentioned"
+    },
+    {
+      $lookup: {
+        from: "tags",
+        localField: "tags",
+        foreignField: "_id",
+        as: "tags"
+      }
+    },
+    {
+      $unwind: "$tags"
+    },
+    {
+      $lookup: {
+        from: "locations",
+        localField: "location",
+        foreignField: "_id",
+        as: "location"
+      }
+    },
+    {
+      $unwind: "$location"
+    },
+    {
       $project: {
         _id: 1,
         liked: {
@@ -100,13 +138,31 @@ PostSchema.statics.getPostDetail = function(postId, userId = null) {
           $size: "$shared"
         },
         image: 1,
-        label: 1,
         description: 1,
-        location: 1,
         createdAt: 1,
         creator: 1,
-        "postUser.username": 1,
-        "postUser.avatar": 1
+        postUser: {
+          _id: 1,
+          username: 1,
+          avatar: 1
+        },
+        mentioned: {
+          _id: 1,
+          username: 1,
+          avatar: 1,
+          nickname: 1
+        },
+        tags: {
+          _id: 1,
+          name: 1,
+          type: 1
+        },
+        location: {
+          _id: 1,
+          name: 1,
+          address: 1,
+          meta: 1
+        }
       }
     }
   ]);
@@ -155,65 +211,42 @@ PostSchema.statics.getPosts = function(
   userId,
   lastQueryDataIds,
   limit,
-  followings = null
+  followings = []
 ) {
-  if (followings) {
-    return this.aggregate([
-      {
-        $match: {
-          _id: { $nin: lastQueryDataIds },
-          creator: { $in: followings }
-        }
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "creator",
-          foreignField: "_id",
-          as: "postUser"
-        }
-      },
-      {
-        $unwind: "$postUser"
-      },
-      {
-        $project: {
-          liked: {
-            $in: [userId, "$likes"]
-          },
-          likeCount: {
-            $size: "$likes"
-          },
-          commentCount: {
-            $size: "$comments"
-          },
-          sharedCount: {
-            $size: "$shared"
-          },
-          image: 1,
-          label: 1,
-          description: 1,
-          location: 1,
-          createdAt: 1,
-          creator: 1,
-          "postUser.username": 1,
-          "postUser.avatar": 1,
-          "postUser._id": 1
-        }
-      },
-      {
-        $sort: { createdAt: -1, _id: -1 }
-      },
-      {
-        $limit: limit
-      }
-    ]);
-  }
+  let cond = followings.length > 0 ? { $in: followings } : { $nin: followings };
   return this.aggregate([
     {
       $match: {
-        _id: { $nin: lastQueryDataIds }
+        _id: { $nin: lastQueryDataIds },
+        creator: cond
       }
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "mentioned",
+        foreignField: "_id",
+        as: "mentioned"
+      }
+    },
+    {
+      $lookup: {
+        from: "tags",
+        localField: "tags",
+        foreignField: "_id",
+        as: "tags"
+      }
+    },
+    {
+      $lookup: {
+        from: "locations",
+        localField: "location",
+        foreignField: "_id",
+        as: "location"
+      }
+    },
+    {
+      $unwind: "$location"
     },
     {
       $lookup: {
@@ -241,13 +274,31 @@ PostSchema.statics.getPosts = function(
           $size: "$shared"
         },
         image: 1,
-        label: 1,
         description: 1,
-        location: 1,
         createdAt: 1,
         creator: 1,
-        "postUser.username": 1,
-        "postUser.avatar": 1
+        postUser: {
+          _id: 1,
+          username: 1,
+          avatar: 1
+        },
+        mentioned: {
+          _id: 1,
+          username: 1,
+          avatar: 1,
+          nickname: 1
+        },
+        tags: {
+          _id: 1,
+          name: 1,
+          type: 1
+        },
+        location: {
+          _id: 1,
+          name: 1,
+          address: 1,
+          meta: 1
+        }
       }
     },
     {
@@ -408,66 +459,114 @@ PostSchema.statics.getAllComment = function(
   ]);
 };
 
-PostSchema.statics.createPost = function(post, callback) {
-  return this.findOne(post).exec((err, doc) => {
-    if (err) return callback(err, null);
-    if (doc) return callback(null, null);
-    return this.create(post)
-      .then(doc => {
-        let postId = doc._id;
-        return this.aggregate([
-          {
-            $match: {
-              _id: postId
+PostSchema.statics.createPost = function(post) {
+  return new Promise((resolve, reject) => {
+    return this.findOne(post).exec((err, doc) => {
+      if (err) return reject(err);
+      if (doc) return resolve(null);
+      return this.create(post)
+        .then(doc => {
+          let postId = doc._id;
+          return this.aggregate([
+            {
+              $match: {
+                _id: postId
+              }
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "creator",
+                foreignField: "_id",
+                as: "postUser"
+              }
+            },
+            {
+              $unwind: "$postUser"
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "mentioned",
+                foreignField: "_id",
+                as: "mentioned"
+              }
+            },
+            {
+              $lookup: {
+                from: "tags",
+                localField: "tags",
+                foreignField: "_id",
+                as: "tags"
+              }
+            },
+            {
+              $lookup: {
+                from: "locations",
+                localField: "location",
+                foreignField: "_id",
+                as: "location"
+              }
+            },
+            {
+              $unwind: "$location"
+            },
+            {
+              $project: {
+                liked: {
+                  $in: ["$creator", "$likes"]
+                },
+                likeCount: {
+                  $size: "$likes"
+                },
+                commentCount: {
+                  $size: "$comments"
+                },
+                sharedCount: {
+                  $size: "$shared"
+                },
+                image: 1,
+                description: 1,
+                location: 1,
+                createdAt: 1,
+                creator: 1,
+                postUser: {
+                  _id: 1,
+                  username: 1,
+                  avatar: 1
+                },
+                tags: {
+                  _id: 1,
+                  name: 1,
+                  type: 1
+                },
+                mentioned: {
+                  _id: 1,
+                  avatar: 1,
+                  username: 1,
+                  nickname: 1,
+                  gender: 1
+                },
+                location: {
+                  _id: 1,
+                  name: 1,
+                  address: 1,
+                  meta: 1
+                }
+              }
             }
-          },
-          {
-            $lookup: {
-              from: "users",
-              localField: "creator",
-              foreignField: "_id",
-              as: "postUser"
-            }
-          },
-          {
-            $unwind: "$postUser"
-          },
-          {
-            $project: {
-              liked: {
-                $in: ["$creator", "$likes"]
-              },
-              likeCount: {
-                $size: "$likes"
-              },
-              commentCount: {
-                $size: "$comments"
-              },
-              sharedCount: {
-                $size: "$shared"
-              },
-              image: 1,
-              label: 1,
-              description: 1,
-              location: 1,
-              createdAt: 1,
-              creator: 1,
-              "postUser.username": 1,
-              "postUser.avatar": 1,
-              "postUser._id": 1
-            }
-          }
-        ])
-          .then(res => {
-            return callback(null, res);
-          })
-          .catch(err => {
-            return callback(err, null);
-          });
-      })
-      .catch(err => {
-        return callback(err, null);
-      });
+          ])
+            .then(res => {
+              return resolve(res[0]);
+            })
+            .catch(err => {
+              return reject(err);
+            });
+        })
+        .catch(err => {
+          return reject(err);
+        });
+    });
   });
 };
 

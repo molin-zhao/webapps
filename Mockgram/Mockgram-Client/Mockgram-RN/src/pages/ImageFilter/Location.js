@@ -4,13 +4,11 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   StyleSheet,
-  ScrollView,
   FlatList,
   Keyboard,
   Text
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicon from "react-native-vector-icons/Ionicons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { SkypeIndicator } from "react-native-indicators";
 import { createStackNavigator, Header } from "react-navigation";
 import { MapView, Constants } from "expo";
@@ -71,7 +69,7 @@ class Location extends React.Component {
           navigation.popToTop();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={20} />
       </TouchableOpacity>
     ),
     headerRight: (
@@ -203,7 +201,7 @@ class Location extends React.Component {
               });
             }}
           >
-            <Icon name="plus" size={theme.iconSm} />
+            <FontAwesome name="plus" size={theme.iconSm} />
             <Text style={{ fontSize: 14 }}>{` location`}</Text>
           </TouchableOpacity>
         </View>
@@ -263,7 +261,7 @@ class Location extends React.Component {
             >
               {this.renderCustomCallout()}
             </Marker>
-            <Ionicon
+            <Ionicons
               name="md-locate"
               size={theme.iconMd}
               style={{
@@ -282,7 +280,7 @@ class Location extends React.Component {
         </View>
         <SectionTitle
           containerStyle={{ height: "20%" }}
-          iconLabel={() => <Ionicon name="md-pin" size={theme.iconSm} />}
+          iconLabel={() => <Ionicons name="md-pin" size={theme.iconSm} />}
           label="Nearby locations"
         />
       </View>
@@ -294,7 +292,7 @@ class Location extends React.Component {
     if (selectedLocation) {
       if (selectedLocation._id === item._id) {
         return (
-          <Ionicon
+          <Ionicons
             name="ios-checkmark"
             size={theme.iconLg}
             color={theme.primaryGreen}
@@ -342,7 +340,7 @@ class Location extends React.Component {
             alignItems: "center"
           }}
         >
-          <Ionicon name="ios-pin" size={theme.iconSm} />
+          <Ionicons name="ios-pin" size={theme.iconSm} />
         </View>
         <View
           style={{
@@ -421,7 +419,7 @@ class Location extends React.Component {
                 flexDirection: "row"
               }}
             >
-              <Ionicon
+              <Ionicons
                 name="ios-pin"
                 size={theme.iconSm}
                 style={{ marginLeft: theme.paddingToWindow }}
@@ -453,7 +451,7 @@ class Location extends React.Component {
                 });
               }}
             >
-              <Ionicon
+              <Ionicons
                 style={{ marginRight: theme.paddingToWindow }}
                 name="ios-close"
                 size={theme.iconMd}

@@ -9,10 +9,10 @@ import {
   TextInput,
   Keyboard
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicon from "react-native-vector-icons/Ionicons";
-import { Location, Permissions } from "expo";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Location, Permissions, FileSystem } from "expo";
 import { connect } from "react-redux";
+import ActionSheet from "react-native-actionsheet";
 import {
   addToHeadOfHomeFeed,
   uploadingPost,
@@ -51,7 +51,7 @@ class PostPreview extends React.Component {
       shadowColor: "transparent",
       elevation: 0
     },
-    title: "Edit your post",
+    title: navigation.getParam("previewTitle"),
     headerTitleStyle: {
       fontSize: 14
     },
@@ -59,10 +59,11 @@ class PostPreview extends React.Component {
       <TouchableOpacity
         style={{ marginLeft: 20 }}
         onPress={() => {
-          navigation.dismiss();
+          let previewDismiss = navigation.getParam("previewDismiss");
+          return previewDismiss();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={theme.iconSm} />
       </TouchableOpacity>
     ),
     headerRight: (
@@ -80,25 +81,14 @@ class PostPreview extends React.Component {
 
   componentDidMount() {
     this.props.navigation.setParams({
-      handlePost: this.makePostTest
+      handlePost: this.makePost,
+      previewDismiss: this.dismiss,
+      previewTitle: this.props.i18n.t("EDIT_POST")
     });
   }
 
-  makePostTest = () => {
-    const { uploadingPost, uploadedPost } = this.props;
-    uploadingPost();
-    setTimeout(() => {
-      this.setState(
-        {
-          info: null,
-          error: "Failed to upload your post"
-        },
-        () => {
-          this._dropdown.show();
-          uploadedPost();
-        }
-      );
-    }, 3000);
+  dismiss = () => {
+    this._actionSheet.show();
   };
 
   makePost = () => {
@@ -127,62 +117,70 @@ class PostPreview extends React.Component {
       type: type
     });
     formData.append("description", description);
-    formData.append("tags", Object.keys(selectedTags));
-    formData.append("mention", Object.keys(mentionedUsers));
+    formData.append("tags", JSON.stringify(Object.keys(selectedTags)));
+    formData.append("mention", JSON.stringify(Object.keys(mentionedUsers)));
     formData.append("location", JSON.stringify(location));
     if (client) {
-      uploadingPost();
-      fetch(`${baseUrl.upload}/upload/post`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "multipart/form-data",
-          Authorization: client.token
+      this.setState(
+        {
+          error: null
         },
-        body: formData
-      })
-        .then(res => res.json())
-        .then(resJson => {
-          if (resJson.status === 200) {
-            addToHomeFeed(resJson.data);
-            setTimeout(() => {
-              navigation.navigate("Home");
-            }, 4000);
-            this.setState(
-              {
-                info: "Successfully uploaded your post!",
-                error: null
-              },
-              () => {
-                this._dropdown.show();
-                uploadedPost();
-              }
-            );
-          } else {
-            this.setState(
-              {
-                info: null,
-                error: "Failed to upload your post."
-              },
-              () => {
-                this._dropdown.show();
-                uploadedPost();
-              }
-            );
-          }
-        })
-        .catch(err => {
-          this.setState(
-            {
-              info: null,
-              error: "Network request failed."
+        () => {
+          uploadingPost();
+          fetch(`${baseUrl.upload}/upload/post`, {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "multipart/form-data",
+              Authorization: client.token
             },
-            () => {
-              this._dropdown.show();
-              uploadedPost();
-            }
-          );
-        });
+            body: formData
+          })
+            .then(res => res.json())
+            .then(resJson => {
+              if (resJson.status === 200) {
+                addToHomeFeed([resJson.data]);
+                setTimeout(() => {
+                  navigation.navigate("Home");
+                }, 4000);
+                this.setState(
+                  {
+                    info: "Successfully uploaded your post!",
+                    error: null
+                  },
+                  () => {
+                    this._dropdown.show();
+                    uploadedPost();
+                  }
+                );
+              } else {
+                this.setState(
+                  {
+                    info: null,
+                    error: "Failed to upload your post."
+                  },
+                  () => {
+                    this._dropdown.show();
+                    uploadedPost();
+                  }
+                );
+              }
+            })
+            .catch(err => {
+              console.log(err);
+              this.setState(
+                {
+                  info: null,
+                  error: "Network request failed."
+                },
+                () => {
+                  this._dropdown.show();
+                  uploadedPost();
+                }
+              );
+            });
+        }
+      );
     } else {
       navigation.navigate("Auth");
     }
@@ -245,7 +243,7 @@ class PostPreview extends React.Component {
               alignItems: "center"
             }}
           >
-            <Ionicon
+            <Ionicons
               name="ios-checkmark-circle-outline"
               size={theme.iconMd}
               color={theme.primaryGreen}
@@ -254,7 +252,7 @@ class PostPreview extends React.Component {
               style={{ marginLeft: 10, color: theme.primaryGreen }}
             >{`${info}`}</Text>
           </View>
-          <Ionicon
+          <Ionicons
             name="md-close"
             size={theme.iconSm}
             color="black"
@@ -276,7 +274,7 @@ class PostPreview extends React.Component {
             alignItems: "center"
           }}
         >
-          <Ionicon
+          <Ionicons
             name="ios-close-circle-outline"
             size={theme.iconMd}
             color={theme.primaryDanger}
@@ -285,7 +283,7 @@ class PostPreview extends React.Component {
             style={{ marginLeft: 10, color: theme.primaryDanger }}
           >{`${error}`}</Text>
         </View>
-        <Ionicon
+        <Ionicons
           name="md-close"
           size={theme.iconSm}
           color="black"
@@ -300,7 +298,7 @@ class PostPreview extends React.Component {
 
   render() {
     const { imageUri, selectedTags, mentionedUsers, location } = this.state;
-    const { navigation } = this.props;
+    const { navigation, i18n } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -309,14 +307,14 @@ class PostPreview extends React.Component {
       >
         <View style={styles.container}>
           <View style={styles.descriptionView}>
-            {/* <Image
-            source={{ uri: imageUri }}
-            style={{
-              marginLeft: 5,
-              width: window.width * 0.25,
-              height: window.width * 0.25
-            }}
-          /> */}
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                marginLeft: 5,
+                width: window.width * 0.25,
+                height: window.width * 0.25
+              }}
+            />
             <TextInput
               multiline={true}
               numberOfLines={4}
@@ -351,12 +349,14 @@ class PostPreview extends React.Component {
             }}
           >
             <View style={styles.itemLabel}>
-              <Icon
+              <FontAwesome
                 name="hashtag"
                 size={theme.iconSm - 2}
                 style={{ marginLeft: theme.paddingToWindow }}
               />
-              <Text style={{ marginLeft: theme.paddingToWindow }}>Tag</Text>
+              <Text style={{ marginLeft: theme.paddingToWindow }}>{`${i18n.t(
+                "TAG"
+              )}`}</Text>
             </View>
             <View
               style={{
@@ -372,10 +372,10 @@ class PostPreview extends React.Component {
                 }}
               >
                 {Object.keys(selectedTags).length > 0
-                  ? `${Object.keys(selectedTags).length} tag(s)`
+                  ? `${Object.keys(selectedTags).length} ${i18n.t("TAGS")}`
                   : null}
               </Text>
-              <Icon
+              <FontAwesome
                 name="arrow-right"
                 size={theme.iconSm}
                 style={{ marginRight: theme.paddingToWindow }}
@@ -397,12 +397,14 @@ class PostPreview extends React.Component {
             }}
           >
             <View style={styles.itemLabel}>
-              <Icon
+              <FontAwesome
                 name="at"
                 size={theme.iconSm}
                 style={{ marginLeft: theme.paddingToWindow }}
               />
-              <Text style={{ marginLeft: theme.paddingToWindow }}>Mention</Text>
+              <Text style={{ marginLeft: theme.paddingToWindow }}>{`${i18n.t(
+                "MENTION"
+              )}`}</Text>
             </View>
             <View
               style={{
@@ -418,10 +420,10 @@ class PostPreview extends React.Component {
                 }}
               >
                 {Object.keys(mentionedUsers).length > 0
-                  ? `${Object.keys(mentionedUsers).length} user(s)`
+                  ? `${Object.keys(mentionedUsers).length} ${i18n.t("USERS")}`
                   : null}
               </Text>
-              <Icon
+              <FontAwesome
                 name="arrow-right"
                 size={theme.iconSm}
                 style={{ marginRight: theme.paddingToWindow }}
@@ -446,13 +448,13 @@ class PostPreview extends React.Component {
             }}
           >
             <View style={styles.itemLabel}>
-              <Icon
+              <FontAwesome
                 name="map-marker"
                 size={theme.iconSm}
                 style={{ marginLeft: theme.paddingToWindow }}
               />
               <Text style={{ marginLeft: theme.paddingToWindow }}>
-                Location
+                {`${i18n.t("LOCATION")}`}
               </Text>
             </View>
             <View
@@ -473,7 +475,7 @@ class PostPreview extends React.Component {
               >
                 {location ? `${location.name}` : null}
               </Text>
-              <Icon
+              <FontAwesome
                 name="arrow-right"
                 size={theme.iconSm}
                 style={{ marginRight: theme.paddingToWindow }}
@@ -487,6 +489,24 @@ class PostPreview extends React.Component {
           >
             {this.renderDropdownAlert()}
           </DropdownAlert>
+          <ActionSheet
+            ref={o => (this._actionSheet = o)}
+            title={i18n.t("DISCARD_TITLE")}
+            options={[`${i18n.t("DISCARD")}`, `${i18n.t("CANCEL")}`]}
+            cancelButtonIndex={1}
+            destructiveButtonIndex={0}
+            onPress={index => {
+              if (index === 0) {
+                const { imageUri } = this.state;
+                FileSystem.deleteAsync(imageUri)
+                  .then(() => navigation.navigate("Home"))
+                  .catch(err => {
+                    console.log(err);
+                    navigation.navigate("Home");
+                  });
+              }
+            }}
+          />
         </View>
       </TouchableWithoutFeedback>
     );
@@ -494,7 +514,8 @@ class PostPreview extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 const mapDispatchToProps = dispatch => ({

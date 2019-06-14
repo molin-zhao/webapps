@@ -7,7 +7,7 @@ import {
   Text
 } from "react-native";
 import { SkypeIndicator } from "react-native-indicators";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 
 import UserListCell from "../../components/UserListCell";
 import baseURL from "../../common/baseUrl";
@@ -39,14 +39,14 @@ export default class UserList extends React.Component {
           navigation.goBack();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={20} />
       </TouchableOpacity>
     )
   });
 
   componentDidMount() {
     const { userId, type } = this.state;
-    let limit = config.userListReturnLimit;
+    let limit = config.USER_RETURN_LIMIT;
     this.setState(
       {
         loading: true
@@ -113,7 +113,7 @@ export default class UserList extends React.Component {
   handleRefresh = () => {
     if (!this.state.loading && !this.state.refreshing) {
       const { userId, type } = this.state;
-      let limit = config.userListReturnLimit;
+      let limit = config.USER_RETURN_LIMIT;
       this.setState(
         {
           refreshing: true
@@ -133,7 +133,7 @@ export default class UserList extends React.Component {
       this.state.hasMore
     ) {
       const { userId, type } = this.state;
-      let limit = config.userListReturnLimit;
+      let limit = config.USER_RETURN_LIMIT;
       this.setState(
         {
           loadingMore: true

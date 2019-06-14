@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View, TextInput, Text } from "react-native";
 import { SkypeIndicator } from "react-native-indicators";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 
 import theme from "../common/theme";
@@ -83,10 +83,10 @@ class AjaxInput extends React.Component {
       } else {
         if (isValid) {
           return (
-            <Icon name="ios-checkmark" color="green" size={theme.iconMd} />
+            <Ionicons name="ios-checkmark" color="green" size={theme.iconMd} />
           );
         }
-        return <Icon name="ios-close" color="red" size={theme.iconMd} />;
+        return <Ionicons name="ios-close" color="red" size={theme.iconMd} />;
       }
     }
     return null;
@@ -95,7 +95,7 @@ class AjaxInput extends React.Component {
   renderLabel = () => {
     const { icon, label } = this.props;
     if (icon()) {
-      return <View style={styles.formIcon}>{icon()}</View>;
+      return <View style={styles.formIonicons}>{icon()}</View>;
     } else if (label()) {
       return <View style={styles.formLabel}>{label()}</View>;
     } else {
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center"
   },
-  formIcon: {
+  formIonicons: {
     width: "30%",
     height: "100%",
     justifyContent: "center",

@@ -2,19 +2,16 @@ import React from "react";
 import {
   View,
   StyleSheet,
-  Image,
   TouchableOpacity,
   Text,
-  TextInput,
   Linking,
   KeyboardAvoidingView
 } from "react-native";
 import { SecureStore, WebBrowser } from "expo";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 import { connect } from "react-redux";
+import { SkypeIndicator } from "react-native-indicators";
 
-import window from "../../utils/getDeviceInfo";
-import theme from "../../common/theme";
 import * as LocalKeys from "../../common/localKeys";
 import {
   clientLogin,
@@ -22,25 +19,14 @@ import {
   oAuthLogin
 } from "../../redux/actions/clientActions";
 
-import Modal from "../../components/Modal";
-import Header from "../../components/Header";
 import SocialIcon from "../../components/SocialIcon";
 import CheckBox from "../../components/CheckBox";
 import IconInput from "../../components/IconInput";
+import Button from "../../components/Button";
 
 import baseURL from "../../common/baseUrl";
-
-const modalStyle = {
-  width: window.width,
-  height: window.height * 0.4,
-  borderWidth: 1,
-  borderColor: "lightgrey",
-  borderTopLeftRadius: 10,
-  borderTopRightRadius: 10,
-  backgroundColor: "#fff",
-  justifyContent: "flex-start",
-  alignItems: "center"
-};
+import window from "../../utils/getDeviceInfo";
+import theme from "../../common/theme";
 
 class Login extends React.Component {
   constructor(props) {
@@ -49,7 +35,7 @@ class Login extends React.Component {
       loginName: "",
       loginPassword: "",
       rememberMe: false,
-      loginModeModalVisible: false
+      processing: false
     };
   }
 
@@ -113,7 +99,7 @@ class Login extends React.Component {
   };
 
   handleLogin = async () => {
-    const { navigation, clientLogin } = this.props;
+    const { navigation, clientLogin, loginError } = this.props;
     let loginForm = {
       loginName: this.state.loginName,
       loginPassword: this.state.loginPassword
@@ -142,50 +128,171 @@ class Login extends React.Component {
           LocalKeys.CLIENT_INFO,
           JSON.stringify(clientInfo)
         ).then(() => {
+          this.setState({
+            processing: false
+          });
           navigation.dismiss();
         });
       })
       .catch(err => {
+        this.setState(
+          {
+            processing: false
+          },
+          () => {
+            loginError(err);
+          }
+        );
         console.log("Cannot set client info in local storage", err);
       });
   };
 
-  renderLoginError = error => {
+  renderLoginError = (error, defaultMsg) => {
     if (error) {
       return (
         <Text style={styles.loginError}>
-          <Icon
+          <FontAwesome
             name="exclamation-circle"
             type="FontAwesome"
             style={{ fontSize: 15, color: "red", marginRight: 5 }}
           />
-          {`  ${error}`}
+          {typeof error === "string" ? error : defaultMsg}
         </Text>
       );
     }
     return null;
   };
 
-  renderLoginModeModal = () => {
+  render() {
     return (
-      <Modal visible={this.state.loginModeModalVisible} style={modalStyle}>
-        <View style={styles.modalContent}>
-          <Header
-            style={{ height: "20%", marginTop: 10 }}
-            headerTitle="Login mode"
-            rightIconButton={() => (
-              <Icon
-                name="chevron-down"
-                size={20}
+      <View style={styles.container}>
+        <KeyboardAvoidingView
+          style={{
+            flex: 1,
+            justifyContent: "flex-start",
+            alignItems: "center"
+          }}
+        >
+          <IconInput
+            icon={() => <FontAwesome name="user" size={20} />}
+            placeholder="Email or username"
+            onChangeText={value => this.setState({ loginName: value })}
+            value={this.state.loginName}
+          />
+          <IconInput
+            icon={() => <FontAwesome name="unlock-alt" size={20} />}
+            placeholder="Password"
+            onChangeText={password =>
+              this.setState({ loginPassword: password })
+            }
+            secureTextEntry={true}
+            value={this.state.loginPassword}
+          />
+          {this.renderLoginError(this.props.error, "Login error")}
+          <TouchableOpacity
+            onPress={() =>
+              this.setState({ rememberMe: !this.state.rememberMe })
+            }
+          >
+            <View style={styles.formCheckbox}>
+              <CheckBox
+                containerStyle={{ width: "100%", height: "100%" }}
+                title="Remember me"
+                checked={this.state.rememberMe}
                 onPress={() => {
-                  // confirm filter selection
                   this.setState({
-                    loginModeModalVisible: false
+                    rememberMe: !this.state.rememberMe
                   });
                 }}
               />
-            )}
-          />
+            </View>
+          </TouchableOpacity>
+          <View style={styles.formButton}>
+            <Button
+              loading={this.state.processing}
+              title="Login"
+              titleStyle={{ color: "#fff", fontSize: 18 }}
+              disabled={!this.state.loginName || !this.state.loginPassword}
+              onPress={() => {
+                this.setState(
+                  {
+                    processing: true
+                  },
+                  () => {
+                    this.props.loginError(null);
+                    this.handleLogin();
+                  }
+                );
+              }}
+              containerStyle={StyleSheet.flatten(styles.loginBtn)}
+              loadingIndicator={() => (
+                <SkypeIndicator size={theme.iconSm} color={theme.primaryGrey} />
+              )}
+            />
+          </View>
+          <View style={styles.formButton}>
+            <Text
+              style={{
+                fontSize: 14,
+                backgroundColor: null,
+                color: theme.primaryColor
+              }}
+              onPress={() => {
+                console.log("change mode");
+              }}
+            >
+              {`Login with phone`}
+            </Text>
+            <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>
+              |
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                backgroundColor: null,
+                color: theme.primaryColor
+              }}
+              onPress={() => this.props.navigation.navigate("Register")}
+            >
+              Register
+            </Text>
+          </View>
+        </KeyboardAvoidingView>
+        <View style={styles.socialLogin}>
+          <View
+            style={{
+              width: "100%",
+              height: "20%",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "lightgrey",
+                height: 2,
+                width: "30%",
+                borderRadius: 1
+              }}
+            />
+            <Text
+              style={{
+                marginLeft: 5,
+                marginRight: 5,
+                color: "grey",
+                fontSize: 14
+              }}
+            >{`Social media login`}</Text>
+            <View
+              style={{
+                backgroundColor: "lightgrey",
+                height: 2,
+                width: "30%",
+                borderRadius: 1
+              }}
+            />
+          </View>
           <View
             style={{
               height: "80%",
@@ -211,104 +318,6 @@ class Login extends React.Component {
             />
           </View>
         </View>
-      </Modal>
-    );
-  };
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <KeyboardAvoidingView
-          style={{
-            flex: 1,
-            justifyContent: "flex-start",
-            alignItems: "center"
-          }}
-        >
-          <Image
-            style={{ marginTop: 30, width: 100, height: 100, borderRadius: 25 }}
-            source={require("../../static/favicon.png")}
-          />
-          <IconInput
-            icon={() => <Icon name="user" size={20} />}
-            placeholder="Email or username"
-            onChangeText={value => this.setState({ loginName: value })}
-            value={this.state.loginName}
-          />
-          <IconInput
-            icon={() => <Icon name="unlock-alt" size={20} />}
-            placeholder="Password"
-            onChangeText={password =>
-              this.setState({ loginPassword: password })
-            }
-            secureTextEntry={true}
-            value={this.state.loginPassword}
-          />
-          {this.renderLoginError(this.props.errMsg)}
-          <TouchableOpacity
-            onPress={() =>
-              this.setState({ rememberMe: !this.state.rememberMe })
-            }
-          >
-            <View style={styles.formCheckbox}>
-              <CheckBox
-                containerStyle={{ width: "100%", height: "100%" }}
-                title="Remember me"
-                checked={this.state.rememberMe}
-                onPress={() => {
-                  this.setState({
-                    rememberMe: !this.state.rememberMe
-                  });
-                }}
-              />
-            </View>
-          </TouchableOpacity>
-          <View style={styles.formButton}>
-            <Text
-              style={{
-                fontSize: 18,
-                backgroundColor: null,
-                color: theme.primaryColor
-              }}
-              onPress={() => this.handleLogin()}
-            >
-              Login
-            </Text>
-          </View>
-          <View style={styles.formButton}>
-            <Text
-              style={{
-                fontSize: 14,
-                backgroundColor: null,
-                color: theme.primaryColor
-              }}
-              onPress={() => {
-                const { loginModeModalVisible } = this.state;
-                if (!loginModeModalVisible) {
-                  this.setState({
-                    loginModeModalVisible: true
-                  });
-                }
-              }}
-            >
-              Change login mode
-            </Text>
-            <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>
-              |
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                backgroundColor: null,
-                color: theme.primaryColor
-              }}
-              onPress={() => this.props.navigation.navigate("Register")}
-            >
-              Register
-            </Text>
-          </View>
-        </KeyboardAvoidingView>
-        {this.renderLoginModeModal()}
       </View>
     );
   }
@@ -325,17 +334,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    width: window.width * 0.3,
-    height: 50,
+    width: Math.floor(window.width * 0.3),
+    height: theme.inputHeight,
     backgroundColor: null,
-    marginTop: 50
+    marginTop: theme.marginTop
   },
   formButton: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    width: window.width * 0.6,
-    marginTop: 50
+    width: Math.floor(window.width * 0.6),
+    marginTop: theme.marginTop
   },
   loginError: {
     flexDirection: "row",
@@ -343,14 +352,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 5,
     flexWrap: "wrap",
-    width: window.width * 0.7,
+    width: Math.floor(window.width * 0.7),
     color: "red",
     fontSize: 15
   },
-  modalContent: {
-    width: "100%",
-    height: "100%",
-    justifyContent: "flex-start",
+  loginBtn: {
+    width: Math.floor(window.width * 0.6),
+    height: theme.inputHeight,
+    borderRadius: theme.inputHeight / 2
+  },
+  socialLogin: {
+    width: window.width,
+    height: Math.floor(window.height * 0.4),
+    justifyContent: "center",
     alignItems: "center"
   }
 });
@@ -358,7 +372,7 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     client: state.client.client,
-    errMsg: state.client.errMsg
+    error: state.client.error
   };
 };
 

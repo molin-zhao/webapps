@@ -1,10 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const multipart = require("connect-multiparty");
+const agent = require("superagent");
 
 // models
 const User = require("../../models/user");
-const { Post } = require("../../models/post");
+const Post = require("../../models/post");
+const Tag = require("../../models/tag");
+const Location = require("../../models/location");
+const Message = require("../../models/message");
 
 // utils
 const { uploadImage, getFileName } = require("../../utils/fileUpload");
@@ -12,6 +16,8 @@ const authenticate = require("../../utils/authenticate")(User);
 const response = require("../../utils/response");
 const { image } = require("../../config");
 const { handleError } = require("../../utils/handleError");
+const { convertStringArrToObjectIdArr } = require("../../utils/converter");
+const { serverNodes } = require("../../config");
 
 router.all("*", authenticate.verifyAuthorization, (req, res, next) => {
   next();
@@ -28,25 +34,61 @@ router.post("/post", multipart(), async (req, res) => {
   let fileName = result.fileName;
   let fileLocation = result.fileLocation;
   let imagePersistencePath = `${image.postQuery}${fileName}`;
-  let locationJson = JSON.parse(req.body.location);
+  let location = JSON.parse(req.body.location);
+  let mentioned = convertStringArrToObjectIdArr(JSON.parse(req.body.mention));
+  let tags = convertStringArrToObjectIdArr(JSON.parse(req.body.tags));
   let post = {
     creator: req.user._id,
     image: imagePersistencePath,
     description: req.body.description,
-    label: req.body.label,
-    location: locationJson
+    location,
+    tags,
+    mentioned
   };
-  Post.createPost(post, (err, result) => {
-    if (err) return handleError(res, err);
-    uploadImage(limit, fileLocation, file, err => {
-      if (err) return handleError(res, err);
+  try {
+    let result = await Post.createPost(post);
+    if (!result) {
       return res.json({
-        status: response.SUCCESS.OK.CODE,
-        msg: response.SUCCESS.OK.MSG,
-        data: result
+        status: response.SUCCESS.ACCEPTED.CODE,
+        msg: response.SUCCESS.ACCEPTED.MSG
       });
+    }
+    let tagUpdateRes = await Tag.updateCounts(tags, result.creator);
+    let locationUpdateRes = await Location.updateCount(
+      result.location._id,
+      result.creator
+    );
+    console.log(tagUpdateRes);
+    console.log(locationUpdateRes);
+    let msgObjs = result.mentioned.map(mentionedUser => {
+      return {
+        receiver: mentionedUser._id,
+        sender: result.creator,
+        messageType: "PostMentioned",
+        postReference: result._id
+      };
     });
-  });
+    let msgs = await Message.createMessages(msgObjs);
+    agent
+      .post(`${serverNodes.socketServer}/message/push/batch`)
+      .send({
+        messages: msgs
+      })
+      .set("Accept", "application/json")
+      .end(err => {
+        if (err) return handleError(res, err);
+        uploadImage(limit, fileLocation, file, err => {
+          if (err) return handleError(res, err);
+          return res.json({
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: result
+          });
+        });
+      });
+  } catch (err) {
+    return handleError(res, err);
+  }
 });
 
 router.post("/profile", multipart(), authenticate.verifyUser, (req, res) => {

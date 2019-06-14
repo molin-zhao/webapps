@@ -4,7 +4,7 @@ import PostPreview from "./PostPreview";
 
 export default (ImageFilterIndex = createStackNavigator(
   {
-    // ImageFilter,
+    ImageFilter,
     PostPreview
   },
   {

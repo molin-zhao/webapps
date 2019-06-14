@@ -1,11 +1,12 @@
 import React from "react";
 import { Text, Image, View, StyleSheet, TouchableOpacity } from "react-native";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 import window from "../utils/getDeviceInfo";
 import { numberConverter } from "../utils/unitConverter";
 
-export default class TagListCell extends React.Component {
+class TagListCell extends React.Component {
   static defaultProps = {
     rightButton: () => null
   };
@@ -19,7 +20,7 @@ export default class TagListCell extends React.Component {
   }
 
   render() {
-    const { dataSource, onPress, rightButton } = this.props;
+    const { dataSource, onPress, rightButton, i18n } = this.props;
     return (
       <TouchableOpacity
         activeOpacity={0.8}
@@ -30,7 +31,7 @@ export default class TagListCell extends React.Component {
           <View style={styles.thumbnail}>
             <Image
               source={require("../static/hashtag.png")}
-              style={{ width: 40, height: 40, borderRadius: 20 }}
+              style={{ width: 30, height: 30, borderRadius: 15 }}
             />
           </View>
           <View
@@ -47,22 +48,15 @@ export default class TagListCell extends React.Component {
             >
               {dataSource.name}
             </Text>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}
-            >
-              <Text
-                style={{ fontSize: 13, color: "lightgrey" }}
-              >{`${numberConverter(dataSource.quotedCount)} posts`}</Text>
-              <Text
-                style={{ fontSize: 13, color: "lightgrey" }}
-              >{`${numberConverter(
-                dataSource.participantsCount
-              )} people used`}</Text>
-            </View>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ fontSize: 13, color: "lightgrey" }}
+            >{`${numberConverter(dataSource.quotedCount)} ${i18n.t(
+              "POSTS"
+            )}, ${numberConverter(dataSource.participantsCount)} ${i18n.t(
+              "PARTICIPANTS"
+            )}`}</Text>
           </View>
         </View>
         <View style={styles.cellRightContainer}>{rightButton()}</View>
@@ -70,6 +64,15 @@ export default class TagListCell extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  i18n: state.app.i18n
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(TagListCell);
 
 const styles = StyleSheet.create({
   container: {

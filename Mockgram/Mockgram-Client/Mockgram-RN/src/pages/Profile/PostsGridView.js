@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet, FlatList, Image } from "react-native";
 import { connect } from "react-redux";
 import { BallIndicator, SkypeIndicator } from "react-native-indicators";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 import PostGridViewImage from "../../components/PostGridViewImage";
 
@@ -76,7 +76,7 @@ class LikedPostsGridView extends React.Component {
             dataSource,
             userId,
             type,
-            config.profilePostReturnLimit
+            config.PROFILE_POST_RETURN_LIMIT
           );
         }
       );
@@ -95,7 +95,7 @@ class LikedPostsGridView extends React.Component {
           dataSource,
           userId,
           type,
-          config.profilePostReturnLimit
+          config.PROFILE_POST_RETURN_LIMIT
         );
       }
     );
@@ -111,7 +111,7 @@ class LikedPostsGridView extends React.Component {
         case "LIKED":
           return (
             <View style={styles.postViewEmptyMsg}>
-              <Icon name="ios-heart-outline" style={{ fontSize: 32 }} />
+              <Ionicons name="ios-heart-outline" style={{ fontSize: 32 }} />
               <Text
                 style={{ fontSize: 20, fontWeight: "600" }}
               >{`${title} liked posts`}</Text>
@@ -123,7 +123,7 @@ class LikedPostsGridView extends React.Component {
         case "MENTIONED":
           return (
             <View style={styles.postViewEmptyMsg}>
-              <Icon name="ios-at-outline" style={{ fontSize: 32 }} />
+              <Ionicons name="ios-at-outline" style={{ fontSize: 32 }} />
               <Text
                 style={{ fontSize: 20, fontWeight: "600" }}
               >{`${title} shared posts`}</Text>
@@ -135,7 +135,7 @@ class LikedPostsGridView extends React.Component {
         default:
           return (
             <View style={styles.postViewEmptyMsg}>
-              <Icon name="ios-camera" style={{ fontSize: 32 }} />
+              <Ionicons name="ios-camera" style={{ fontSize: 32 }} />
               <Text
                 style={{ fontSize: 20, fontWeight: "600" }}
               >{`${title} created posts`}</Text>

@@ -103,7 +103,7 @@ export default class Button extends React.Component {
           {
             backgroundColor: disabled
               ? "lightgrey"
-              : containerStyle.backgroundColor
+              : containerStyle.backgroundColor || theme.primaryColor
           }
         ]}
         onPress={this.handleOnPress}

@@ -43,117 +43,143 @@ const TagSchema = new Schema(
 );
 
 TagSchema.statics.updateCount = function(tagId, userId) {
-  return this.updateOne(
-    { _id: tagId },
-    { $addToSet: { participants: userId }, $inc: { quotedCount: 1 } }
-  );
+  return new Promise((resolve, reject) => {
+    return this.updateOne(
+      { _id: tagId },
+      { $addToSet: { participants: userId }, $inc: { quotedCount: 1 } }
+    ).exec((err, res) => {
+      if (err) return reject(`tag ${tagId} was not updated`);
+      console.log(res);
+      return resolve(`tag ${tagId} updated`);
+    });
+  });
+};
+
+TagSchema.statics.updateCounts = function(tagIds, userId) {
+  return new Promise((resolve, reject) => {
+    return this.updateMany(
+      { _id: { $in: tagIds } },
+      {
+        $addToSet: { participants: userId },
+        $inc: { quotedCount: 1 }
+      }
+    ).exec((err, res) => {
+      if (err) reject(`tags ${tagIds} were not updated`);
+      console.log(res);
+      return resolve(`tags ${tagIds} updated`);
+    });
+  });
 };
 
 TagSchema.statics.getHotTopics = function(limit) {
-  return this.aggregate([
-    {
-      $match: {
-        type: "Topic"
-      }
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "creator",
-        foreignField: "_id",
-        as: "creator"
-      }
-    },
-    { $unwind: "$creator" },
-    {
-      $project: {
-        _id: 1,
-        quotedCount: 1,
-        participantsCount: {
-          $size: "$participants"
-        },
-        name: 1,
-        creator: {
+  new Promise((resolve, reject) => {
+    return this.aggregate([
+      {
+        $match: {
+          type: "Topic"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "creator",
+          foreignField: "_id",
+          as: "creator"
+        }
+      },
+      { $unwind: "$creator" },
+      {
+        $project: {
           _id: 1,
-          avatar: 1,
-          username: 1,
-          nickname: 1
-        },
-        description: 1
+          quotedCount: 1,
+          participantsCount: {
+            $size: "$participants"
+          },
+          name: 1,
+          creator: {
+            _id: 1,
+            avatar: 1,
+            username: 1,
+            nickname: 1
+          },
+          description: 1
+        }
+      },
+      {
+        $limit: limit
+      },
+      {
+        $sort: {
+          participantsCount: -1,
+          quotedCount: -1,
+          createdAt: -1,
+          name: -1,
+          _id: -1
+        }
       }
-    },
-    {
-      $limit: limit
-    },
-    {
-      $sort: {
-        participantsCount: -1,
-        quotedCount: -1,
-        createdAt: -1,
-        name: -1,
-        _id: -1
-      }
-    }
-  ])
-    .then(doc => {
-      return Promise.resolve(doc);
-    })
-    .catch(err => {
-      return Promise.reject(err);
-    });
+    ])
+      .then(doc => {
+        return resolve(doc);
+      })
+      .catch(err => {
+        return reject(err);
+      });
+  });
 };
 
 TagSchema.statics.getHotTags = function(limit) {
-  return this.aggregate([
-    {
-      $match: {
-        type: "Tag"
-      }
-    },
-    {
-      $lookup: {
-        from: "users",
-        localField: "creator",
-        foreignField: "_id",
-        as: "creator"
-      }
-    },
-    { $unwind: "$creator" },
-    {
-      $project: {
-        _id: 1,
-        quotedCount: 1,
-        participantsCount: {
-          $size: "$participants"
-        },
-        name: 1,
-        creator: {
+  return new Promise((resolve, reject) => {
+    return this.aggregate([
+      {
+        $match: {
+          type: "Tag"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "creator",
+          foreignField: "_id",
+          as: "creator"
+        }
+      },
+      { $unwind: "$creator" },
+      {
+        $project: {
           _id: 1,
-          avatar: 1,
-          username: 1,
-          nickname: 1
+          quotedCount: 1,
+          participantsCount: {
+            $size: "$participants"
+          },
+          name: 1,
+          creator: {
+            _id: 1,
+            avatar: 1,
+            username: 1,
+            nickname: 1
+          }
+        }
+      },
+      {
+        $limit: limit
+      },
+      {
+        $sort: {
+          participantsCount: -1,
+          quotedCount: -1,
+          createdAt: -1,
+          name: -1,
+          _id: -1
         }
       }
-    },
-    {
-      $limit: limit
-    },
-    {
-      $sort: {
-        participantsCount: -1,
-        quotedCount: -1,
-        createdAt: -1,
-        name: -1,
-        _id: -1
-      }
-    }
-  ])
-    .then(doc => {
-      return Promise.resolve(doc);
-    })
-    .catch(err => {
-      return Promise.reject(err);
-    });
+    ])
+      .then(doc => {
+        return resolve(doc);
+      })
+      .catch(err => {
+        return reject(err);
+      });
+  });
 };
 
 TagSchema.statics.searchTags = function(value, lastQueryDataIds, limit = 20) {

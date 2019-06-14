@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, StyleSheet, Text, View } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 
 import theme from "../common/theme";
@@ -8,10 +8,14 @@ import theme from "../common/theme";
 class CheckBox extends React.Component {
   static defaultProps = {
     iconLeftChecked: () => (
-      <Icon name="ios-checkmark-circle" size={theme.iconMd} color="green" />
+      <Ionicons name="ios-checkmark-circle" size={theme.iconMd} color="green" />
     ),
     iconLeftUnchecked: () => (
-      <Icon name="ios-radio-button-off" size={theme.iconMd} color="lightgrey" />
+      <Ionicons
+        name="ios-radio-button-off"
+        size={theme.iconMd}
+        color="lightgrey"
+      />
     ),
     iconRightChecked: () => null,
     iconRightUnchecked: () => null,
@@ -37,7 +41,7 @@ class CheckBox extends React.Component {
     onPress: PropTypes.func
   };
 
-  renderLeftIcon = () => {
+  renderLeftIonicons = () => {
     const { iconLeftChecked, iconLeftUnchecked, checked } = this.props;
     if (checked) {
       return iconLeftChecked();
@@ -45,7 +49,7 @@ class CheckBox extends React.Component {
     return iconLeftUnchecked();
   };
 
-  renderRightIcon = () => {
+  renderRightIonicons = () => {
     const { iconRightChecked, iconRightUnchecked, checked } = this.props;
     if (checked) {
       return iconRightChecked();
@@ -68,11 +72,11 @@ class CheckBox extends React.Component {
         activeOpacity={activeOpacity}
         onPress={onPress}
       >
-        {this.renderLeftIcon()}
+        {this.renderLeftIonicons()}
         <View style={[styles.titleContainerStyle, titleContainerStyle]}>
           <Text style={[styles.titleStyle, titleStyle]}>{title}</Text>
         </View>
-        {this.renderRightIcon()}
+        {this.renderRightIonicons()}
       </TouchableOpacity>
     );
   }

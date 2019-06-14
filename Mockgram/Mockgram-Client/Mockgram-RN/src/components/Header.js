@@ -35,7 +35,11 @@ export default class CustomHeader extends React.Component {
           style={styles.headerMiddle}
           onPress={titleOnPress}
         >
-          <Text style={headerTitleStyle}>{headerTitle}</Text>
+          <Text
+            style={[{ fontSize: 14, fontWeight: "bold" }, headerTitleStyle]}
+          >
+            {headerTitle}
+          </Text>
         </TouchableOpacity>
         <View style={styles.headerRight}>{rightIconButton()}</View>
       </View>

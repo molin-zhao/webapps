@@ -5,8 +5,8 @@ import * as LocalKeys from "../../common/localKeys";
 import baseUrl from "../../common/baseUrl";
 import { createSocket } from "../../utils/socket";
 
-const successResult = { result: "success" };
-const errorResult = { result: "error" };
+const successResult = "success";
+const errorResult = "error";
 
 export const clientLogin = loginForm => dispatch => {
   return fetch(`${baseUrl.api}/user/login`, {
@@ -50,7 +50,6 @@ export const clientLogout = () => dispatch => {
 };
 
 export const getClientInfo = () => dispatch => {
-  console.log("get client info");
   return SecureStore.getItemAsync(LocalKeys.CLIENT_INFO)
     .then(info => {
       if (info) {

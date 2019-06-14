@@ -1,14 +1,14 @@
 import React from "react";
 import { View, Image, Text, TouchableOpacity } from "react-native";
 import { withNavigation } from "react-navigation";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 import window from "../utils/getDeviceInfo";
 import { numberConverter } from "../utils/unitConverter";
 import theme from "../common/theme";
 
 class RecommendGridViewImage extends React.Component {
-  renderMetaIcon = (name, style, text = null) => {
+  renderMetaIonicons = (name, style, text = null) => {
     return (
       <View
         style={[
@@ -21,7 +21,7 @@ class RecommendGridViewImage extends React.Component {
           style
         ]}
       >
-        <Icon name={name} size={14} color="#fff" />
+        <Ionicons name={name} size={14} color="#fff" />
         <Text style={{ fontSize: 12, color: "#fff" }}>{text}</Text>
       </View>
     );
@@ -43,13 +43,10 @@ class RecommendGridViewImage extends React.Component {
         style={{
           position: "absolute",
           backgroundColor: theme.primaryGrey,
-          width: "95%",
-          height: "95%",
-          borderColor: "black",
-          borderWidth: 0.5,
+          width: "100%",
+          height: "100%",
           justifyContent: "center",
-          alignItems: "center",
-          borderRadius: 5
+          alignItems: "center"
         }}
       >
         <Image
@@ -58,14 +55,14 @@ class RecommendGridViewImage extends React.Component {
         />
         {/* {
                     dataSource.image ?
-                        this.renderMetaIcon('ios-photos', { top: '5%', right: '5%' }) : null
+                        this.renderMetaIonicons('ios-photos', { top: '5%', right: '5%' }) : null
                 } */}
-        {/* {this.renderMetaIcon(
+        {/* {this.renderMetaIonicons(
           "md-heart",
           { bottom: "5%", left: "5%" },
           numberConverter(dataSource.likeCount)
         )}
-        {this.renderMetaIcon(
+        {this.renderMetaIonicons(
           "ios-chatbubbles",
           { bottom: "5%", right: "5%" },
           numberConverter(dataSource.commentCount)

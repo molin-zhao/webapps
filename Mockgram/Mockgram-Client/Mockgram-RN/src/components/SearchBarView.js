@@ -9,7 +9,7 @@ import {
   TextInput,
   Platform
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 import { UIActivityIndicator } from "react-native-indicators";
 
@@ -25,7 +25,7 @@ export default class SearchBarView extends React.Component {
     onFocus: () => null,
     lostFocus: () => null,
 
-    rightIcon: () => null,
+    rightIonicons: () => null,
     searchingIndicator: () => (
       <UIActivityIndicator size={theme.iconSm} color="lightgrey" />
     ),
@@ -42,7 +42,7 @@ export default class SearchBarView extends React.Component {
     onFocus: PropTypes.func,
     lostFocus: PropTypes.func,
 
-    rightIcon: PropTypes.func,
+    rightIonicons: PropTypes.func,
     searchingIndicator: PropTypes.func,
 
     showSearchingIndicator: PropTypes.bool,
@@ -208,7 +208,7 @@ export default class SearchBarView extends React.Component {
 
   renderButton = () => {
     const { text, focused } = this.state;
-    const { rightIcon } = this.props;
+    const { rightIonicons } = this.props;
     if (focused || (!focused && text)) {
       return (
         <TouchableOpacity
@@ -239,7 +239,7 @@ export default class SearchBarView extends React.Component {
         </TouchableOpacity>
       );
     }
-    return rightIcon();
+    return rightIonicons();
   };
 
   renderSearchingIndicator = () => {
@@ -288,7 +288,7 @@ export default class SearchBarView extends React.Component {
                 alignItems: "center"
               }}
             >
-              <Icon name="ios-search" size={theme.iconSm} />
+              <Ionicons name="ios-search" size={theme.iconSm} />
             </View>
             <TextInput
               ref={o => (this._textInput = o)}

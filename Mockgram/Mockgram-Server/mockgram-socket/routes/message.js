@@ -53,6 +53,42 @@ router.post("/push", (req, res) => {
   }
 });
 
+router.post("/push/batch", async (req, res) => {
+  let messages = req.body.messages;
+  if (messages && Array.isArray(messages) && messages.length > 0) {
+    try {
+      let result = await Promise.all(
+        messages.map(message => {
+          let receiver = message.receiver._id;
+          let sender = message.sender._id;
+          if (receiver !== sender) {
+            User.findOne({ _id: receiver })
+              .select("loginStatus.socketId")
+              .then(user => {
+                if (user && user.loginStatus && user.loginStatus.socketId);
+                let socket = req.app.locals.sockets[user.loginStatus.socketId];
+                if (socket) {
+                  socket.emit("new-message", message);
+                  return Promise.resolve(message._id);
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          }
+        })
+      );
+      console.log(result);
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG
+      });
+    } catch (err) {
+      return handleError(res, err);
+    }
+  }
+});
+
 router.post("/recall", (req, res) => {
   let messageDoc = req.body.message;
   if (messageDoc) {

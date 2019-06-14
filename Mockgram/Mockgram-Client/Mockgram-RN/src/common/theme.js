@@ -12,5 +12,7 @@ export default (theme = {
   indicatorSm: window.width * 0.05,
   indicatorMd: window.width * 0.08,
   indicatorLg: window.width * 0.1,
-  paddingToWindow: 10
+  paddingToWindow: 10,
+  inputHeight: Math.floor(window.height * 0.05),
+  marginTop: Math.floor(window.height * 0.03)
 });

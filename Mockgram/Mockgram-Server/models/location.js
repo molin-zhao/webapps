@@ -166,4 +166,20 @@ LocationSchema.statics.searchLocationsByName = function(
   ]);
 };
 
+LocationSchema.statics.updateCount = function(locationId, userId) {
+  return new Promise((resolve, reject) => {
+    return this.updateOne(
+      { _id: locationId },
+      {
+        $addToSet: { participants: userId },
+        $inc: { quotedCount: 1 }
+      }
+    ).exec((err, res) => {
+      if (err) return reject(`location ${locationId} was not updated`);
+      console.log(res);
+      return resolve(`location ${locationId} updated`);
+    });
+  });
+};
+
 module.exports = mongoose.model("Location", LocationSchema);

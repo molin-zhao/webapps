@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 
 import Thumbnail from "../../components/Thumbnail";
 import TabView from "../../components/TabView";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import PostsGridView from "./PostsGridView";
 
 import window from "../../utils/getDeviceInfo";
@@ -44,7 +44,7 @@ class ProfileIndex extends React.Component {
           navigation.navigate("Settings");
         }}
       >
-        <Icon name="ios-settings" size={24} />
+        <Ionicons name="ios-settings" size={24} />
       </TouchableOpacity>
     )
   });

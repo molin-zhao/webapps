@@ -9,8 +9,7 @@ import {
   TouchableOpacity,
   Platform
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { withNavigation } from "react-navigation";
 import { PacmanIndicator, UIActivityIndicator } from "react-native-indicators";
 import ActionSheet from "react-native-actionsheet";
@@ -325,7 +324,7 @@ class TextInputBox extends React.Component {
               alignItems: "center"
             }}
           >
-            <Icon name="md-close" size={window.height * 0.025} />
+            <Ionicons name="md-close" size={window.height * 0.025} />
           </TouchableOpacity>
         </View>
       );
@@ -361,7 +360,7 @@ class TextInputBox extends React.Component {
             this._handleSend();
           }}
         >
-          <Icon
+          <Ionicons
             name="ios-send"
             color={theme.primaryBlue}
             size={window.width * 0.05}

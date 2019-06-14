@@ -1,7 +1,6 @@
 import React from "react";
 import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 
-import window from "../utils/getDeviceInfo";
 import Proptypes from "prop-types";
 import { stringTrimmer } from "../utils/unitConverter";
 import theme from "../common/theme";

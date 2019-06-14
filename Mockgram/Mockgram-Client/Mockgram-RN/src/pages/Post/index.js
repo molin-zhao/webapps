@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
 
   lineStyle: {
     backgroundColor: theme.primaryColor,
-    width: window.width / 4,
-    left: window.width / 8
+    width: Math.floor(window.width / 4),
+    left: Math.floor(window.width / 8)
   }
 });

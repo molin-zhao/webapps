@@ -7,7 +7,7 @@ import {
   FlatList,
   TouchableWithoutFeedback
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import { SkypeIndicator, BallIndicator } from "react-native-indicators";
 import { connect } from "react-redux";
 
@@ -167,7 +167,7 @@ class CommentPage extends React.Component {
   renderEmpty = () => {
     return (
       <View style={styles.errorMsgView}>
-        <Icon name="md-paper" size={window.height * 0.05} />
+        <Ionicons name="md-paper" size={window.height * 0.05} />
         <Text>- Be the first to leave a comment -</Text>
       </View>
     );
@@ -217,10 +217,15 @@ class CommentPage extends React.Component {
       <View style={styles.container}>
         <Header
           headerTitle="All Comments"
-          rightIconButton={<Icon name="md-close" style={{ fontSize: 24 }} />}
-          rightButtonOnPress={() => {
-            navigation.dismiss();
-          }}
+          rightIoniconsButton={() => (
+            <Ionicons
+              name="md-close"
+              style={{ fontSize: 24 }}
+              onPress={() => {
+                navigation.dismiss();
+              }}
+            />
+          )}
         />
         <KeyboardAvoidingView
           behavior="padding"

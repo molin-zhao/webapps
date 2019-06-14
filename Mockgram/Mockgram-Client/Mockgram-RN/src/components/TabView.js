@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
@@ -59,7 +59,7 @@ export default class TabView extends React.Component {
           onPress={() => this.tabSelected(index)}
         >
           {tabComponent.icon ? (
-            <Icon
+            <Ionicons
               name={tabComponent.icon.name}
               style={[
                 { fontSize: 24, color: this.activeStyle(index) },

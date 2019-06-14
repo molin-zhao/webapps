@@ -28,7 +28,8 @@ router.post("/search/people", (req, res) => {
       res.json({
         status: response.SUCCESS.OK.CODE,
         msg: response.SUCCESS.OK.MSG,
-        data: user
+        data: user,
+        value: search
       });
     })
     .catch(err => {
@@ -42,9 +43,16 @@ router.post("/search/tag", (req, res) => {
   let lastQueryDataIds = convertStringArrToObjectIdArr(
     req.body.lastQueryDataIds
   );
-  Post.searchPostByTag(search, limit, lastQueryDataIds)
-    .then()
-    .catch();
+  Tag.searchTags(search, lastQueryDataIds, limit)
+    .then(tags => {
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: tags,
+        value: search
+      });
+    })
+    .catch(err => handleError(res, err));
 });
 
 router.post("/search/place", (req, res) => {
@@ -53,9 +61,16 @@ router.post("/search/place", (req, res) => {
   let lastQueryDataIds = convertStringArrToObjectIdArr(
     req.body.lastQueryDataIds
   );
-  Post.searchPostByPlace(search, limit, lastQueryDataIds)
-    .then()
-    .catch();
+  Location.searchLocationsByName(search, lastQueryDataIds, limit)
+    .then(locations =>
+      res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: locations,
+        value: search
+      })
+    )
+    .catch(err => handleError(res, err));
 });
 
 router.post("/suggest/people/:id", (req, res) => {

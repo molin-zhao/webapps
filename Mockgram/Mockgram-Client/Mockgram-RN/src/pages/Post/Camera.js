@@ -1,64 +1,88 @@
-import React from 'react';
-import { Text, View, StyleSheet, Button, TouchableOpacity } from 'react-native';
-import { Permissions, ImagePicker, SecureStore } from 'expo';
-import processImage from '../../utils/imageProcessing';
-import allowPermissions from '../../utils/allowPermissions';
+import React from "react";
+import { Text, View, StyleSheet, Button, TouchableOpacity } from "react-native";
+import { Permissions, ImagePicker } from "expo";
+import { connect } from "react-redux";
+import processImage from "../../utils/imageProcessing";
+import theme from "../../common/theme";
 
-export default class Camera extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            permissionAllowed: false,
-        }
-    }
-    componentWillMount() {
-        SecureStore.getItemAsync('permission_camera').then(permissionData => {
-            if (permissionData) {
-                let permissionInfo = JSON.parse(permissionData);
-                if (permissionInfo.CAMERA_ROLL && permissionInfo.CAMERA) {
-                    this.setState({ permissionAllowed: true });
-                }
-            }
-        })
-    }
+class Camera extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      permissionAllowed: false
+    };
+  }
+  async componentWillMount() {
+    const { status } = await Permissions.getAsync(Permissions.CAMERA);
+    this.setState({
+      permissionAllowed: status === "granted" ? true : false
+    });
+  }
 
-    choosePhotoFromCamera = async () => {
-        let capturedImage = await ImagePicker.launchCameraAsync({
-            allowsEditing: true,
-            aspect: [1, 1],
-        });
-        if (!capturedImage.cancelled) {
-            let processedImage = await processImage(capturedImage.uri);
-            this.props.navigation.navigate('ImageFilter', {
-                image: processedImage
-            });
-        }
+  choosePhotoFromCamera = async () => {
+    let capturedImage = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [1, 1]
+    });
+    if (!capturedImage.cancelled) {
+      let processedImage = await processImage(capturedImage.uri);
+      this.props.navigation.navigate("ImageFilter", {
+        image: processedImage
+      });
     }
+  };
 
-    render() {
-        return (
-            <View style={styles.container}>
-                {this.state.permissionAllowed ? <Button title='Take a photo' onPress={() => {
-                    this.choosePhotoFromCamera()
-                }} /> : <View>
-                        <Text>You should allow access to your camera.</Text>
-                        <TouchableOpacity style={{ justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{ color: 'blue' }} onPress={() => {
-                                this.setState({
-                                    permissionAllowed: allowPermissions.allowCameraAccess()
-                                })
-                            }}>Tap here to allow access</Text>
-                        </TouchableOpacity>
-                    </View>}
-            </View>
-        );
-    }
+  render() {
+    const { i18n } = this.props;
+    return (
+      <View style={styles.container}>
+        {this.state.permissionAllowed ? (
+          <Button
+            title={`${i18n.t("TAKE_A_PHOTO")}`}
+            onPress={() => {
+              this.choosePhotoFromCamera();
+            }}
+          />
+        ) : (
+          <View>
+            <Text>{`${i18n.t("SHOULD_ALLOW_ACCESS_FIRST", {
+              value: i18n.t("CAMERA")
+            })}`}</Text>
+            <TouchableOpacity
+              style={{ justifyContent: "center", alignItems: "center" }}
+              onPress={async () => {
+                const { status } = await Permissions.askAsync(
+                  Permissions.CAMERA
+                );
+                this.setState({
+                  permissionAllowed: status === "granted" ? true : false
+                });
+              }}
+            >
+              <Text style={{ color: theme.primaryBlue }}>
+                {`${i18n.t("TAP_TO_ALLOW_ACCESS")}`}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  }
 }
+
+const mapStateToProps = state => ({
+  i18n: state.app.i18n
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(Camera);
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });

@@ -5,8 +5,7 @@ import {
   createStackNavigator
 } from "react-navigation";
 import { connect } from "react-redux";
-import Ionicon from "react-native-vector-icons/Ionicons";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 // sreens
 import Home from "./screens/Home";
@@ -31,7 +30,7 @@ import MessageBadgeIcon from "./components/MessageBadgeIcon";
 import store from "./redux";
 import { getClientInfo } from "./redux/actions/clientActions";
 import { getClientProfile } from "./redux/actions/profileActions";
-import { finishAppInitialize } from "./redux/actions/appActions";
+import { finishAppInitialize, getAppLocale } from "./redux/actions/appActions";
 import { updateLastMessageId } from "./redux/actions/messageActions";
 import {
   getMessage,
@@ -46,7 +45,7 @@ const MainAppTabNavigator = createBottomTabNavigator(
       screen: Home,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <Ionicon name="md-home" color={tintColor} size={28} />
+          <Ionicons name="md-home" color={tintColor} size={28} />
         ),
         tabBarOnPress: ({ navigation, defaultHandler }) => {
           if (navigation.isFocused()) {
@@ -60,7 +59,7 @@ const MainAppTabNavigator = createBottomTabNavigator(
       screen: Discovery,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <Ionicon name="md-search" color={tintColor} size={28} />
+          <Ionicons name="md-search" color={tintColor} size={28} />
         )
       }
     },
@@ -68,7 +67,7 @@ const MainAppTabNavigator = createBottomTabNavigator(
       screen: Post,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <Ionicon name="ios-add-circle-outline" color={tintColor} size={28} />
+          <Ionicons name="ios-add-circle-outline" color={tintColor} size={28} />
         ),
         tabBarOnPress: ({ navigation, defaultHandler }) => {
           const client = store.getState().client.client;
@@ -101,7 +100,7 @@ const MainAppTabNavigator = createBottomTabNavigator(
       screen: Profile,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
-          <Ionicon name="md-person" color={tintColor} size={28} />
+          <Ionicons name="md-person" color={tintColor} size={28} />
         ),
         tabBarOnPress: ({ navigation, defaultHandler }) => {
           const client = store.getState().client.client;
@@ -150,7 +149,7 @@ const MainAppStackNavigator = createStackNavigator({
             navigation.goBack();
           }}
         >
-          <Icon name="chevron-left" size={20} />
+          <FontAwesome name="chevron-left" size={20} />
         </TouchableOpacity>
       )
     })
@@ -166,7 +165,7 @@ const MainAppStackNavigator = createStackNavigator({
             navigation.goBack();
           }}
         >
-          <Icon name="chevron-left" size={20} />
+          <FontAwesome name="chevron-left" size={20} />
         </TouchableOpacity>
       )
     })
@@ -182,7 +181,7 @@ const MainAppStackNavigator = createStackNavigator({
             navigation.goBack();
           }}
         >
-          <Icon name="chevron-left" size={20} />
+          <FontAwesome name="chevron-left" size={20} />
         </TouchableOpacity>
       )
     })
@@ -220,10 +219,14 @@ class MainApp extends React.Component {
 
   async componentDidMount() {
     AppState.addEventListener("change", this._handleAppStateChange);
-    const { getClientInfo, finishAppInitialize } = this.props;
-    console.log("app starts");
-    await getClientInfo();
-    finishAppInitialize();
+    try {
+      await this.props.getClientInfo();
+      await this.props.getAppLocale();
+      await this.props.finishAppInitialize();
+      console.log(`app starts`);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   componentWillMount() {
@@ -252,8 +255,13 @@ class MainApp extends React.Component {
       getClientProfile,
       getMessage,
       addMessage,
-      recallMessage
+      recallMessage,
+      i18n
     } = this.props;
+    if (prevProps.i18n !== i18n && i18n) {
+      // i18n finished or changed
+      console.log(`${i18n.t("SYSTEM_LANG")}`);
+    }
     if (prevProps.client !== client && client) {
       // client has value
       getClientProfile(client.token);
@@ -289,12 +297,14 @@ const mapStateToProps = state => {
     socket: state.message.socket,
     message: state.message.message,
     client: state.client.client,
-    profile: state.profile.profile
+    profile: state.profile.profile,
+    i18n: state.app.i18n
   };
 };
 const mapDispatchToProps = dispatch => ({
   getClientInfo: () => dispatch(getClientInfo()),
   getClientProfile: token => dispatch(getClientProfile(token)),
+  getAppLocale: () => dispatch(getAppLocale()),
   getMessage: token => dispatch(getMessage(token)),
   finishAppInitialize: () => dispatch(finishAppInitialize()),
   addMessage: messages => dispatch(addMessage(messages)),

@@ -8,8 +8,9 @@ import {
   FlatList
 } from "react-native";
 import { withNavigation, Header } from "react-navigation";
+import { Constants } from "expo";
 import PropTypes from "prop-types";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 import { SkypeIndicator } from "react-native-indicators";
 
@@ -256,6 +257,40 @@ class PostRecommend extends React.Component {
     );
   };
 
+  renderHeader = () => {
+    return (
+      <View style={styles.sectionHeader}>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => {
+            console.log("nearby");
+          }}
+        >
+          <Ionicons name="ios-pin" size={16} />
+          <Text style={{ fontSize: 12 }}>Nearby</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => {
+            console.log("hot");
+          }}
+        >
+          <Ionicons name="ios-flame" size={16} />
+          <Text style={{ fontSize: 12 }}>Hot</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => {
+            console.log("shop");
+          }}
+        >
+          <Ionicons name="ios-cart" size={16} />
+          <Text style={{ fontSize: 12 }}>Shop</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   renderPost = () => {
     const { data } = this.state;
     if (this.state.loading) {
@@ -266,6 +301,8 @@ class PostRecommend extends React.Component {
       }
       return (
         <FlatList
+          // ListHeaderComponent={this.renderHeader}
+          // stickyHeaderIndices={[0]}
           style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
           contentContainerStyle={{ backgroundColor: "#fff" }}
           data={normalizeData(data, numColumns)}
@@ -319,35 +356,7 @@ class PostRecommend extends React.Component {
       <Animated.View
         style={[styles.container, { opacity: opacity, zIndex: zIndex }]}
       >
-        <View style={styles.sectionHeader}>
-          <TouchableOpacity
-            style={styles.section}
-            onPress={() => {
-              console.log("nearby");
-            }}
-          >
-            <Icon name="ios-pin" size={16} />
-            <Text style={{ fontSize: 12 }}>Nearby</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.section}
-            onPress={() => {
-              console.log("hot");
-            }}
-          >
-            <Icon name="ios-flame" size={16} />
-            <Text style={{ fontSize: 12 }}>Hot</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.section}
-            onPress={() => {
-              console.log("shop");
-            }}
-          >
-            <Icon name="ios-cart" size={16} />
-            <Text style={{ fontSize: 12 }}>Shop</Text>
-          </TouchableOpacity>
-        </View>
+        {this.renderHeader()}
         {this.renderPost()}
       </Animated.View>
     );
@@ -368,7 +377,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "flex-start",
     alignItems: "center",
-    height: window.height - Header.HEIGHT - 50,
+    height: window.height - Header.HEIGHT - Constants.statusBarHeight,
     width: "100%",
     backgroundColor: "#fff"
   },
@@ -377,7 +386,8 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
-    alignItems: "center"
+    alignItems: "center",
+    backgroundColor: "#fff"
   },
   section: {
     borderRadius: 10,
@@ -395,7 +405,7 @@ const styles = StyleSheet.create({
   },
   errorMsgView: {
     backgroundColor: "#fff",
-    height: window.height - 2 * Header.HEIGHT,
+    flex: 1,
     width: "100%",
     alignItems: "center",
     justifyContent: "center"

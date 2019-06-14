@@ -1,7 +1,7 @@
 import React from "react";
 import { TouchableOpacity, Text } from "react-native";
 import { SkypeIndicator } from "react-native-indicators";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { FontAwesome } from "@expo/vector-icons";
 import { connect } from "react-redux";
 
 import DynamicContentList from "../../components/DynamicContentListView";
@@ -20,7 +20,7 @@ class FollowingMessageDetail extends React.Component {
           navigation.goBack();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={20} />
       </TouchableOpacity>
     )
   });

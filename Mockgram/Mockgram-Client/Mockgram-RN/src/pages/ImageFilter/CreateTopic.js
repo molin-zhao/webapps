@@ -10,8 +10,7 @@ import {
   Keyboard
 } from "react-native";
 import { connect } from "react-redux";
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicon from "react-native-vector-icons/Ionicons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { SkypeIndicator } from "react-native-indicators";
 
 import AjaxInput from "../../components/AjaxInput";
@@ -52,7 +51,7 @@ class CreateTopic extends React.Component {
           navigation.goBack();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={20} />
       </TouchableOpacity>
     )
   });
@@ -74,45 +73,49 @@ class CreateTopic extends React.Component {
           if (valid) {
             return null;
           }
-          return <Icon name="ban" size={18} color="#fff" />;
+          return <FontAwesome name="ban" size={18} color="#fff" />;
         }}
         disabled={!valid}
         onPress={() => {
-          return fetch(`${baseUrl.api}/post/create/topic`, {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              name: nameSearchValue,
-              description: topicDescription
+          const { client } = this.props;
+          if (client && client.token) {
+            return fetch(`${baseUrl.api}/post/create/topic`, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: client.token
+              },
+              body: JSON.stringify({
+                name: nameSearchValue,
+                description: topicDescription
+              })
             })
-          })
-            .then(res => res.json())
-            .then(resJson => {
-              if (resJson.status === 200) {
-                this.setState({
-                  created: true
-                });
-              }
-            })
-            .then(() => {
-              this.setState(
-                {
-                  creating: false
-                },
-                () => {
-                  this._dropdown.show();
+              .then(res => res.json())
+              .then(resJson => {
+                if (resJson.status === 200) {
+                  this.setState({
+                    created: true
+                  });
                 }
-              );
-            })
-            .catch(err => {
-              console.log(err);
-              this.setState({
-                creating: false
+              })
+              .then(() => {
+                this.setState(
+                  {
+                    creating: false
+                  },
+                  () => {
+                    this._dropdown.show();
+                  }
+                );
+              })
+              .catch(err => {
+                console.log(err);
+                this.setState({
+                  creating: false
+                });
               });
-            });
+          }
         }}
         containerStyle={StyleSheet.flatten(styles.createBtn)}
         loadingIndicator={() => (
@@ -130,7 +133,7 @@ class CreateTopic extends React.Component {
           <Text
             style={{ color: theme.primaryGreen }}
           >{`Created successfully`}</Text>
-          <Ionicon
+          <Ionicons
             name="ios-checkmark-circle-outline"
             size={theme.iconMd}
             color={theme.primaryGreen}
@@ -143,7 +146,7 @@ class CreateTopic extends React.Component {
         <Text
           style={{ color: theme.primaryWarning }}
         >{`Tag was not created`}</Text>
-        <Ionicon
+        <Ionicons
           name="ios-close-circle-outline"
           size={theme.iconMd}
           color={theme.primaryWarning}

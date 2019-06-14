@@ -7,7 +7,7 @@ import {
   Image,
   Share
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import ViewMoreText from "react-native-view-more-text";
 import ActionSheet from "react-native-actionsheet";
 
@@ -18,6 +18,7 @@ import { withNavigation } from "react-navigation";
 
 import window from "../utils/getDeviceInfo";
 import baseUrl from "../common/baseUrl";
+import theme from "../common/theme";
 import { dateConverter, numberConverter } from "../utils/unitConverter";
 import {
   addClientProfilePosts,
@@ -93,6 +94,10 @@ class PostCardComponent extends React.Component {
     this.state = {
       dataSource: this.props.dataSource
     };
+  }
+
+  componentDidMount() {
+    // console.log(this.state.dataSource);
   }
 
   showActionSheet = () => {
@@ -239,38 +244,24 @@ class PostCardComponent extends React.Component {
     this.showActionSheet();
   };
 
-  renderHeader = () => {
-    const headerStyle = { fontWeight: "bold" };
+  _renderHeaderMeta = () => {
     const { dataSource } = this.state;
     if (dataSource.location) {
       return (
-        <View
-          style={{
-            marginLeft: 10,
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <Text style={headerStyle}>{dataSource.postUser.username}</Text>
-          <Text>{dataSource.location ? dataSource.location.city : null}</Text>
-        </View>
+        <Text ellipsizeMode="tail" numberOfLines={1}>
+          {dataSource.location.name}
+        </Text>
       );
+    } else if (dataSource.ad) {
+      return <Text>{`${i18n.t("SPONSORED")}`}</Text>;
     } else {
-      // if this post is for advertisement, return sponsored
-      if (dataSource.ad) {
-        return (
-          <View
-            style={{
-              marginLeft: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <Text>{`Sponsored`}</Text>
-          </View>
-        );
-      }
+      return null;
     }
+  };
+
+  renderHeader = () => {
+    const headerStyle = { fontWeight: "bold" };
+    const { dataSource } = this.state;
     return (
       <View
         style={{
@@ -280,10 +271,10 @@ class PostCardComponent extends React.Component {
         }}
       >
         <Text style={headerStyle}>{dataSource.postUser.username}</Text>
+        {this._renderHeaderMeta()}
       </View>
     );
   };
-
   /**
    * if you need to update some components of the dataSource,
    * you should declare another variable object to hold the reference of the dataSource,
@@ -329,7 +320,7 @@ class PostCardComponent extends React.Component {
             </TouchableOpacity>
           </Left>
           <View style={styles.right}>
-            <Icon
+            <Ionicons
               name="md-more"
               style={{ fontSize: 20 }}
               onPress={() => {
@@ -351,64 +342,52 @@ class PostCardComponent extends React.Component {
           <Left>
             <View style={styles.cardLabels}>
               <TouchableOpacity
-                style={{
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
+                style={styles.cardLabelIonicons}
                 onPress={() => {
                   this.handleLike();
                 }}
               >
                 {dataSource.liked ? (
-                  <Icon
-                    name="ios-heart"
-                    style={{ color: "red", fontSize: 24 }}
-                  />
+                  <Ionicons name="md-heart" size={theme.iconMd} color="red" />
                 ) : (
-                  <Icon
-                    name="ios-heart-outline"
-                    style={{ color: null, fontSize: 24 }}
-                  />
+                  <Ionicons name="md-heart-empty" size={theme.iconMd} />
                 )}
               </TouchableOpacity>
-              <Text style={{ fontSize: 12 }}>
-                {numberConverter(dataSource.likeCount)}
-              </Text>
+              <View style={styles.cardLabelText}>
+                <Text style={{ fontSize: 12 }}>
+                  {numberConverter(dataSource.likeCount)}
+                </Text>
+              </View>
             </View>
             <View style={styles.cardLabels}>
               <TouchableOpacity
-                style={{
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
+                style={styles.cardLabelIonicons}
                 onPress={() => {
                   this.handleComment();
                 }}
               >
-                <Icon name="ios-chatboxes-outline" style={{ fontSize: 24 }} />
+                <Ionicons name="md-chatboxes" size={theme.iconMd} />
               </TouchableOpacity>
-              <Text style={{ fontSize: 12 }}>
-                {numberConverter(dataSource.commentCount)}
-              </Text>
+              <View styles={styles.cardLabelText}>
+                <Text style={{ fontSize: 12 }}>
+                  {numberConverter(dataSource.commentCount)}
+                </Text>
+              </View>
             </View>
             <View style={styles.cardLabels}>
               <TouchableOpacity
-                style={{
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
+                style={styles.cardLabelIonicons}
                 onPress={() => {
                   this.handleShare();
                 }}
               >
-                <Icon name="ios-open-outline" style={{ fontSize: 24 }} />
+                <Ionicons name="md-open" size={theme.iconMd} />
               </TouchableOpacity>
-              <Text style={{ fontSize: 12 }}>
-                {numberConverter(dataSource.sharedCount)}
-              </Text>
+              <View style={styles.cardLabelText}>
+                <Text style={{ fontSize: 12 }}>
+                  {numberConverter(dataSource.sharedCount)}
+                </Text>
+              </View>
             </View>
           </Left>
         </CardItemRow>
@@ -430,7 +409,7 @@ class PostCardComponent extends React.Component {
                 >
                   <Text style={{ color: "#4696EC" }} onPress={onPress}>
                     {`show more `}
-                    <Icon name="md-arrow-dropdown" />
+                    <Ionicons name="md-arrow-dropdown" />
                   </Text>
                 </TouchableOpacity>
               );
@@ -450,7 +429,7 @@ class PostCardComponent extends React.Component {
                 >
                   <Text style={{ color: "#4696EC" }}>
                     {`show less `}
-                    <Icon name="md-arrow-dropup" />
+                    <Ionicons name="md-arrow-dropup" />
                   </Text>
                 </TouchableOpacity>
               );
@@ -490,7 +469,8 @@ class PostCardComponent extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -514,6 +494,20 @@ const styles = StyleSheet.create({
     marginRight: 15,
     flexDirection: "column",
     justifyContent: "flex-start",
+    alignItems: "center",
+    height: 40,
+    width: 30
+  },
+  cardLabelIonicons: {
+    height: "70%",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  cardLabelText: {
+    height: "30%",
+    width: "100%",
+    justifyContent: "center",
     alignItems: "center"
   },
   card: {

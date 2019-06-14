@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import Ionicon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import { UIActivityIndicator } from "react-native-indicators";
 
 import theme from "../common/theme";
@@ -14,7 +14,7 @@ class HeaderRightButton extends React.Component {
       );
     }
     return (
-      <Ionicon name="md-send" size={theme.iconMd} color={theme.primaryBlue} />
+      <Ionicons name="md-send" size={theme.iconMd} color={theme.primaryBlue} />
     );
   };
 

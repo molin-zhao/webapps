@@ -1,16 +1,26 @@
-import { Shaders, Node } from 'gl-react';
-import React from 'react';
+import { Shaders, Node } from "gl-react";
+import React from "react";
 import resolveAssetSource from "react-native/Libraries/Image/resolveAssetSource";
 
-const inputImageTexture2 = resolveAssetSource(require('../../assets/filters/brannanProcess.png'))
-const inputImageTexture3 = resolveAssetSource(require('../../assets/filters/brannanBlowout.png'))
-const inputImageTexture4 = resolveAssetSource(require('../../assets/filters/brannanContrast.png'))
-const inputImageTexture5 = resolveAssetSource(require('../../assets/filters/brannanLuma.png'))
-const inputImageTexture6 = resolveAssetSource(require('../../assets/filters/brannanScreen.png'))
+const inputImageTexture2 = resolveAssetSource(
+  require("../../assets/filters/brannanProcess.png")
+);
+const inputImageTexture3 = resolveAssetSource(
+  require("../../assets/filters/brannanBlowout.png")
+);
+const inputImageTexture4 = resolveAssetSource(
+  require("../../assets/filters/brannanContrast.png")
+);
+const inputImageTexture5 = resolveAssetSource(
+  require("../../assets/filters/brannanLuma.png")
+);
+const inputImageTexture6 = resolveAssetSource(
+  require("../../assets/filters/brannanScreen.png")
+);
 
 const shaders = Shaders.create({
-    Brannan: {
-        frag: `
+  Brannan: {
+    frag: `
       precision highp float;
       varying vec2 uv;
       uniform sampler2D inputImageTexture;
@@ -70,30 +80,28 @@ const shaders = Shaders.create({
         texel.b = texture2D(inputImageTexture6, lookup).b;
         gl_FragColor = vec4(texel, 1.0);
       }`
-    }
+  }
 });
 
 export default class Brannan extends React.Component {
-    renderNode = () => {
-        const { on, children: inputImageTexture } = this.props;
-        if (!on) return this.props.children;
-        return (
-            <Node
-                shader={shaders.Brannan}
-                uniforms={{
-                    inputImageTexture,
-                    inputImageTexture2,
-                    inputImageTexture3,
-                    inputImageTexture4,
-                    inputImageTexture5,
-                    inputImageTexture6,
-                }}
-            />
-        );
-    }
-    render() {
-        return (
-            <this.renderNode />
-        );
-    }
+  renderNode = () => {
+    const { on, children: inputImageTexture } = this.props;
+    if (!on) return this.props.children;
+    return (
+      <Node
+        shader={shaders.Brannan}
+        uniforms={{
+          inputImageTexture,
+          inputImageTexture2,
+          inputImageTexture3,
+          inputImageTexture4,
+          inputImageTexture5,
+          inputImageTexture6
+        }}
+      />
+    );
+  };
+  render() {
+    return <this.renderNode />;
+  }
 }

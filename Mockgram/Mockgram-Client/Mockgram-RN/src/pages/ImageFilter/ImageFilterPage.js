@@ -9,16 +9,16 @@ import {
   TouchableWithoutFeedback,
   PixelRatio
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import window from "../../utils/getDeviceInfo";
+import { FontAwesome } from "@expo/vector-icons";
 import { Surface } from "gl-react-expo";
 import GLImage from "gl-react-image";
 import { Header } from "react-navigation";
-import MyHeader from "../../components/Header";
 import { SkypeIndicator } from "react-native-indicators";
 import { takeSnapshotAsync } from "expo";
+import { connect } from "react-redux";
 
 import Modal from "../../components/Modal";
+import MyHeader from "../../components/Header";
 
 import Brannan from "../../filters/Brannan";
 import Earlybird from "../../filters/Earlybird";
@@ -28,6 +28,7 @@ import Valencia from "../../filters/Valencia";
 import Normal from "../../filters/Normal";
 
 import theme from "../../common/theme";
+import window from "../../utils/getDeviceInfo";
 
 const shaderNames = {
   Normal: "Normal",
@@ -59,7 +60,7 @@ const opt = {
   width: pixels
 };
 
-export default class ImageFilterPage extends React.Component {
+class ImageFilterPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -238,32 +239,31 @@ export default class ImageFilterPage extends React.Component {
   };
 
   renderFilterModal = () => {
+    const { i18n } = this.props;
     return (
       <Modal visible={this.state.filterModalVisible} style={modalStyle}>
         <View style={styles.modalContent}>
           <MyHeader
             style={{ height: "20%", marginTop: 10 }}
-            headerTitle="Choose a filter"
-            rightIconButton={() => {
-              return (
-                <Icon
-                  name="check"
-                  size={20}
-                  onPress={() => {
-                    // confirm filter selection
-                    const { filterSelection } = this.state;
-                    this.setState({
-                      filterModalVisible: false,
-                      filterChoosed: filterSelection
-                    });
-                  }}
-                />
-              );
-            }}
+            headerTitle={`${i18n.t("CHOOSE_FILTER")}`}
+            rightIconButton={() => (
+              <FontAwesome
+                name="check"
+                size={theme.iconSm}
+                onPress={() => {
+                  // confirm filter selection
+                  const { filterSelection } = this.state;
+                  this.setState({
+                    filterModalVisible: false,
+                    filterChoosed: filterSelection
+                  });
+                }}
+              />
+            )}
             leftIconButton={() => (
-              <Icon
+              <FontAwesome
                 name="chevron-down"
-                size={20}
+                size={theme.iconSm}
                 onPress={() => {
                   // cancel filter selection
                   const { filterChoosed } = this.state;
@@ -299,16 +299,17 @@ export default class ImageFilterPage extends React.Component {
   };
 
   renderMetaModal = () => {
+    const { i18n } = this.props;
     return (
       <Modal visible={this.state.metaModalVisible} style={modalStyle}>
         <View style={styles.modalContent}>
           <MyHeader
             style={{ height: "20%", marginTop: 10 }}
-            headerTitle="Add tags"
+            headerTitle={`${i18n.t("META")}`}
             rightIconButton={() => (
-              <Icon
+              <FontAwesome
                 name="check"
-                size={20}
+                size={theme.iconSm}
                 onPress={() => {
                   // confirm filter selection
                   this.setState({
@@ -318,9 +319,9 @@ export default class ImageFilterPage extends React.Component {
               />
             )}
             leftIconButton={() => (
-              <Icon
+              <FontAwesome
                 name="chevron-down"
-                size={20}
+                size={theme.iconSm}
                 onPress={() => {
                   this.setState({
                     metaModalVisible: false
@@ -348,7 +349,6 @@ export default class ImageFilterPage extends React.Component {
       <TouchableWithoutFeedback
         onPress={() => {
           // close modal
-          console.log("touched");
           this.setState({
             filterModalVisible: false,
             metaModalVisible: false
@@ -362,20 +362,19 @@ export default class ImageFilterPage extends React.Component {
           source={{ uri: this.state.imageUri.uri }}
           resizeMode="cover"
         />
-        <View />
       </TouchableWithoutFeedback>
     );
   };
 
   renderFilterIcon = () => {
     if (this._checkFilterInitStatus()) {
-      return <Icon name="sliders" size={20} />;
+      return <FontAwesome name="sliders" size={theme.iconMd} />;
     }
-    return <SkypeIndicator size={20} />;
+    return <SkypeIndicator size={theme.iconMd} />;
   };
 
   renderMetaIcon = () => {
-    return <Icon name="tags" size={20} />;
+    return <FontAwesome name="tags" size={theme.iconMd} />;
   };
 
   renderBottomBar = () => {
@@ -440,13 +439,14 @@ export default class ImageFilterPage extends React.Component {
   };
 
   render() {
+    const { i18n } = this.props;
     return (
       <View style={styles.container}>
         {this.renderImageBackground()}
         <View style={styles.imageContentView}>
           <MyHeader
             style={{ backgroundColor: "transparent" }}
-            headerTitle="Edit your photo"
+            headerTitle={`${i18n.t("EDIT_PHOTO")}`}
             rightIconButton={() => {
               return (
                 <TouchableOpacity
@@ -456,15 +456,17 @@ export default class ImageFilterPage extends React.Component {
                     this.next();
                   }}
                 >
-                  <Text style={{ color: "black", fontSize: 15 }}>Next</Text>
+                  <Text style={{ color: "black", fontSize: 15 }}>{`${i18n.t(
+                    "NEXT"
+                  )}`}</Text>
                 </TouchableOpacity>
               );
             }}
             leftIconButton={() => {
               return (
-                <Icon
+                <FontAwesome
                   name="chevron-left"
-                  size={20}
+                  size={theme.iconSm}
                   onPress={() => {
                     const { navigation } = this.props;
                     navigation.dismiss();
@@ -482,6 +484,15 @@ export default class ImageFilterPage extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  i18n: state.app.i18n
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(ImageFilterPage);
 
 const styles = StyleSheet.create({
   container: {

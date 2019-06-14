@@ -8,8 +8,7 @@ import {
   Text,
   FlatList
 } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
-import Ionicon from "react-native-vector-icons/Ionicons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "react-navigation";
 import { SkypeIndicator } from "react-native-indicators";
 import { createStackNavigator } from "react-navigation";
@@ -66,7 +65,7 @@ class Tag extends React.Component {
           navigation.popToTop();
         }}
       >
-        <Icon name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={20} />
       </TouchableOpacity>
     ),
     headerRight: (
@@ -127,7 +126,7 @@ class Tag extends React.Component {
           }}
         >
           <Text style={{ color: "grey" }}>Added</Text>
-          <Ionicon
+          <Ionicons
             name="ios-checkmark"
             size={theme.iconSm}
             style={{ marginLeft: 2 }}
@@ -159,7 +158,11 @@ class Tag extends React.Component {
             flexDirection: "row"
           }}
         >
-          <Icon style={{ marginLeft: 15 }} name="hashtag" size={theme.iconSm} />
+          <FontAwesome
+            style={{ marginLeft: 15 }}
+            name="hashtag"
+            size={theme.iconSm}
+          />
           <Text style={{ marginLeft: 5, fontSize: 13, fontWeight: "bold" }}>
             {item.name}
           </Text>
@@ -404,13 +407,13 @@ class Tag extends React.Component {
             <View key={index} style={styles.section}>
               <SectionTitle
                 iconLabel={() => (
-                  <Ionicon
+                  <Ionicons
                     name={item.type === "tag" ? "ios-bonfire" : "ios-people"}
                     size={theme.iconSm}
                   />
                 )}
                 iconRight={() => (
-                  <Icon
+                  <FontAwesome
                     name="plus"
                     style={{ marginRight: 10 }}
                     size={theme.iconSm}
@@ -457,7 +460,7 @@ class Tag extends React.Component {
                 defaultLabelStyle={{ color: "#fff" }}
                 button={() => {
                   return (
-                    <Ionicon
+                    <Ionicons
                       name="md-close"
                       color={theme.primaryGrey}
                       size={theme.iconSm}
@@ -553,7 +556,7 @@ class Tag extends React.Component {
                 });
               }
             }}
-            rightIcon={() => {
+            rightFontAwesome={() => {
               return (
                 <Text style={{ fontWeight: "bold", fontSize: 12 }}>{`${
                   Object.keys(this.state.selectedTags).length

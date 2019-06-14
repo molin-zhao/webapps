@@ -7,7 +7,7 @@ import {
   FlatList,
   TouchableWithoutFeedback
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 import { BallIndicator, SkypeIndicator } from "react-native-indicators";
 import { connect } from "react-redux";
 import { withNavigation } from "react-navigation";
@@ -204,12 +204,14 @@ class CommentDetailPage extends React.Component {
       <View style={styles.container}>
         <Header
           headerTitle="comments"
-          rightIconButton={<Icon name="md-close" style={{ fontSize: 24 }} />}
+          rightIoniconsButton={
+            <Ionicons name="md-close" style={{ fontSize: 24 }} />
+          }
           rightButtonOnPress={() => {
             navigation.dismiss();
           }}
-          leftIconButton={
-            <Icon name="md-arrow-back" style={{ fontSize: 24 }} />
+          leftIoniconsButton={
+            <Ionicons name="md-arrow-back" style={{ fontSize: 24 }} />
           }
           leftButtonOnPress={() => {
             navigation.goBack();

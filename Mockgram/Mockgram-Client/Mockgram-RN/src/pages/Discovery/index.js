@@ -6,14 +6,19 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  FlatList
 } from "react-native";
 import { connect } from "react-redux";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
+import { SkypeIndicator } from "react-native-indicators";
+import { Header } from "react-navigation";
 
-import ListCell from "../../components/ListCell";
 import SearchBarView from "../../components/SearchBarView";
 import PostRecommend from "../Recommend/PostRecommend";
+import UserListCell from "../../components/UserListCell";
+import TagListCell from "../../components/TagListCell";
+import PlaceListCell from "../../components/PlaceListCell";
 
 import baseUrl from "../../common/baseUrl";
 import theme from "../../common/theme";
@@ -30,11 +35,21 @@ class DiscoveryIndex extends React.Component {
        * holding search and suggest results
        */
       peopleSuggestResult: [],
-      peopleSearchResult: [],
-      tagSuggestResult: [],
-      tagSearchResult: [],
-      placeSuggestResult: [],
-      placeSearchResult: [],
+      peopleSearchedResult: {
+        value: "",
+        data: [],
+        hasMore: true
+      },
+      tagSearchedResult: {
+        value: "",
+        data: [],
+        hasMore: true
+      },
+      placeSearchedResult: {
+        value: "",
+        data: [],
+        hasMore: true
+      },
 
       isSearching: false,
       searchValue: "",
@@ -43,10 +58,7 @@ class DiscoveryIndex extends React.Component {
       focused: false,
       activeIndex: 0, // by default the first tab
       activeColor: theme.primaryColor,
-      inactiveColor: "black",
-
-      loadingMore: false,
-      hasMore: true
+      inactiveColor: "black"
     };
   }
 
@@ -80,9 +92,9 @@ class DiscoveryIndex extends React.Component {
             searchBarDefaultWidth={window.width * 0.9}
             searchBarFocusedWidht={window.width * 0.8}
             duration={100}
-            rightIcon={() => {
+            rightIonicons={() => {
               return (
-                <Icon
+                <Ionicons
                   name="md-qr-scanner"
                   size={18}
                   onPress={() => {
@@ -143,20 +155,29 @@ class DiscoveryIndex extends React.Component {
 
   startSearch = () => {
     const { client } = this.props;
-    this.setState({
-      isSearching: true
-    });
+    const {
+      searchValue,
+      peopleSearchedResult,
+      tagSearchedResult,
+      placeSearchedResult
+    } = this.state;
     let category = "";
     let lastQueryData = [];
     if (this.state.activeIndex === 0) {
       category = "people";
-      lastQueryData = this.state.peopleSearchResult;
+      if (searchValue === peopleSearchedResult.value) {
+        lastQueryData = [...peopleSearchedResult.data];
+      }
     } else if (this.state.activeIndex === 1) {
       category = "tag";
-      lastQueryData = this.state.tagSearchResult;
+      if (searchValue === tagSearchedResult.value) {
+        lastQueryData = [...tagSearchedResult.data];
+      }
     } else {
       category = "place";
-      lastQueryData = this.state.placeSearchResult;
+      if (searchValue === placeSearchedResult.value) {
+        lastQueryData = [...placeSearchedResult.data];
+      }
     }
     let url = `${baseUrl.api}/discovery/search/${category}`;
     fetch(url, {
@@ -168,37 +189,70 @@ class DiscoveryIndex extends React.Component {
       body: JSON.stringify({
         limit: config.SEARCH_RETURN_LIMIT,
         userId: client ? client.user._id : null,
-        lastQueryDataIds:
-          this.state.loading || this.state.refreshing
-            ? []
-            : parseIdFromObjectArray(lastQueryData),
-        searchValue: this.state.searchValue
+        lastQueryDataIds: parseIdFromObjectArray(lastQueryData),
+        searchValue
       })
     })
       .then(res => res.json())
-      .then(res => {
-        if (category === "people") {
-          this.setState({
-            peopleSearchResult: this.state.loadingMore
-              ? lastQueryData.concat(res.data)
-              : res.data,
-            isSearching: false
-          });
-        } else if (category === "tag") {
-          this.setState({
-            tagSearchResult: this.state.loadingMore
-              ? lastQueryData.concat(res.data)
-              : res.data,
-            isSearching: false
-          });
+      .then(resJson => {
+        if (resJson.status === 200) {
+          if (category === "people") {
+            this.setState({
+              peopleSearchedResult: {
+                data:
+                  resJson.value === this.state.peopleSearchedResult.value
+                    ? lastQueryData.concat(resJson.data)
+                    : resJson.data,
+                value: resJson.value,
+                hasMore:
+                  resJson.data.length < config.SEARCH_RETURN_LIMIT
+                    ? false
+                    : true
+              },
+              isSearching: false
+            });
+          } else if (category === "tag") {
+            this.setState({
+              tagSearchedResult: {
+                data:
+                  resJson.value === this.state.tagSearchedResult.value
+                    ? lastQueryData.concat(resJson.data)
+                    : resJson.data,
+                value: resJson.value,
+                hasMore:
+                  resJson.data.length < config.SEARCH_RETURN_LIMIT
+                    ? false
+                    : true
+              },
+              isSearching: false
+            });
+          } else {
+            this.setState({
+              placeSearchedResult: {
+                data:
+                  resJson.value === this.state.placeSearchedResult.value
+                    ? lastQueryData.concat(resJson.data)
+                    : resJson.data,
+                value: resJson.value,
+                hasMore:
+                  resJson.data.length < config.SEARCH_RETURN_LIMIT
+                    ? false
+                    : true
+              },
+              isSearching: false
+            });
+          }
         } else {
           this.setState({
-            placeSearchResult: this.state.loadingMore
-              ? lastQueryData.concat(res.data)
-              : res.data,
             isSearching: false
           });
         }
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({
+          isSearching: false
+        });
       });
   };
 
@@ -209,21 +263,196 @@ class DiscoveryIndex extends React.Component {
   };
 
   tabSelected = index => {
+    const {
+      searchValue,
+      peopleSearchedResult,
+      tagSearchedResult,
+      placeSearchedResult
+    } = this.state;
     this.setState(
       {
         activeIndex: index
       },
       () => {
-        if (this.state.searchValue) {
-          this.startSearch();
+        switch (index) {
+          case 0:
+            if (peopleSearchedResult.value !== searchValue && searchValue) {
+              this.setState(
+                {
+                  isSearching: true
+                },
+                () => {
+                  this.startSearch();
+                }
+              );
+            }
+            break;
+          case 1:
+            if (tagSearchedResult.value !== searchValue && searchValue) {
+              this.setState(
+                {
+                  isSearching: true
+                },
+                () => {
+                  this.startSearch();
+                }
+              );
+            }
+            break;
+          case 2:
+            if (placeSearchedResult.value !== searchValue && searchValue) {
+              this.setState(
+                {
+                  isSearching: true
+                },
+                () => {
+                  this.startSearch();
+                }
+              );
+            }
+            break;
+          default:
+            break;
         }
       }
     );
   };
 
+  renderEmpty = () => {
+    const {
+      activeIndex,
+      isSearching,
+      searchValue,
+      searchBarInput
+    } = this.state;
+    const { i18n } = this.props;
+    if (!isSearching && searchValue && searchBarInput) {
+      // finished searching, got response.
+      switch (activeIndex) {
+        case 0:
+          return (
+            <View style={styles.listEmpty}>
+              <Text
+                style={{
+                  marginLeft: 20,
+                  marginTop: 10,
+                  fontSize: 13,
+                  color: "grey"
+                }}
+              >
+                {i18n.t("NO_ACCOUNTS_FOUND")}
+              </Text>
+            </View>
+          );
+        case 1:
+          return (
+            <View style={styles.listEmpty}>
+              <Text
+                style={{
+                  marginLeft: 20,
+                  marginTop: 10,
+                  fontSize: 13,
+                  color: "grey"
+                }}
+              >
+                {i18n.t("NO_TAGS_FOUND")}
+              </Text>
+            </View>
+          );
+        case 2:
+          return (
+            <View style={styles.listEmpty}>
+              <Text
+                style={{
+                  marginLeft: 20,
+                  marginTop: 10,
+                  fontSize: 13,
+                  color: "grey"
+                }}
+              >
+                {i18n.t("NO_LOCATIONS_FOUND")}
+              </Text>
+            </View>
+          );
+        default:
+          return null;
+      }
+    }
+  };
+
+  renderFooter = () => {
+    const {
+      activeIndex,
+      peopleSearchedResult,
+      tagSearchedResult,
+      placeSearchedResult
+    } = this.state;
+    const { i18n } = this.props;
+    switch (activeIndex) {
+      case 0:
+        if (peopleSearchedResult.data.length > 0) {
+          return (
+            <View style={styles.listFooter}>
+              {peopleSearchedResult.hasMore ? (
+                <SkypeIndicator size={theme.indicatorSm} />
+              ) : (
+                <Text style={{ color: "grey", fontSize: 12 }}>
+                  {`${i18n.t("NO_MORE_USERS")}`}
+                </Text>
+              )}
+            </View>
+          );
+        }
+        return null;
+      case 1:
+        if (tagSearchedResult.data.length > 0) {
+          return (
+            <View style={styles.listFooter}>
+              {tagSearchedResult.hasMore ? (
+                <SkypeIndicator size={theme.indicatorSm} />
+              ) : (
+                <Text style={{ color: "grey", fontSize: 12 }}>
+                  {`${i18n.t("NO_MORE_TAGS")}`}
+                </Text>
+              )}
+            </View>
+          );
+        }
+        return null;
+      case 2:
+        if (placeSearchedResult.data.length > 0) {
+          return (
+            <View style={styles.listFooter}>
+              {placeSearchedResult.hasMore ? (
+                <SkypeIndicator size={theme.indicatorSm} />
+              ) : (
+                <Text style={{ color: "grey", fontSize: 12 }}>
+                  {`${i18n.t("NO_MORE_LOCATIONS")}`}
+                </Text>
+              )}
+            </View>
+          );
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+
   renderSection = () => {
     // if page is searching for user input
-    if (this.state.isSearching) {
+    const {
+      isSearching,
+      searchValue,
+      activeIndex,
+      searchBarInput,
+      peopleSearchedResult,
+      tagSearchedResult,
+      placeSearchedResult,
+      peopleSuggestResult
+    } = this.state;
+    const { i18n } = this.props;
+    if (isSearching) {
       return (
         <View
           style={{
@@ -237,69 +466,152 @@ class DiscoveryIndex extends React.Component {
           <Text
             style={{ fontWeight: "bold", fontSize: 13, color: "lightgrey" }}
           >
-            Searching for {this.state.searchBarInput} ...
+            {`${i18n.t("SEARCHING")} ${searchBarInput} ...`}
           </Text>
           <ActivityIndicator size="small" color="lightgrey" />
         </View>
       );
     } else {
-      if (this.state.searchValue) {
+      if (searchValue && searchBarInput) {
         // page should search for user input
-        if (this.state.activeIndex === 0) {
-          return (
-            <ListCell
-              dataSource={this.state.peopleSearchResult}
-              type="people"
-              resultType="search"
-            />
-          );
-        } else if (this.state.activeIndex === 1) {
-          return (
-            <ListCell
-              dataSource={this.state.tagSearchResult}
-              type="tag"
-              resultType="search"
-            />
-          );
-        } else {
-          return (
-            <ListCell
-              dataSource={this.state.placeSearchResult}
-              type="place"
-              resultType="search"
-            />
-          );
+        switch (activeIndex) {
+          case 0:
+            return (
+              <FlatList
+                keyExtractor={item => item._id}
+                data={peopleSearchedResult.data}
+                renderItem={({ item, index }) => {
+                  return <UserListCell key={index} dataSource={item} />;
+                }}
+                onEndReached={() => {
+                  console.log("people reached");
+                }}
+                onEndReachedThreshold={0.1}
+                ListEmptyComponent={this.renderEmpty}
+                ListFooterComponent={this.renderFooter}
+              />
+            );
+          case 1:
+            return (
+              <FlatList
+                keyExtractor={item => item._id}
+                data={tagSearchedResult.data}
+                renderItem={({ item, index }) => {
+                  return <TagListCell key={index} dataSource={item} />;
+                }}
+                onEndReached={() => {
+                  console.log("tag reached");
+                }}
+                onEndReachedThreshold={0.1}
+                ListEmptyComponent={this.renderEmpty}
+                ListFooterComponent={this.renderFooter}
+              />
+            );
+
+          case 2:
+            return (
+              <FlatList
+                keyExtractor={item => item._id}
+                data={placeSearchedResult.data}
+                renderItem={({ item, index }) => {
+                  return <PlaceListCell key={index} dataSource={item} />;
+                }}
+                onEndReached={() => {
+                  console.log("place reached");
+                }}
+                onEndReachedThreshold={0.1}
+                ListEmptyComponent={this.renderEmpty}
+                ListFooterComponent={this.renderFooter}
+              />
+            );
+          default:
+            return null;
         }
       } else {
         // page should show suggest to user
-        if (this.state.activeIndex === 0) {
-          // search for first tab and render it out
-          return (
-            <ListCell
-              dataSource={this.state.peopleSuggestResult}
-              type="people"
-              resultType="suggest"
-            />
-          );
-        } else if (this.state.activeIndex === 1) {
-          return (
-            <ListCell
-              dataSource={this.state.tagSuggestResult}
-              type="tag"
-              resultType="suggest"
-            />
-          );
-        } else {
-          return (
-            <ListCell
-              dataSource={this.state.placeSuggestResult}
-              type="place"
-              resultType="suggest"
-            />
-          );
-        }
+        return (
+          <FlatList
+            data={peopleSuggestResult}
+            renderItem={({ item, index }) => {
+              return <UserListCell key={index} dataSource={item} />;
+            }}
+            keyExtractor={item => item._id}
+          />
+        );
       }
     }
+  };
+
+  renderSuggestedLabel = () => {
+    const { i18n } = this.props;
+    return (
+      <View style={styles.listEmpty}>
+        <Text
+          style={{
+            marginLeft: 20,
+            fontSize: 15,
+            fontWeight: "bold",
+            color: "black"
+          }}
+        >
+          {i18n.t("SUGGEST")}
+        </Text>
+      </View>
+    );
+  };
+
+  renderTabBar = tabBarArray => {
+    const { activeIndex } = this.state;
+    return (
+      <View style={styles.tabBarTop}>
+        {tabBarArray.map((tabName, index) => {
+          return (
+            <TouchableOpacity
+              key={index}
+              activeOpacity={0.7}
+              style={styles.tabBarTab}
+              onPress={() => {
+                this.tabSelected(index);
+              }}
+            >
+              <Text style={{ fontSize: 15, color: this.activeStyle(index) }}>
+                {tabName}
+              </Text>
+              {activeIndex === index ? (
+                <View style={styles.tabUnderline} />
+              ) : null}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
+
+  renderContentHeader = () => {
+    const { searchBarInput, searchValue, focused } = this.state;
+    return (
+      <View
+        style={{
+          width: window.width,
+          justifyContent: "flex-start",
+          alignItems: "flex-start"
+        }}
+      >
+        {this.renderTabBar(["People", "Tag", "Place"])}
+        {focused && !searchBarInput && !searchValue
+          ? this.renderSuggestedLabel()
+          : null}
+      </View>
+    );
+  };
+
+  renderContentView = () => {
+    return (
+      <View style={styles.tabView}>
+        {this.renderContentHeader()}
+        {this.renderSection()}
+      </View>
+    );
   };
 
   render() {
@@ -311,36 +623,7 @@ class DiscoveryIndex extends React.Component {
       >
         <View style={styles.container}>
           <View style={[styles.content, { zIndex: 1 }]}>
-            <View style={styles.tabBarTop}>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                style={styles.tabBarTab}
-                onPress={() => this.tabSelected(0)}
-              >
-                <Text style={{ fontSize: 15, color: this.activeStyle(0) }}>
-                  People
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                style={styles.tabBarTab}
-                onPress={() => this.tabSelected(1)}
-              >
-                <Text style={{ fontSize: 15, color: this.activeStyle(1) }}>
-                  Tag
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                style={styles.tabBarTab}
-                onPress={() => this.tabSelected(2)}
-              >
-                <Text style={{ fontSize: 15, color: this.activeStyle(2) }}>
-                  Place
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.tabView}>{this.renderSection()}</View>
+            {this.renderContentView()}
           </View>
           <PostRecommend
             onRef={o => (this._postRecommend = o)}
@@ -353,7 +636,8 @@ class DiscoveryIndex extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(
@@ -379,7 +663,7 @@ const styles = StyleSheet.create({
   tabBarTop: {
     flexDirection: "row",
     flexWrap: "nowrap",
-    height: window.width * 0.15,
+    height: window.height * 0.08,
     width: "100%",
     borderBottomColor: "lightgrey",
     borderBottomWidth: 0.5,
@@ -387,9 +671,17 @@ const styles = StyleSheet.create({
   },
   tabBarTab: {
     flex: 1,
-    flexDirection: "column",
+    height: "100%",
     justifyContent: "center",
     alignItems: "center"
+  },
+  tabUnderline: {
+    position: "absolute",
+    bottom: 0,
+    backgroundColor: theme.primaryColor,
+    width: "50%",
+    height: "5%",
+    left: "25%"
   },
   tabView: {
     flex: 1,
@@ -398,5 +690,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     marginTop: 0
+  },
+  listFooter: {
+    alignItems: "center",
+    justifyContent: "center",
+    height: 2 * Header.HEIGHT
+  },
+  listEmpty: {
+    width: window.width,
+    height: window.height * 0.08,
+    justifyContent: "center",
+    alignItems: "flex-start"
   }
 });
