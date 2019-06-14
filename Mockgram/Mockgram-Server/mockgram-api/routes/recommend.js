@@ -74,6 +74,7 @@ router.get("/user", verifyAuthorization, (req, res) => {
     });
 });
 
+// query for recommended posts
 router.post("/post", (req, res) => {
   let userId = convertStringToObjectId(req.body.userId);
   let lastQueryDataIds = convertStringArrToObjectIdArr(
@@ -81,12 +82,22 @@ router.post("/post", (req, res) => {
   );
   let limit = parseInt(req.body.limit);
   // TODO - for test
-  Post.getPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
+  if (userId) {
+    return Post.getPosts(userId, lastQueryDataIds, limit).exec((err, posts) => {
+      if (err) return handleError(res, err);
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: posts
+      });
+    });
+  }
+  return Post.find({}).exec((err, doc) => {
     if (err) return handleError(res, err);
     return res.json({
       status: response.SUCCESS.OK.CODE,
       msg: response.SUCCESS.OK.MSG,
-      data: posts
+      data: doc
     });
   });
 });

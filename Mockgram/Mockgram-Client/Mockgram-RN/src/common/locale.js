@@ -30,6 +30,9 @@ export const locale = {
     LIBRARY: "Library",
     CAMERA: "Camera",
     NEXT: "Next",
+    NEARBY: "Nearby",
+    HOT: "Hot",
+    SHOP: "Shop",
 
     // information
     SYSTEM_LANG: "System language: en-GB",
@@ -88,6 +91,9 @@ export const locale = {
     LIBRARY: "Library",
     CAMERA: "Camera",
     NEXT: "Next",
+    NEARBY: "Nearby",
+    HOT: "Hot",
+    SHOP: "Shop",
 
     // information
     SYSTEM_LANG: "System language: en-US",
@@ -146,6 +152,9 @@ export const locale = {
     LIBRARY: "相册",
     CAMERA: "相机",
     NEXT: "下一步",
+    NEARBY: "附近",
+    HOT: "最热",
+    SHOP: "商店",
 
     // 提示信息
     SYSTEM_LANG: "系统语言: 中文简体",

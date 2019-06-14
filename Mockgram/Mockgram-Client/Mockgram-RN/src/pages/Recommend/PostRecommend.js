@@ -215,6 +215,7 @@ class PostRecommend extends React.Component {
 
   renderFooter = () => {
     const { loading, loadingMore, refreshing, hasMore, data } = this.state;
+    const { i18n } = this.props;
     if (!loading && !loadingMore && !refreshing && data.length === 0) {
       return null;
     }
@@ -224,8 +225,7 @@ class PostRecommend extends React.Component {
           <SkypeIndicator size={25} />
         ) : (
           <Text style={{ color: "grey", fontSize: 12 }}>
-            {" "}
-            - No more recommend posts -{" "}
+            {`${i18n.t("NO_MORE_POSTS")}`}
           </Text>
         )}
       </View>
@@ -244,7 +244,9 @@ class PostRecommend extends React.Component {
     const { error } = this.state;
     return (
       <View style={styles.errorMsgView}>
-        <Text>{error.sourceURL ? "Network request failed" : error}</Text>
+        <Text>
+          {error.sourceURL ? `${i18n.t("NETWORK_REQUEST_ERROR")}` : error}
+        </Text>
       </View>
     );
   };
@@ -258,6 +260,7 @@ class PostRecommend extends React.Component {
   };
 
   renderHeader = () => {
+    const { i18n } = this.props;
     return (
       <View style={styles.sectionHeader}>
         <TouchableOpacity
@@ -267,7 +270,7 @@ class PostRecommend extends React.Component {
           }}
         >
           <Ionicons name="ios-pin" size={16} />
-          <Text style={{ fontSize: 12 }}>Nearby</Text>
+          <Text style={{ fontSize: 12 }}>{`${i18n.t("NEARBY")}`}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.section}
@@ -276,7 +279,7 @@ class PostRecommend extends React.Component {
           }}
         >
           <Ionicons name="ios-flame" size={16} />
-          <Text style={{ fontSize: 12 }}>Hot</Text>
+          <Text style={{ fontSize: 12 }}>{`${i18n.t("HOT")}`}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.section}
@@ -285,7 +288,7 @@ class PostRecommend extends React.Component {
           }}
         >
           <Ionicons name="ios-cart" size={16} />
-          <Text style={{ fontSize: 12 }}>Shop</Text>
+          <Text style={{ fontSize: 12 }}>{`${i18n.t("SHOP")}`}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -364,7 +367,8 @@ class PostRecommend extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(
