@@ -514,7 +514,7 @@ module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"wrapper\">\n  <div class=\"mockgram-icon\">\n    <img src=\"../../../assets/mockgram-icon.png\">\n  </div>\n  <div class=\"description\">\n    <h2>Mockgram</h2>\n    <div>\n      <h3>is a love affair with life</h3>\n    </div>\n  </div>\n</div>\n"
+module.exports = "<div class=\"wrapper\">\n  <div class=\"mockgram-icon\">\n    <img src=\"../../../assets/mockgram-icon.png\">\n  </div>\n  <div class=\"description\">\n    <h2>Mockgram</h2>\n    <div>\n      <h3>a love affair with life</h3>\n    </div>\n  </div>\n</div>\n"
 
 /***/ }),
 
