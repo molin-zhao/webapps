@@ -1,5 +1,5 @@
-export default baseUrl = {
-    api: 'http://172.20.10.11:3031',
-    upload: 'http://172.20.10.11:3032',
-    socket: 'http://172.20.10.11:3033'
-}
+export default (baseUrl = {
+  api: "https://api.mockgram.molinz.com",
+  upload: "https://image.mockgram.molinz.com",
+  socket: "https://socket.mockgram.molinz.com"
+});
