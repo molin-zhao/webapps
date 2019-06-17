@@ -62,8 +62,12 @@ exports.uploadImage = (limit, fileLocation, file, cb) => {
       // connect-multiparty will creates temp files on server
       // we should manually clean it after saving file to target path
       let tmpPath = file.path;
+      console.log(tmpPath);
       fs.rename(tmpPath, fileLocation, err => {
-        if (err) return cb(response.ERROR.SAVING_FILE_ERROR);
+        if (err) {
+          console.log(err);
+          return cb(response.ERROR.SAVING_FILE_ERROR);
+        }
         try {
           fs.unlinkSync(tmpPath);
         } catch (e) {
