@@ -9,7 +9,7 @@
   <span class="text-danger" style="font-size: 14px" *ngIf="message">{{message}}</span>
   <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center">
     <div class="image-preview">
-      <img [src]="imageUrl" *ngIf="imageUrl" style="object-fit: cover">
+      <img [src]="imageUrl" *ngIf="imageUrl" style="object-fit: contain">
     </div>
     <div style="height:20px; width: 100%"></div>
     <div style="display:flex; flex-direction: row; justify-content: center; align-items: center">

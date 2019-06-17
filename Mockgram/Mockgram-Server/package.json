@@ -26,6 +26,7 @@
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-google-oauth2": "^0.2.0",
+    "sharp": "^0.22.1",
     "socket.io": "^2.1.1",
     "superagent": "^4.1.0"
   }

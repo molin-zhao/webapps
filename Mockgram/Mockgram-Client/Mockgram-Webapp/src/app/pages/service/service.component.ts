@@ -62,11 +62,21 @@ export class ServiceComponent implements OnInit {
         return this.ng2ImgMax.compressImage(this.imageFile, 1).subscribe(
           result => {
             let resultFile = this.blobToFile(result);
-            return this.sendToServer(resultFile);
+            return this.ng2ImgMax.resizeImage(resultFile, 300, 300).subscribe(
+              result => {
+                let resizedFile = this.blobToFile(result);
+                return this.sendToServer(resizedFile);
+              },
+              error => {
+                console.log(error);
+                this.message = error.reason;
+                this.uploading = false;
+              }
+            );
           },
           error => {
             console.log(error);
-            this.message = error;
+            this.message = error.reason;
             this.uploading = false;
           }
         );
