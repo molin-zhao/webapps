@@ -62,7 +62,7 @@ exports.uploadImage = (limit, fileLocation, file, cb) => {
       // connect-multiparty will creates temp files on server
       // we should manually clean it after saving file to target path
       let tmpPath = file.path;
-      fs.copyFile(tmpPath, fileLocation, err => {
+      fs.rename(tmpPath, fileLocation, err => {
         if (err) {
           console.log(err);
           return cb(response.ERROR.SAVING_FILE_ERROR);

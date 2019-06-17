@@ -9,4 +9,6 @@ package-lock.json
 dump.rdb
 
 #ignore folders
-public/upload/*
+public/upload/image/avatar/*
+public/upload/image/post/*
+public/upload/image/tmp/*

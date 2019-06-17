@@ -23,6 +23,8 @@ from .utils import label_map_util
 
 MODEL_NAME = 'ssd_mobilenet_v2_coco_2018_03_29'
 LABEL_NAME = 'mscoco_label_map.pbtxt'
+IMG_HEIGHT = 300
+IMG_WIDTH = 300
 PATH_TO_FROZEN_GRAPH = os.path.join('object_detection/', MODEL_NAME + '/frozen_inference_graph.pb')
 PATH_TO_LABELS = os.path.join('object_detection/','label/'+LABEL_NAME)
 
@@ -47,6 +49,7 @@ def load_image_into_numpy_array(image):
 def detect_image(image_src, threshold=0.5):
   response = req.get(image_src)
   image = Image.open(BytesIO(response.content))
+  image.thumbnail(IMG_WIDTH, IMG_HEIGHT)
   image_np = load_image_into_numpy_array(image)
   image_np_expanded = np.expand_dims(image_np, axis=0)
   image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
