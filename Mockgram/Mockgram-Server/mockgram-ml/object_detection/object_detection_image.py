@@ -49,7 +49,7 @@ def load_image_into_numpy_array(image):
 def detect_image(image_src, threshold=0.5):
   response = req.get(image_src)
   image = Image.open(BytesIO(response.content))
-  image.thumbnail(IMG_WIDTH, IMG_HEIGHT)
+  image.resize((IMG_WIDTH, IMG_HEIGHT))
   image_np = load_image_into_numpy_array(image)
   image_np_expanded = np.expand_dims(image_np, axis=0)
   image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
