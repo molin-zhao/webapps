@@ -68,6 +68,7 @@ exports.uploadImage = (limit, fileLocation, file, cb) => {
           fs.unlinkSync(tmpPath);
         } catch (e) {
           //pass
+          console.log(e);
         } finally {
           return cb(null);
         }

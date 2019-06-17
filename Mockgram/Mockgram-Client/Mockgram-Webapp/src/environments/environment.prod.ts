@@ -1,4 +1,8 @@
 export const environment = {
   production: true,
-  serverAddress: 'https://mockgram.molinz.com'
+  serverAddress: {
+    imageServer: "https://image.mockgram.molinz.com",
+    apiServer: "https://api.mockgram.molinz.com",
+    mlServer: "https://ml.mockgram.molinz.com"
+  }
 };

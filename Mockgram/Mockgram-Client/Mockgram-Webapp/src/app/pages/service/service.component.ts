@@ -47,7 +47,7 @@ export class ServiceComponent implements OnInit {
       },
       err => {
         console.log(err);
-        this.message = err;
+        this.message = typeof err === "string" ? err : err.message;
         this.uploading = false;
       }
     );

@@ -4,7 +4,11 @@
 
 export const environment = {
   production: false,
-  serverAddress: 'http://172.20.10.11:3032'
+  serverAddress: {
+    imageServer: "http://172.20.10.11:3032",
+    apiServer: "http://172.20.10.11:3031",
+    mlServer: "http://172.20.10.11:8000"
+  }
 };
 
 /*

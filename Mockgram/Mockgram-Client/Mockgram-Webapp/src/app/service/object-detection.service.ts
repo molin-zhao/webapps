@@ -7,14 +7,11 @@ import { Observable } from "rxjs";
   providedIn: "root"
 })
 export class ObjectDetectionService {
-  private serverAddress: string = environment.serverAddress;
+  private imageServer: String = environment.serverAddress.imageServer;
 
   constructor(private http: HttpClient) {}
 
   objectDetection(file): Observable<any> {
-    return this.http.post(
-      `${this.serverAddress}/service/object-detection`,
-      file
-    );
+    return this.http.post(`${this.imageServer}/service/object-detection`, file);
   }
 }
