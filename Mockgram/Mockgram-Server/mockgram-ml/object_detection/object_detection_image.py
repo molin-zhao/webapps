@@ -38,7 +38,7 @@ with detection_graph.as_default():
 
 category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 sess = tf.Session(graph=detection_graph)
-print('tensorflow session init finished');
+print('tensorflow session init finished')
 
 
 # detection util functions
