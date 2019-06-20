@@ -282,7 +282,7 @@ class PostCardComponent extends React.Component {
    */
   render() {
     const { dataSource } = this.state;
-    const { client, navigation } = this.props;
+    const { client, navigation, i18n } = this.props;
     return (
       <View
         style={[styles.card, this.props.style]}
@@ -393,7 +393,7 @@ class PostCardComponent extends React.Component {
         </CardItemRow>
         <CardItemCol style={styles.cardItemCol}>
           <ViewMoreText
-            numberOfLines={2}
+            numberOfLines={3}
             renderViewMore={onPress => {
               return (
                 <TouchableOpacity
@@ -408,7 +408,7 @@ class PostCardComponent extends React.Component {
                   }}
                 >
                   <Text style={{ color: "#4696EC" }} onPress={onPress}>
-                    {`show more `}
+                    {`${i18n.t("SHOW_MORE")} `}
                     <Ionicons name="md-arrow-dropdown" />
                   </Text>
                 </TouchableOpacity>
@@ -428,7 +428,7 @@ class PostCardComponent extends React.Component {
                   }}
                 >
                   <Text style={{ color: "#4696EC" }}>
-                    {`show less `}
+                    {`${i18n.t("SHOW_LESS")} `}
                     <Ionicons name="md-arrow-dropup" />
                   </Text>
                 </TouchableOpacity>
@@ -443,14 +443,18 @@ class PostCardComponent extends React.Component {
             </Text>
           </ViewMoreText>
           <View style={{ marginTop: 5, height: 20 }}>
-            <Text
-              style={{ fontSize: 12, color: "grey" }}
-            >{`published ${dateConverter(dataSource.createdAt)}`}</Text>
+            <Text style={{ fontSize: 12, color: "grey" }}>{`${i18n.t(
+              "PUBLISHED"
+            )} ${dateConverter(dataSource.createdAt)}`}</Text>
           </View>
         </CardItemCol>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          options={["Share", "Mute", "Cancel"]}
+          options={[
+            `${i18n.t("SHARE")}`,
+            `${i18n.t("MUTE")}`,
+            `${i18n.t("CANCEL")}`
+          ]}
           cancelButtonIndex={2}
           destructiveButtonIndex={1}
           onPress={index => {

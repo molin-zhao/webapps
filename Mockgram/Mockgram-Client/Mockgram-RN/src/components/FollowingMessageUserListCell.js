@@ -77,33 +77,36 @@ class FollowingMessasgeUserListCell extends React.Component {
   };
 
   renderButton = () => {
-    const { client } = this.props;
+    const { client, i18n } = this.props;
     const { dataSource } = this.state;
     if (client && client.user._id === dataSource._id) {
       return null;
     }
     let followStyle = {
+      width: Math.floor(window.width * 0.25),
+      height: Math.floor(window.height * 0.04),
       backgroundColor: theme.primaryColor
     };
     let followingStyle = {
+      width: Math.floor(window.width * 0.25),
+      height: Math.floor(window.height * 0.04),
       backgroundColor: "lightgrey",
       borderColor: "black"
     };
     return (
       <Button
-        containerStyle={[
-          { width: 90, height: 40 },
-          dataSource.followed ? followingStyle : followStyle
-        ]}
+        containerStyle={dataSource.followed ? followingStyle : followStyle}
         loading={this.state.loading}
-        titleStyle={[{ fontSize: 14, color: "#fff" }]}
+        titleStyle={{ fontSize: 14, color: "#fff" }}
         iconRight={() => {
           if (dataSource.followed) {
             return <Ionicons name="md-checkmark" color="#fff" size={18} />;
           }
           return null;
         }}
-        title={dataSource.followed ? "following" : "follow"}
+        title={
+          dataSource.followed ? `${i18n.t("FOLLOWING")}` : `${i18n.t("FOLLOW")}`
+        }
         onPress={() => {
           dataSource.followed
             ? this.showActionSheet()
@@ -113,22 +116,27 @@ class FollowingMessasgeUserListCell extends React.Component {
     );
   };
   renderRecentMessage = message => {
+    const { i18n } = this.props;
     if (message) {
       let messageType = message.messageType;
       switch (messageType) {
         case "LikePost":
-          return `Liked a post · ${message.postReference.description}`;
+          return `${i18n.t("LIKE_POST")}${message.postReference.description}`;
         case "LikeComment":
-          return `Liked a comment · ${message.commentReference.content}`;
+          return `${i18n.t("LIKE_COMMENT")}${message.commentReference.content}`;
         case "LikeReply":
-          return `Liked a reply · ${message.replyReference.content}`;
+          return `${i18n.t("LIKE_REPLY")}${message.replyReference.content}`;
         case "CommentPost":
-          return `Commented on a post · ${message.postReference.description}`;
+          return `${i18n.t("COMMENT_POST")}${
+            message.postReference.description
+          }`;
         case "ReplyReply":
         case "ReplyComment":
-          return `Replied to a comment · ${message.commentReference.content}`;
+          return `${i18n.t("REPLY_COMMENT")}${
+            message.commentReference.content
+          }`;
         case "Follow":
-          return `Followed user ${message.receiver.username}`;
+          return `${i18n.t("FOLLOW_ACTION")}${message.receiver.username}`;
         default:
           return null;
       }
@@ -137,7 +145,7 @@ class FollowingMessasgeUserListCell extends React.Component {
   };
 
   render() {
-    const { dataSource, navigation } = this.props;
+    const { dataSource, navigation, i18n } = this.props;
     return (
       <View style={styles.container}>
         <TouchableOpacity
@@ -193,18 +201,17 @@ class FollowingMessasgeUserListCell extends React.Component {
           style={{
             flex: 1,
             justifyContent: "center",
-            alignItems: "center"
+            alignItems: "center",
+            marginRight: theme.paddingToWindow
           }}
         >
           {this.renderButton()}
         </View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          title="Confirm this action to unfollow user"
-          message={`\nDo you want to unfollow user ${
-            dataSource.username
-          }?\nYou will not receive any updates and messages from this user`}
-          options={["confirm", "cancel"]}
+          title={`${i18n.t("UNFOLLOW_TITLE")}`}
+          message={`${i18n.t("UNFOLLOW_INFO")}`}
+          options={[`${i18n.t("CONFIRM")}`, `${i18n.t("CANCEL")}`]}
           cancelButtonIndex={1}
           onPress={index => {
             if (index === 0) {
@@ -219,7 +226,8 @@ class FollowingMessasgeUserListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(
@@ -230,7 +238,7 @@ export default connect(
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: window.height * 0.15,
+    height: Math.floor(window.height * 0.15),
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "row"

@@ -33,30 +33,42 @@ class CreateTopic extends React.Component {
       error: ""
     };
   }
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      borderBottomColor: "transparent",
-      borderBottomWidth: 0,
-      shadowColor: "transparent",
-      elevation: 0
-    },
-    title: "Create Topic",
-    headerTitleStyle: {
-      fontSize: 14
-    },
-    headerLeft: (
-      <TouchableOpacity
-        style={{ marginLeft: 20 }}
-        onPress={() => {
-          navigation.goBack();
-        }}
-      >
-        <FontAwesome name="chevron-left" size={20} />
-      </TouchableOpacity>
-    )
-  });
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("createTopicTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      )
+    };
+  };
+
+  componentDidMount() {
+    const { navigation, i18n } = this.props;
+    navigation.setParams({
+      CreateTopicTitle: `${i18n.t("CREAT_TITLE", {
+        value: `${i18n.t("TOPIC")}`
+      })}`
+    });
+  }
 
   renderBtn = () => {
+    const { i18n } = this.props;
     const {
       nameSearchValue,
       nameValid,
@@ -67,7 +79,7 @@ class CreateTopic extends React.Component {
     return (
       <Button
         loading={creating}
-        title="create"
+        title={`${i18n.t("CREATE")}`}
         titleStyle={{ color: "#fff", fontSize: 12 }}
         iconLeft={() => {
           if (valid) {
@@ -127,12 +139,13 @@ class CreateTopic extends React.Component {
 
   renderDropdownAlert = () => {
     const { created } = this.state;
+    const { i18n } = this.props;
     if (created) {
       return (
         <View style={[styles.dropdown, { borderColor: theme.primaryGreen }]}>
-          <Text
-            style={{ color: theme.primaryGreen }}
-          >{`Created successfully`}</Text>
+          <Text style={{ color: theme.primaryGreen }}>{`${i18n.t(
+            "CREATED_SUCCESSFULLY"
+          )}`}</Text>
           <Ionicons
             name="ios-checkmark-circle-outline"
             size={theme.iconMd}
@@ -143,9 +156,10 @@ class CreateTopic extends React.Component {
     }
     return (
       <View style={[styles.dropdown, { borderColor: theme.primaryWarning }]}>
-        <Text
-          style={{ color: theme.primaryWarning }}
-        >{`Tag was not created`}</Text>
+        <Text style={{ color: theme.primaryWarning }}>{`${i18n.t(
+          "NOT_CREATED",
+          { value: `${i18n.t("TOPIC")}` }
+        )}`}</Text>
         <Ionicons
           name="ios-close-circle-outline"
           size={theme.iconMd}
@@ -156,6 +170,7 @@ class CreateTopic extends React.Component {
   };
 
   render() {
+    const { i18n } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -170,10 +185,10 @@ class CreateTopic extends React.Component {
             <View style={styles.input}>
               <AjaxInput
                 label={() => {
-                  return <Text>{`Name:`}</Text>;
+                  return <Text>{`${i18n.t("NAME")}:`}</Text>;
                 }}
                 fetchUrl={`${baseUrl.api}/discovery/topic/available`}
-                placeholder="Create a name for topic..."
+                placeholder={`${i18n.t}`}
                 containerStyle={{ width: "100%", height: "100%" }}
                 onValid={searchValue => {
                   this.setState({
@@ -219,7 +234,9 @@ class CreateTopic extends React.Component {
                     borderRadius: 5,
                     borderColor: "lightgrey"
                   }}
-                  placeholder="Description for topic..."
+                  placeholder={`${i18n.t("CREATE_FOR", {
+                    value: `${i18n.t("TOPIC")}`
+                  })}`}
                   numberOfLines={4}
                   multiline={true}
                   onChangeText={text => {
@@ -260,7 +277,8 @@ class CreateTopic extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(

@@ -6,28 +6,39 @@ import { FontAwesome } from "@expo/vector-icons";
 import PolygonCreator from "../../components/PolygonCreator";
 
 class CreateLocation extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      borderBottomColor: "transparent",
-      borderBottomWidth: 0,
-      shadowColor: "transparent",
-      elevation: 0
-    },
-    title: "Create Location",
-    headerTitleStyle: {
-      fontSize: 14
-    },
-    headerLeft: (
-      <TouchableOpacity
-        style={{ marginLeft: 20 }}
-        onPress={() => {
-          navigation.popToTop();
-        }}
-      >
-        <FontAwesome name="chevron-left" size={20} />
-      </TouchableOpacity>
-    )
-  });
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("createLocationTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.popToTop();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      )
+    };
+  };
+
+  componentDidMount() {
+    const { i18n, navigation } = this.props;
+    navigation.setParams({
+      createLocationTitle: `${i18n.t("CREATE_TITLE", {
+        value: `${i18n.t("LOCATION")}`
+      })}`
+    });
+  }
 
   render() {
     const { navigation, client } = this.props;
@@ -41,7 +52,8 @@ class CreateLocation extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(

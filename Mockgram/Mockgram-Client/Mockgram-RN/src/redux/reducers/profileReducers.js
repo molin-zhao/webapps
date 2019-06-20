@@ -9,13 +9,22 @@ export const profile = (
   state = {
     profile: null,
     errMsg: null,
-    created: [],
-    liked: [],
-    mentioned: []
+    created: {
+      data: [],
+      hasMore: true
+    },
+    liked: {
+      data: [],
+      hasMore: true
+    },
+    mentioned: {
+      data: [],
+      hasMore: true
+    }
   },
   action
 ) => {
-  let { data, type, error } = action.payload ? action.payload : {};
+  let { data, type, error, hasMore } = action.payload ? action.payload : {};
   switch (action.type) {
     case ActionTypes.ADD_CLIENT_PROFILE:
       return { ...state, profile: data, errMsg: null };
@@ -23,43 +32,64 @@ export const profile = (
       return { ...state, profile: null, errMsg: error };
     case ActionTypes.ADD_CLIENT_PROFILE_POST:
       if (data && type === Types.CREATED_POST) {
-        return { ...state, created: concatArrayWithData(state.created, data) };
+        return {
+          ...state,
+          created: {
+            data: concatArrayWithData(state.created.data, data),
+            hasMore
+          }
+        };
       } else if (data && type === Types.LIKED_POST) {
-        return { ...state, liked: concatArrayWithData(state.liked, data) };
+        return {
+          ...state,
+          liked: {
+            data: concatArrayWithData(state.liked.data, data),
+            hasMore
+          }
+        };
       } else if (data && type === Types.MENTIONED_POST) {
         return {
           ...state,
-          mentioned: concatArrayWithData(state.mentioned, data)
+          mentioned: {
+            data: concatArrayWithData(state.mentioned.data, data),
+            hasMore
+          }
         };
       } else {
-        return state;
+        return { ...state };
       }
     case ActionTypes.REMOVE_CLIENT_PROFILE_POST:
       if (data && type === Types.CREATED_POST) {
         return {
           ...state,
-          created: removeItemFromArrayWithItemId(state.created, data)
+          created: {
+            data: removeItemFromArrayWithItemId(state.created.data, data)
+          }
         };
       } else if (data && type === Types.LIKED_POST) {
         return {
           ...state,
-          liked: removeItemFromArrayWithItemId(state.liked, data)
+          liked: {
+            data: removeItemFromArrayWithItemId(state.liked.data, data)
+          }
         };
       } else if (data && type === Types.MENTIONED_POST) {
         return {
           ...state,
-          mentioned: removeItemFromArrayWithItemId(state.mentioned, data)
+          mentioned: {
+            data: removeItemFromArrayWithItemId(state.mentioned.data, data)
+          }
         };
       } else {
-        return state;
+        return { ...state };
       }
     case ActionTypes.RELOAD_CLIENT_PROFILE_POST:
       if (data && type === Types.CREATED_POST) {
-        return { ...state, created: data.old };
+        return { ...state, created: { data: data.old, hasMore: true } };
       } else if (data && type === Types.LIKED_POST) {
-        return { ...state, liked: data.old };
+        return { ...state, liked: { data: data.old, hasMore: true } };
       } else if (data && type === Types.MENTIONED_POST) {
-        return { ...state, mentioned: data.old };
+        return { ...state, mentioned: { data: data.old, hasMore: true } };
       } else {
         return state;
       }

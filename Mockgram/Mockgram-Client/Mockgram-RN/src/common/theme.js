@@ -14,5 +14,6 @@ export default (theme = {
   indicatorLg: window.width * 0.1,
   paddingToWindow: 10,
   inputHeight: Math.floor(window.height * 0.05),
-  marginTop: Math.floor(window.height * 0.03)
+  marginTop: Math.floor(window.height * 0.03),
+  headerIconMargin: 20
 });

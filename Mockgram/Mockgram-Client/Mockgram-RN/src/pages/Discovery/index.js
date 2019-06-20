@@ -130,7 +130,22 @@ class DiscoveryIndex extends React.Component {
                     container.setState({
                       isSearching: false,
                       timer: null,
-                      searchValue: ""
+                      searchValue: "",
+                      peopleSearchedResult: {
+                        value: "",
+                        data: [],
+                        hasMore: true
+                      },
+                      tagSearchedResult: {
+                        value: "",
+                        data: [],
+                        hasMore: true
+                      },
+                      placeSearchedResult: {
+                        value: "",
+                        data: [],
+                        hasMore: true
+                      }
                     });
                   }
                 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { withNavigation } from "react-navigation";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -7,6 +7,7 @@ import Thumbnail from "../components/Thumbnail";
 
 import window from "../utils/getDeviceInfo";
 import { dateConverter } from "../utils/unitConverter";
+import { connect } from "react-redux";
 
 class FollowingMessasgeDetailListCell extends React.Component {
   renderDate = createdAt => {
@@ -18,7 +19,7 @@ class FollowingMessasgeDetailListCell extends React.Component {
   };
 
   renderContent = () => {
-    const { dataSource } = this.props;
+    const { dataSource, i18n } = this.props;
     const {
       messageType,
       sender,
@@ -39,8 +40,14 @@ class FollowingMessasgeDetailListCell extends React.Component {
                 alignItems: "flex-start"
               }}
             >
-              <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
-              <Ionicons name="ios-heart-outline" size={18} />
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={{ fontWeight: "bold" }}
+              >
+                {sender.username}
+              </Text>
+              <Ionicons name="ios-heart-empty" size={18} />
               {this.renderDate(createdAt)}
             </View>
             <View
@@ -74,15 +81,25 @@ class FollowingMessasgeDetailListCell extends React.Component {
                   alignItems: "center"
                 }}
               >
-                <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ fontWeight: "bold" }}
+                >
+                  {sender.username}
+                </Text>
                 <Ionicons
-                  name="ios-heart-outline"
+                  name="ios-heart-empty"
                   size={18}
                   style={{ marginLeft: 10 }}
                 />
-                <Text style={{ marginLeft: 10 }}>{`${
-                  receiver.username
-                }'s comment`}</Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ marginLeft: 10 }}
+                >{`${i18n.t("USERS_COMMENT", {
+                  value: receiver.username
+                })}`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {commentReference.content}
@@ -120,15 +137,25 @@ class FollowingMessasgeDetailListCell extends React.Component {
                   alignItems: "center"
                 }}
               >
-                <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ fontWeight: "bold" }}
+                >
+                  {sender.username}
+                </Text>
                 <Ionicons
-                  name="ios-heart-outline"
+                  name="ios-heart-empty"
                   size={18}
                   style={{ marginLeft: 10 }}
                 />
-                <Text style={{ marginLeft: 10 }}>{`${
-                  receiver.username
-                }'s reply`}</Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ marginLeft: 10 }}
+                >{`${i18n.t("USERS_REPLY", {
+                  value: receiver.username
+                })}`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {commentReference.content}
@@ -159,7 +186,13 @@ class FollowingMessasgeDetailListCell extends React.Component {
                 alignItems: "flex-start"
               }}
             >
-              <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                style={{ fontWeight: "bold" }}
+              >
+                {sender.username}
+              </Text>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {commentReference.content}
               </Text>
@@ -197,10 +230,20 @@ class FollowingMessasgeDetailListCell extends React.Component {
                   alignItems: "center"
                 }}
               >
-                <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
-                <Text style={{ marginLeft: 10 }}>{`replied to ${
-                  receiver.username
-                }`}</Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ fontWeight: "bold" }}
+                >
+                  {sender.username}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{ marginLeft: 10 }}
+                >{`${i18n.t("USER_REPLY_TO", {
+                  value: receiver.username
+                })}`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {replyReference.content}
@@ -232,7 +275,9 @@ class FollowingMessasgeDetailListCell extends React.Component {
               }}
             >
               <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
-              <Text>{"started following you"}</Text>
+              <Text>{`${i18n.t("FOLLOW_ACTION", {
+                value: `${i18n.t("YOU")}`
+              })}`}</Text>
               {this.renderDate(createdAt)}
             </View>
           </View>
@@ -261,7 +306,15 @@ class FollowingMessasgeDetailListCell extends React.Component {
     );
   }
 }
-export default withNavigation(FollowingMessasgeDetailListCell);
+
+const mapStateToProps = state => ({
+  i18n: state.app.i18n
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(withNavigation(FollowingMessasgeDetailListCell));
 
 const styles = StyleSheet.create({
   cell: {

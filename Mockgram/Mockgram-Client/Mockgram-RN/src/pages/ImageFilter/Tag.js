@@ -12,6 +12,7 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "react-navigation";
 import { SkypeIndicator } from "react-native-indicators";
 import { createStackNavigator } from "react-navigation";
+import { connect } from "react-redux";
 
 import SearchBarView from "../../components/SearchBarView";
 import TagLabel from "../../components/TagLabel";
@@ -47,56 +48,63 @@ class Tag extends React.Component {
     };
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      borderBottomColor: "transparent",
-      borderBottomWidth: 0,
-      shadowColor: "transparent",
-      elevation: 0
-    },
-    title: "Add Tags",
-    headerTitleStyle: {
-      fontSize: 14
-    },
-    headerLeft: (
-      <TouchableOpacity
-        style={{ marginLeft: 20 }}
-        onPress={() => {
-          navigation.popToTop();
-        }}
-      >
-        <FontAwesome name="chevron-left" size={20} />
-      </TouchableOpacity>
-    ),
-    headerRight: (
-      <TouchableOpacity
-        style={{
-          marginRight: 10,
-          height: Header.HEIGHT * 0.5,
-          width: Header.HEIGHT * 0.8,
-          borderRadius: Header.HEIGHT * 0.1,
-          backgroundColor: theme.primaryGreen,
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-        onPress={() => {
-          let passSelectedTagsBack = navigation.getParam(
-            "passSelectedTagsBack"
-          );
-          let getSelectedTags = navigation.getParam("getSelectedTags");
-          passSelectedTagsBack(getSelectedTags());
-          navigation.popToTop();
-        }}
-      >
-        <Text style={{ color: "#fff", fontSize: 12 }}>Done</Text>
-      </TouchableOpacity>
-    )
-  });
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("tagTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.popToTop();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      ),
+      headerRight: (
+        <TouchableOpacity
+          style={{
+            marginRight: 10,
+            height: Header.HEIGHT * 0.5,
+            width: Header.HEIGHT * 0.8,
+            borderRadius: Header.HEIGHT * 0.1,
+            backgroundColor: theme.primaryGreen,
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+          onPress={() => {
+            let passSelectedTagsBack = navigation.getParam(
+              "passSelectedTagsBack"
+            );
+            let getSelectedTags = navigation.getParam("getSelectedTags");
+            passSelectedTagsBack(getSelectedTags());
+            navigation.popToTop();
+          }}
+        >
+          <Text style={{ color: "#fff", fontSize: 12 }}>
+            {navigation.getParam("tagDone")}
+          </Text>
+        </TouchableOpacity>
+      )
+    };
+  };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.navigation.setParams({
-      getSelectedTags: () => this.state.selectedTags
+    const { navigation, i18n } = this.props;
+    navigation.setParams({
+      getSelectedTags: () => this.state.selectedTags,
+      tagTitle: `${i18n.t("ADD_TITLE", { value: `${i18n.t("TAG")}` })}`,
+      tagDone: `${i18n.t("DONE")}`
     });
     this.setState(
       {
@@ -114,6 +122,7 @@ class Tag extends React.Component {
 
   _renderTagListCellBtn = id => {
     const { selectedTags } = this.state;
+    const { i18n } = this.props;
     if (Object.keys(selectedTags).includes(id)) {
       return (
         <View
@@ -125,7 +134,7 @@ class Tag extends React.Component {
             flexDirection: "row"
           }}
         >
-          <Text style={{ color: "grey" }}>Added</Text>
+          <Text style={{ color: "grey" }}>{`${i18n.t("ADDED")}`}</Text>
           <Ionicons
             name="ios-checkmark"
             size={theme.iconSm}
@@ -135,7 +144,7 @@ class Tag extends React.Component {
         </View>
       );
     }
-    return <Text>Add</Text>;
+    return <Text>{`${i18n.t("ADD")}`}</Text>;
   };
 
   tagListCell = item => {
@@ -284,6 +293,7 @@ class Tag extends React.Component {
 
   _renderHotTagsAndTopicsSection = itemObject => {
     const { selectedTags } = this.state;
+    const { i18n } = this.props;
     if (itemObject.type === "tag") {
       if (itemObject.data && itemObject.data.length > 0) {
         return (
@@ -315,7 +325,7 @@ class Tag extends React.Component {
       }
       return (
         <View style={styles.sectionEmpty}>
-          <Text>No Popular Tags</Text>
+          <Text>{`${i18n.t("NO_MORE_TAGS")}`}</Text>
         </View>
       );
     } else {
@@ -571,6 +581,7 @@ class Tag extends React.Component {
 
   renderContentView = () => {
     const { searchValue, searchedTags } = this.state;
+    const { i18n } = this.props;
     if (searchValue && searchedTags) {
       return (
         <FlatList
@@ -596,7 +607,7 @@ class Tag extends React.Component {
                 }}
               >
                 <Text style={{ color: "grey", fontSize: 12 }}>
-                  {` - No more relevant tags - `}
+                  {`${i18n.t("NO_MORE_TAGS")}`}
                 </Text>
               </View>
             );
@@ -646,6 +657,10 @@ class Tag extends React.Component {
   }
 }
 
+const mapStateToProps = state => ({
+  i18n: state.app.client
+});
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -674,7 +689,12 @@ const styles = StyleSheet.create({
 
 export default createStackNavigator(
   {
-    Tag,
+    Tag: {
+      screen: connect(
+        mapStateToProps,
+        null
+      )(Tag)
+    },
     CreateTag,
     CreateTopic
   },

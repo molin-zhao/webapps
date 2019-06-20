@@ -7,8 +7,10 @@ import { SkypeIndicator } from "react-native-indicators";
 import PostCardComponent from "../../components/PostCardComponent";
 import baseUrl from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
+import theme from "../../common/theme";
 
 class PostDetail extends React.Component {
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -19,6 +21,7 @@ class PostDetail extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     const { navigation, client } = this.props;
     let postId = navigation.getParam("_id", null);
     this.setState(
@@ -39,23 +42,38 @@ class PostDetail extends React.Component {
         })
           .then(res => res.json())
           .then(res => {
-            this.setState({
-              dataSource: res.status === 200 ? res.data : null,
-              error: res.status === 200 ? null : res.msg
-            });
+            if (this.mounted) {
+              if (res.status === 200) {
+                this.setState({
+                  dataSource: res.data
+                });
+              } else {
+                this.setState({
+                  error: res.msg
+                });
+              }
+            }
           })
           .then(() => {
-            this.setState({
-              loading: false
-            });
+            if (this.mounted) {
+              this.setState({
+                loading: false
+              });
+            }
           })
           .catch(err => {
-            this.setState({
-              error: err
-            });
+            if (this.mounted) {
+              this.setState({
+                error: err
+              });
+            }
           });
       }
     );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   renderPost = () => {
@@ -63,13 +81,13 @@ class PostDetail extends React.Component {
       return (
         <View
           style={{
-            height: window.height - Header.HEIGHT - 50,
+            height: window.height - 2 * Header.HEIGHT,
             width: "100%",
             justifyContent: "center",
             alignItems: "center"
           }}
         >
-          <SkypeIndicator size={24} />
+          <SkypeIndicator size={theme.indicatorLg} />
         </View>
       );
     } else {
@@ -90,6 +108,7 @@ class PostDetail extends React.Component {
       return <PostCardComponent dataSource={this.state.dataSource} />;
     }
   };
+
   render() {
     return <View style={styles.container}>{this.renderPost()}</View>;
   }

@@ -12,11 +12,12 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
 import { UIActivityIndicator } from "react-native-indicators";
+import { connect } from "react-redux";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
 
-export default class SearchBarView extends React.Component {
+class SearchBarView extends React.Component {
   static defaultProps = {
     containerStyle: { width: window.width, height: 50 },
     searchBarDefaultWidth: window.width,
@@ -208,7 +209,7 @@ export default class SearchBarView extends React.Component {
 
   renderButton = () => {
     const { text, focused } = this.state;
-    const { rightIonicons } = this.props;
+    const { rightIonicons, i18n } = this.props;
     if (focused || (!focused && text)) {
       return (
         <TouchableOpacity
@@ -235,7 +236,9 @@ export default class SearchBarView extends React.Component {
           }}
           activeOpacity={0.8}
         >
-          <Text style={{ fontSize: 14, color: theme.primaryBlue }}>cancel</Text>
+          <Text style={{ fontSize: 14, color: theme.primaryBlue }}>{`${i18n.t(
+            "CANCEL"
+          )}`}</Text>
         </TouchableOpacity>
       );
     }
@@ -319,6 +322,15 @@ export default class SearchBarView extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  i18n: state.app.i18n
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(SearchBarView);
 
 const styles = StyleSheet.create({
   searchBarViewContainer: {

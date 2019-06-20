@@ -51,56 +51,65 @@ class Location extends React.Component {
     };
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      borderBottomColor: "transparent",
-      borderBottomWidth: 0,
-      shadowColor: "transparent",
-      elevation: 0
-    },
-    title: "Add Location",
-    headerTitleStyle: {
-      fontSize: 14
-    },
-    headerLeft: (
-      <TouchableOpacity
-        style={{ marginLeft: 20 }}
-        onPress={() => {
-          navigation.popToTop();
-        }}
-      >
-        <FontAwesome name="chevron-left" size={20} />
-      </TouchableOpacity>
-    ),
-    headerRight: (
-      <TouchableOpacity
-        style={{
-          marginRight: 10,
-          height: Header.HEIGHT * 0.5,
-          width: Header.HEIGHT * 0.8,
-          borderRadius: Header.HEIGHT * 0.1,
-          backgroundColor: theme.primaryGreen,
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-        onPress={() => {
-          let passChoosedLocationBack = navigation.getParam(
-            "passChoosedLocationBack"
-          );
-          let getLocation = navigation.getParam("getLocation");
-          passChoosedLocationBack(getLocation());
-          navigation.popToTop();
-        }}
-      >
-        <Text style={{ color: "#fff", fontSize: 12 }}>Done</Text>
-      </TouchableOpacity>
-    )
-  });
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("locationTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.popToTop();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      ),
+      headerRight: (
+        <TouchableOpacity
+          style={{
+            marginRight: 10,
+            height: Header.HEIGHT * 0.5,
+            width: Header.HEIGHT * 0.8,
+            borderRadius: Header.HEIGHT * 0.1,
+            backgroundColor: theme.primaryGreen,
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+          onPress={() => {
+            let passChoosedLocationBack = navigation.getParam(
+              "passChoosedLocationBack"
+            );
+            let getLocation = navigation.getParam("getLocation");
+            passChoosedLocationBack(getLocation());
+            navigation.popToTop();
+          }}
+        >
+          <Text style={{ color: "#fff", fontSize: 12 }}>
+            {navigation.getParam("locationDone")}
+          </Text>
+        </TouchableOpacity>
+      )
+    };
+  };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.navigation.setParams({
-      getLocation: () => this.state.selectedLocation
+    const { navigation, i18n } = this.props;
+    navigation.setParams({
+      getLocation: () => this.state.selectedLocation,
+      locationTitle: `${i18n.t("ADD_TITLE", {
+        value: `${i18n.t("LOCATION")}`
+      })}`,
+      locationDone: `${i18n.t("DONE")}`
     });
     // fetch nearby locations by lat and long
     this.setState(

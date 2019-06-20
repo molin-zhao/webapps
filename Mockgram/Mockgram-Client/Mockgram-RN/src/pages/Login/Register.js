@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SkypeIndicator } from "react-native-indicators";
+import { connect } from "react-redux";
 
 import Button from "../../components/Button";
 import IconInput from "../../components/IconInput";
@@ -11,7 +12,7 @@ import baseUrl from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
 import theme from "../../common/theme";
 
-export default class Register extends React.Component {
+class Register extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -41,6 +42,48 @@ export default class Register extends React.Component {
       },
       error: ""
     };
+  }
+
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("registerTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerRight: (
+        <TouchableOpacity
+          style={{ marginRight: 20 }}
+          onPress={() => {
+            navigation.dismiss();
+          }}
+        >
+          <FontAwesome name="times" size={24} />
+        </TouchableOpacity>
+      ),
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      )
+    };
+  };
+
+  componentDidMount() {
+    const { navigation, i18n } = this.props;
+    navigation.setParams({
+      registerTitle: `${i18n.t("REGISTER")}`
+    });
   }
 
   allTouched = () => {
@@ -118,6 +161,7 @@ export default class Register extends React.Component {
   }
 
   render() {
+    const { i18n } = this.props;
     return (
       <View style={styles.container}>
         <KeyboardAvoidingView
@@ -129,7 +173,7 @@ export default class Register extends React.Component {
         >
           <IconInput
             icon={() => <FontAwesome name="envelope" size={20} />}
-            placeholder="Email"
+            placeholder={`${i18n.t("EMAIL")}`}
             onChangeText={email => {
               this.setState({ email });
               formValidation(
@@ -150,7 +194,7 @@ export default class Register extends React.Component {
           </Text>
           <IconInput
             icon={() => <FontAwesome name="user" size={20} />}
-            placeholder="Username"
+            placeholder={`${i18n.t("USERNAME")}`}
             onChangeText={username => {
               this.setState({ username });
               formValidation(
@@ -171,7 +215,7 @@ export default class Register extends React.Component {
           </Text>
           <IconInput
             icon={() => <FontAwesome name="key" size={20} />}
-            placeholder="Password"
+            placeholder={`${i18n.t("PASSWORD")}`}
             onChangeText={password => {
               this.setState({ password });
               formValidation(
@@ -193,7 +237,7 @@ export default class Register extends React.Component {
           </Text>
           <IconInput
             icon={() => <FontAwesome name="lock" size={20} />}
-            placeholder="Confirm password"
+            placeholder={`${i18n.t("CONFIRM_PASSWORD")}`}
             onChangeText={confirmPassword => {
               this.setState({ confirmPassword });
               formValidation(
@@ -213,10 +257,10 @@ export default class Register extends React.Component {
               ? this.state.errors.confirmPassword.message
               : null}
           </Text>
-          {this.renderRegisterError("Register error")}
+          {this.renderRegisterError(`${i18n.t("REGISTER_ERROR")}`)}
           <Button
             loading={this.state.processing}
-            title="Register"
+            title={`${i18n.t("REGISTER")}`}
             titleStyle={{ color: "#fff", fontSize: 14, fontWeight: "bold" }}
             disabled={!this.state.valid || !this.allTouched()}
             onPress={() => {
@@ -239,6 +283,15 @@ export default class Register extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  i18n: state.app.i18n
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(Register);
 
 const styles = StyleSheet.create({
   container: {

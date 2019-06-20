@@ -39,7 +39,36 @@ class Login extends React.Component {
     };
   }
 
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("loginTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerRight: (
+        <TouchableOpacity
+          style={{ marginRight: theme.headerIconMargin }}
+          onPress={() => {
+            navigation.dismiss();
+          }}
+        >
+          <FontAwesome name="times" size={theme.iconMd} />
+        </TouchableOpacity>
+      )
+    };
+  };
+
   componentDidMount() {
+    const { i18n, navigation } = this.props;
+    navigation.setParams({
+      loginTitle: `${i18n.t("LOGIN")}`
+    });
     SecureStore.getItemAsync(LocalKeys.LOGIN_CREDENTIALS).then(data => {
       let creds = JSON.parse(data);
       if (creds) {
@@ -150,20 +179,22 @@ class Login extends React.Component {
   renderLoginError = (error, defaultMsg) => {
     if (error) {
       return (
-        <Text style={styles.loginError}>
+        <View style={styles.loginError}>
           <FontAwesome
             name="exclamation-circle"
-            type="FontAwesome"
             style={{ fontSize: 15, color: "red", marginRight: 5 }}
           />
-          {typeof error === "string" ? error : defaultMsg}
-        </Text>
+          <Text style={{ color: "red", marginLeft: theme.paddingToWindow }}>
+            {typeof error === "string" ? error : defaultMsg}
+          </Text>
+        </View>
       );
     }
     return null;
   };
 
   render() {
+    const { i18n } = this.props;
     return (
       <View style={styles.container}>
         <KeyboardAvoidingView
@@ -188,7 +219,7 @@ class Login extends React.Component {
             secureTextEntry={true}
             value={this.state.loginPassword}
           />
-          {this.renderLoginError(this.props.error, "Login error")}
+          {this.renderLoginError(this.props.error, `${i18n.t("LOGIN_ERROR")}`)}
           <TouchableOpacity
             onPress={() =>
               this.setState({ rememberMe: !this.state.rememberMe })
@@ -197,7 +228,7 @@ class Login extends React.Component {
             <View style={styles.formCheckbox}>
               <CheckBox
                 containerStyle={{ width: "100%", height: "100%" }}
-                title="Remember me"
+                title={`${i18n.t("REMEMBER_ME")}`}
                 checked={this.state.rememberMe}
                 onPress={() => {
                   this.setState({
@@ -241,7 +272,7 @@ class Login extends React.Component {
                 console.log("change mode");
               }}
             >
-              {`Login with phone`}
+              {`${i18n.t("LOGIN_WITH_PHONE")}`}
             </Text>
             <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>
               |
@@ -254,7 +285,7 @@ class Login extends React.Component {
               }}
               onPress={() => this.props.navigation.navigate("Register")}
             >
-              Register
+              {`${i18n.t("REGISTER")}`}
             </Text>
           </View>
         </KeyboardAvoidingView>
@@ -283,7 +314,7 @@ class Login extends React.Component {
                 color: "grey",
                 fontSize: 14
               }}
-            >{`Social media login`}</Text>
+            >{`${i18n.t("SOCIAL_MEDIA_LOGIN")}`}</Text>
             <View
               style={{
                 backgroundColor: "lightgrey",
@@ -348,13 +379,10 @@ const styles = StyleSheet.create({
   },
   loginError: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     marginTop: 5,
-    flexWrap: "wrap",
-    width: Math.floor(window.width * 0.7),
-    color: "red",
-    fontSize: 15
+    width: Math.floor(window.width * 0.7)
   },
   loginBtn: {
     width: Math.floor(window.width * 0.6),
@@ -372,7 +400,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
   return {
     client: state.client.client,
-    error: state.client.error
+    error: state.client.error,
+    i18n: state.app.i18n
   };
 };
 

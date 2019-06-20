@@ -57,7 +57,7 @@ class PostPreview extends React.Component {
     },
     headerLeft: (
       <TouchableOpacity
-        style={{ marginLeft: 20 }}
+        style={{ marginLeft: theme.headerIconMargin }}
         onPress={() => {
           let previewDismiss = navigation.getParam("previewDismiss");
           return previewDismiss();
@@ -68,7 +68,7 @@ class PostPreview extends React.Component {
     ),
     headerRight: (
       <TouchableOpacity
-        style={{ marginRight: 20 }}
+        style={{ marginRight: theme.headerIconMargin }}
         onPress={() => {
           let handlePost = navigation.getParam("handlePost");
           return handlePost();

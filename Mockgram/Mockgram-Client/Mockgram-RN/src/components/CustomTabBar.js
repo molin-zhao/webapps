@@ -31,7 +31,7 @@ class CustomTabBar extends React.Component {
     if (tabName === "You") {
       return (
         <Badge
-          style={{ position: "relative" }}
+          style={{ position: "absolute", top: "30%", right: "30%" }}
           val={messageCountNormalizer(
             getNewMessageCount(message, lastMessageId)
           )}
@@ -75,7 +75,7 @@ class CustomTabBar extends React.Component {
           goToPage(i);
         }}
         key={"tab" + i}
-        style={[styles.tab]}
+        style={styles.tab}
       >
         <View style={styles.tabLabel}>
           <Text style={[styles.tabLabelText, { color: color }]}>{tabName}</Text>
@@ -141,24 +141,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: "lightgrey",
     justifyContent: "center",
-    alignItems: "flex-start"
+    alignItems: "center"
   },
   tabBarLabels: {
     width: "100%",
     height: "100%",
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center"
   },
   tab: {
-    width: "50%",
+    flex: 1,
     height: "100%",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     alignItems: "center"
   },
   tabLabel: {
     width: "100%",
     height: "100%",
-    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center"
   },

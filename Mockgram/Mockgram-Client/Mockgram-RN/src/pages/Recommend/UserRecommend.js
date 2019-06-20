@@ -93,6 +93,7 @@ class UserRecommend extends React.Component {
 
   renderCarousel = () => {
     const { fetching, userList } = this.state;
+    const {} = this.props;
     if (!fetching && userList.length !== 0) {
       return (
         <View
@@ -107,7 +108,7 @@ class UserRecommend extends React.Component {
             style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
           >
             <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-              Follow people to see their story
+              {`${i18n.t("FOLLOW_USER_TO_SEE_STORY")}`}
             </Text>
           </View>
           <View
@@ -144,7 +145,8 @@ class UserRecommend extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(mapStateToProps)(withNavigation(UserRecommend));

@@ -31,36 +31,48 @@ class CreateTag extends React.Component {
     };
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      borderBottomColor: "transparent",
-      borderBottomWidth: 0,
-      shadowColor: "transparent",
-      elevation: 0
-    },
-    title: "Create Tag",
-    headerTitleStyle: {
-      fontSize: 14
-    },
-    headerLeft: (
-      <TouchableOpacity
-        style={{ marginLeft: 20 }}
-        onPress={() => {
-          navigation.goBack();
-        }}
-      >
-        <FontAwesome name="chevron-left" size={20} />
-      </TouchableOpacity>
-    )
-  });
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("createTagTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      )
+    };
+  };
+
+  componentDidMount() {
+    const { i18n, navigation } = this.props;
+    navigation.setParams({
+      createTagLocation: `${i18n.t("CREATE_TITLE", {
+        value: `${i18n.t("TAG")}`
+      })}`
+    });
+  }
 
   renderBtn = () => {
     const { nameSearchValue, nameValid, creating } = this.state;
+    const { i18n } = this.props;
     let valid = nameSearchValue && nameValid;
     return (
       <Button
         loading={creating}
-        title="create"
+        title={`${i18n.t("CREATE")}`}
         titleStyle={{ color: "#fff", fontSize: 12 }}
         iconLeft={() => {
           if (valid) {
@@ -123,12 +135,13 @@ class CreateTag extends React.Component {
 
   renderDropdownAlert = () => {
     const { created } = this.state;
+    const { i18n } = this.props;
     if (created) {
       return (
         <View style={[styles.dropdown, { borderColor: theme.primaryGreen }]}>
-          <Text
-            style={{ color: theme.primaryGreen }}
-          >{`Created successfully`}</Text>
+          <Text style={{ color: theme.primaryGreen }}>{`${i18n.t(
+            "CREATED_SUCCESSFULLY"
+          )}`}</Text>
           <Ionicons
             name="ios-checkmark-circle-outline"
             size={theme.iconMd}
@@ -139,9 +152,10 @@ class CreateTag extends React.Component {
     }
     return (
       <View style={[styles.dropdown, { borderColor: theme.primaryWarning }]}>
-        <Text
-          style={{ color: theme.primaryWarning }}
-        >{`Tag was not created`}</Text>
+        <Text style={{ color: theme.primaryWarning }}>{`${i18n.t(
+          "NOT_CREATED",
+          { value: `${i18n.t("TAG")}` }
+        )}`}</Text>
         <Ionicons
           name="ios-close-circle-outline"
           size={theme.iconMd}
@@ -152,6 +166,7 @@ class CreateTag extends React.Component {
   };
 
   render() {
+    const { i18n } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -174,7 +189,9 @@ class CreateTag extends React.Component {
                   borderRadius: 10
                 }}
                 fetchUrl={`${baseUrl.api}/discovery/tag/available`}
-                placeholder="Create a name for tag..."
+                placeholder={`${i18n.t("CREATE_FOR", {
+                  value: `${i18n.t("TAG")}`
+                })}`}
                 containerStyle={{ width: "100%", height: "100%" }}
                 onValid={searchValue => {
                   this.setState({
@@ -199,7 +216,8 @@ class CreateTag extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(

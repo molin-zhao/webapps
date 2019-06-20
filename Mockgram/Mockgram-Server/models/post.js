@@ -323,10 +323,10 @@ PostSchema.statics.getUserPosts = function(
   let criteria = {
     _id: { $nin: lastQueryDataIds }
   };
-  if (type === "Liked") {
+  if (type === "LIKED") {
     criteria.likes = userId;
     criteria.creator = { $ne: userId };
-  } else if (type === "Created") {
+  } else if (type === "CREATED") {
     criteria.creator = userId;
   } else {
     // 'MENTIONED'

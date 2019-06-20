@@ -1,263 +1,156 @@
 import React from "react";
 import {
-  Text,
-  View,
-  StyleSheet,
   TouchableOpacity,
-  ScrollView,
-  RefreshControl
+  TouchableWithoutFeedback,
+  View,
+  Text
 } from "react-native";
+import { FontAwesome } from "@expo/vector-icons";
 import { connect } from "react-redux";
+import ProfilePage from "../../components/ProfilePage";
+import Drawer from "../../components/Drawer";
+import HeaderTitle from "../../components/HeaderTitle";
 
-import Thumbnail from "../../components/Thumbnail";
-import TabView from "../../components/TabView";
-import { Ionicons } from "@expo/vector-icons";
-import PostsGridView from "./PostsGridView";
-
-import window from "../../utils/getDeviceInfo";
-import { getClientProfile } from "../../redux/actions/profileActions";
 import theme from "../../common/theme";
-import * as Types from "../../common/types";
+import window from "../../utils/getDeviceInfo";
+import DrawerItem from "../../components/DrawerItem";
 
 class ProfileIndex extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      initialProfile: {
-        avatar: "",
-        postCount: 0,
-        followerCount: 0,
-        followingCount: 0,
-        bio: "no bio yet"
+  }
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        shadowColor: "transparent",
+        elevation: 0
       },
-      refreshing: false
+      headerTitle: <HeaderTitle title="MY_PROFILE" />,
+      headerRight: (
+        <TouchableOpacity
+          style={{ marginRight: theme.headerIconMargin }}
+          onPress={() => {
+            let drawer = navigation.getParam("drawer");
+            if (drawer.isDrawerOpen()) {
+              return drawer.closeDrawer();
+            } else {
+              return drawer.openDrawer();
+            }
+          }}
+        >
+          <FontAwesome name="bars" size={theme.iconMd} />
+        </TouchableOpacity>
+      )
     };
-  }
-
-  static navigationOptions = ({ navigation }) => ({
-    title: navigation.getParam("title", "username"),
-    headerRight: (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        style={{ marginRight: 20 }}
-        onPress={() => {
-          navigation.navigate("Settings");
-        }}
-      >
-        <Ionicons name="ios-settings" size={24} />
-      </TouchableOpacity>
-    )
-  });
-
-  componentDidMount() {
-    const { navigation, profile } = this.props;
-    if (profile) {
-      navigation.setParams({
-        title: profile.username
-      });
-    }
-  }
-
-  onRefresh = () => {
-    const { client, getClientProfile } = this.props;
-    if (client && client.token) {
-      this.setState(
-        {
-          refreshing: true
-        },
-        () => {
-          getClientProfile(client.token)
-            .then(() => {
-              this.setState({
-                refreshing: false
-              });
-            })
-            .catch(err => {
-              this.setState(
-                {
-                  refreshing: false
-                },
-                () => {
-                  console.log(err);
-                }
-              );
-            });
-        }
-      );
-    }
   };
+  componentDidMount() {
+    const { navigation } = this.props;
+    navigation.setParams({
+      drawer: this._drawer
+    });
+  }
 
   render() {
-    const { initialProfile } = this.state;
-    const { profile, navigation, created, liked, mentioned } = this.props;
-    let userProfile = profile ? profile : initialProfile;
+    const { profile, i18n } = this.props;
     return (
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "flex-start"
+      <TouchableWithoutFeedback
+        onPress={() => {
+          this._drawer.closeDrawer();
         }}
-        refreshControl={
-          <RefreshControl
-            refreshing={this.state.refreshing}
-            onRefresh={this.onRefresh}
-          />
-        }
-        horizontal={false}
       >
-        <Thumbnail
-          style={{ marginTop: 30, height: 80, width: 80 }}
-          source={userProfile.avatar}
-        />
-        <View style={styles.count}>
-          <TouchableOpacity style={styles.countSubview} activeOpacity={0.8}>
-            <Text style={styles.countText}>{userProfile.postCount}</Text>
-            <Text style={styles.countText}>Post</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.countSubview}
-            activeOpacity={0.8}
-            onPress={() => {
-              navigation.push("UserList", {
-                userId: userProfile._id,
-                type: "Following"
-              });
+        <View style={{ flex: 1 }}>
+          <ProfilePage clientProfile={true} />
+          <Drawer
+            containerStyle={{
+              width: window.width * 0.45,
+              borderLeftWidth: 3,
+              borderColor: "lightgrey"
             }}
+            ref={o => (this._drawer = o)}
           >
-            <Text style={styles.countText}>{userProfile.followingCount}</Text>
-            <Text style={styles.countText}>Following</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.countSubview}
-            activeOpacity={0.8}
-            onPress={() => {
-              navigation.push("UserList", {
-                userId: userProfile._id,
-                type: "Follower"
-              });
-            }}
-          >
-            <Text style={styles.countText}>{userProfile.followerCount}</Text>
-            <Text style={styles.countText}>Follower</Text>
-          </TouchableOpacity>
+            <View
+              style={{
+                justifyContent: "flex-start",
+                alignItems: "center",
+                width: "100%",
+                height: "100%"
+              }}
+            >
+              <DrawerItem
+                btnText={() => (
+                  <Text numberOfLines={1} ellipsizeMode="tail">
+                    {profile ? profile.username : "Mockgram"}
+                  </Text>
+                )}
+              />
+              <DrawerItem
+                icon={() => <FontAwesome name="cog" size={theme.iconSm} />}
+                btnText={() => (
+                  <Text numberOfLines={1} ellipsizeMode="tail">{`${i18n.t(
+                    "PROFILE_SETTINGS"
+                  )}`}</Text>
+                )}
+                onPress={() => {
+                  console.log("setting");
+                }}
+              />
+              <DrawerItem
+                icon={() => <FontAwesome name="language" size={theme.iconSm} />}
+                btnText={() => (
+                  <Text numberOfLines={1} ellipsizeMode="tail">{`${i18n.t(
+                    "CHANGE_LANGUAGE"
+                  )}`}</Text>
+                )}
+                onPress={() => {
+                  console.log("lang");
+                }}
+              />
+              <DrawerItem
+                icon={() => (
+                  <FontAwesome name="credit-card" size={theme.iconSm} />
+                )}
+                btnText={() => (
+                  <Text numberOfLines={1} ellipsizeMode="tail">{`${i18n.t(
+                    "BUSINESS_PLAN"
+                  )}`}</Text>
+                )}
+                onPress={() => {
+                  console.log("business");
+                }}
+              />
+              <DrawerItem
+                icon={() => (
+                  <FontAwesome
+                    name="sign-out"
+                    size={theme.iconSm}
+                    color={theme.primaryDanger}
+                  />
+                )}
+                btnText={() => (
+                  <Text
+                    style={{ color: theme.primaryDanger }}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >{`${i18n.t("LOGOUT")}`}</Text>
+                )}
+                onPress={() => {
+                  console.log("logout");
+                }}
+              />
+            </View>
+          </Drawer>
         </View>
-        <View style={styles.bio}>
-          <Text style={styles.bioText}>{userProfile.bio}</Text>
-        </View>
-        <View style={styles.embeddedTabView}>
-          <TabView
-            activeColor={theme.primaryColor}
-            inactiveColor={"black"}
-            tabBarComponents={[
-              {
-                icon: {
-                  name: "md-images"
-                },
-                text: {
-                  title: "Posts"
-                }
-              },
-              {
-                icon: {
-                  name: "md-heart"
-                },
-                text: {
-                  title: "Liked"
-                }
-              },
-              {
-                icon: {
-                  name: "ios-people"
-                },
-                text: {
-                  title: "Mentioned"
-                }
-              }
-            ]}
-          >
-            <PostsGridView
-              type={Types.CREATED_POST}
-              userId={userProfile._id}
-              refreshing={this.state.refreshing}
-              dataSource={created}
-              numColumns={3}
-            />
-            <PostsGridView
-              type={Types.LIKED_POST}
-              userId={userProfile._id}
-              refreshing={this.state.refreshing}
-              dataSource={liked}
-              numColumns={3}
-            />
-            <PostsGridView
-              type={Types.MENTIONED_POST}
-              userId={userProfile._id}
-              refreshing={this.state.refreshing}
-              dataSource={mentioned}
-              numColumns={3}
-            />
-          </TabView>
-        </View>
-      </ScrollView>
+      </TouchableWithoutFeedback>
     );
   }
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "column",
-    backgroundColor: "#fff"
-  },
-  count: {
-    marginTop: 20,
-    width: "80%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    height: window.height * 0.1
-  },
-  countSubview: {
-    width: "30%",
-    height: "100%",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  countText: {
-    alignSelf: "center",
-    fontSize: 15
-  },
-  bio: {
-    marginTop: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    height: 50
-  },
-  bioText: {
-    fontSize: 12
-  },
-  embeddedTabView: {
-    marginTop: 15
-  }
-});
 
-const mapStateToProps = state => {
-  return {
-    profile: state.profile.profile,
-    client: state.client.client,
-    created: state.profile.created,
-    liked: state.profile.liked,
-    mentioned: state.profile.mentioned
-  };
-};
-
-const mapDispatchToProps = dispatch => ({
-  getClientProfile: token => dispatch(getClientProfile(token))
+const mapStateToProps = state => ({
+  i18n: state.app.i18n,
+  profile: state.profile.profile
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  null
 )(ProfileIndex);

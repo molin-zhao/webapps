@@ -25,6 +25,7 @@ import { normalizeData } from "../../utils/arrayEditor";
 const numColumns = 3;
 
 class PostRecommend extends React.Component {
+  mounted = false;
   static defaultProps = {
     animationDuration: 200,
     style: {
@@ -55,6 +56,7 @@ class PostRecommend extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.setState(
       {
         loading: true
@@ -63,6 +65,10 @@ class PostRecommend extends React.Component {
         this.fetchPosts();
       }
     );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   componentDidUpdate(prevProps) {
@@ -103,39 +109,45 @@ class PostRecommend extends React.Component {
         })
           .then(res => res.json())
           .then(resJson => {
-            if (!this.state.interrupt) {
-              this.setState({
-                error: resJson.status === 200 ? null : resJson.msg,
-                hasMore:
-                  resJson.data.length < config.RECOMMENDED_POST_RETURN_LIMIT
-                    ? false
-                    : true,
-                data: loadingMore ? data.concat(resJson.data) : resJson.data
-              });
-            } else {
-              this.setState({
-                interrupt: false
-              });
+            if (this.mounted) {
+              if (!this.state.interrupt) {
+                this.setState({
+                  error: resJson.status === 200 ? null : resJson.msg,
+                  hasMore:
+                    resJson.data.length < config.RECOMMENDED_POST_RETURN_LIMIT
+                      ? false
+                      : true,
+                  data: loadingMore ? data.concat(resJson.data) : resJson.data
+                });
+              } else {
+                this.setState({
+                  interrupt: false
+                });
+              }
             }
           })
           .then(() => {
-            this.setState({
-              loading: false,
-              refreshing: false,
-              loadingMore: false,
-              fetching: false
-            });
+            if (this.mounted) {
+              this.setState({
+                loading: false,
+                refreshing: false,
+                loadingMore: false,
+                fetching: false
+              });
+            }
           })
           .catch(err => {
             console.log(err);
-            this.setState({
-              error: err,
-              loading: false,
-              refreshing: false,
-              loadingMore: false,
-              fetching: false,
-              interrupt: false
-            });
+            if (this.mounted) {
+              this.setState({
+                error: err,
+                loading: false,
+                refreshing: false,
+                loadingMore: false,
+                fetching: false,
+                interrupt: false
+              });
+            }
           });
       }
     );
@@ -242,6 +254,7 @@ class PostRecommend extends React.Component {
 
   renderError = () => {
     const { error } = this.state;
+    const { i18n } = this.props;
     return (
       <View style={styles.errorMsgView}>
         <Text>

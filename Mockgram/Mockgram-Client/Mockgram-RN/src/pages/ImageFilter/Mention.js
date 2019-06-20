@@ -44,56 +44,63 @@ class Mention extends React.Component {
     };
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      borderBottomColor: "transparent",
-      borderBottomWidth: 0,
-      shadowColor: "transparent",
-      elevation: 0
-    },
-    title: "Mention Users",
-    headerTitleStyle: {
-      fontSize: 14
-    },
-    headerLeft: (
-      <TouchableOpacity
-        style={{ marginLeft: 20 }}
-        onPress={() => {
-          navigation.popToTop();
-        }}
-      >
-        <FontAwesome name="chevron-left" size={20} />
-      </TouchableOpacity>
-    ),
-    headerRight: (
-      <TouchableOpacity
-        style={{
-          marginRight: 10,
-          height: Header.HEIGHT * 0.5,
-          width: Header.HEIGHT * 0.8,
-          borderRadius: Header.HEIGHT * 0.1,
-          backgroundColor: theme.primaryGreen,
-          alignItems: "center",
-          justifyContent: "center"
-        }}
-        onPress={() => {
-          let passMentionedUsersBack = navigation.getParam(
-            "passMentionedUsersBack"
-          );
-          let getMentionedUsers = navigation.getParam("getMentionedUsers");
-          passMentionedUsersBack(getMentionedUsers());
-          navigation.popToTop();
-        }}
-      >
-        <Text style={{ color: "#fff", fontSize: 12 }}>Done</Text>
-      </TouchableOpacity>
-    )
-  });
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerStyle: {
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
+      },
+      title: navigation.getParam("mentionTitle"),
+      headerTitleStyle: {
+        fontSize: 14
+      },
+      headerLeft: (
+        <TouchableOpacity
+          style={{ marginLeft: 20 }}
+          onPress={() => {
+            navigation.popToTop();
+          }}
+        >
+          <FontAwesome name="chevron-left" size={20} />
+        </TouchableOpacity>
+      ),
+      headerRight: (
+        <TouchableOpacity
+          style={{
+            marginRight: 10,
+            height: Header.HEIGHT * 0.5,
+            width: Header.HEIGHT * 0.8,
+            borderRadius: Header.HEIGHT * 0.1,
+            backgroundColor: theme.primaryGreen,
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+          onPress={() => {
+            let passMentionedUsersBack = navigation.getParam(
+              "passMentionedUsersBack"
+            );
+            let getMentionedUsers = navigation.getParam("getMentionedUsers");
+            passMentionedUsersBack(getMentionedUsers());
+            navigation.popToTop();
+          }}
+        >
+          <Text style={{ color: "#fff", fontSize: 12 }}>
+            {navigation.getParam("mentionDone")}
+          </Text>
+        </TouchableOpacity>
+      )
+    };
+  };
 
   componentDidMount() {
     this.mounted = true;
-    this.props.navigation.setParams({
-      getMentionedUsers: () => this.state.mentionedUsers
+    const { navigation, i18n } = this.props;
+    navigation.setParams({
+      getMentionedUsers: () => this.state.mentionedUsers,
+      mentionTitle: `${i18n.t("ADD_TITLE", { value: `${i18n.t("USER")}` })}`,
+      mentionDone: `${i18n.t("DONE")}`
     });
     this.setState(
       {

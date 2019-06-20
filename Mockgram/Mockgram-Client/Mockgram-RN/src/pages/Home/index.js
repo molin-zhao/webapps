@@ -12,6 +12,7 @@ import {
 } from "../../redux/actions/feedActions";
 import baseUrl from "../../common/baseUrl";
 import config from "../../common/config";
+import theme from "../../common/theme";
 import window from "../../utils/getDeviceInfo";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import UserRecommend from "../Recommend/UserRecommend";
@@ -221,8 +222,7 @@ class HomeIndex extends React.Component {
 
   renderFooter = () => {
     const { loading, loadingMore, refreshing, hasMore } = this.state;
-    const { homeFeed } = this.props;
-    const { initialized } = this.props;
+    const { homeFeed, initialized, i18n } = this.props;
     if (initialized) {
       if (!loading && !loadingMore && !refreshing && homeFeed.length === 0) {
         return null;
@@ -230,11 +230,10 @@ class HomeIndex extends React.Component {
       return (
         <View style={styles.listFooter}>
           {hasMore ? (
-            <SkypeIndicator size={25} />
+            <SkypeIndicator size={theme.indicatorSm} />
           ) : (
             <Text style={{ color: "grey", fontSize: 12 }}>
-              {" "}
-              - No more posts -{" "}
+              {`${i18n.t("NO_MORE_POSTS")}`}
             </Text>
           )}
         </View>
@@ -267,7 +266,7 @@ class HomeIndex extends React.Component {
   renderLoading = () => {
     return (
       <View style={styles.errorMsgView}>
-        <SkypeIndicator />
+        <SkypeIndicator size={theme.indicatorLg} />
       </View>
     );
   };
@@ -310,7 +309,8 @@ class HomeIndex extends React.Component {
 const mapStateToProps = state => ({
   client: state.client.client,
   initialized: state.app.initialized,
-  homeFeed: state.feed.homeFeed
+  homeFeed: state.feed.homeFeed,
+  i18n: state.app.i18n
 });
 
 const mapDispatchToProps = dispatch => ({
