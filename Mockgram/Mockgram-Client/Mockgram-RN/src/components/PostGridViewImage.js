@@ -76,7 +76,8 @@ class PostGridViewImage extends React.Component {
           width: window.width / numColumns,
           height: window.width / numColumns,
           justifyContent: "center",
-          alignItems: "center"
+          alignItems: "center",
+          zIndex: 10
         }}
       >
         {this.renderImage()}

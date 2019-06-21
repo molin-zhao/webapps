@@ -23,20 +23,21 @@ class PostDetail extends React.Component {
   componentDidMount() {
     this.mounted = true;
     const { navigation, client } = this.props;
-    let postId = navigation.getParam("_id", null);
+    let postId = navigation.getParam("_id");
     this.setState(
       {
         loading: true
       },
       () => {
-        fetch(`${baseUrl.api}/post/detail`, {
+        let url = `${baseUrl.api}/post/detail`;
+        fetch(url, {
           method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            postId: postId,
+            postId,
             userId: client && client.user ? client.user._id : null
           })
         })
@@ -62,6 +63,7 @@ class PostDetail extends React.Component {
             }
           })
           .catch(err => {
+            console.log(err);
             if (this.mounted) {
               this.setState({
                 error: err
@@ -77,7 +79,9 @@ class PostDetail extends React.Component {
   }
 
   renderPost = () => {
-    if (this.state.loading || !this.state.dataSource) {
+    const { loading, dataSource } = this.state;
+    const { i18n } = this.props;
+    if (loading || !dataSource) {
       return (
         <View
           style={{
@@ -101,11 +105,11 @@ class PostDetail extends React.Component {
               alignItems: "center"
             }}
           >
-            <Text>Cannot get post detail</Text>
+            <Text>{`${i18n.t("RESOLVE_RESOURCE_ERROR")}`}</Text>
           </View>
         );
       }
-      return <PostCardComponent dataSource={this.state.dataSource} />;
+      return <PostCardComponent dataSource={dataSource} />;
     }
   };
 
@@ -115,7 +119,8 @@ class PostDetail extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  i18n: state.app.i18n
 });
 
 export default connect(

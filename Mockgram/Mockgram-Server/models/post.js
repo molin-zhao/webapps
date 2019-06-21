@@ -98,18 +98,12 @@ PostSchema.statics.getPostDetail = function(postId, userId = null) {
       }
     },
     {
-      $unwind: "$mentioned"
-    },
-    {
       $lookup: {
         from: "tags",
         localField: "tags",
         foreignField: "_id",
         as: "tags"
       }
-    },
-    {
-      $unwind: "$tags"
     },
     {
       $lookup: {
@@ -120,7 +114,10 @@ PostSchema.statics.getPostDetail = function(postId, userId = null) {
       }
     },
     {
-      $unwind: "$location"
+      $unwind: {
+        path: "$location",
+        preserveNullAndEmptyArrays: true
+      }
     },
     {
       $project: {

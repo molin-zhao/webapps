@@ -28,7 +28,8 @@ import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
 import config from "../common/config";
 import * as Types from "../common/types";
-import { numberConverter } from "../utils/unitConverter";
+import { normalizeData } from "../utils/arrayEditor";
+import { parseIdFromObjectArray } from "../utils/idParser";
 
 numColumns = 3;
 
@@ -248,6 +249,15 @@ class UserProfile extends React.Component {
           }
         }
       })
+      .then(() => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            loadingMore: false,
+            refreshing: false
+          });
+        }
+      })
       .catch(err => {
         console.log(err);
         if (this.mounted) {
@@ -368,24 +378,46 @@ class UserProfile extends React.Component {
     if (loadingMore) {
       return;
     }
+
     if (activeIndex === 0) {
       if (
         (clientProfile && myCreated.hasMore) ||
         (!clientProfile && created.hasMore)
       )
-        return this.fetchUserPosts(Types.CREATED_POST);
+        return this.setState(
+          {
+            loadingMore: true
+          },
+          () => {
+            this.fetchUserPosts(Types.CREATED_POST);
+          }
+        );
     } else if (activeIndex === 1) {
       if (
         (clientProfile && myLiked.hasMore) ||
         (!clientProfile && liked.hasMore)
       )
-        return this.fetchUserPosts(Types.LIKED_POST);
+        return this.setState(
+          {
+            loadingMore: true
+          },
+          () => {
+            this.fetchUserPosts(Types.LIKED_POST);
+          }
+        );
     } else {
       if (
         (clientProfile && myMentioned.hasMore) ||
         (!clientProfile && mentioned.hasMore)
       )
-        return this.fetchUserPosts(Types.MENTIONED_POST);
+        return this.setState(
+          {
+            loadingMore: true
+          },
+          () => {
+            this.fetchUserPosts(Types.MENTIONED_POST);
+          }
+        );
     }
   };
 
@@ -466,6 +498,10 @@ class UserProfile extends React.Component {
     return this.state.activeIndex === index ? theme.primaryColor : "black";
   };
 
+  activeIndex = index => {
+    return this.state.activeIndex === index ? 1 : 0;
+  };
+
   renderTabs = tabBarComponents => {
     return tabBarComponents.map((tabComponent, index) => {
       return (
@@ -503,7 +539,7 @@ class UserProfile extends React.Component {
 
   renderContentHeader = () => {
     const { profile } = this.state;
-    const { i18n, clientProfile, myProfile } = this.props;
+    const { i18n, clientProfile, myProfile, navigation } = this.props;
     let _profile = clientProfile ? myProfile : profile;
     return (
       <View
@@ -610,145 +646,166 @@ class UserProfile extends React.Component {
   };
 
   renderEmpty = () => {
-    const { activeIndex } = this.state;
-    const { i18n } = this.props;
+    const { activeIndex, created, liked, mentioned } = this.state;
+    const { i18n, clientProfile, myCreated, myLiked, myMentioned } = this.props;
     switch (activeIndex) {
       case 0:
-        return (
-          <View style={styles.postViewEmptyMsg}>
-            <Ionicons name="ios-camera" size={theme.iconLg} />
-            <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
-              "CREATED_POSTS_TITLE",
-              { value: `${this.titleMapper()}` }
-            )}`}</Text>
-            <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${i18n.t(
-              "CREATED_POSTS_INFO"
-            )}`}</Text>
-          </View>
-        );
+        if (
+          (clientProfile && myCreated.data.length === 0) ||
+          (!clientProfile && created.data.length === 0)
+        ) {
+          return (
+            <View style={styles.postViewEmptyMsg}>
+              <Ionicons name="ios-camera" size={theme.iconLg} />
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
+                "CREATED_POSTS_TITLE",
+                { value: `${this.titleMapper()}` }
+              )}`}</Text>
+              <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${i18n.t(
+                "CREATED_POSTS_INFO"
+              )}`}</Text>
+            </View>
+          );
+        }
+        return null;
       case 1:
-        return (
-          <View style={styles.postViewEmptyMsg}>
-            <Ionicons name="ios-heart-empty" size={theme.iconLg} />
-            <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
-              "LIKED_POSTS_TITLE",
-              { value: `${this.titleMapper()}` }
-            )}`}</Text>
-            <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${i18n.t(
-              "LIKED_POSTS_INFO"
-            )}`}</Text>
-          </View>
-        );
+        if (
+          (clientProfile && myLiked.data.length === 0) ||
+          (!clientProfile && liked.data.length === 0)
+        ) {
+          return (
+            <View style={styles.postViewEmptyMsg}>
+              <Ionicons name="ios-heart-empty" size={theme.iconLg} />
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
+                "LIKED_POSTS_TITLE",
+                { value: `${this.titleMapper()}` }
+              )}`}</Text>
+              <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${i18n.t(
+                "LIKED_POSTS_INFO"
+              )}`}</Text>
+            </View>
+          );
+        }
+        return null;
       case 2:
-        return (
-          <View style={styles.postViewEmptyMsg}>
-            <Ionicons name="ios-at" size={theme.iconLg} />
-            <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
-              "MENTIONED_POSTS_TITLE",
-              { value: `${this.titleMapper()}` }
-            )}`}</Text>
-            <Text
-              style={{ fontSize: 14, fontWeight: "300", textAlign: "center" }}
-            >{`${i18n.t("MENTIONED_POSTS_INFO")}`}</Text>
-          </View>
-        );
+        if (
+          (clientProfile && myMentioned.data.length === 0) ||
+          (!clientProfile && mentioned.data.length === 0)
+        ) {
+          return (
+            <View style={styles.postViewEmptyMsg}>
+              <Ionicons name="ios-at" size={theme.iconLg} />
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
+                "MENTIONED_POSTS_TITLE",
+                { value: `${this.titleMapper()}` }
+              )}`}</Text>
+              <Text
+                style={{ fontSize: 14, fontWeight: "300", textAlign: "center" }}
+              >{`${i18n.t("MENTIONED_POSTS_INFO")}`}</Text>
+            </View>
+          );
+        }
+        return null;
       default:
         return null;
     }
   };
 
-  renderFooter = () => {
-    const {
-      loading,
-      refreshing,
-      loadingMore,
-      activeIndex,
-      mentioned,
-      liked,
-      created
-    } = this.state;
-    const { clientProfile, i18n, myCreated, myLiked, myMentioned } = this.props;
-    if (!loading && !refreshing) {
-      if (clientProfile) {
-        switch (activeIndex) {
-          case 0:
-            if (myCreated.data.length === 0) {
-              return (
-                <View style={styles.footer}>
-                  <Text>{`${i18n.t("NO_MORE_POSTS")}`}</Text>
-                </View>
-              );
-            }
-            return null;
-          case 1:
-            if (myLiked.data.length === 0) {
-              return (
-                <View style={styles.footer}>
-                  <Text>{`${i18n.t("NO_MORE_POSTS")}`}</Text>
-                </View>
-              );
-            }
-            return null;
-          case 2:
-            if (myMentioned.data.length === 0) {
-              return (
-                <View style={styles.footer}>
-                  <Text>{`${i18n.t("NO_MORE_POSTS")}`}</Text>
-                </View>
-              );
-            }
-            return null;
-          default:
-            return null;
-        }
-      } else {
-        switch (activeIndex) {
-          case 0:
-            if (created.data.length === 0) {
-              return (
-                <View style={styles.footer}>
-                  <Text>{`${i18n.t("NO_MORE_POSTS")}`}</Text>
-                </View>
-              );
-            }
-            return null;
-          case 1:
-            if (liked.data.length === 0) {
-              return (
-                <View style={styles.footer}>
-                  <Text>{`${i18n.t("NO_MORE_POSTS")}`}</Text>
-                </View>
-              );
-            }
-            return null;
-          case 2:
-            if (mentioned.data.length === 0) {
-              return (
-                <View style={styles.footer}>
-                  <Text>{`${i18n.t("NO_MORE_POSTS")}`}</Text>
-                </View>
-              );
-            }
-            return null;
-          default:
-            return null;
-        }
-      }
-    } else {
-      if (loadingMore) {
-        return (
-          <View style={styles.footer}>
-            <BallIndicator size={theme.indicatorSm} />
-          </View>
-        );
-      } else {
-        return null;
-      }
-    }
-  };
+  // TODO
+  // renderFooter = () => {
+  //   const {
+  //     loading,
+  //     refreshing,
+  //     loadingMore,
+  //     activeIndex,
+  //     mentioned,
+  //     liked,
+  //     created
+  //   } = this.state;
+  //   const { clientProfile, i18n, myCreated, myLiked, myMentioned } = this.props;
+  //   switch (activeIndex) {
+  //     case 0:
+  //       if (!loading && !refreshing && !loadingMore) {
+  //         if (
+  //           (clientProfile && myCreated.data.length > 0) ||
+  //           (!clientProfile && created.data.length > 0)
+  //         ) {
+  //           console.log("no more created");
+  //           return (
+  //             <View style={styles.footer}>
+  //               <Text style={{ color: "grey", fontSize: 12 }}>{`${i18n.t(
+  //                 "NO_MORE_POSTS"
+  //               )}`}</Text>
+  //             </View>
+  //           );
+  //         }
+  //         return null;
+  //       } else if (loadingMore) {
+  //         return (
+  //           <View style={styles.footer}>
+  //             <BallIndicator size={theme.iconSm} />
+  //           </View>
+  //         );
+  //       } else {
+  //         return null;
+  //       }
+  //     case 1:
+  //       if (!loading && !refreshing && !loadingMore) {
+  //         if (
+  //           (clientProfile && myLiked.data.length > 0) ||
+  //           (!clientProfile && liked.data.length > 0)
+  //         ) {
+  //           console.log("no more liked");
+  //           return (
+  //             <View style={styles.footer}>
+  //               <Text style={{ color: "grey", fontSize: 12 }}>{`${i18n.t(
+  //                 "NO_MORE_POSTS"
+  //               )}`}</Text>
+  //             </View>
+  //           );
+  //         }
+  //         return null;
+  //       } else if (loadingMore) {
+  //         return (
+  //           <View style={styles.footer}>
+  //             <BallIndicator size={theme.iconSm} />
+  //           </View>
+  //         );
+  //       } else {
+  //         return null;
+  //       }
+  //     case 2:
+  //       if (!loading && !refreshing && !loadingMore) {
+  //         if (
+  //           (clientProfile && myMentioned.data.length > 0) ||
+  //           (!clientProfile && mentioned.data.length > 0)
+  //         ) {
+  //           console.log("no more mentioned");
+  //           return (
+  //             <View style={styles.footer}>
+  //               <Text style={{ color: "grey", fontSize: 12 }}>{`${i18n.t(
+  //                 "NO_MORE_POSTS"
+  //               )}`}</Text>
+  //             </View>
+  //           );
+  //         }
+  //         return null;
+  //       } else if (loadingMore) {
+  //         return (
+  //           <View style={styles.footer}>
+  //             <BallIndicator size={theme.iconSm} />
+  //           </View>
+  //         );
+  //       } else {
+  //         return null;
+  //       }
+  //     default:
+  //       return null;
+  //   }
+  // };
 
   renderContentView = () => {
-    const { activeIndex, mentioned, liked, created, loading } = this.state;
+    const { mentioned, liked, created, loading } = this.state;
     const {
       clientProfile,
       myProfile,
@@ -759,70 +816,98 @@ class UserProfile extends React.Component {
     if ((clientProfile && !myProfile) || loading) {
       return <SkypeIndicator size={theme.indicatorLg} />;
     }
-    switch (activeIndex) {
-      case 0:
-        return (
-          <FlatList
-            extraData={this.state}
-            data={numberConverter(
-              clientProfile ? myCreated.data : created.data,
-              numColumns
-            )}
-            refreshing={this.state.refreshing}
-            onRefresh={this.onRefresh}
-            style={{ backgroundColor: "#fff", width: "100%", flex: 1 }}
-            ListHeaderComponent={this.renderContentHeader}
-            ListFooterComponent={this.renderFooter}
-            ListEmptyComponent={this.renderEmpty}
-            keyExtractor={item => item._id}
-            renderItem={({ item }) => (
-              <PostGridViewImage dataSource={item} numColumns={numColumns} />
-            )}
-          />
-        );
-      case 1:
-        return (
-          <FlatList
-            extraData={this.state}
-            refreshing={this.state.refreshing}
-            onRefresh={this.onRefresh}
-            data={numberConverter(
-              clientProfile ? myLiked.data : liked.data,
-              numColumns
-            )}
-            style={{ backgroundColor: "#fff", width: "100%", flex: 1 }}
-            ListHeaderComponent={this.renderContentHeader}
-            ListFooterComponent={this.renderFooter}
-            ListEmptyComponent={this.renderEmpty}
-            keyExtractor={item => item._id}
-            renderItem={({ item }) => (
-              <PostGridViewImage dataSource={item} numColumns={numColumns} />
-            )}
-          />
-        );
-      case 2:
-        return (
-          <FlatList
-            extraData={this.state}
-            refreshing={this.state.refreshing}
-            onRefresh={this.onRefresh}
-            data={numberConverter(
-              clientProfile ? myMentioned.data : mentioned.data,
-              numColumns
-            )}
-            style={{ backgroundColor: "#fff", width: "100%", flex: 1 }}
-            ListHeaderComponent={this.renderContentHeader}
-            ListFooterComponent={this.renderFooter}
-            ListEmptyComponent={this.renderEmpty}
-            keyExtractor={item => item._id}
-            renderItem={({ item }) => (
-              <PostGridViewImage dataSource={item} numColumns={numColumns} />
-            )}
-          />
-        );
-      default:
-        return null;
-    }
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#fff",
+          alignItems: "center",
+          justifyContent: "flex-start"
+        }}
+      >
+        <FlatList
+          extraData={this.state}
+          data={normalizeData(
+            clientProfile ? myCreated.data : created.data,
+            numColumns
+          )}
+          numColumns={numColumns}
+          refreshing={this.state.refreshing}
+          onRefresh={this.onRefresh}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={0.1}
+          style={{
+            position: "absolute",
+            top: 0,
+            backgroundColor: "#fff",
+            width: "100%",
+            flex: 1,
+            zIndex: this.activeIndex(1)
+          }}
+          ListHeaderComponent={this.renderContentHeader}
+          // ListFooterComponent={this.renderFooter}
+          ListEmptyComponent={this.renderEmpty}
+          keyExtractor={item => item._id}
+          renderItem={({ item }) => (
+            <PostGridViewImage dataSource={item} numColumns={numColumns} />
+          )}
+        />
+        <FlatList
+          extraData={this.state}
+          refreshing={this.state.refreshing}
+          onRefresh={this.onRefresh}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={0.1}
+          data={normalizeData(
+            clientProfile ? myLiked.data : liked.data,
+            numColumns
+          )}
+          numColumns={numColumns}
+          style={{
+            position: "absolute",
+            top: 0,
+            backgroundColor: "#fff",
+            width: "100%",
+            flex: 1,
+            zIndex: this.activeIndex(1)
+          }}
+          ListHeaderComponent={this.renderContentHeader}
+          // ListFooterComponent={this.renderFooter}
+          ListEmptyComponent={this.renderEmpty}
+          keyExtractor={item => item._id}
+          renderItem={({ item }) => (
+            <PostGridViewImage dataSource={item} numColumns={numColumns} />
+          )}
+        />
+        <FlatList
+          extraData={this.state}
+          refreshing={this.state.refreshing}
+          onRefresh={this.onRefresh}
+          data={normalizeData(
+            clientProfile ? myMentioned.data : mentioned.data,
+            numColumns
+          )}
+          numColumns={numColumns}
+          style={{
+            position: "absolute",
+            top: 0,
+            backgroundColor: "#fff",
+            width: "100%",
+            flex: 1,
+            zIndex: this.activeIndex(2)
+          }}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={0.1}
+          ListHeaderComponent={this.renderContentHeader}
+          // ListFooterComponent={this.renderFooter}
+          ListEmptyComponent={this.renderEmpty}
+          keyExtractor={item => item._id}
+          renderItem={({ item }) => (
+            <PostGridViewImage dataSource={item} numColumns={numColumns} />
+          )}
+        />
+      </View>
+    );
   };
 
   render() {
