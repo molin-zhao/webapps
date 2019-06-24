@@ -30,6 +30,11 @@ export const addClientProfile = clientProfile => ({
   payload: { data: clientProfile }
 });
 
+export const updateClientProfile = profile => ({
+  type: ActionTypes.UPDATE_CLIENT_PROFILE,
+  payload: { data: profile }
+});
+
 export const addClientProfileFailed = err => ({
   type: ActionTypes.ADD_CLIENT_PROFILE_FAILED,
   payload: { error: err }
@@ -48,4 +53,8 @@ export const removeClientProfilePost = (type, data) => ({
 export const reloadClientProfilePosts = (type, data) => ({
   type: ActionTypes.RELOAD_CLIENT_PROFILE_POST,
   payload: { type, data }
+});
+
+export const removeClientProfileAvatar = () => ({
+  type: ActionTypes.REMOVE_CLIENT_PROFILE_AVATAR
 });

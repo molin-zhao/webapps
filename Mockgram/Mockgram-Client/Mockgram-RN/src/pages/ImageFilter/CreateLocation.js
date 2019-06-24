@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { FontAwesome } from "@expo/vector-icons";
 
 import PolygonCreator from "../../components/PolygonCreator";
+import { locale } from "../../common/locale";
 
 class CreateLocation extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -32,11 +33,11 @@ class CreateLocation extends React.Component {
   };
 
   componentDidMount() {
-    const { i18n, navigation } = this.props;
+    const { appLocale, navigation } = this.props;
     navigation.setParams({
-      createLocationTitle: `${i18n.t("CREATE_TITLE", {
-        value: `${i18n.t("LOCATION")}`
-      })}`
+      createLocationTitle: `${locale[appLocale]["CREATE_TITLE"](
+        locale[appLocale]["LOCATION"]
+      )}`
     });
   }
 
@@ -53,7 +54,7 @@ class CreateLocation extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

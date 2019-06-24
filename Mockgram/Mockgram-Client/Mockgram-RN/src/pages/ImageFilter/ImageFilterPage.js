@@ -29,6 +29,7 @@ import Normal from "../../filters/Normal";
 
 import theme from "../../common/theme";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
 const shaderNames = {
   Normal: "Normal",
@@ -239,13 +240,13 @@ class ImageFilterPage extends React.Component {
   };
 
   renderFilterModal = () => {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <Modal visible={this.state.filterModalVisible} style={modalStyle}>
         <View style={styles.modalContent}>
           <MyHeader
             style={{ height: "20%", marginTop: 10 }}
-            headerTitle={`${i18n.t("CHOOSE_FILTER")}`}
+            headerTitle={`${locale[appLocale]["CHOOSE_FILTER"]}`}
             rightIconButton={() => (
               <FontAwesome
                 name="check"
@@ -299,13 +300,13 @@ class ImageFilterPage extends React.Component {
   };
 
   renderMetaModal = () => {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <Modal visible={this.state.metaModalVisible} style={modalStyle}>
         <View style={styles.modalContent}>
           <MyHeader
             style={{ height: "20%", marginTop: 10 }}
-            headerTitle={`${i18n.t("META")}`}
+            headerTitle={`${locale[appLocale]["META"]}`}
             rightIconButton={() => (
               <FontAwesome
                 name="check"
@@ -439,14 +440,14 @@ class ImageFilterPage extends React.Component {
   };
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.container}>
         {this.renderImageBackground()}
         <View style={styles.imageContentView}>
           <MyHeader
             style={{ backgroundColor: "transparent" }}
-            headerTitle={`${i18n.t("EDIT_PHOTO")}`}
+            headerTitle={`${locale[appLocale]["EDIT_PHOTO"]}`}
             rightIconButton={() => {
               return (
                 <TouchableOpacity
@@ -456,9 +457,9 @@ class ImageFilterPage extends React.Component {
                     this.next();
                   }}
                 >
-                  <Text style={{ color: "black", fontSize: 15 }}>{`${i18n.t(
-                    "NEXT"
-                  )}`}</Text>
+                  <Text style={{ color: "black", fontSize: 15 }}>{`${
+                    locale[appLocale]["NEXT"]
+                  }`}</Text>
                 </TouchableOpacity>
               );
             }}
@@ -486,7 +487,7 @@ class ImageFilterPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

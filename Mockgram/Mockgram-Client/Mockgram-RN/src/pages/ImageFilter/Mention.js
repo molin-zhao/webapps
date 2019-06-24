@@ -13,6 +13,7 @@ import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Header } from "react-navigation";
 import { SkypeIndicator } from "react-native-indicators";
 import { Constants } from "expo";
+import { connect } from "react-redux";
 
 import SearchBarView from "../../components/SearchBarView";
 import Thumbnail from "../../components/Thumbnail";
@@ -22,6 +23,7 @@ import baseUrl from "../../common/baseUrl";
 import config from "../../common/config";
 import theme from "../../common/theme";
 import { parseIdFromObjectArray } from "../../utils/idParser";
+import { locale } from "../../common/locale";
 
 class Mention extends React.Component {
   mounted = false;
@@ -96,11 +98,13 @@ class Mention extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-    const { navigation, i18n } = this.props;
+    const { navigation, appLocale } = this.props;
     navigation.setParams({
       getMentionedUsers: () => this.state.mentionedUsers,
-      mentionTitle: `${i18n.t("ADD_TITLE", { value: `${i18n.t("USER")}` })}`,
-      mentionDone: `${i18n.t("DONE")}`
+      mentionTitle: `${locale[appLocale]["ADD_TITLE"](
+        locale[appLocale]["USER"]
+      )}`,
+      mentionDone: `${locale[appLocale]["DONE"]}`
     });
     this.setState(
       {
@@ -530,4 +534,11 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Mention;
+const mapStateToProps = state => ({
+  appLocale: state.app.appLocale
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(Mention);

@@ -3,159 +3,116 @@ import {
   View,
   StyleSheet,
   Text,
-  Button,
   TouchableOpacity,
-  TextInput
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { SecureStore, ImagePicker } from "expo";
+import { SkypeIndicator } from "react-native-indicators";
+import { ImagePicker, Permissions, FileSystem } from "expo";
 import { connect } from "react-redux";
+import {
+  updateClientProfile,
+  removeClientProfileAvatar
+} from "../../redux/actions/profileActions";
 
 import Thumbnail from "../../components/Thumbnail";
-import processImage from "../../utils/imageProcessing";
+import Button from "../../components/Button";
+
 import ActionSheet from "react-native-actionsheet";
 import window from "../../utils/getDeviceInfo";
 import baseUrl from "../../common/baseUrl";
-import * as LocalKeys from "../../common/localKeys";
+import theme from "../../common/theme";
+import { locale } from "../../common/locale";
+import processImage from "../../utils/imageProcessing";
 
 class ProfileSetting extends React.Component {
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
-      imageUri: "",
+      avatarUri: "",
       nickname: "",
       bio: "",
-      permissionAllowed: false,
       choosedImage: null,
-      bioHeight: window.height * 0.1
+      error: null,
+      bioHeight: window.height * 0.1,
+      processing: false
     };
   }
+
   static navigationOptions = ({ navigation }) => ({
     headerLeft: (
       <TouchableOpacity
         style={{ marginLeft: 20 }}
         onPress={() => {
-          navigation.popToTop();
+          navigation.goBack();
         }}
       >
-        <FontAwesome name="chevron-left" size={20} />
+        <FontAwesome name="chevron-left" size={theme.iconMd} />
       </TouchableOpacity>
     )
   });
 
-  componentWillMount() {
-    const { profile } = this.props;
-    SecureStore.getItemAsync(LocalKeys.PERMISSION_CAMERA).then(
-      permissionData => {
-        if (permissionData) {
-          let permissionInfo = JSON.parse(permissionData);
-          if (permissionInfo.CAMERA_ROLL && permissionInfo.CAMERA) {
-            this.setState({ permissionAllowed: true });
-          }
-        }
-      }
-    );
-    if (profile) {
-      this.setState({
-        imageUri: profile.avatar
-      });
-    }
+  componentDidMount() {
+    this.mounted = true;
   }
 
-  choosePhotoFromLibrary = async () => {
-    if (!this.state.permissionAllowed) {
-      this.setState(
-        {
-          permissionAllowed: allowPermissions.allowCameraAccess()
-        },
-        () => {
-          if (!this.state.permissionAllowed) {
-            return;
-          }
-        }
-      );
-    }
-    let capturedImage = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [1, 1]
-    });
-    if (!capturedImage.cancelled) {
-      let processedImage = await processImage(capturedImage.uri);
-      this.setState({
-        imageUri: processedImage.uri,
-        choosedImage: processedImage
-      });
-    }
-  };
-
-  choosePhotoFromCamera = async () => {
-    if (!this.state.permissionAllowed) {
-      this.setState(
-        {
-          permissionAllowed: allowPermissions.allowCameraAccess()
-        },
-        () => {
-          if (!this.state.permissionAllowed) {
-            return;
-          }
-        }
-      );
-    }
-    let capturedImage = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1]
-    });
-    if (!capturedImage.cancelled) {
-      let processedImage = await processImage(capturedImage.uri);
-      this.setState({
-        imageUri: processedImage.uri,
-        choosedImage: processedImage
-      });
-    }
-  };
+  componentWillMount() {
+    this.mounted = false;
+  }
 
   removeProfileAvatar = () => {
-    const { client } = this.props;
-    let formData = new FormData();
-    formData.append("id", client.user._id);
-    fetch(`${baseUrl.upload}/upload/profile/remove/avatar`, {
-      method: "POST",
-      body: formData,
+    const { client, removeClientProfileAvatar } = this.props;
+    let url = `${baseUrl.upload}/upload/profile/remove/avatar`;
+    fetch(url, {
+      method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
         Authorization: client.token
       }
     })
       .then(res => res.json())
       .then(resJson => {
-        if (resJson.status === 200) {
-          this.setState({
-            imageUri: "",
-            choosedImage: null
-          });
-        } else {
-          console.log("remove image error");
+        console.log(resJson);
+        if (this.mounted) {
+          if (resJson.status === 200) {
+            removeClientProfileAvatar();
+          } else {
+            this.setState({
+              error: resJson.msg
+            });
+          }
         }
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({
+          error: err
+        });
       });
   };
 
   uploadProfile = () => {
-    const { client } = this.props;
-    let fileName = this.state.imageUri.split("/").pop();
-    let match = /\.(\w+)$/.exec(fileName);
-    let type = match ? `image/${match[1]}` : `image`;
-
+    const { client, updateProfile } = this.props;
+    const { avatarUri, bio, nickname } = this.state;
     let formData = new FormData();
-    formData.append("avatar", {
-      uri: this.state.imageUri,
-      name: fileName,
-      type: type
-    });
-    formData.append("bio", this.state.bio);
-    formData.append("nickname", this.state.nickname);
-    formData.append("id", client.user._id);
-    fetch(`${baseUrl.upload}/upload/profile`, {
+    formData.append("bio", bio);
+    formData.append("nickname", nickname);
+    if (avatarUri) {
+      let fileName = avatarUri.split("/").pop();
+      let match = /\.(\w+)$/.exec(fileName);
+      let type = match ? `image/${match[1]}` : `image`;
+      formData.append("avatar", {
+        uri: avatarUri,
+        name: fileName,
+        type: type
+      });
+    }
+    let url = `${baseUrl.upload}/upload/profile`;
+    fetch(url, {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -166,7 +123,23 @@ class ProfileSetting extends React.Component {
     })
       .then(res => res.json())
       .then(resJson => {
-        this.props.navigation.goBack();
+        console.log(resJson);
+        if (this.mounted) {
+          if (resJson.status === 200) {
+            // should update client profile
+            updateProfile(resJson.data);
+          } else {
+            this.setState({
+              error: resJson.msg
+            });
+          }
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState({
+          error: err
+        });
       });
   };
 
@@ -180,99 +153,184 @@ class ProfileSetting extends React.Component {
     });
   };
 
-  render() {
+  choosePhotoFromCamera = async () => {
+    const { status } = await Permissions.getAsync(Permissions.CAMERA);
+    if (status === "granted") {
+      let capturedImage = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1]
+      });
+      if (!capturedImage.cancelled) {
+        let processedImage = await processImage(capturedImage.uri);
+        this.setState({
+          avatarUri: processedImage.uri
+        });
+      }
+    }
+    return;
+  };
+
+  choosePhotoFromLibrary = async () => {
+    const { status } = await Permissions.getAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+      let capturedImage = await ImagePicker.launchImageLibraryAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1
+      });
+      if (!capturedImage.cancelled) {
+        let processedImage = await processImage(capturedImage.uri);
+        this.setState({
+          avatarUri: processedImage.uri
+        });
+      }
+    }
+  };
+
+  resetAvatar = () => {
+    let uri = this.state.avatarUri;
+    this.setState({
+      avatarUri: ""
+    });
+    FileSystem.deleteAsync(uri)
+      .then(() => {
+        console.log("file deleted");
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  _getProfileAvatar = () => {
     const { profile } = this.props;
+    if (profile) {
+      return profile.avatar;
+    }
+    return "";
+  };
+
+  render() {
+    const { profile, appLocale } = this.props;
+    const { avatarUri, nickname, bio } = this.state;
+    let _avatar = this._getProfileAvatar();
     return (
-      <View style={styles.container}>
-        <ActionSheet
-          ref={o => (this.ActionSheet = o)}
-          title={"change your profile photo?"}
-          options={["From library", "Take a photo", "remove avatar", "Cancel"]}
-          cancelButtonIndex={3}
-          destructiveButtonIndex={2}
-          onPress={index => {
-            if (index === 0) {
-              this.choosePhotoFromLibrary();
-            } else if (index === 1) {
-              this.choosePhotoFromCamera();
-            } else if (index === 2) {
-              this.removeProfileAvatar();
-            }
-          }}
-        />
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={this.showActionSheet}
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 30,
-            width: 80,
-            height: 80
-          }}
-        >
-          <Thumbnail
-            style={{ width: 80, height: 80 }}
-            source={this.state.imageUri}
+      <TouchableWithoutFeedback
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
+      >
+        <View style={styles.container}>
+          <ActionSheet
+            ref={o => (this.ActionSheet = o)}
+            title={`${locale[appLocale]["CHANGE_PROFILE_AVATAR_TITLE"]}`}
+            options={[
+              `${locale[appLocale]["CHOOSE_A_PHOTO"]}`,
+              `${locale[appLocale]["TAKE_A_PHOTO"]}`,
+              `${locale[appLocale]["RESET"]}`,
+              `${locale[appLocale]["REMOVE"]}`,
+              `${locale[appLocale]["CANCEL"]}`
+            ]}
+            cancelButtonIndex={4}
+            destructiveButtonIndex={3}
+            onPress={index => {
+              if (index === 0) {
+                this.choosePhotoFromLibrary();
+              } else if (index === 1) {
+                this.choosePhotoFromCamera();
+              } else if (index === 2) {
+                this.resetAvatar();
+              } else if (index === 3) {
+                this.removeProfileAvatar();
+              }
+            }}
           />
-        </TouchableOpacity>
-        <View style={styles.profile}>
-          <View style={styles.itemCol}>
-            <View style={styles.itemLabel}>
-              <Text>Nickname</Text>
-            </View>
-            <TextInput
-              style={{ width: "100%" }}
-              placeholder={profile.nickname}
-              value={this.state.nickname}
-              onChangeText={text => {
-                this.setState({ nickname: text });
-              }}
-            />
-          </View>
-          <View style={[styles.itemCol, { height: this.state.bioHeight }]}>
-            <View style={styles.itemLabel}>
-              <Text>Bio</Text>
-            </View>
-            <TextInput
-              style={{ width: "100%" }}
-              editable={true}
-              multiline={true}
-              numberOfLines={3}
-              placeholder={profile.bio}
-              value={this.state.bio}
-              onChangeText={text => {
-                this.setState({ bio: text });
-              }}
-            />
-          </View>
-          <Button
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={this.showActionSheet}
             style={{
-              marginTop: 20,
-              color: "#eb765a",
-              width: window.width * 0.8,
-              heigh: window.width * 0.15
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: theme.marginTop,
+              width: 80,
+              height: 80
             }}
-            title="edit"
-            onPress={() => {
-              this.uploadProfile();
-            }}
-          />
+          >
+            <Thumbnail
+              style={{ width: 80, height: 80 }}
+              source={avatarUri ? avatarUri : _avatar}
+            />
+          </TouchableOpacity>
+          <View style={styles.profile}>
+            <View style={styles.itemCol}>
+              <View style={styles.itemLabel}>
+                <Text>{`${locale[appLocale]["NICKNAME"]}`}</Text>
+              </View>
+              <TextInput
+                style={{ width: "100%" }}
+                placeholder={profile ? profile.nickname : ""}
+                value={nickname}
+                onChangeText={text => {
+                  this.setState({ nickname: text });
+                }}
+              />
+            </View>
+            <View style={[styles.itemCol, { height: this.state.bioHeight }]}>
+              <View style={styles.itemLabel}>
+                <Text>{`${locale[appLocale]["BIO"]}`}</Text>
+              </View>
+              <TextInput
+                style={{ width: "100%" }}
+                editable={true}
+                multiline={true}
+                numberOfLines={3}
+                placeholder={profile ? profile.bio : ""}
+                value={bio}
+                onChangeText={text => {
+                  this.setState({ bio: text });
+                }}
+              />
+            </View>
+            <Button
+              loading={this.state.processing}
+              title={`${locale[appLocale]["UPDATE"]}`}
+              titleStyle={{ color: "#fff", fontSize: 12 }}
+              iconLeft={() => {
+                let valid = avatarUri || bio || nickname;
+                if (valid) {
+                  return null;
+                }
+                return <FontAwesome name="ban" size={18} color="#fff" />;
+              }}
+              disabled={
+                this.state.processing || !(avatarUri || bio || nickname)
+              }
+              onPress={() => this.uploadProfile()}
+              containerStyle={StyleSheet.flatten(styles.updateBtn)}
+              loadingIndicator={() => (
+                <SkypeIndicator size={theme.iconSm} color={theme.primaryGrey} />
+              )}
+            />
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    profile: state.profile.profile
-  };
-};
+const mapStateToProps = state => ({
+  client: state.client.client,
+  profile: state.profile.profile,
+  locale: state.app.locale
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateProfile: profile => dispatch(updateClientProfile(profile)),
+  removeClientProfileAvatar: () => dispatch(removeClientProfileAvatar())
+});
 
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(ProfileSetting);
 
 const styles = StyleSheet.create({
@@ -301,5 +359,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-start",
     height: window.height * 0.03
+  },
+  updateBtn: {
+    width: 90,
+    height: 40,
+    backgroundColor: theme.primaryColor,
+    marginTop: 50
   }
 });

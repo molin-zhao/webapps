@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 import { numberConverter } from "../utils/unitConverter";
 
 class PostListCell extends React.Component {
@@ -12,7 +13,7 @@ class PostListCell extends React.Component {
     super(props);
   }
   render() {
-    const { dataSource, i18n } = this.props;
+    const { dataSource, appLocale } = this.props;
     return (
       <View
         style={{
@@ -58,11 +59,11 @@ class PostListCell extends React.Component {
             numberOfLines={1}
             ellipsizeMode="tail"
             style={{ fontSize: 13, color: "grey" }}
-          >{`${numberConverter(dataSource.quotedCount)} ${i18n.t(
-            "POSTS"
-          )}, ${numberConverter(dataSource.participantsCount)} ${i18n.t(
-            "PARTICIPANTS"
-          )}`}</Text>
+          >{`${numberConverter(dataSource.quotedCount)} ${
+            locale[appLocale]["POSTS"]
+          }, ${numberConverter(dataSource.participantsCount)} ${
+            locale[appLocale]["PARTICIPANTS"]
+          }`}</Text>
         </View>
       </View>
     );
@@ -70,7 +71,7 @@ class PostListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   FlatList
 } from "react-native";
-import { SkypeIndicator, BallIndicator } from "react-native-indicators";
+import { SkypeIndicator } from "react-native-indicators";
 import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 import ActionSheet from "react-native-actionsheet";
@@ -30,6 +30,7 @@ import config from "../common/config";
 import * as Types from "../common/types";
 import { normalizeData } from "../utils/arrayEditor";
 import { parseIdFromObjectArray } from "../utils/idParser";
+import { locale } from "../common/locale";
 
 numColumns = 3;
 
@@ -46,17 +47,16 @@ class UserProfile extends React.Component {
 
   constructor(props) {
     super(props);
+    const { clientProfile, myProfile, navigation, appLocale } = this.props;
     this.state = {
       profile: {
-        _id: this.props.clientProfile
-          ? this.props.myProfile._id
-          : this.props.navigation.getParam("id"),
-        username: this.props.clientProfile
-          ? this.props.myProfile.username
-          : this.props.navigation.getParam("username"),
-        avatar: this.props.clientProfile
-          ? this.props.myProfile.avatar
-          : this.props.navigation.getParam("avatar"),
+        _id: clientProfile ? myProfile._id : navigation.getParam("id"),
+        username: clientProfile
+          ? myProfile.username
+          : navigation.getParam("username"),
+        avatar: clientProfile
+          ? myProfile.avatar
+          : navigation.getParam("avatar"),
         postCount: 0,
         followerCount: 0,
         followingCount: 0,
@@ -86,7 +86,7 @@ class UserProfile extends React.Component {
             name: "md-images"
           },
           text: {
-            title: `${this.props.i18n.t("POSTS")}`
+            title: `${locale[appLocale]["POSTS"]}`
           }
         },
         {
@@ -94,7 +94,7 @@ class UserProfile extends React.Component {
             name: "md-heart"
           },
           text: {
-            title: `${this.props.i18n.t("LIKED")}`
+            title: `${locale[appLocale]["LIKED"]}`
           }
         },
         {
@@ -102,7 +102,7 @@ class UserProfile extends React.Component {
             name: "ios-people"
           },
           text: {
-            title: `${this.props.i18n.t("MENTIONED")}`
+            title: `${locale[appLocale]["MENTIONED"]}`
           }
         }
       ]
@@ -138,11 +138,11 @@ class UserProfile extends React.Component {
   }
 
   titleMapper = () => {
-    const { clientProfile, i18n } = this.props;
+    const { clientProfile, appLocale } = this.props;
     if (clientProfile) {
-      return `${i18n.t("YOUR")}`;
+      return `${locale[appLocale]["YOUR"]}`;
     }
-    return `${i18n.t("USER_S")}`;
+    return `${locale[appLocale]["USER_S"]}`;
   };
 
   fetchUserProfile = () => {
@@ -539,7 +539,7 @@ class UserProfile extends React.Component {
 
   renderContentHeader = () => {
     const { profile } = this.state;
-    const { i18n, clientProfile, myProfile, navigation } = this.props;
+    const { clientProfile, myProfile, navigation, appLocale } = this.props;
     let _profile = clientProfile ? myProfile : profile;
     return (
       <View
@@ -556,7 +556,9 @@ class UserProfile extends React.Component {
         <View style={styles.count}>
           <TouchableOpacity style={styles.countSubview} activeOpacity={0.8}>
             <Text style={styles.countText}>{_profile.postCount}</Text>
-            <Text style={styles.countText}>{`${i18n.t("POSTS")}`}</Text>
+            <Text style={styles.countText}>{`${
+              locale[appLocale]["POSTS"]
+            }`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.countSubview}
@@ -569,7 +571,9 @@ class UserProfile extends React.Component {
             }}
           >
             <Text style={styles.countText}>{_profile.followingCount}</Text>
-            <Text style={styles.countText}>{`${i18n.t("FOLLOWING")}`}</Text>
+            <Text style={styles.countText}>{`${
+              locale[appLocale]["FOLLOWING"]
+            }`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.countSubview}
@@ -582,7 +586,9 @@ class UserProfile extends React.Component {
             }}
           >
             <Text style={styles.countText}>{_profile.followerCount}</Text>
-            <Text style={styles.countText}>{`${i18n.t("FOLLOWERS")}`}</Text>
+            <Text style={styles.countText}>{`${
+              locale[appLocale]["FOLLOWERS"]
+            }`}</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.bio}>
@@ -602,7 +608,7 @@ class UserProfile extends React.Component {
                   }}
                 >
                   <Text style={{ color: theme.primaryBlue }} onPress={onPress}>
-                    {`${i18n.t("SHOW_MORE")} `}
+                    {`${locale[appLocale]["SHOW_MORE"]} `}
                     <Ionicons name="md-arrow-dropdown" />
                   </Text>
                 </TouchableOpacity>
@@ -622,7 +628,7 @@ class UserProfile extends React.Component {
                   }}
                 >
                   <Text style={{ color: theme.primaryBlue }}>
-                    {`${i18n.t("SHOW_LESS")} `}
+                    {`${locale[appLocale]["SHOW_LESS"]} `}
                     <Ionicons name="md-arrow-dropup" />
                   </Text>
                 </TouchableOpacity>
@@ -630,7 +636,7 @@ class UserProfile extends React.Component {
             }}
           >
             <Text style={{ fontWeight: "bold" }}>
-              {`${i18n.t("BIO")}`}
+              {`${locale[appLocale]["BIO"]}`}
               <Text style={{ fontWeight: "normal" }}>{`  ${
                 _profile.bio
               }`}</Text>
@@ -647,7 +653,13 @@ class UserProfile extends React.Component {
 
   renderEmpty = () => {
     const { activeIndex, created, liked, mentioned } = this.state;
-    const { i18n, clientProfile, myCreated, myLiked, myMentioned } = this.props;
+    const {
+      clientProfile,
+      myCreated,
+      myLiked,
+      myMentioned,
+      appLocale
+    } = this.props;
     switch (activeIndex) {
       case 0:
         if (
@@ -657,13 +669,12 @@ class UserProfile extends React.Component {
           return (
             <View style={styles.postViewEmptyMsg}>
               <Ionicons name="ios-camera" size={theme.iconLg} />
-              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
-                "CREATED_POSTS_TITLE",
-                { value: `${this.titleMapper()}` }
-              )}`}</Text>
-              <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${i18n.t(
-                "CREATED_POSTS_INFO"
-              )}`}</Text>
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${locale[
+                appLocale
+              ]["CREATED_POSTS_TITLE"](this.titleMapper())}`}</Text>
+              <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${
+                locale[appLocale]["CREATED_POSTS_INFO"]
+              }`}</Text>
             </View>
           );
         }
@@ -676,13 +687,12 @@ class UserProfile extends React.Component {
           return (
             <View style={styles.postViewEmptyMsg}>
               <Ionicons name="ios-heart-empty" size={theme.iconLg} />
-              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
-                "LIKED_POSTS_TITLE",
-                { value: `${this.titleMapper()}` }
-              )}`}</Text>
-              <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${i18n.t(
-                "LIKED_POSTS_INFO"
-              )}`}</Text>
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${locale[
+                appLocale
+              ]["LIKED_POSTS_TITLE"](this.titleMapper())}`}</Text>
+              <Text style={{ fontSize: 14, fontWeight: "300" }}>{`${
+                locale[appLocale]["LIKED_POSTS_INFO"]
+              }`}</Text>
             </View>
           );
         }
@@ -695,13 +705,12 @@ class UserProfile extends React.Component {
           return (
             <View style={styles.postViewEmptyMsg}>
               <Ionicons name="ios-at" size={theme.iconLg} />
-              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${i18n.t(
-                "MENTIONED_POSTS_TITLE",
-                { value: `${this.titleMapper()}` }
-              )}`}</Text>
+              <Text style={{ fontSize: 20, fontWeight: "600" }}>{`${locale[
+                appLocale
+              ]["MENTIONED_POSTS_TITLE"](this.titleMapper())}`}</Text>
               <Text
                 style={{ fontSize: 14, fontWeight: "300", textAlign: "center" }}
-              >{`${i18n.t("MENTIONED_POSTS_INFO")}`}</Text>
+              >{`${locale[appLocale]["MENTIONED_POSTS_INFO"]}`}</Text>
             </View>
           );
         }
@@ -710,99 +719,6 @@ class UserProfile extends React.Component {
         return null;
     }
   };
-
-  // TODO
-  // renderFooter = () => {
-  //   const {
-  //     loading,
-  //     refreshing,
-  //     loadingMore,
-  //     activeIndex,
-  //     mentioned,
-  //     liked,
-  //     created
-  //   } = this.state;
-  //   const { clientProfile, i18n, myCreated, myLiked, myMentioned } = this.props;
-  //   switch (activeIndex) {
-  //     case 0:
-  //       if (!loading && !refreshing && !loadingMore) {
-  //         if (
-  //           (clientProfile && myCreated.data.length > 0) ||
-  //           (!clientProfile && created.data.length > 0)
-  //         ) {
-  //           console.log("no more created");
-  //           return (
-  //             <View style={styles.footer}>
-  //               <Text style={{ color: "grey", fontSize: 12 }}>{`${i18n.t(
-  //                 "NO_MORE_POSTS"
-  //               )}`}</Text>
-  //             </View>
-  //           );
-  //         }
-  //         return null;
-  //       } else if (loadingMore) {
-  //         return (
-  //           <View style={styles.footer}>
-  //             <BallIndicator size={theme.iconSm} />
-  //           </View>
-  //         );
-  //       } else {
-  //         return null;
-  //       }
-  //     case 1:
-  //       if (!loading && !refreshing && !loadingMore) {
-  //         if (
-  //           (clientProfile && myLiked.data.length > 0) ||
-  //           (!clientProfile && liked.data.length > 0)
-  //         ) {
-  //           console.log("no more liked");
-  //           return (
-  //             <View style={styles.footer}>
-  //               <Text style={{ color: "grey", fontSize: 12 }}>{`${i18n.t(
-  //                 "NO_MORE_POSTS"
-  //               )}`}</Text>
-  //             </View>
-  //           );
-  //         }
-  //         return null;
-  //       } else if (loadingMore) {
-  //         return (
-  //           <View style={styles.footer}>
-  //             <BallIndicator size={theme.iconSm} />
-  //           </View>
-  //         );
-  //       } else {
-  //         return null;
-  //       }
-  //     case 2:
-  //       if (!loading && !refreshing && !loadingMore) {
-  //         if (
-  //           (clientProfile && myMentioned.data.length > 0) ||
-  //           (!clientProfile && mentioned.data.length > 0)
-  //         ) {
-  //           console.log("no more mentioned");
-  //           return (
-  //             <View style={styles.footer}>
-  //               <Text style={{ color: "grey", fontSize: 12 }}>{`${i18n.t(
-  //                 "NO_MORE_POSTS"
-  //               )}`}</Text>
-  //             </View>
-  //           );
-  //         }
-  //         return null;
-  //       } else if (loadingMore) {
-  //         return (
-  //           <View style={styles.footer}>
-  //             <BallIndicator size={theme.iconSm} />
-  //           </View>
-  //         );
-  //       } else {
-  //         return null;
-  //       }
-  //     default:
-  //       return null;
-  //   }
-  // };
 
   renderContentView = () => {
     const { mentioned, liked, created, loading } = this.state;
@@ -911,15 +827,18 @@ class UserProfile extends React.Component {
   };
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.container}>
         {this.renderContentView()}
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          title={`${i18n.t("UNFOLLOW_TITLE")}`}
-          message={`${i18n.t("UNFOLLOW_INFO")}`}
-          options={[`${i18n.t("CONFIRM")}`, `${i18n.t("CANCEL")}`]}
+          title={`${locale[appLocale]["UNFOLLOW_TITLE"]}`}
+          message={`${locale[appLocale]["UNFOLLOW_INFO"]}`}
+          options={[
+            `${locale[appLocale]["CONFIRM"]}`,
+            `${locale[appLocale]["CANCEL"]}`
+          ]}
           cancelButtonIndex={1}
           onPress={index => {
             if (index === 0) {
@@ -934,8 +853,8 @@ class UserProfile extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  appLocale: state.app.appLocale,
   client: state.client.client,
-  i18n: state.app.i18n,
   myProfile: state.profile.profile,
   myCreated: state.profile.created,
   myLiked: state.profile.liked,

@@ -18,9 +18,7 @@ router.post("/object-detection", cors(), multipart(), async (req, res) => {
   let dest = image.tmp;
   let limit = image.limit;
   const result = await getFileName(dest, imageFile);
-  if (result.err) {
-    return handleError(res, result.err);
-  }
+  if (result.err) return handleError(res, result.err);
   let fileName = result.fileName;
   let fileLocation = result.fileLocation;
   let imageQueryPath = `${image.tmpQuery}${fileName}`;
@@ -31,19 +29,24 @@ router.post("/object-detection", cors(), multipart(), async (req, res) => {
       .set("Accept", "application/json")
       .end(async (err, resp) => {
         if (err) return handleError(res, err);
-        await deteleFileAsync(fileLocation);
-        let djangoRes = JSON.parse(resp.text);
-        if (djangoRes.status !== 200) {
+        try {
+          await deteleFileAsync(fileLocation);
+          let djangoRes = JSON.parse(resp.text);
+          if (djangoRes.status !== 200) {
+            return res.json({
+              status: response.ERROR.SERVER_ERROR.CODE,
+              msg: response.ERROR.SERVER_ERROR.MSG
+            });
+          }
           return res.json({
-            status: response.ERROR.SERVER_ERROR.CODE,
-            msg: response.ERROR.SERVER_ERROR.MSG
+            status: response.SUCCESS.OK.CODE,
+            msg: response.SUCCESS.OK.MSG,
+            data: djangoRes.data
           });
+        } catch (err) {
+          console.log(err);
+          return handleError(res, err);
         }
-        return res.json({
-          status: response.SUCCESS.OK.CODE,
-          msg: response.SUCCESS.OK.MSG,
-          data: djangoRes.data
-        });
       });
   });
 });

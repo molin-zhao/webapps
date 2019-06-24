@@ -25,6 +25,7 @@ import ImageFilter from "./pages/ImageFilter";
 
 // components
 import MessageBadgeIcon from "./components/MessageBadgeIcon";
+import I18nTabBarLabel from "./components/I18nTabBarLabel";
 
 // actions and utils
 import store from "./redux";
@@ -38,6 +39,7 @@ import {
   recallMessage
 } from "./redux/actions/messageActions";
 import theme from "./common/theme";
+import { locale } from "./common/locale";
 
 const MainAppTabNavigator = createBottomTabNavigator(
   {
@@ -52,7 +54,14 @@ const MainAppTabNavigator = createBottomTabNavigator(
             console.log("double tapped");
           }
           defaultHandler();
-        }
+        },
+        tabBarLabel: ({ tintColor, focused }) => (
+          <I18nTabBarLabel
+            name="TAB_HOME"
+            tintColor={tintColor}
+            focused={focused}
+          />
+        )
       }
     },
     Discovery: {
@@ -60,6 +69,13 @@ const MainAppTabNavigator = createBottomTabNavigator(
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
           <Ionicons name="md-search" color={tintColor} size={28} />
+        ),
+        tabBarLabel: ({ tintColor, focused }) => (
+          <I18nTabBarLabel
+            name="TAB_DISCOVERY"
+            tintColor={tintColor}
+            focused={focused}
+          />
         )
       }
     },
@@ -76,7 +92,14 @@ const MainAppTabNavigator = createBottomTabNavigator(
           } else {
             navigation.navigate("Auth");
           }
-        }
+        },
+        tabBarLabel: ({ tintColor, focused }) => (
+          <I18nTabBarLabel
+            name="TAB_POST"
+            tintColor={tintColor}
+            focused={focused}
+          />
+        )
       }
     },
     Message: {
@@ -93,7 +116,14 @@ const MainAppTabNavigator = createBottomTabNavigator(
           } else {
             navigation.navigate("Auth");
           }
-        }
+        },
+        tabBarLabel: ({ tintColor, focused }) => (
+          <I18nTabBarLabel
+            name="TAB_MESSAGE"
+            tintColor={tintColor}
+            focused={focused}
+          />
+        )
       }
     },
     Profile: {
@@ -109,7 +139,14 @@ const MainAppTabNavigator = createBottomTabNavigator(
           } else {
             navigation.navigate("Auth");
           }
-        }
+        },
+        tabBarLabel: ({ tintColor, focused }) => (
+          <I18nTabBarLabel
+            name="TAB_PROFILE"
+            tintColor={tintColor}
+            focused={focused}
+          />
+        )
       }
     }
   },
@@ -122,7 +159,8 @@ const MainAppTabNavigator = createBottomTabNavigator(
       inactiveTintColor: "black",
       style: {
         backgroundColor: "#fff"
-      }
+      },
+      showLabel: true
     }
   }
 );
@@ -220,8 +258,8 @@ class MainApp extends React.Component {
   async componentDidMount() {
     AppState.addEventListener("change", this._handleAppStateChange);
     try {
-      await this.props.getClientInfo();
       await this.props.getAppLocale();
+      await this.props.getClientInfo();
       await this.props.finishAppInitialize();
       console.log(`app starts`);
     } catch (err) {
@@ -256,11 +294,10 @@ class MainApp extends React.Component {
       getMessage,
       addMessage,
       recallMessage,
-      i18n
+      appLocale
     } = this.props;
-    if (prevProps.i18n !== i18n && i18n) {
-      // i18n finished or changed
-      console.log(`${i18n.t("SYSTEM_LANG")}`);
+    if (prevProps.appLocale !== appLocale) {
+      console.log(`${locale[appLocale]["SYSTEM_LANG"]}`);
     }
     if (prevProps.client !== client && client) {
       // client has value
@@ -298,7 +335,7 @@ const mapStateToProps = state => {
     message: state.message.message,
     client: state.client.client,
     profile: state.profile.profile,
-    i18n: state.app.i18n
+    appLocale: state.app.appLocale
   };
 };
 const mapDispatchToProps = dispatch => ({

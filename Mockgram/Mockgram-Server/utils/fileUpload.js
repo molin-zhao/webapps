@@ -87,6 +87,6 @@ exports.getFileAsync = async path => {
   return await fs.readFileSync(path);
 };
 
-exports.deteleFileAsync = async path => {
+exports.deleteFileAsync = async path => {
   return await fs.unlinkSync(path);
 };

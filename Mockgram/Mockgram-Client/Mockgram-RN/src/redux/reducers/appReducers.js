@@ -1,9 +1,10 @@
 import * as ActionTypes from "../actions/ActionTypes";
+import { Localization } from "expo";
 
 export const app = (
   state = {
     initialized: false,
-    i18n: null
+    appLocale: null
   },
   action
 ) => {
@@ -11,7 +12,9 @@ export const app = (
     case ActionTypes.APP_FINISH_INIT:
       return { ...state, initialized: action.payload };
     case ActionTypes.SET_APP_LOCALE:
-      return { ...state, i18n: action.payload };
+      return { ...state, appLocale: action.payload };
+    case ActionTypes.UPDATE_APP_LOCALE:
+      return { ...state, appLocale: action.payload };
     default:
       return state;
   }

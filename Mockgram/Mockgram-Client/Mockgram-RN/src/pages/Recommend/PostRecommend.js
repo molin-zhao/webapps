@@ -21,6 +21,7 @@ import baseUrl from "../../common/baseUrl";
 import config from "../../common/config";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import { normalizeData } from "../../utils/arrayEditor";
+import { locale } from "../../common/locale";
 
 const numColumns = 3;
 
@@ -227,7 +228,7 @@ class PostRecommend extends React.Component {
 
   renderFooter = () => {
     const { loading, loadingMore, refreshing, hasMore, data } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (!loading && !loadingMore && !refreshing && data.length === 0) {
       return null;
     }
@@ -237,7 +238,7 @@ class PostRecommend extends React.Component {
           <SkypeIndicator size={25} />
         ) : (
           <Text style={{ color: "grey", fontSize: 12 }}>
-            {`${i18n.t("NO_MORE_POSTS")}`}
+            {`${locale[appLocale]["NO_MORE_POSTS"]}`}
           </Text>
         )}
       </View>
@@ -254,11 +255,13 @@ class PostRecommend extends React.Component {
 
   renderError = () => {
     const { error } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.errorMsgView}>
         <Text>
-          {error.sourceURL ? `${i18n.t("NETWORK_REQUEST_ERROR")}` : error}
+          {error.sourceURL
+            ? `${locale[appLocale]["NETWORK_REQUEST_ERROR"]}`
+            : error}
         </Text>
       </View>
     );
@@ -273,7 +276,7 @@ class PostRecommend extends React.Component {
   };
 
   renderHeader = () => {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.sectionHeader}>
         <TouchableOpacity
@@ -283,7 +286,9 @@ class PostRecommend extends React.Component {
           }}
         >
           <Ionicons name="ios-pin" size={16} />
-          <Text style={{ fontSize: 12 }}>{`${i18n.t("NEARBY")}`}</Text>
+          <Text style={{ fontSize: 12 }}>{`${
+            locale[appLocale]["NEARBY"]
+          }`}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.section}
@@ -292,7 +297,7 @@ class PostRecommend extends React.Component {
           }}
         >
           <Ionicons name="ios-flame" size={16} />
-          <Text style={{ fontSize: 12 }}>{`${i18n.t("HOT")}`}</Text>
+          <Text style={{ fontSize: 12 }}>{`${locale[appLocale]["HOT"]}`}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.section}
@@ -301,7 +306,7 @@ class PostRecommend extends React.Component {
           }}
         >
           <Ionicons name="ios-cart" size={16} />
-          <Text style={{ fontSize: 12 }}>{`${i18n.t("SHOP")}`}</Text>
+          <Text style={{ fontSize: 12 }}>{`${locale[appLocale]["SHOP"]}`}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -381,7 +386,7 @@ class PostRecommend extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

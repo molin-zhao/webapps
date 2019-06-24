@@ -20,6 +20,7 @@ import DropdowAlert from "../../components/DropdownAlert";
 import theme from "../../common/theme";
 import baseUrl from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
 class CreateTopic extends React.Component {
   constructor(props) {
@@ -59,16 +60,16 @@ class CreateTopic extends React.Component {
   };
 
   componentDidMount() {
-    const { navigation, i18n } = this.props;
+    const { navigation, appLocale } = this.props;
     navigation.setParams({
-      CreateTopicTitle: `${i18n.t("CREAT_TITLE", {
-        value: `${i18n.t("TOPIC")}`
-      })}`
+      CreateTopicTitle: `${locale[appLocale]["CREAT_TITLE"](
+        locale[appLocale]["TOPIC"]
+      )}`
     });
   }
 
   renderBtn = () => {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     const {
       nameSearchValue,
       nameValid,
@@ -79,7 +80,7 @@ class CreateTopic extends React.Component {
     return (
       <Button
         loading={creating}
-        title={`${i18n.t("CREATE")}`}
+        title={`${locale[appLocale]["CREATE"]}`}
         titleStyle={{ color: "#fff", fontSize: 12 }}
         iconLeft={() => {
           if (valid) {
@@ -139,13 +140,13 @@ class CreateTopic extends React.Component {
 
   renderDropdownAlert = () => {
     const { created } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (created) {
       return (
         <View style={[styles.dropdown, { borderColor: theme.primaryGreen }]}>
-          <Text style={{ color: theme.primaryGreen }}>{`${i18n.t(
-            "CREATED_SUCCESSFULLY"
-          )}`}</Text>
+          <Text style={{ color: theme.primaryGreen }}>{`${
+            locale[appLocale]["CREATED_SUCCESSFULLY"]
+          }`}</Text>
           <Ionicons
             name="ios-checkmark-circle-outline"
             size={theme.iconMd}
@@ -156,10 +157,9 @@ class CreateTopic extends React.Component {
     }
     return (
       <View style={[styles.dropdown, { borderColor: theme.primaryWarning }]}>
-        <Text style={{ color: theme.primaryWarning }}>{`${i18n.t(
-          "NOT_CREATED",
-          { value: `${i18n.t("TOPIC")}` }
-        )}`}</Text>
+        <Text style={{ color: theme.primaryWarning }}>{`${locale[appLocale][
+          "NOT_CREATED"
+        ](locale[appLocale]["TOPIC"])}`}</Text>
         <Ionicons
           name="ios-close-circle-outline"
           size={theme.iconMd}
@@ -170,7 +170,7 @@ class CreateTopic extends React.Component {
   };
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -185,10 +185,12 @@ class CreateTopic extends React.Component {
             <View style={styles.input}>
               <AjaxInput
                 label={() => {
-                  return <Text>{`${i18n.t("NAME")}:`}</Text>;
+                  return <Text>{`${locale[appLocale]["NAME"]}:`}</Text>;
                 }}
                 fetchUrl={`${baseUrl.api}/discovery/topic/available`}
-                placeholder={`${i18n.t}`}
+                placeholder={`${locale[appLocale]["CREATE_FOR"](
+                  locale[appLocale]["TOPIC"]
+                )}`}
                 containerStyle={{ width: "100%", height: "100%" }}
                 onValid={searchValue => {
                   this.setState({
@@ -234,9 +236,9 @@ class CreateTopic extends React.Component {
                     borderRadius: 5,
                     borderColor: "lightgrey"
                   }}
-                  placeholder={`${i18n.t("CREATE_FOR", {
-                    value: `${i18n.t("TOPIC")}`
-                  })}`}
+                  placeholder={`${locale[appLocale]["CREATE_FOR"](
+                    locale[appLocale]["TOPIC"]
+                  )}`}
                   numberOfLines={4}
                   multiline={true}
                   onChangeText={text => {
@@ -278,7 +280,7 @@ class CreateTopic extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

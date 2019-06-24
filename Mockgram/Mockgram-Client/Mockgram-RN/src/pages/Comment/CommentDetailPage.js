@@ -20,6 +20,7 @@ import CommentDetail from "../../components/CommentDetail";
 import config from "../../common/config";
 import baseUrl from "../../common/baseUrl";
 import { parseIdFromObjectArray } from "../../utils/idParser";
+import { locale } from "../../common/locale";
 
 class CommentDetailPage extends React.Component {
   constructor(props) {
@@ -148,13 +149,14 @@ class CommentDetailPage extends React.Component {
   };
 
   renderFooter = () => {
+    const { appLocale } = this.props;
     return (
       <View style={styles.listFooter}>
         {this.state.hasMore ? (
           <BallIndicator size={20} />
         ) : (
           <Text style={{ color: "grey", fontSize: 12 }}>
-            - No more comments -
+            {`- ${locale[appLocale]["NO_MORE_REPLIES"]} -`}
           </Text>
         )}
       </View>
@@ -162,6 +164,7 @@ class CommentDetailPage extends React.Component {
   };
 
   renderReplies = () => {
+    const { appLocale } = this.props;
     if (this.state.loading) {
       return (
         <View style={styles.errorMsgView}>
@@ -172,7 +175,7 @@ class CommentDetailPage extends React.Component {
       if (this.state.error) {
         return (
           <View style={styles.errorMsgView}>
-            <Text>{`Network request error`}</Text>
+            <Text>{`${locale[appLocale]["NETWORK_REQUEST_ERROR"]}`}</Text>
           </View>
         );
       }
@@ -198,12 +201,12 @@ class CommentDetailPage extends React.Component {
   };
 
   render() {
-    const { navigation } = this.props;
+    const { navigation, appLocale } = this.props;
     const { dataSource } = this.state;
     return (
       <View style={styles.container}>
         <Header
-          headerTitle="comments"
+          headerTitle={`${locale[appLocale]["COMMENTS"]}`}
           rightIoniconsButton={
             <Ionicons name="md-close" style={{ fontSize: 24 }} />
           }
@@ -219,7 +222,7 @@ class CommentDetailPage extends React.Component {
         />
         <KeyboardAvoidingView
           behavior="padding"
-          style={{ flex: 1, width: "100%", flexDirection: "column" }}
+          style={{ flex: 1, width: "100%" }}
         >
           <CommentDetail dataSource={dataSource} />
           <TouchableWithoutFeedback
@@ -247,7 +250,8 @@ class CommentDetailPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

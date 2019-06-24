@@ -13,6 +13,7 @@ import {
 import baseUrl from "../../common/baseUrl";
 import config from "../../common/config";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 import window from "../../utils/getDeviceInfo";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import UserRecommend from "../Recommend/UserRecommend";
@@ -222,7 +223,7 @@ class HomeIndex extends React.Component {
 
   renderFooter = () => {
     const { loading, loadingMore, refreshing, hasMore } = this.state;
-    const { homeFeed, initialized, i18n } = this.props;
+    const { homeFeed, initialized, appLocale } = this.props;
     if (initialized) {
       if (!loading && !loadingMore && !refreshing && homeFeed.length === 0) {
         return null;
@@ -232,9 +233,9 @@ class HomeIndex extends React.Component {
           {hasMore ? (
             <SkypeIndicator size={theme.indicatorSm} />
           ) : (
-            <Text style={{ color: "grey", fontSize: 12 }}>
-              {`${i18n.t("NO_MORE_POSTS")}`}
-            </Text>
+            <Text style={{ color: "grey", fontSize: 12 }}>{`- ${
+              locale[appLocale]["NO_MORE_POSTS"]
+            } -`}</Text>
           )}
         </View>
       );
@@ -256,9 +257,14 @@ class HomeIndex extends React.Component {
 
   renderError = () => {
     const { error } = this.state;
+    const { appLocale } = this.state;
     return (
       <View style={styles.errorMsgView}>
-        <Text>{error.sourceURL ? "Network request failed" : error}</Text>
+        {error.sourceURL ? (
+          <Text>{locale[appLocale]["NETWORK_REQUEST_ERROR"]}</Text>
+        ) : (
+          <Text>{error}</Text>
+        )}
       </View>
     );
   };
@@ -310,7 +316,7 @@ const mapStateToProps = state => ({
   client: state.client.client,
   initialized: state.app.initialized,
   homeFeed: state.feed.homeFeed,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 const mapDispatchToProps = dispatch => ({

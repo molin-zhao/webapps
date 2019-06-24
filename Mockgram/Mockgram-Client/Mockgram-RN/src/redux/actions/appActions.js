@@ -1,11 +1,7 @@
 import * as ActionTypes from "./ActionTypes";
 import { SecureStore, Localization } from "expo";
 import * as LocalKeys from "../../common/localKeys";
-import i18n from "i18n-js";
-import { locale } from "../../common/locale";
 
-i18n.fallbacks = true;
-i18n.translations = locale;
 export const finishAppInitialize = () => dispatch => {
   console.log("finish app initialize");
   dispatch(appInitialized(true));
@@ -14,23 +10,22 @@ export const finishAppInitialize = () => dispatch => {
 export const getAppLocale = () => dispatch => {
   return SecureStore.getItemAsync(LocalKeys.APP_LOCALE)
     .then(lang => {
-      if (!lang) {
-        i18n.locale = Localization.locale;
-      } else {
-        i18n.locale = lang;
-      }
-      dispatch(appLocale(i18n));
+      dispatch(appLocale(lang ? lang : Localization.locale));
     })
     .catch(err => {
       console.log(err);
-      i18n.locale = Localization.locale;
-      dispatch(appLocale(i18n));
+      dispatch(appLocale(Localization.locale));
     });
 };
 
-export const setAppLocate = localeString => dispatch => {
-  i18n.locale = localeString;
-  dispatch(appLocale(i18n));
+export const setAppLocale = localeString => dispatch => {
+  return SecureStore.setItemAsync(LocalKeys.APP_LOCALE, localeString)
+    .then(() => {
+      dispatch(updateAppLocale(localeString));
+    })
+    .catch(err => {
+      console.log(err);
+    });
 };
 
 export const appInitialized = bool => ({
@@ -41,4 +36,9 @@ export const appInitialized = bool => ({
 export const appLocale = locale => ({
   type: ActionTypes.SET_APP_LOCALE,
   payload: locale
+});
+
+export const updateAppLocale = localeString => ({
+  type: ActionTypes.UPDATE_APP_LOCALE,
+  payload: localeString
 });

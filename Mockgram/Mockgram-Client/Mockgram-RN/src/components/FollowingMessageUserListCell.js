@@ -11,6 +11,7 @@ import Thumbnail from "./Thumbnail";
 import baseUrl from "../common/baseUrl";
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 
 class FollowingMessasgeUserListCell extends React.Component {
   constructor(props) {
@@ -77,7 +78,7 @@ class FollowingMessasgeUserListCell extends React.Component {
   };
 
   renderButton = () => {
-    const { client, i18n } = this.props;
+    const { client, appLocale } = this.props;
     const { dataSource } = this.state;
     if (client && client.user._id === dataSource._id) {
       return null;
@@ -105,7 +106,9 @@ class FollowingMessasgeUserListCell extends React.Component {
           return null;
         }}
         title={
-          dataSource.followed ? `${i18n.t("FOLLOWING")}` : `${i18n.t("FOLLOW")}`
+          dataSource.followed
+            ? `${locale[appLocale]["FOLLOWING"]}`
+            : `${locale[appLocale]["FOLLOW"]}`
         }
         onPress={() => {
           dataSource.followed
@@ -116,27 +119,35 @@ class FollowingMessasgeUserListCell extends React.Component {
     );
   };
   renderRecentMessage = message => {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (message) {
       let messageType = message.messageType;
       switch (messageType) {
         case "LikePost":
-          return `${i18n.t("LIKE_POST")}${message.postReference.description}`;
+          return `${locale[appLocale]["LIKE_POST"]}${
+            message.postReference.description
+          }`;
         case "LikeComment":
-          return `${i18n.t("LIKE_COMMENT")}${message.commentReference.content}`;
+          return `${locale[appLocale]["LIKE_COMMENT"]}${
+            message.commentReference.content
+          }`;
         case "LikeReply":
-          return `${i18n.t("LIKE_REPLY")}${message.replyReference.content}`;
+          return `${locale[appLocale]["LIKE_REPLY"]}${
+            message.replyReference.content
+          }`;
         case "CommentPost":
-          return `${i18n.t("COMMENT_POST")}${
+          return `${locale[appLocale]["COMMENT_POST"]}${
             message.postReference.description
           }`;
         case "ReplyReply":
         case "ReplyComment":
-          return `${i18n.t("REPLY_COMMENT")}${
+          return `${locale[appLocale]["REPLY_COMMENT"]}${
             message.commentReference.content
           }`;
         case "Follow":
-          return `${i18n.t("FOLLOW_ACTION")}${message.receiver.username}`;
+          return `${locale[appLocale]["FOLLOW_ACTION"](
+            message.receiver.username
+          )}`;
         default:
           return null;
       }
@@ -145,7 +156,7 @@ class FollowingMessasgeUserListCell extends React.Component {
   };
 
   render() {
-    const { dataSource, navigation, i18n } = this.props;
+    const { dataSource, navigation, appLocale } = this.props;
     return (
       <View style={styles.container}>
         <TouchableOpacity
@@ -209,9 +220,12 @@ class FollowingMessasgeUserListCell extends React.Component {
         </View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          title={`${i18n.t("UNFOLLOW_TITLE")}`}
-          message={`${i18n.t("UNFOLLOW_INFO")}`}
-          options={[`${i18n.t("CONFIRM")}`, `${i18n.t("CANCEL")}`]}
+          title={`${locale[appLocale]["UNFOLLOW_TITLE"]}`}
+          message={`${locale[appLocale]["UNFOLLOW_INFO"]}`}
+          options={[
+            `${locale[appLocale]["CONFIRM"]}`,
+            `${locale[appLocale]["CANCEL"]}`
+          ]}
           cancelButtonIndex={1}
           onPress={index => {
             if (index === 0) {
@@ -227,7 +241,7 @@ class FollowingMessasgeUserListCell extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

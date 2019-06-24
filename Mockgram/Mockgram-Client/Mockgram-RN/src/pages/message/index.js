@@ -10,6 +10,7 @@ import YouPage from "./You";
 import CustomTabBar from "../../components/CustomTabBar";
 
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
 class MessageIndex extends React.Component {
   static navigationOptions = () => {
@@ -30,20 +31,21 @@ class MessageIndex extends React.Component {
   }
 
   render() {
+    const { appLocale } = this.props;
     return (
       <ScrollableTabView
         style={{
-          backgroundColor: "#fff",
           marginTop: Constants.statusBarHeight,
-          height: window.height - Header.HEIGHT - Constants.statusBarHeight,
+          backgroundColor: "#fff",
+          height: window.height - Constants.statusBarHeight,
           width: window.width
         }}
         renderTabBar={() => <CustomTabBar tabNames={["Following", "You"]} />}
         tabBarPosition="top"
         initialPage={1}
       >
-        <FollowingPage tabLabel="Following" />
-        <YouPage tabLabel="You" />
+        <FollowingPage tabLabel={`${locale[appLocale]["Following"]}`} />
+        <YouPage tabLabel={`${locale[appLocale]["YOU"]}`} />
       </ScrollableTabView>
     );
   }
@@ -51,7 +53,8 @@ class MessageIndex extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  message: state.message.message
+  message: state.message.message,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

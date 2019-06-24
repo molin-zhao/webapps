@@ -2,12 +2,13 @@ import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import { withNavigation } from "react-navigation";
 import { Ionicons } from "@expo/vector-icons";
+import { connect } from "react-redux";
 
 import Thumbnail from "../components/Thumbnail";
 
 import window from "../utils/getDeviceInfo";
+import { locale } from "../common/locale";
 import { dateConverter } from "../utils/unitConverter";
-import { connect } from "react-redux";
 
 class FollowingMessasgeDetailListCell extends React.Component {
   renderDate = createdAt => {
@@ -19,7 +20,7 @@ class FollowingMessasgeDetailListCell extends React.Component {
   };
 
   renderContent = () => {
-    const { dataSource, i18n } = this.props;
+    const { dataSource, appLocale } = this.props;
     const {
       messageType,
       sender,
@@ -97,9 +98,9 @@ class FollowingMessasgeDetailListCell extends React.Component {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   style={{ marginLeft: 10 }}
-                >{`${i18n.t("USERS_COMMENT", {
-                  value: receiver.username
-                })}`}</Text>
+                >{`${locale[appLocale]["USERS_COMMENT"](
+                  receiver.username
+                )}`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {commentReference.content}
@@ -153,9 +154,9 @@ class FollowingMessasgeDetailListCell extends React.Component {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   style={{ marginLeft: 10 }}
-                >{`${i18n.t("USERS_REPLY", {
-                  value: receiver.username
-                })}`}</Text>
+                >{`${locale[appLocale]["USERS_REPLY"](
+                  receiver.username
+                )}`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {commentReference.content}
@@ -241,9 +242,9 @@ class FollowingMessasgeDetailListCell extends React.Component {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   style={{ marginLeft: 10 }}
-                >{`${i18n.t("USER_REPLY_TO", {
-                  value: receiver.username
-                })}`}</Text>
+                >{`${locale[appLocale]["USER_REPLY_TO"](
+                  receiver.username
+                )}`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {replyReference.content}
@@ -275,9 +276,9 @@ class FollowingMessasgeDetailListCell extends React.Component {
               }}
             >
               <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
-              <Text>{`${i18n.t("FOLLOW_ACTION", {
-                value: `${i18n.t("YOU")}`
-              })}`}</Text>
+              <Text>{`${locale[appLocale]["FOLLOW_ACTION"](
+                locale[appLocale]["YOU"]
+              )}`}</Text>
               {this.renderDate(createdAt)}
             </View>
           </View>
@@ -308,7 +309,7 @@ class FollowingMessasgeDetailListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

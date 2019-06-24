@@ -38,3 +38,12 @@ export const normalizeData = (data, numColumns) => {
   }
   return data;
 };
+
+export const clone = obj => {
+  if (null == obj || typeof obj !== "object") return obj;
+  let copy = obj.constructor();
+  for (let attr in obj) {
+    if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+  }
+  return copy;
+};

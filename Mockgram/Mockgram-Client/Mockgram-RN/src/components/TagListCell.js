@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import window from "../utils/getDeviceInfo";
+import { locale } from "../common/locale";
 import { numberConverter } from "../utils/unitConverter";
 
 class TagListCell extends React.Component {
@@ -20,7 +21,7 @@ class TagListCell extends React.Component {
   }
 
   render() {
-    const { dataSource, onPress, rightButton, i18n } = this.props;
+    const { dataSource, onPress, rightButton, appLocale } = this.props;
     return (
       <TouchableOpacity
         activeOpacity={0.8}
@@ -52,11 +53,11 @@ class TagListCell extends React.Component {
               numberOfLines={1}
               ellipsizeMode="tail"
               style={{ fontSize: 13, color: "lightgrey" }}
-            >{`${numberConverter(dataSource.quotedCount)} ${i18n.t(
-              "POSTS"
-            )}, ${numberConverter(dataSource.participantsCount)} ${i18n.t(
-              "PARTICIPANTS"
-            )}`}</Text>
+            >{`${numberConverter(dataSource.quotedCount)} ${
+              locale[appLocale]["POSTS"]
+            }, ${numberConverter(dataSource.participantsCount)} ${
+              locale[appLocale]["PARTICIPANTS"]
+            }`}</Text>
           </View>
         </View>
         <View style={styles.cellRightContainer}>{rightButton()}</View>
@@ -66,7 +67,7 @@ class TagListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

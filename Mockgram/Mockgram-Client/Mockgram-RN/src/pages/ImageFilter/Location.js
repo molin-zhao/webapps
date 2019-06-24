@@ -11,6 +11,7 @@ import {
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { SkypeIndicator } from "react-native-indicators";
 import { createStackNavigator, Header } from "react-navigation";
+import { connect } from "react-redux";
 import { MapView, Constants } from "expo";
 const { Marker, Callout } = MapView;
 
@@ -23,6 +24,7 @@ import baseUrl from "../../common/baseUrl";
 import config from "../../common/config";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 
 class Location extends React.Component {
   mounted = false;
@@ -103,13 +105,13 @@ class Location extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-    const { navigation, i18n } = this.props;
+    const { navigation, appLocale } = this.props;
     navigation.setParams({
       getLocation: () => this.state.selectedLocation,
-      locationTitle: `${i18n.t("ADD_TITLE", {
-        value: `${i18n.t("LOCATION")}`
-      })}`,
-      locationDone: `${i18n.t("DONE")}`
+      locationTitle: `${locale[appLocale]["ADD_TITLE"](
+        locale[appLocale]["LOCATION"]
+      )}`,
+      locationDone: `${locale[appLocale]["DONE"]}`
     });
     // fetch nearby locations by lat and long
     this.setState(
@@ -666,6 +668,10 @@ class Location extends React.Component {
   };
 }
 
+const mapStateToProps = state => ({
+  appLocale: state.app.appLocale
+});
+
 const styles = StyleSheet.create({
   container: {
     width: window.width,
@@ -678,7 +684,10 @@ const styles = StyleSheet.create({
 
 export default createStackNavigator(
   {
-    Location,
+    Location: connect(
+      mapStateToProps,
+      null
+    )(Location),
     CreateLocation
   },
   {

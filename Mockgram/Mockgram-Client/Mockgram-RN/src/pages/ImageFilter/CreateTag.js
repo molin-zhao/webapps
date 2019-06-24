@@ -19,6 +19,7 @@ import DropdownAlert from "../../components/DropdownAlert";
 import theme from "../../common/theme";
 import baseUrl from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
 class CreateTag extends React.Component {
   constructor(props) {
@@ -57,22 +58,22 @@ class CreateTag extends React.Component {
   };
 
   componentDidMount() {
-    const { i18n, navigation } = this.props;
+    const { appLocale, navigation } = this.props;
     navigation.setParams({
-      createTagLocation: `${i18n.t("CREATE_TITLE", {
-        value: `${i18n.t("TAG")}`
-      })}`
+      createTagLocation: `${locale[appLocale]["CREATE_TITLE"](
+        locale[appLocale]["TAG"]
+      )}`
     });
   }
 
   renderBtn = () => {
     const { nameSearchValue, nameValid, creating } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     let valid = nameSearchValue && nameValid;
     return (
       <Button
         loading={creating}
-        title={`${i18n.t("CREATE")}`}
+        title={`${locale[appLocale]["CREATE"]}`}
         titleStyle={{ color: "#fff", fontSize: 12 }}
         iconLeft={() => {
           if (valid) {
@@ -135,13 +136,13 @@ class CreateTag extends React.Component {
 
   renderDropdownAlert = () => {
     const { created } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (created) {
       return (
         <View style={[styles.dropdown, { borderColor: theme.primaryGreen }]}>
-          <Text style={{ color: theme.primaryGreen }}>{`${i18n.t(
-            "CREATED_SUCCESSFULLY"
-          )}`}</Text>
+          <Text style={{ color: theme.primaryGreen }}>{`${
+            locale[appLocale]["CREATED_SUCCESSFULLY"]
+          }`}</Text>
           <Ionicons
             name="ios-checkmark-circle-outline"
             size={theme.iconMd}
@@ -152,10 +153,10 @@ class CreateTag extends React.Component {
     }
     return (
       <View style={[styles.dropdown, { borderColor: theme.primaryWarning }]}>
-        <Text style={{ color: theme.primaryWarning }}>{`${i18n.t(
-          "NOT_CREATED",
-          { value: `${i18n.t("TAG")}` }
-        )}`}</Text>
+        <Text style={{ color: theme.primaryWarning }}>
+          {`${locale[appLocale]["NOT_CREATED"](locale[appLocale]["TAG"])}`}
+          )}`}
+        </Text>
         <Ionicons
           name="ios-close-circle-outline"
           size={theme.iconMd}
@@ -166,7 +167,7 @@ class CreateTag extends React.Component {
   };
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -181,7 +182,7 @@ class CreateTag extends React.Component {
             <View style={styles.input}>
               <AjaxInput
                 label={() => {
-                  return <Text>{`Name:`}</Text>;
+                  return <Text>{`${locale[appLocale]["Name"]}:`}</Text>;
                 }}
                 textInputContainerStyle={{
                   borderWidth: 1,
@@ -189,9 +190,9 @@ class CreateTag extends React.Component {
                   borderRadius: 10
                 }}
                 fetchUrl={`${baseUrl.api}/discovery/tag/available`}
-                placeholder={`${i18n.t("CREATE_FOR", {
-                  value: `${i18n.t("TAG")}`
-                })}`}
+                placeholder={`${locale[appLocale]["CREATE_FOR"](
+                  locale[appLocale]["TAG"]
+                )}`}
                 containerStyle={{ width: "100%", height: "100%" }}
                 onValid={searchValue => {
                   this.setState({
@@ -217,7 +218,7 @@ class CreateTag extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

@@ -11,6 +11,7 @@ import formValidation from "../../utils/formValidation";
 import baseUrl from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 
 class Register extends React.Component {
   constructor(props) {
@@ -80,9 +81,9 @@ class Register extends React.Component {
   };
 
   componentDidMount() {
-    const { navigation, i18n } = this.props;
+    const { navigation, appLocale } = this.props;
     navigation.setParams({
-      registerTitle: `${i18n.t("REGISTER")}`
+      registerTitle: `${locale[appLocale]["REGISTER"]}`
     });
   }
 
@@ -102,7 +103,6 @@ class Register extends React.Component {
         <Text style={styles.registerError}>
           <FontAwesome
             name="exclamation-circle"
-            type="FontAwesome"
             style={{ fontSize: 15, color: "red", marginRight: 5 }}
           />
           {typeof error === "string" ? error : defaultMsg}
@@ -161,7 +161,7 @@ class Register extends React.Component {
   }
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.container}>
         <KeyboardAvoidingView
@@ -173,7 +173,7 @@ class Register extends React.Component {
         >
           <IconInput
             icon={() => <FontAwesome name="envelope" size={20} />}
-            placeholder={`${i18n.t("EMAIL")}`}
+            placeholder={`${locale[appLocale]["EMAIL"]}`}
             onChangeText={email => {
               this.setState({ email });
               formValidation(
@@ -194,7 +194,7 @@ class Register extends React.Component {
           </Text>
           <IconInput
             icon={() => <FontAwesome name="user" size={20} />}
-            placeholder={`${i18n.t("USERNAME")}`}
+            placeholder={`${locale[appLocale]["USERNAME"]}`}
             onChangeText={username => {
               this.setState({ username });
               formValidation(
@@ -215,7 +215,7 @@ class Register extends React.Component {
           </Text>
           <IconInput
             icon={() => <FontAwesome name="key" size={20} />}
-            placeholder={`${i18n.t("PASSWORD")}`}
+            placeholder={`${locale[appLocale]["PASSWORD"]}`}
             onChangeText={password => {
               this.setState({ password });
               formValidation(
@@ -237,7 +237,7 @@ class Register extends React.Component {
           </Text>
           <IconInput
             icon={() => <FontAwesome name="lock" size={20} />}
-            placeholder={`${i18n.t("CONFIRM_PASSWORD")}`}
+            placeholder={`${locale[appLocale]["CONFIRM_PASSWORD"]}`}
             onChangeText={confirmPassword => {
               this.setState({ confirmPassword });
               formValidation(
@@ -257,10 +257,10 @@ class Register extends React.Component {
               ? this.state.errors.confirmPassword.message
               : null}
           </Text>
-          {this.renderRegisterError(`${i18n.t("REGISTER_ERROR")}`)}
+          {this.renderRegisterError(`${locale[appLocale]["REGISTER_ERROR"]}`)}
           <Button
             loading={this.state.processing}
-            title={`${i18n.t("REGISTER")}`}
+            title={`${locale[appLocale]["REGISTER"]}`}
             titleStyle={{ color: "#fff", fontSize: 14, fontWeight: "bold" }}
             disabled={!this.state.valid || !this.allTouched()}
             onPress={() => {
@@ -285,7 +285,7 @@ class Register extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

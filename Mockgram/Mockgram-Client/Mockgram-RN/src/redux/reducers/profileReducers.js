@@ -93,6 +93,18 @@ export const profile = (
       } else {
         return state;
       }
+    case ActionTypes.UPDATE_CLIENT_PROFILE:
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          avatar: data.avatar,
+          nickname: data.nickname,
+          bio: data.bio
+        }
+      };
+    case ActionTypes.REMOVE_CLIENT_PROFILE_AVATAR:
+      return { ...state, profile: { ...state.profile, avatar: "" } };
     default:
       return state;
   }

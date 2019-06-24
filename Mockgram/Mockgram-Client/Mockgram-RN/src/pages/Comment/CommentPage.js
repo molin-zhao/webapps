@@ -19,6 +19,7 @@ import config from "../../common/config";
 import baseUrl from "../../common/baseUrl";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
 class CommentPage extends React.Component {
   constructor(props) {
@@ -148,6 +149,7 @@ class CommentPage extends React.Component {
 
   renderFooter = () => {
     const { data, hasMore } = this.state;
+    const { appLocale } = this.props;
     if (data.length !== 0) {
       return (
         <View style={styles.listFooter}>
@@ -155,7 +157,7 @@ class CommentPage extends React.Component {
             <BallIndicator size={20} />
           ) : (
             <Text style={{ color: "grey", fontSize: 12 }}>
-              - No more comments -
+              {`${locale[appLocale]["NO_MORE_COMMENTS"]}`}
             </Text>
           )}
         </View>
@@ -165,17 +167,21 @@ class CommentPage extends React.Component {
   };
 
   renderEmpty = () => {
+    const { appLocale } = this.props;
     return (
       <View style={styles.errorMsgView}>
         <Ionicons name="md-paper" size={window.height * 0.05} />
-        <Text>- Be the first to leave a comment -</Text>
+        <Text>{`- ${locale[appLocale]["BECOME_FIRST_TO_LEAVE"](
+          locale[appLocale]["COMMENT"]
+        )} -`}</Text>
       </View>
     );
   };
 
   renderComment = () => {
     const { loading, data, error } = this.state;
-    if (this.state.loading) {
+    const { appLocale } = this.props;
+    if (loading) {
       return (
         <View style={styles.errorMsgView}>
           <SkypeIndicator />
@@ -185,14 +191,18 @@ class CommentPage extends React.Component {
       if (error) {
         return (
           <View style={styles.errorMsgView}>
-            <Text>{error.sourceURL ? "Network request failed" : error}</Text>
+            <Text>
+              {error.sourceURL
+                ? `${locale[appLocale]["NETWORK_REQUEST_ERROR"]}`
+                : error}
+            </Text>
           </View>
         );
       }
       return (
         <FlatList
           style={{ marginTop: 0, width: "100%", flex: 1 }}
-          data={this.state.data}
+          data={data}
           renderItem={({ item }) => (
             <CommentListCell
               dataSource={item}
@@ -211,12 +221,12 @@ class CommentPage extends React.Component {
   };
 
   render() {
-    const { navigation } = this.props;
+    const { navigation, appLocale } = this.props;
     const { postId } = this.state;
     return (
       <View style={styles.container}>
         <Header
-          headerTitle="All Comments"
+          headerTitle={`${locale[appLocale]["COMMENTS"]}`}
           rightIoniconsButton={() => (
             <Ionicons
               name="md-close"
@@ -290,7 +300,8 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

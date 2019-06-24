@@ -13,6 +13,7 @@ import HeaderTitle from "../../components/HeaderTitle";
 
 import theme from "../../common/theme";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 import DrawerItem from "../../components/DrawerItem";
 
 class ProfileIndex extends React.Component {
@@ -43,6 +44,7 @@ class ProfileIndex extends React.Component {
       )
     };
   };
+
   componentDidMount() {
     const { navigation } = this.props;
     navigation.setParams({
@@ -51,7 +53,7 @@ class ProfileIndex extends React.Component {
   }
 
   render() {
-    const { profile, i18n } = this.props;
+    const { profile, navigation, appLocale } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -86,23 +88,25 @@ class ProfileIndex extends React.Component {
               <DrawerItem
                 icon={() => <FontAwesome name="cog" size={theme.iconSm} />}
                 btnText={() => (
-                  <Text numberOfLines={1} ellipsizeMode="tail">{`${i18n.t(
-                    "PROFILE_SETTINGS"
-                  )}`}</Text>
+                  <Text numberOfLines={1} ellipsizeMode="tail">{`${
+                    locale[appLocale]["PROFILE_SETTINGS"]
+                  }`}</Text>
                 )}
                 onPress={() => {
-                  console.log("setting");
+                  navigation.navigate("ProfileSetting");
+                  this._drawer.closeDrawer();
                 }}
               />
               <DrawerItem
                 icon={() => <FontAwesome name="language" size={theme.iconSm} />}
                 btnText={() => (
-                  <Text numberOfLines={1} ellipsizeMode="tail">{`${i18n.t(
-                    "CHANGE_LANGUAGE"
-                  )}`}</Text>
+                  <Text numberOfLines={1} ellipsizeMode="tail">{`${
+                    locale[appLocale]["CHANGE_LANGUAGE"]
+                  }`}</Text>
                 )}
                 onPress={() => {
-                  console.log("lang");
+                  navigation.navigate("LanguageSetting");
+                  this._drawer.closeDrawer();
                 }}
               />
               <DrawerItem
@@ -110,9 +114,9 @@ class ProfileIndex extends React.Component {
                   <FontAwesome name="credit-card" size={theme.iconSm} />
                 )}
                 btnText={() => (
-                  <Text numberOfLines={1} ellipsizeMode="tail">{`${i18n.t(
-                    "BUSINESS_PLAN"
-                  )}`}</Text>
+                  <Text numberOfLines={1} ellipsizeMode="tail">{`${
+                    locale[appLocale]["BUSINESS_PLAN"]
+                  }`}</Text>
                 )}
                 onPress={() => {
                   console.log("business");
@@ -131,7 +135,7 @@ class ProfileIndex extends React.Component {
                     style={{ color: theme.primaryDanger }}
                     numberOfLines={1}
                     ellipsizeMode="tail"
-                  >{`${i18n.t("LOGOUT")}`}</Text>
+                  >{`${locale[appLocale]["LOGOUT"]}`}</Text>
                 )}
                 onPress={() => {
                   console.log("logout");
@@ -146,8 +150,8 @@ class ProfileIndex extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n,
-  profile: state.profile.profile
+  profile: state.profile.profile,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

@@ -104,7 +104,8 @@ class PostPreview extends React.Component {
       navigation,
       addToHomeFeed,
       uploadingPost,
-      uploadedPost
+      uploadedPost,
+      i18n
     } = this.props;
     let fileName = imageUri.split("/").pop();
     let match = /\.(\w+)$/.exec(fileName);
@@ -145,7 +146,7 @@ class PostPreview extends React.Component {
                 }, 4000);
                 this.setState(
                   {
-                    info: "Successfully uploaded your post!",
+                    info: `${i18n.t("UPLOAD_POST_SUCCESS")}`,
                     error: null
                   },
                   () => {
@@ -157,7 +158,7 @@ class PostPreview extends React.Component {
                 this.setState(
                   {
                     info: null,
-                    error: "Failed to upload your post."
+                    error: `${i18n.t("UPLOAD_POST_ERROR")}`
                   },
                   () => {
                     this._dropdown.show();
@@ -171,7 +172,7 @@ class PostPreview extends React.Component {
               this.setState(
                 {
                   info: null,
-                  error: "Network request failed."
+                  error: `${i18n.t("NETWORK_REQUEST_ERROR")}`
                 },
                 () => {
                   this._dropdown.show();

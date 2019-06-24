@@ -25,6 +25,7 @@ import theme from "../../common/theme";
 import config from "../../common/config";
 import window from "../../utils/getDeviceInfo";
 import { parseIdFromObjectArray } from "../../utils/idParser";
+import { locale } from "../../common/locale";
 
 class DiscoveryIndex extends React.Component {
   constructor(props) {
@@ -340,7 +341,7 @@ class DiscoveryIndex extends React.Component {
       searchValue,
       searchBarInput
     } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (!isSearching && searchValue && searchBarInput) {
       // finished searching, got response.
       switch (activeIndex) {
@@ -355,7 +356,7 @@ class DiscoveryIndex extends React.Component {
                   color: "grey"
                 }}
               >
-                {i18n.t("NO_ACCOUNTS_FOUND")}
+                {`${locale[appLocale]["NO_ACCOUNTS_FOUND"]}`}
               </Text>
             </View>
           );
@@ -370,7 +371,7 @@ class DiscoveryIndex extends React.Component {
                   color: "grey"
                 }}
               >
-                {i18n.t("NO_TAGS_FOUND")}
+                {`${locale[appLocale]["NO_TAGS_FOUND"]}`}
               </Text>
             </View>
           );
@@ -385,7 +386,7 @@ class DiscoveryIndex extends React.Component {
                   color: "grey"
                 }}
               >
-                {i18n.t("NO_LOCATIONS_FOUND")}
+                {`${locale[appLocale]["NO_LOCATIONS_FOUND"]}`}
               </Text>
             </View>
           );
@@ -402,7 +403,7 @@ class DiscoveryIndex extends React.Component {
       tagSearchedResult,
       placeSearchedResult
     } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     switch (activeIndex) {
       case 0:
         if (peopleSearchedResult.data.length > 0) {
@@ -412,7 +413,7 @@ class DiscoveryIndex extends React.Component {
                 <SkypeIndicator size={theme.indicatorSm} />
               ) : (
                 <Text style={{ color: "grey", fontSize: 12 }}>
-                  {`${i18n.t("NO_MORE_USERS")}`}
+                  {`${locale[appLocale]["NO_MORE_USERS"]}`}
                 </Text>
               )}
             </View>
@@ -427,7 +428,7 @@ class DiscoveryIndex extends React.Component {
                 <SkypeIndicator size={theme.indicatorSm} />
               ) : (
                 <Text style={{ color: "grey", fontSize: 12 }}>
-                  {`${i18n.t("NO_MORE_TAGS")}`}
+                  {`${locale[appLocale]["NO_MORE_TAGS"]}`}
                 </Text>
               )}
             </View>
@@ -442,7 +443,7 @@ class DiscoveryIndex extends React.Component {
                 <SkypeIndicator size={theme.indicatorSm} />
               ) : (
                 <Text style={{ color: "grey", fontSize: 12 }}>
-                  {`${i18n.t("NO_MORE_LOCATIONS")}`}
+                  {`${locale[appLocale]["NO_MORE_LOCATIONS"]}`}
                 </Text>
               )}
             </View>
@@ -466,7 +467,7 @@ class DiscoveryIndex extends React.Component {
       placeSearchedResult,
       peopleSuggestResult
     } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (isSearching) {
       return (
         <View
@@ -481,7 +482,7 @@ class DiscoveryIndex extends React.Component {
           <Text
             style={{ fontWeight: "bold", fontSize: 13, color: "lightgrey" }}
           >
-            {`${i18n.t("SEARCHING")} ${searchBarInput} ...`}
+            {`${locale[appLocale]["SEARCHING"]} ${searchBarInput} ...`}
           </Text>
           <ActivityIndicator size="small" color="lightgrey" />
         </View>
@@ -558,7 +559,7 @@ class DiscoveryIndex extends React.Component {
   };
 
   renderSuggestedLabel = () => {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.listEmpty}>
         <Text
@@ -569,7 +570,7 @@ class DiscoveryIndex extends React.Component {
             color: "black"
           }}
         >
-          {i18n.t("SUGGEST")}
+          {locale[appLocale]["SUGGEST"]}
         </Text>
       </View>
     );
@@ -652,7 +653,7 @@ class DiscoveryIndex extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

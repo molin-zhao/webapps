@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { locale } from "../common/locale";
 
 class HeaderTitle extends React.Component {
   static defaultProps = {
@@ -14,10 +15,10 @@ class HeaderTitle extends React.Component {
     titleStyle: PropTypes.object
   };
   render() {
-    const { title, titleStyle, i18n } = this.props;
+    const { title, titleStyle, appLocale } = this.props;
     return (
       <View style={styles.titleContainer}>
-        <Text style={titleStyle}>{`${i18n.t(title)}`}</Text>
+        <Text style={titleStyle}>{`${locale[appLocale][title]}`}</Text>
       </View>
     );
   }
@@ -31,7 +32,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

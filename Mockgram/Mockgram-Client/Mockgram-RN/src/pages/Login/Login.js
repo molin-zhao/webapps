@@ -8,7 +8,7 @@ import {
   KeyboardAvoidingView
 } from "react-native";
 import { SecureStore, WebBrowser } from "expo";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 import { SkypeIndicator } from "react-native-indicators";
 
@@ -27,6 +27,7 @@ import Button from "../../components/Button";
 import baseURL from "../../common/baseUrl";
 import window from "../../utils/getDeviceInfo";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 
 class Login extends React.Component {
   constructor(props) {
@@ -65,9 +66,9 @@ class Login extends React.Component {
   };
 
   componentDidMount() {
-    const { i18n, navigation } = this.props;
+    const { navigation, appLocale } = this.props;
     navigation.setParams({
-      loginTitle: `${i18n.t("LOGIN")}`
+      loginTitle: `${locale[appLocale]["LOGIN"]}`
     });
     SecureStore.getItemAsync(LocalKeys.LOGIN_CREDENTIALS).then(data => {
       let creds = JSON.parse(data);
@@ -194,7 +195,7 @@ class Login extends React.Component {
   };
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.container}>
         <KeyboardAvoidingView
@@ -206,20 +207,23 @@ class Login extends React.Component {
         >
           <IconInput
             icon={() => <FontAwesome name="user" size={20} />}
-            placeholder="Email or username"
+            placeholder={`${locale[appLocale]["EMAIL_OR_USERNAME"]}`}
             onChangeText={value => this.setState({ loginName: value })}
             value={this.state.loginName}
           />
           <IconInput
             icon={() => <FontAwesome name="unlock-alt" size={20} />}
-            placeholder="Password"
+            placeholder={`${locale[appLocale]["PASSWORD"]}`}
             onChangeText={password =>
               this.setState({ loginPassword: password })
             }
             secureTextEntry={true}
             value={this.state.loginPassword}
           />
-          {this.renderLoginError(this.props.error, `${i18n.t("LOGIN_ERROR")}`)}
+          {this.renderLoginError(
+            this.props.error,
+            `${locale[appLocale]["LOGIN_ERROR"]}`
+          )}
           <TouchableOpacity
             onPress={() =>
               this.setState({ rememberMe: !this.state.rememberMe })
@@ -228,7 +232,7 @@ class Login extends React.Component {
             <View style={styles.formCheckbox}>
               <CheckBox
                 containerStyle={{ width: "100%", height: "100%" }}
-                title={`${i18n.t("REMEMBER_ME")}`}
+                title={`${locale[appLocale]["REMEMBER_ME"]}`}
                 checked={this.state.rememberMe}
                 onPress={() => {
                   this.setState({
@@ -241,7 +245,7 @@ class Login extends React.Component {
           <View style={styles.formButton}>
             <Button
               loading={this.state.processing}
-              title="Login"
+              title={`${locale[appLocale]["LOGIN"]}`}
               titleStyle={{ color: "#fff", fontSize: 18 }}
               disabled={!this.state.loginName || !this.state.loginPassword}
               onPress={() => {
@@ -272,7 +276,7 @@ class Login extends React.Component {
                 console.log("change mode");
               }}
             >
-              {`${i18n.t("LOGIN_WITH_PHONE")}`}
+              {`${locale[appLocale]["LOGIN_WITH_PHONE"]}`}
             </Text>
             <Text style={{ fontSize: 20, marginLeft: 5, marginRight: 5 }}>
               |
@@ -285,7 +289,7 @@ class Login extends React.Component {
               }}
               onPress={() => this.props.navigation.navigate("Register")}
             >
-              {`${i18n.t("REGISTER")}`}
+              {`${locale[appLocale]["REGISTER"]}`}
             </Text>
           </View>
         </KeyboardAvoidingView>
@@ -314,7 +318,7 @@ class Login extends React.Component {
                 color: "grey",
                 fontSize: 14
               }}
-            >{`${i18n.t("SOCIAL_MEDIA_LOGIN")}`}</Text>
+            >{`${locale[appLocale]["SOCIAL_MEDIA_LOGIN"]}`}</Text>
             <View
               style={{
                 backgroundColor: "lightgrey",
@@ -333,19 +337,23 @@ class Login extends React.Component {
               alignItems: "center"
             }}
           >
-            <SocialIcon
+            <Ionicons
               onPress={() => {
                 console.log("loggin with google");
                 this.handleOAuthLogin("google");
               }}
-              source={require("../../static/social-icon/google-plus.png")}
+              name="logo-googleplus"
+              size={theme.iconLg}
+              color="#c9312d"
             />
-            <SocialIcon
+            <Ionicons
               onPress={() => {
                 console.log("loggin with facebook");
                 this.handleOAuthLogin("facebook");
               }}
-              source={require("../../static/social-icon/facebook.png")}
+              name="logo-facebook"
+              size={theme.iconLg}
+              color="#324e9d"
             />
           </View>
         </View>
@@ -401,7 +409,7 @@ const mapStateToProps = state => {
   return {
     client: state.client.client,
     error: state.client.error,
-    i18n: state.app.i18n
+    appLocale: state.app.appLocale
   };
 };
 

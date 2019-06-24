@@ -19,6 +19,7 @@ import { withNavigation } from "react-navigation";
 import window from "../utils/getDeviceInfo";
 import baseUrl from "../common/baseUrl";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 import { dateConverter, numberConverter } from "../utils/unitConverter";
 import {
   addClientProfilePosts,
@@ -94,10 +95,6 @@ class PostCardComponent extends React.Component {
     this.state = {
       dataSource: this.props.dataSource
     };
-  }
-
-  componentDidMount() {
-    // console.log(this.state.dataSource);
   }
 
   showActionSheet = () => {
@@ -253,10 +250,19 @@ class PostCardComponent extends React.Component {
         </Text>
       );
     } else if (dataSource.ad) {
-      return <Text>{`${i18n.t("SPONSORED")}`}</Text>;
+      return <Text>{`${locale[appLocale]["SPONSORED"]}`}</Text>;
     } else {
       return null;
     }
+  };
+
+  _renderOptions = () => {
+    const { appLocale } = this.props;
+    return [
+      `${locale[appLocale]["SHARE"]}`,
+      `${locale[appLocale]["MUTE"]}`,
+      `${locale[appLocale]["CANCEL"]}`
+    ];
   };
 
   renderHeader = () => {
@@ -282,7 +288,7 @@ class PostCardComponent extends React.Component {
    */
   render() {
     const { dataSource } = this.state;
-    const { client, navigation, i18n } = this.props;
+    const { client, navigation, appLocale } = this.props;
     return (
       <View
         style={[styles.card, this.props.style]}
@@ -319,15 +325,15 @@ class PostCardComponent extends React.Component {
               <this.renderHeader />
             </TouchableOpacity>
           </Left>
-          <View style={styles.right}>
-            <Ionicons
-              name="md-more"
-              style={{ fontSize: 20 }}
-              onPress={() => {
-                this.handleMoreOptions();
-              }}
-            />
-          </View>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={() => {
+              this.handleMoreOptions();
+            }}
+            style={styles.right}
+          >
+            <Ionicons name="md-more" style={{ fontSize: 20 }} />
+          </TouchableOpacity>
         </CardItemRow>
         <CardBody>
           <Image
@@ -407,8 +413,8 @@ class PostCardComponent extends React.Component {
                     alignItems: "flex-start"
                   }}
                 >
-                  <Text style={{ color: "#4696EC" }} onPress={onPress}>
-                    {`${i18n.t("SHOW_MORE")} `}
+                  <Text style={{ color: theme.primaryBlue }}>
+                    {`${locale[appLocale]["SHOW_MORE"]} `}
                     <Ionicons name="md-arrow-dropdown" />
                   </Text>
                 </TouchableOpacity>
@@ -427,8 +433,8 @@ class PostCardComponent extends React.Component {
                     alignItems: "flex-start"
                   }}
                 >
-                  <Text style={{ color: "#4696EC" }}>
-                    {`${i18n.t("SHOW_LESS")} `}
+                  <Text style={{ color: theme.primaryBlue }}>
+                    {`${locale[appLocale]["SHOW_LESS"]} `}
                     <Ionicons name="md-arrow-dropup" />
                   </Text>
                 </TouchableOpacity>
@@ -442,19 +448,23 @@ class PostCardComponent extends React.Component {
               </Text>
             </Text>
           </ViewMoreText>
-          <View style={{ marginTop: 5, height: 20 }}>
-            <Text style={{ fontSize: 12, color: "grey" }}>{`${i18n.t(
-              "PUBLISHED"
-            )} ${dateConverter(dataSource.createdAt)}`}</Text>
+          <View
+            style={{
+              marginTop: 5,
+              height: 20,
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              alignItems: "center"
+            }}
+          >
+            <Text style={{ fontSize: 12, color: "grey" }}>{`${
+              locale[appLocale]["PUBLISHED"]
+            } ${dateConverter(dataSource.createdAt)}`}</Text>
           </View>
         </CardItemCol>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          options={[
-            `${i18n.t("SHARE")}`,
-            `${i18n.t("MUTE")}`,
-            `${i18n.t("CANCEL")}`
-          ]}
+          options={this._renderOptions()}
           cancelButtonIndex={2}
           destructiveButtonIndex={1}
           onPress={index => {
@@ -474,7 +484,7 @@ class PostCardComponent extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -547,6 +557,7 @@ const styles = StyleSheet.create({
     left: 0
   },
   right: {
+    width: "10%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",

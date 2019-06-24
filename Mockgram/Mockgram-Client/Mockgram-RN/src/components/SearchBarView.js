@@ -16,6 +16,7 @@ import { connect } from "react-redux";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 
 class SearchBarView extends React.Component {
   static defaultProps = {
@@ -209,7 +210,7 @@ class SearchBarView extends React.Component {
 
   renderButton = () => {
     const { text, focused } = this.state;
-    const { rightIonicons, i18n } = this.props;
+    const { rightIonicons, appLocale } = this.props;
     if (focused || (!focused && text)) {
       return (
         <TouchableOpacity
@@ -236,9 +237,9 @@ class SearchBarView extends React.Component {
           }}
           activeOpacity={0.8}
         >
-          <Text style={{ fontSize: 14, color: theme.primaryBlue }}>{`${i18n.t(
-            "CANCEL"
-          )}`}</Text>
+          <Text style={{ fontSize: 14, color: theme.primaryBlue }}>{`${
+            locale[appLocale]["CANCEL"]
+          }`}</Text>
         </TouchableOpacity>
       );
     }
@@ -324,7 +325,7 @@ class SearchBarView extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(
