@@ -324,7 +324,7 @@ export const locale = {
     USERS: "用户",
     USER_S: "用户的",
     YOUR: "你的",
-    YOU: "你",
+    YOU: "你的",
     TAGS: "标签",
     TAG: "标签",
     CONFIRM: "确认",

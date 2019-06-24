@@ -40,11 +40,18 @@ class MessageIndex extends React.Component {
           height: window.height - Constants.statusBarHeight,
           width: window.width
         }}
-        renderTabBar={() => <CustomTabBar tabNames={["Following", "You"]} />}
+        renderTabBar={() => (
+          <CustomTabBar
+            tabNames={[
+              `${locale[appLocale]["FOLLOWING"]}`,
+              `${locale[appLocale]["YOU"]}`
+            ]}
+          />
+        )}
         tabBarPosition="top"
         initialPage={1}
       >
-        <FollowingPage tabLabel={`${locale[appLocale]["Following"]}`} />
+        <FollowingPage tabLabel={`${locale[appLocale]["FOLLOWING"]}`} />
         <YouPage tabLabel={`${locale[appLocale]["YOU"]}`} />
       </ScrollableTabView>
     );

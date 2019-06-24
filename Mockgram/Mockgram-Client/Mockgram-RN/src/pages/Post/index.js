@@ -12,6 +12,7 @@ import Library from "./Library";
 
 import window from "../../utils/getDeviceInfo";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 
 class PostIndex extends React.Component {
   constructor(props) {
@@ -25,6 +26,7 @@ class PostIndex extends React.Component {
   };
 
   render() {
+    const { appLocale } = this.props;
     return (
       <ScrollableTabView
         style={styles.container}
@@ -36,15 +38,22 @@ class PostIndex extends React.Component {
         tabBarInactiveTextColor="black"
         initialPage={0}
       >
-        <Library navigation={this.props.navigation} tabLabel="Library" />
-        <Camera navigation={this.props.navigation} tabLabel="Camera" />
+        <Library
+          navigation={this.props.navigation}
+          tabLabel={locale[appLocale]["LIBRARY"]}
+        />
+        <Camera
+          navigation={this.props.navigation}
+          tabLabel={locale[appLocale]["CAMERA"]}
+        />
       </ScrollableTabView>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

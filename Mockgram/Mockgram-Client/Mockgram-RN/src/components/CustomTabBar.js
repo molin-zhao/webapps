@@ -13,6 +13,7 @@ import Badge from "./Badge";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 import { getNewMessageCount } from "../utils/arrayEditor";
 import { messageCountNormalizer } from "../utils/unitConverter";
 import { updateLastMessageId } from "../redux/actions/messageActions";
@@ -27,8 +28,8 @@ class CustomTabBar extends React.Component {
   }
 
   renderBadge = tabName => {
-    const { message, lastMessageId } = this.props;
-    if (tabName === "You") {
+    const { message, lastMessageId, appLocale } = this.props;
+    if (tabName === locale[appLocale]["YOU"]) {
       return (
         <Badge
           style={{ position: "absolute", top: "30%", right: "30%" }}
@@ -61,7 +62,13 @@ class CustomTabBar extends React.Component {
   };
 
   renderTabOption(tab, i) {
-    const { activeTab, tabNames, goToPage, updateLastMessageId } = this.props;
+    const {
+      activeTab,
+      tabNames,
+      goToPage,
+      updateLastMessageId,
+      appLocale
+    } = this.props;
     const { activeColor, inactiveColor } = this.state;
     let color = activeTab === i ? activeColor : inactiveColor;
     let tabName = tabNames[i];
@@ -69,7 +76,7 @@ class CustomTabBar extends React.Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          if (tabName === "You") {
+          if (tabName === locale[appLocale]["YOU"]) {
             updateLastMessageId();
           }
           goToPage(i);
@@ -100,12 +107,11 @@ class CustomTabBar extends React.Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    message: state.message.message,
-    lastMessageId: state.message.lastMessageId
-  };
-};
+const mapStateToProps = state => ({
+  message: state.message.message,
+  lastMessageId: state.message.lastMessageId,
+  appLocale: state.app.appLocale
+});
 
 const mapDispatchToProps = dispatch => {
   return {

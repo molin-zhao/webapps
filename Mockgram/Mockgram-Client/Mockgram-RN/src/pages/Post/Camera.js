@@ -4,6 +4,7 @@ import { Permissions, ImagePicker } from "expo";
 import { connect } from "react-redux";
 import processImage from "../../utils/imageProcessing";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 
 class Camera extends React.Component {
   constructor(props) {
@@ -33,21 +34,21 @@ class Camera extends React.Component {
   };
 
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.container}>
         {this.state.permissionAllowed ? (
           <Button
-            title={`${i18n.t("TAKE_A_PHOTO")}`}
+            title={`${locale[appLocale]["TAKE_A_PHOTO"]}`}
             onPress={() => {
               this.choosePhotoFromCamera();
             }}
           />
         ) : (
           <View>
-            <Text>{`${i18n.t("SHOULD_ALLOW_ACCESS_FIRST", {
-              value: i18n.t("CAMERA")
-            })}`}</Text>
+            <Text>{`${locale[appLocale]["SHOULD_ALLOW_ACCESS_FIRST"](
+              locale[appLocale]["CAMERA"]
+            )}`}</Text>
             <TouchableOpacity
               style={{ justifyContent: "center", alignItems: "center" }}
               onPress={async () => {
@@ -60,7 +61,7 @@ class Camera extends React.Component {
               }}
             >
               <Text style={{ color: theme.primaryBlue }}>
-                {`${i18n.t("TAP_TO_ALLOW_ACCESS")}`}
+                {`${locale[appLocale]["TAP_TO_ALLOW_ACCESS"]}`}
               </Text>
             </TouchableOpacity>
           </View>
@@ -71,7 +72,7 @@ class Camera extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(

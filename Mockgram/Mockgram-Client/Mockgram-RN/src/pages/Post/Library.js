@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import processImage from "../../utils/imageProcessing";
 
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
 
 class Libray extends React.Component {
   constructor(props) {
@@ -35,21 +36,21 @@ class Libray extends React.Component {
     }
   };
   render() {
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     return (
       <View style={styles.container}>
         {this.state.permissionAllowed ? (
           <Button
-            title={`${i18n.t("CHOOSE_A_PHOTO")}`}
+            title={`${locale[appLocale]["CHOOSE_A_PHOTO"]}`}
             onPress={() => {
               this.choosePhotoFromLibrary();
             }}
           />
         ) : (
           <View>
-            <Text>{`${i18n.t("SHOULD_ALLOW_ACCESS_FIRST", {
-              value: i18n.t("LIBRARY")
-            })}`}</Text>
+            <Text>{`${locale[appLocale]["SHOULD_ALLOW_ACCESS_FIRST"](
+              locale[appLocale]["LIBRARY"]
+            )}`}</Text>
             <TouchableOpacity
               style={{ justifyContent: "center", alignItems: "center" }}
               onPress={async () => {
@@ -62,7 +63,7 @@ class Libray extends React.Component {
               }}
             >
               <Text style={{ color: theme.primaryBlue }}>
-                {`${i18n.t("TAP_TO_ALLOW_ACCESS")}`}
+                {`${locale[appLocale]["TAP_TO_ALLOW_ACCESS"]}`}
               </Text>
             </TouchableOpacity>
           </View>
@@ -73,7 +74,7 @@ class Libray extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(
