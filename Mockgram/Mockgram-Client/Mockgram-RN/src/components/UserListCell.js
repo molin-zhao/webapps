@@ -11,6 +11,7 @@ import Thumbnail from "./Thumbnail";
 import baseUrl from "../common/baseUrl";
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 
 class UserListCell extends React.Component {
   constructor(props) {
@@ -76,7 +77,7 @@ class UserListCell extends React.Component {
   };
 
   renderButton = () => {
-    const { client } = this.props;
+    const { client, appLocale } = this.props;
     const { dataSource } = this.state;
     if (client && client.user._id === dataSource._id) {
       return null;
@@ -103,7 +104,11 @@ class UserListCell extends React.Component {
           }
           return null;
         }}
-        title={dataSource.followed ? "following" : "follow"}
+        title={
+          dataSource.followed
+            ? `${locale[appLocale]["FOLLOWING"]}`
+            : `${locale[appLocale]["FOLLOW"]}`
+        }
         onPress={() => {
           dataSource.followed
             ? this.showActionSheet()
@@ -114,7 +119,7 @@ class UserListCell extends React.Component {
   };
 
   render() {
-    const { dataSource, client, navigation } = this.props;
+    const { dataSource, client, navigation, appLocale } = this.props;
     return (
       <View
         style={{
@@ -182,11 +187,12 @@ class UserListCell extends React.Component {
         </View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          title="Confirm this action to unfollow user"
-          message={`\nDo you want to unfollow user ${
-            dataSource.username
-          }?\nYou will not receive any updates and messages from this user`}
-          options={["confirm", "cancel"]}
+          title={locale[appLocale]["UNFOLLOW_TITLE"]}
+          message={locale[appLocale]["UNFOLLOW_INFO"]}
+          options={[
+            `${locale[appLocale]["CONFIRM"]}`,
+            `${locale[appLocale]["CANCEL"]}`
+          ]}
           cancelButtonIndex={1}
           onPress={index => {
             if (index === 0) {
@@ -201,7 +207,8 @@ class UserListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.client.appLocale
 });
 
 export default connect(

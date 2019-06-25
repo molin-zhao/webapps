@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import window from "../utils/getDeviceInfo";
 import { numberConverter } from "../utils/unitConverter";
+import theme from "../common/theme";
 
 class PostGridViewImage extends React.Component {
   renderMetaIonicons = (name, style, text = null) => {
@@ -47,7 +48,11 @@ class PostGridViewImage extends React.Component {
       >
         <Image
           source={{ uri: dataSource.image }}
-          style={{ width: "100%", height: "100%" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme.primaryGrey
+          }}
         />
         {/* {
                     dataSource.image ?

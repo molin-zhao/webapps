@@ -2,10 +2,12 @@ import React from "react";
 import { StyleSheet, View, Text, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { withNavigation } from "react-navigation";
+import { connect } from "react-redux";
 
 import Thumbnail from "../components/Thumbnail";
 import window from "../utils/getDeviceInfo";
 import { dateConverter } from "../utils/unitConverter";
+import { locale } from "../common/locale";
 
 class MessageListCell extends React.Component {
   renderDate = createdAt => {
@@ -17,7 +19,7 @@ class MessageListCell extends React.Component {
   };
 
   renderContent = () => {
-    const { dataSource } = this.props;
+    const { dataSource, appLocale } = this.props;
     const {
       messageType,
       sender,
@@ -38,7 +40,7 @@ class MessageListCell extends React.Component {
               }}
             >
               <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
-              <Ionicons name="ios-heart-outline" size={18} />
+              <Ionicons name="ios-heart-empty" size={18} />
               {this.renderDate(createdAt)}
             </View>
             <View
@@ -74,11 +76,13 @@ class MessageListCell extends React.Component {
               >
                 <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
                 <Ionicons
-                  name="ios-heart-outline"
+                  name="ios-heart-empty"
                   size={18}
                   style={{ marginLeft: 10 }}
                 />
-                <Text style={{ marginLeft: 10 }}> your comment: </Text>
+                <Text style={{ marginLeft: 10 }}>{`${
+                  locale[appLocale]["YOUR_COMMENT"]
+                }:`}</Text>
               </View>
               <Text numberOfLines={2} ellipsizeMode="tail">
                 {commentReference.content}
@@ -118,7 +122,7 @@ class MessageListCell extends React.Component {
               >
                 <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
                 <Ionicons
-                  name="ios-heart-outline"
+                  name="ios-heart-empty"
                   size={18}
                   style={{ marginLeft: 10 }}
                 />
@@ -224,7 +228,9 @@ class MessageListCell extends React.Component {
               }}
             >
               <Text style={{ fontWeight: "bold" }}>{sender.username}</Text>
-              <Text>{"started following you"}</Text>
+              <Text>{`${locale[appLocale]["FOLLOW_ACTION"](
+                locale[appLocale]["YOU"]
+              )}`}</Text>
               {this.renderDate(createdAt)}
             </View>
           </View>
@@ -269,6 +275,10 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "100%"
   }
+});
+
+const mapStateToProps = state => ({
+  appLocale: state.app.appLocale
 });
 
 export default withNavigation(MessageListCell);

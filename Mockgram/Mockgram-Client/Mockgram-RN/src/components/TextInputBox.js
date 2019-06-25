@@ -22,6 +22,7 @@ import { connect } from "react-redux";
 import baseUrl from "../common/baseUrl";
 import theme from "../common/theme";
 import { isEqual } from "../utils/idParser";
+import { locale } from "../common/locale";
 
 const INPUT_MARGIN = 20;
 const ITEM_MARGIN = 10;
@@ -333,13 +334,13 @@ class TextInputBox extends React.Component {
   };
 
   _renderPlaceHolder = () => {
-    const { defaultMessageReceiver } = this.props;
+    const { defaultMessageReceiver, appLocale } = this.props;
     const { currentMessageReceiver } = this.state;
     if (currentMessageReceiver._id && currentMessageReceiver.type === "reply") {
       return `@${currentMessageReceiver.username}`;
     } else {
       if (defaultMessageReceiver.type === "comment") {
-        return "Add a comment...";
+        return `${locale[appLocale]["ADD_A_COMMENT"]}...`;
       } else {
         return `@${defaultMessageReceiver.username}`;
       }
@@ -493,11 +494,14 @@ class TextInputBox extends React.Component {
         </Animated.View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          title={`Discard editing`}
-          message={`Discard repling to ${
+          title={`${locale[appLocale]["DISCARD_EDITING_TITLE"]}`}
+          message={`${locale[appLocale]["DISCARD_EDITING_INFO"](
             currentMessageReceiver.username
-          } and @${updateMessageReceiver.username} ? `}
-          options={["Confirm", "Cancel"]}
+          )}`}
+          options={[
+            `${locale[appLocale]["CONFIRM"]}`,
+            `${locale[appLocale]["CANCEL"]}`
+          ]}
           cancelButtonIndex={1}
           onPress={index => {
             if (index === 0) {
@@ -539,7 +543,8 @@ class TextInputBox extends React.Component {
 
 const mapStateToProps = state => ({
   profile: state.profile.profile,
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

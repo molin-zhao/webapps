@@ -270,7 +270,7 @@ class SearchBarView extends React.Component {
   };
 
   render() {
-    const { containerStyle } = this.props;
+    const { containerStyle, appLocale } = this.props;
     return (
       <View style={[styles.searchBarViewContainer, containerStyle]}>
         <Animated.View
@@ -301,7 +301,7 @@ class SearchBarView extends React.Component {
               style={{ flex: 8 }}
               underlineColorAndroid="transparent"
               onChangeText={this.onChangeText}
-              placeholder="search..."
+              placeholder={`${locale[appLocale]["SEARCH"]}...`}
               value={this.state.text}
             />
             {this.renderSearchingIndicator()}

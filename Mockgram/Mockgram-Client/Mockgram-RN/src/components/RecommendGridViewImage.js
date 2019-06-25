@@ -42,7 +42,6 @@ class RecommendGridViewImage extends React.Component {
         }}
         style={{
           position: "absolute",
-          backgroundColor: theme.primaryGrey,
           width: "100%",
           height: "100%",
           justifyContent: "center",
@@ -51,7 +50,12 @@ class RecommendGridViewImage extends React.Component {
       >
         <Image
           source={{ uri: dataSource.image }}
-          style={{ width: "95%", height: "95%", borderRadius: 5 }}
+          style={{
+            width: "95%",
+            height: "95%",
+            borderRadius: 5,
+            backgroundColor: theme.primaryGrey
+          }}
         />
         {/* {
                     dataSource.image ?

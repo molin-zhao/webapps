@@ -10,6 +10,7 @@ import ActionSheet from "react-native-actionsheet";
 
 import window from "../utils/getDeviceInfo";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 
 class RecommendUserCard extends React.Component {
   constructor(props) {
@@ -21,11 +22,12 @@ class RecommendUserCard extends React.Component {
   }
   renderPosts = () => {
     const { dataSource } = this.state;
+    const { appLocale } = this.props;
     if (dataSource.posts.length === 0) {
       return (
-        <Text
-          style={{ fontWeight: "bold", color: "grey" }}
-        >{`User has no posts`}</Text>
+        <Text style={{ fontWeight: "bold", color: "grey" }}>{`- ${
+          locale[appLocale]["NO_MORE_POSTS"]
+        } -`}</Text>
       );
     }
     return dataSource.posts.map(post => {
@@ -99,6 +101,7 @@ class RecommendUserCard extends React.Component {
 
   renderButton = () => {
     const { dataSource } = this.state;
+    const { appLocale } = this.props;
     let followStyle = {
       backgroundColor: theme.primaryColor
     };
@@ -120,7 +123,11 @@ class RecommendUserCard extends React.Component {
           }
           return null;
         }}
-        title={dataSource.followed ? "following" : "follow"}
+        title={
+          dataSource.followed
+            ? `${locale[appLocale]["FOLLOWING"]}`
+            : `${locale[appLocale]["FOLLOW"]}`
+        }
         onPress={() => {
           dataSource.followed
             ? this.showActionSheet()
@@ -132,7 +139,7 @@ class RecommendUserCard extends React.Component {
 
   render() {
     const { dataSource } = this.state;
-    const { itemWidth, itemHeight } = this.props;
+    const { itemWidth, itemHeight, appLocale } = this.props;
     return (
       <View
         style={[styles.container, { width: itemWidth, height: itemHeight }]}
@@ -169,16 +176,19 @@ class RecommendUserCard extends React.Component {
         </View>
         <View style={styles.userPost}>{this.renderPosts()}</View>
         <View style={styles.userFollowButton}>
-          <Text>{`follower: ${dataSource.followerCount}`}</Text>
+          <Text>{`${locale[appLocale]["FOLLOWER"]}: ${
+            dataSource.followerCount
+          }`}</Text>
           {this.renderButton()}
         </View>
         <ActionSheet
           ref={o => (this.ActionSheet = o)}
-          title="Confirm this action to unfollow user"
-          message={`\nDo you want to unfollow user ${
-            dataSource.username ? dataSource.username : dataSource.nickname
-          }?\nYou will not receive any updates and messages from this user`}
-          options={["confirm", "cancel"]}
+          title={locale[appLocale]["UNFOLLOW_TITLE"]}
+          message={`${locale[appLocale]["UNFOLLOW_INFO"]}`}
+          options={[
+            `${locale[appLocale]["CONFIRM"]}`,
+            `${locale[appLocale]["CANCEL"]}`
+          ]}
           cancelButtonIndex={1}
           onPress={index => {
             if (index === 0) {
@@ -193,7 +203,8 @@ class RecommendUserCard extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

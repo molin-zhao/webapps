@@ -11,6 +11,7 @@ import CreatorTag from "./CreatorTag";
 import { dateConverter } from "../utils/unitConverter";
 import baseUrl from "../common/baseUrl";
 import theme from "../common/theme";
+import { locale } from "../common/locale";
 
 class ReplyListCell extends React.Component {
   constructor(props) {
@@ -79,7 +80,7 @@ class ReplyListCell extends React.Component {
   };
 
   render() {
-    const { dataSource, creatorId } = this.props;
+    const { dataSource, creatorId, appLocale } = this.props;
     return (
       <View key={dataSource._id} style={styles.container}>
         <View style={styles.replyUserAvatar}>
@@ -128,7 +129,7 @@ class ReplyListCell extends React.Component {
                       style={{ color: theme.primaryBlue }}
                       onPress={onPress}
                     >
-                      {`show more `}
+                      {`${locale[appLocale]["SHOW_MORE"]} `}
                       <Ionicons name="md-arrow-dropdown" />
                     </Text>
                   </TouchableOpacity>
@@ -148,7 +149,7 @@ class ReplyListCell extends React.Component {
                     }}
                   >
                     <Text style={{ color: theme.primaryBlue }}>
-                      {`show less `}
+                      {`${locale[appLocale]["SHOW_LESS"]} `}
                       <Ionicons name="md-arrow-dropup" />
                     </Text>
                   </TouchableOpacity>
@@ -199,7 +200,8 @@ class ReplyListCell extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(

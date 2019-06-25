@@ -338,7 +338,11 @@ class PostCardComponent extends React.Component {
         <CardBody>
           <Image
             source={{ uri: dataSource.image }}
-            style={{ height: window.width, width: window.width }}
+            style={{
+              height: window.width,
+              width: window.width,
+              backgroundColor: theme.primaryGrey
+            }}
             resizeMode="cover"
           />
         </CardBody>

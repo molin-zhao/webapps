@@ -14,6 +14,7 @@ export const locale = {
     LOCATION: "Location",
     CONFIRM: "Confirm",
     CANCEL: "Cancel",
+    FOLLOWER: "Follower",
     FOLLOWERS: "Follower(s)",
     POSTS: "Post(s)",
     COMMENTS: "Comment(s)",
@@ -68,6 +69,7 @@ export const locale = {
     LANGUAGE_SETTING_TITLE: "Language Setting",
     SHARE: "Share",
     MUTE: "Mute",
+    YOUR_COMMENT: "Your comment",
 
     // information
     SYSTEM_LANG: "System language: en-GB",
@@ -137,6 +139,9 @@ export const locale = {
     CHANGE_PROFILE_AVATAR_TITLE: "Change your profile avatar.",
     EMAIL_OR_USERNAME: "Email/Username",
     BECOME_FIRST_TO_LEAVE: value => `Be the first to leave a ${value}`,
+    ADD_A_COMMENT: "Add a comment",
+    DISCARD_EDITING_TITLE: "Discard editing?",
+    DISCARD_EDITING_INFO: value => `Discard repling to ${value}`,
 
     // language set
     EN_US: "English - US",
@@ -165,6 +170,7 @@ export const locale = {
     LOCATION: "Location",
     CONFIRM: "Confirm",
     CANCEL: "Cancel",
+    FOLLOWER: "Follower",
     FOLLOWERS: "Follower(s)",
     POSTS: "Post(s)",
     COMMENTS: "Comment(s)",
@@ -219,6 +225,7 @@ export const locale = {
     LANGUAGE_SETTING_TITLE: "Language Setting",
     SHARE: "Share",
     MUTE: "Mute",
+    YOUR_COMMENT: "Your comment",
 
     // information
     SYSTEM_LANG: "System language: en-GB",
@@ -288,6 +295,9 @@ export const locale = {
     CHANGE_PROFILE_AVATAR_TITLE: "Change your profile avatar.",
     EMAIL_OR_USERNAME: "Email/Username",
     BECOME_FIRST_TO_LEAVE: value => `Be the first to leave a ${value}`,
+    ADD_A_COMMENT: "Add a comment",
+    DISCARD_EDITING_TITLE: "Discard editing?",
+    DISCARD_EDITING_INFO: value => `Discard repling to ${value}`,
 
     // language set
     EN_US: "English - US",
@@ -305,6 +315,7 @@ export const locale = {
     // 标签
     FOLLOW: "关注",
     FOLLOWING: "已关注",
+    FOLLOWER: "粉丝",
     FOLLOWERS: "粉丝",
     UNFOLLOW: "取消关注",
     POSTS: "帖子",
@@ -371,6 +382,7 @@ export const locale = {
     LANGUAGE_SETTING_TITLE: "语言选择",
     SHARE: "分享",
     MUTE: "屏蔽",
+    YOUR_COMMENT: "你的评论",
 
     // 提示信息
     SYSTEM_LANG: "系统语言: 中文简体",
@@ -438,6 +450,9 @@ export const locale = {
     CHANGE_PROFILE_AVATAR_TITLE: "更改头像.",
     EMAIL_OR_USERNAME: "邮箱/用户名",
     BECOME_FIRST_TO_LEAVE: value => `第一个留下${value}吧!`,
+    ADD_A_COMMENT: "添加评论",
+    DISCARD_EDITING_TITLE: "放弃编辑吗?",
+    DISCARD_EDITING_INFO: value => `放弃编辑对${value}的回复`,
 
     // language set
     EN_US: "English - US",
