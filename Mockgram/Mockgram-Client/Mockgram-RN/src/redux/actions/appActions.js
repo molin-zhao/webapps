@@ -1,6 +1,7 @@
 import * as ActionTypes from "./ActionTypes";
 import { SecureStore, Localization } from "expo";
 import * as LocalKeys from "../../common/localKeys";
+import { locale } from "../../common/locale";
 
 export const finishAppInitialize = () => dispatch => {
   console.log("finish app initialize");
@@ -10,7 +11,10 @@ export const finishAppInitialize = () => dispatch => {
 export const getAppLocale = () => dispatch => {
   return SecureStore.getItemAsync(LocalKeys.APP_LOCALE)
     .then(lang => {
-      dispatch(appLocale(lang ? lang : Localization.locale));
+      if (lang) dispatch(appLocale(lang));
+      else if (locale[Localization.locale])
+        dispatch(appLocale(Localization.locale));
+      else dispatch(appLocale("en-US"));
     })
     .catch(err => {
       console.log(err);

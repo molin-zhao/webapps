@@ -605,6 +605,7 @@ class DiscoveryIndex extends React.Component {
 
   renderContentHeader = () => {
     const { searchBarInput, searchValue, focused } = this.state;
+    const { appLocale } = this.props;
     return (
       <View
         style={{
@@ -613,7 +614,11 @@ class DiscoveryIndex extends React.Component {
           alignItems: "flex-start"
         }}
       >
-        {this.renderTabBar(["People", "Tag", "Place"])}
+        {this.renderTabBar([
+          `${locale[appLocale]["PEOPLE"]}`,
+          `${locale[appLocale]["TAG"]}`,
+          `${locale[appLocale]["PLACE"]}`
+        ])}
         {focused && !searchBarInput && !searchValue
           ? this.renderSuggestedLabel()
           : null}

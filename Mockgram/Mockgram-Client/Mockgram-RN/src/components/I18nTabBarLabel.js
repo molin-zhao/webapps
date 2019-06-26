@@ -15,9 +15,10 @@ class I18nTabBarLabel extends React.Component {
   };
   renderLabel = () => {
     const { appLocale, name } = this.props;
-    return appLocale
-      ? `${locale[appLocale][name]}`
-      : `${locale[Localization.locale][name]}`;
+    if (appLocale) return `${locale[appLocale][name]}`;
+    else if (locale[Localization.locale])
+      return `${locale[Localization.locale][name]}`;
+    else return `${locale["en-US"][name]}`;
   };
   render() {
     const { tintColor, focused, size } = this.props;
