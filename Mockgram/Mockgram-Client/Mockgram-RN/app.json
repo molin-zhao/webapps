@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Mockgram-RN",
-    "description": "This project is really great.",
+    "description": "Love affair with life.",
     "slug": "Mockgram-RN",
     "privacy": "public",
     "sdkVersion": "32.0.0",
@@ -21,7 +21,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.molinz.mockgram"
     },
     "android": {
