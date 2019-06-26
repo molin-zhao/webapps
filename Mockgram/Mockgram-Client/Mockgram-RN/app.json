@@ -17,15 +17,18 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.molinz.mockgram"
     },
     "android": {
-      "package": "com.molinz.mockgram"
+      "package": "com.molinz.mockgram",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyA1ckXUHseI4x6LqvHFPrILblPmyeFkHl4"
+        }
+      }
     },
     "scheme": "mockgram"
   }
