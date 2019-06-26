@@ -12,6 +12,8 @@ import { HomeComponent } from "./pages/home/home.component";
 import { ApiComponent } from "./pages/api/api.component";
 import { ServiceComponent } from "./pages/service/service.component";
 import { DownloadComponent } from "./pages/download/download.component";
+import { Error404Component } from './pages/error404/error404.component';
+import { Error500Component } from './pages/error500/error500.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { DownloadComponent } from "./pages/download/download.component";
     HomeComponent,
     ApiComponent,
     ServiceComponent,
-    DownloadComponent
+    DownloadComponent,
+    Error404Component,
+    Error500Component
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, Ng2ImgMaxModule],
   providers: [],
