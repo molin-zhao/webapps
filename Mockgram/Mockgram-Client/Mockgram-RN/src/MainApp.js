@@ -31,7 +31,11 @@ import I18nTabBarLabel from "./components/I18nTabBarLabel";
 import store from "./redux";
 import { getClientInfo } from "./redux/actions/clientActions";
 import { getClientProfile } from "./redux/actions/profileActions";
-import { finishAppInitialize, getAppLocale } from "./redux/actions/appActions";
+import {
+  finishAppInitialize,
+  getAppLocale,
+  getAppPermissions
+} from "./redux/actions/appActions";
 import { updateLastMessageId } from "./redux/actions/messageActions";
 import {
   getMessage,
@@ -261,6 +265,7 @@ class MainApp extends React.Component {
       await this.props.getAppLocale();
       await this.props.getClientInfo();
       await this.props.finishAppInitialize();
+      await this.props.getAppPermissions();
       console.log(`app starts`);
     } catch (err) {
       console.log(err);
@@ -342,6 +347,7 @@ const mapDispatchToProps = dispatch => ({
   getClientInfo: () => dispatch(getClientInfo()),
   getClientProfile: token => dispatch(getClientProfile(token)),
   getAppLocale: () => dispatch(getAppLocale()),
+  getAppPermissions: () => dispatch(getAppPermissions()),
   getMessage: token => dispatch(getMessage(token)),
   finishAppInitialize: () => dispatch(finishAppInitialize()),
   addMessage: messages => dispatch(addMessage(messages)),

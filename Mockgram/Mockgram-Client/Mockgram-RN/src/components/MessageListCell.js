@@ -281,4 +281,7 @@ const mapStateToProps = state => ({
   appLocale: state.app.appLocale
 });
 
-export default withNavigation(MessageListCell);
+export default connect(
+  mapStateToProps,
+  null
+)(withNavigation(MessageListCell));

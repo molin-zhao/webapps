@@ -41,16 +41,17 @@ class PostGridViewImage extends React.Component {
         }}
         style={{
           position: "absolute",
-          backgroundColor: null,
-          width: "95%",
-          height: "95%"
+          width: "100%",
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center"
         }}
       >
         <Image
           source={{ uri: dataSource.image }}
           style={{
-            width: "100%",
-            height: "100%",
+            width: "95%",
+            height: "95%",
             backgroundColor: theme.primaryGrey
           }}
         />

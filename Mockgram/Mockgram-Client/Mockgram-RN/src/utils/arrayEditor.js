@@ -3,12 +3,7 @@ export const concatArrayWithData = (originalArr, data) => {
 };
 
 export const removeItemFromArrayWithItemId = (originalArr, id) => {
-  for (let i = 0; i < originalArr.length; i++) {
-    if (originalArr[i]._id === id) {
-      originalArr.splice(i, 1);
-      break;
-    }
-  }
+  return originalArr.filter(val => val._id !== id);
 };
 
 export const getNewMessageCount = (messages, lastMessageId) => {
@@ -27,16 +22,17 @@ export const getNewMessageCount = (messages, lastMessageId) => {
 };
 
 export const normalizeData = (data, numColumns) => {
-  if (data.length > 0 && data.length < numColumns) {
-    while (data.length < numColumns) {
-      data.push({
+  let newData = [...data];
+  if (newData.length > 0 && newData.length < numColumns) {
+    while (newData.length < numColumns) {
+      newData.push({
         _id: `empty-${data.length}`,
         type: "empty"
       });
     }
-    return data;
+    return newData;
   }
-  return data;
+  return newData;
 };
 
 export const clone = obj => {

@@ -375,7 +375,10 @@ class PostRecommend extends React.Component {
     const { opacity, zIndex } = this.state;
     return (
       <Animated.View
-        style={[styles.container, { opacity: opacity, zIndex: zIndex }]}
+        style={[
+          styles.container,
+          { opacity: opacity, zIndex: zIndex, elevation: zIndex }
+        ]}
       >
         {this.renderHeader()}
         {this.renderPost()}

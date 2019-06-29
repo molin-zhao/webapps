@@ -26,6 +26,7 @@ import config from "../../common/config";
 import theme from "../../common/theme";
 import { numberConverter } from "../../utils/unitConverter";
 import { parseIdFromObjectArray } from "../../utils/idParser";
+import { locale } from "../../common/locale";
 
 class Tag extends React.Component {
   mounted = false;
@@ -100,11 +101,11 @@ class Tag extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-    const { navigation, i18n } = this.props;
+    const { navigation, appLocale } = this.props;
     navigation.setParams({
       getSelectedTags: () => this.state.selectedTags,
-      tagTitle: `${i18n.t("ADD_TITLE", { value: `${i18n.t("TAG")}` })}`,
-      tagDone: `${i18n.t("DONE")}`
+      tagTitle: `${locale[appLocale]["ADD_TITLE"](locale[appLocale]["TAG"])}`,
+      tagDone: `${locale[appLocale]["DONE"]}`
     });
     this.setState(
       {
@@ -122,7 +123,7 @@ class Tag extends React.Component {
 
   _renderTagListCellBtn = id => {
     const { selectedTags } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (Object.keys(selectedTags).includes(id)) {
       return (
         <View
@@ -134,7 +135,9 @@ class Tag extends React.Component {
             flexDirection: "row"
           }}
         >
-          <Text style={{ color: "grey" }}>{`${i18n.t("ADDED")}`}</Text>
+          <Text style={{ color: "grey" }}>{`${
+            locale[appLocale]["ADDED"]
+          }`}</Text>
           <Ionicons
             name="ios-checkmark"
             size={theme.iconSm}
@@ -144,11 +147,12 @@ class Tag extends React.Component {
         </View>
       );
     }
-    return <Text>{`${i18n.t("ADD")}`}</Text>;
+    return <Text>{`${locale[appLocale]["ADD"]}`}</Text>;
   };
 
   tagListCell = item => {
     const { selectedTags } = this.state;
+    const { appLocale } = this.props;
     return (
       <View
         style={{
@@ -177,10 +181,14 @@ class Tag extends React.Component {
           </Text>
           <Text
             style={{ marginLeft: 5, fontSize: 12, color: "grey" }}
-          >{`${numberConverter(item.quotedCount)} posts`}</Text>
+          >{`${numberConverter(item.quotedCount)} ${
+            locale[appLocale]["POSTS"]
+          }`}</Text>
           <Text
             style={{ marginLeft: 5, fontSize: 12, color: "grey" }}
-          >{`${numberConverter(item.participantsCount)} people`}</Text>
+          >{`${numberConverter(item.participantsCount)} ${
+            locale[appLocale]["PEOPLE"]
+          }`}</Text>
         </View>
         <TouchableOpacity
           activeOpacity={1}
@@ -198,15 +206,14 @@ class Tag extends React.Component {
   };
 
   fetchHotTagsAndTopics = () => {
-    return fetch(
-      `${baseUrl.api}/discovery/tag-topic/hot?limit=${
-        config.HOT_TAG_TOPIC_RETURN_LIMIT
-      }`,
-      { method: "GET" }
-    )
+    let url = `${baseUrl.api}/discovery/tag-topic/hot?limit=${
+      config.HOT_TAG_TOPIC_RETURN_LIMIT
+    }`;
+    return fetch(url, { method: "GET" })
       .then(res => res.json())
       .then(resJson => {
         if (resJson.status === 200) {
+          console.log(resJson.data);
           if (this.mounted) {
             this.setState({
               hotTagAndTopic: resJson.data
@@ -293,7 +300,7 @@ class Tag extends React.Component {
 
   _renderHotTagsAndTopicsSection = itemObject => {
     const { selectedTags } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (itemObject.type === "tag") {
       if (itemObject.data && itemObject.data.length > 0) {
         return (
@@ -325,7 +332,7 @@ class Tag extends React.Component {
       }
       return (
         <View style={styles.sectionEmpty}>
-          <Text>{`${i18n.t("NO_MORE_TAGS")}`}</Text>
+          <Text>{`- ${locale[appLocale]["NO_POPULAR_TAGS"]} -`}</Text>
         </View>
       );
     } else {
@@ -397,14 +404,14 @@ class Tag extends React.Component {
       }
       return (
         <View style={styles.sectionEmpty}>
-          <Text>No Popular Topics</Text>
+          <Text>{`- ${locale[appLocale]["NO_POPULAR_TOPICS"]} -`}</Text>
         </View>
       );
     }
   };
 
   renderHotTagsAndTopics = () => {
-    const { navigation } = this.props;
+    const { navigation, appLocale } = this.props;
     const { hotTagAndTopic } = this.state;
     return (
       <FlatList
@@ -436,7 +443,11 @@ class Tag extends React.Component {
                     }}
                   />
                 )}
-                label={`Popular ${item.type}(s)`}
+                label={`${locale[appLocale]["POPULAR_VALUE"](
+                  item.type === "tag"
+                    ? locale[appLocale]["TAGS"]
+                    : locale[appLocale]["TOPICS"]
+                )}`}
               />
               {this._renderHotTagsAndTopicsSection(item)}
             </View>
@@ -581,7 +592,7 @@ class Tag extends React.Component {
 
   renderContentView = () => {
     const { searchValue, searchedTags } = this.state;
-    const { i18n } = this.props;
+    const { appLocale } = this.props;
     if (searchValue && searchedTags) {
       return (
         <FlatList
@@ -607,7 +618,7 @@ class Tag extends React.Component {
                 }}
               >
                 <Text style={{ color: "grey", fontSize: 12 }}>
-                  {`${i18n.t("NO_MORE_TAGS")}`}
+                  {`- ${locale[appLocale]["NO_MORE_TAGS"]} -`}
                 </Text>
               </View>
             );
@@ -658,7 +669,7 @@ class Tag extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  i18n: state.app.client
+  appLocale: state.app.appLocale
 });
 
 const styles = StyleSheet.create({

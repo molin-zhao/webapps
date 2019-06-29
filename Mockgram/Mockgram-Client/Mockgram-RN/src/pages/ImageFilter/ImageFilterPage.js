@@ -13,7 +13,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { Surface } from "gl-react-expo";
 import GLImage from "gl-react-image";
 import { Header } from "react-navigation";
-import { SkypeIndicator } from "react-native-indicators";
+import { SkypeIndicator, BallIndicator } from "react-native-indicators";
 import { takeSnapshotAsync } from "expo";
 import { connect } from "react-redux";
 
@@ -77,6 +77,13 @@ class ImageFilterPage extends React.Component {
 
   renderMainImage = () => {
     const { filterSelection, imageUri } = this.state;
+    if (!this._checkFilterInitStatus()) {
+      return (
+        <View style={styles.mainImage}>
+          <BallIndicator size={theme.indicatorLg} />
+        </View>
+      );
+    }
     return (
       <View style={styles.mainImage}>
         <View
@@ -88,7 +95,7 @@ class ImageFilterPage extends React.Component {
             backgroundColor: "transparent"
           }}
         >
-          <Image
+          {/* <Image
             source={{ uri: imageUri.uri }}
             style={[
               {
@@ -101,7 +108,7 @@ class ImageFilterPage extends React.Component {
               { opacity: filterSelection === shaderNames.Normal ? 1 : 0 }
             ]}
             resizeMode="center"
-          />
+          /> */}
           <Surface
             style={{
               position: "absolute",
@@ -109,23 +116,24 @@ class ImageFilterPage extends React.Component {
               width: "100%",
               height: "100%"
             }}
+            onLoad={() => {
+              console.log("surface loaded");
+            }}
           >
-            <Normal on={filterSelection === shaderNames.Normal}>
-              <Brannan on={filterSelection === shaderNames.Brannan}>
-                <Earlybird on={filterSelection === shaderNames.Earlybird}>
-                  <Hudson on={filterSelection === shaderNames.Hudson}>
-                    <Nashville on={filterSelection === shaderNames.Nashville}>
-                      <Valencia on={filterSelection === shaderNames.Valencia}>
-                        <GLImage
-                          source={{ uri: imageUri.uri }}
-                          resizeMode="center"
-                        />
-                      </Valencia>
-                    </Nashville>
-                  </Hudson>
-                </Earlybird>
-              </Brannan>
-            </Normal>
+            <Brannan on={filterSelection === shaderNames.Brannan}>
+              <Earlybird on={filterSelection === shaderNames.Earlybird}>
+                <Hudson on={filterSelection === shaderNames.Hudson}>
+                  <Nashville on={filterSelection === shaderNames.Nashville}>
+                    <Valencia on={filterSelection === shaderNames.Valencia}>
+                      <GLImage
+                        source={{ uri: imageUri.uri }}
+                        resizeMode="center"
+                      />
+                    </Valencia>
+                  </Nashville>
+                </Hudson>
+              </Earlybird>
+            </Brannan>
           </Surface>
         </View>
       </View>
@@ -249,6 +257,7 @@ class ImageFilterPage extends React.Component {
             headerTitle={`${locale[appLocale]["CHOOSE_FILTER"]}`}
             rightIconButton={() => (
               <FontAwesome
+                color={theme.primaryGreen}
                 name="check"
                 size={theme.iconSm}
                 onPress={() => {
@@ -309,6 +318,7 @@ class ImageFilterPage extends React.Component {
             headerTitle={`${locale[appLocale]["META"]}`}
             rightIconButton={() => (
               <FontAwesome
+                color={theme.primaryGreen}
                 name="check"
                 size={theme.iconSm}
                 onPress={() => {

@@ -208,7 +208,7 @@ class UserListCell extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  appLocale: state.client.appLocale
+  appLocale: state.app.appLocale
 });
 
 export default connect(

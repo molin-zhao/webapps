@@ -85,11 +85,11 @@ export const profile = (
       }
     case ActionTypes.RELOAD_CLIENT_PROFILE_POST:
       if (data && type === Types.CREATED_POST) {
-        return { ...state, created: { data: data.old, hasMore: true } };
+        return { ...state, created: { data: data.old, hasMore } };
       } else if (data && type === Types.LIKED_POST) {
-        return { ...state, liked: { data: data.old, hasMore: true } };
+        return { ...state, liked: { data: data.old, hasMore } };
       } else if (data && type === Types.MENTIONED_POST) {
-        return { ...state, mentioned: { data: data.old, hasMore: true } };
+        return { ...state, mentioned: { data: data.old, hasMore } };
       } else {
         return state;
       }
@@ -105,6 +105,29 @@ export const profile = (
       };
     case ActionTypes.REMOVE_CLIENT_PROFILE_AVATAR:
       return { ...state, profile: { ...state.profile, avatar: "" } };
+    case ActionTypes.ADD_TO_TOP_CLIENT_PROFILE_POST:
+      switch (type) {
+        case Types.CREATED_POST:
+          return {
+            ...state,
+            created: { ...state.created, data: data.concat(state.created.data) }
+          };
+        case Types.LIKED_POST:
+          return {
+            ...state,
+            liked: { ...state.liked, data: data.concat(state.liked.data) }
+          };
+        case Types.MENTIONED_POST:
+          return {
+            ...state,
+            mentioned: {
+              ...state.mentioned,
+              data: data.concat(state.mentioned.data)
+            }
+          };
+        default:
+          return { ...state };
+      }
     default:
       return state;
   }

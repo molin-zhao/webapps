@@ -23,7 +23,15 @@ class I18nTabBarLabel extends React.Component {
   render() {
     const { tintColor, focused, size } = this.props;
     return (
-      <Text style={[{ color: focused ? tintColor : "black", fontSize: size }]}>
+      <Text
+        style={[
+          {
+            alignSelf: "center",
+            color: focused ? tintColor : "black",
+            fontSize: size
+          }
+        ]}
+      >
         {this.renderLabel()}
       </Text>
     );

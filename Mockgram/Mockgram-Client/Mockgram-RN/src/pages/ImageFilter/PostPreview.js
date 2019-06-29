@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { Location, Permissions, FileSystem } from "expo";
+import { createStackNavigator } from "react-navigation";
 import { connect } from "react-redux";
 import ActionSheet from "react-native-actionsheet";
 import {
@@ -18,7 +19,7 @@ import {
   uploadingPost,
   uploadedPost
 } from "../../redux/actions/feedActions";
-import { createStackNavigator } from "react-navigation";
+import { addToTopClientProfilePost } from "../../redux/actions/profileActions";
 
 import DropdownAlert from "../../components/DropdownAlert";
 import PostRightButton from "../../components/HeaderRightButton";
@@ -29,6 +30,8 @@ import LocationPage from "./Location";
 import window from "../../utils/getDeviceInfo";
 import baseUrl from "../../common/baseUrl";
 import theme from "../../common/theme";
+import { locale } from "../../common/locale";
+import * as Types from "../../common/types";
 
 class PostPreview extends React.Component {
   constructor(props) {
@@ -80,10 +83,11 @@ class PostPreview extends React.Component {
   });
 
   componentDidMount() {
-    this.props.navigation.setParams({
+    const { navigation, appLocale } = this.props;
+    navigation.setParams({
       handlePost: this.makePost,
       previewDismiss: this.dismiss,
-      previewTitle: this.props.i18n.t("EDIT_POST")
+      previewTitle: `${locale[appLocale]["EDIT_POST"]}`
     });
   }
 
@@ -103,9 +107,10 @@ class PostPreview extends React.Component {
       client,
       navigation,
       addToHomeFeed,
+      addToCLientProfilePost,
       uploadingPost,
       uploadedPost,
-      i18n
+      appLocale
     } = this.props;
     let fileName = imageUri.split("/").pop();
     let match = /\.(\w+)$/.exec(fileName);
@@ -141,12 +146,13 @@ class PostPreview extends React.Component {
             .then(resJson => {
               if (resJson.status === 200) {
                 addToHomeFeed([resJson.data]);
+                addToCLientProfilePost([resJson.data]);
                 setTimeout(() => {
                   navigation.navigate("Home");
                 }, 4000);
                 this.setState(
                   {
-                    info: `${i18n.t("UPLOAD_POST_SUCCESS")}`,
+                    info: `${locale[appLocale]["UPLOAD_POST_SUCCESS"]}`,
                     error: null
                   },
                   () => {
@@ -158,7 +164,7 @@ class PostPreview extends React.Component {
                 this.setState(
                   {
                     info: null,
-                    error: `${i18n.t("UPLOAD_POST_ERROR")}`
+                    error: `${locale[appLocale]["UPLOAD_POST_ERROR"]}`
                   },
                   () => {
                     this._dropdown.show();
@@ -172,7 +178,7 @@ class PostPreview extends React.Component {
               this.setState(
                 {
                   info: null,
-                  error: `${i18n.t("NETWORK_REQUEST_ERROR")}`
+                  error: `${locale[appLocale]["NETWORK_REQUEST_ERROR"]}`
                 },
                 () => {
                   this._dropdown.show();
@@ -299,7 +305,7 @@ class PostPreview extends React.Component {
 
   render() {
     const { imageUri, selectedTags, mentionedUsers, location } = this.state;
-    const { navigation, i18n } = this.props;
+    const { navigation, appLocale } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -355,9 +361,9 @@ class PostPreview extends React.Component {
                 size={theme.iconSm - 2}
                 style={{ marginLeft: theme.paddingToWindow }}
               />
-              <Text style={{ marginLeft: theme.paddingToWindow }}>{`${i18n.t(
-                "TAG"
-              )}`}</Text>
+              <Text style={{ marginLeft: theme.paddingToWindow }}>{`${
+                locale[appLocale]["TAG"]
+              }`}</Text>
             </View>
             <View
               style={{
@@ -373,7 +379,9 @@ class PostPreview extends React.Component {
                 }}
               >
                 {Object.keys(selectedTags).length > 0
-                  ? `${Object.keys(selectedTags).length} ${i18n.t("TAGS")}`
+                  ? `${Object.keys(selectedTags).length} ${
+                      locale[appLocale]["TAGS"]
+                    }`
                   : null}
               </Text>
               <FontAwesome
@@ -403,9 +411,9 @@ class PostPreview extends React.Component {
                 size={theme.iconSm}
                 style={{ marginLeft: theme.paddingToWindow }}
               />
-              <Text style={{ marginLeft: theme.paddingToWindow }}>{`${i18n.t(
-                "MENTION"
-              )}`}</Text>
+              <Text style={{ marginLeft: theme.paddingToWindow }}>{`${
+                locale[appLocale]["MENTION"]
+              }`}</Text>
             </View>
             <View
               style={{
@@ -421,7 +429,9 @@ class PostPreview extends React.Component {
                 }}
               >
                 {Object.keys(mentionedUsers).length > 0
-                  ? `${Object.keys(mentionedUsers).length} ${i18n.t("USERS")}`
+                  ? `${Object.keys(mentionedUsers).length} ${
+                      locale[appLocale]["USERS"]
+                    }`
                   : null}
               </Text>
               <FontAwesome
@@ -455,7 +465,7 @@ class PostPreview extends React.Component {
                 style={{ marginLeft: theme.paddingToWindow }}
               />
               <Text style={{ marginLeft: theme.paddingToWindow }}>
-                {`${i18n.t("LOCATION")}`}
+                {`${locale[appLocale]["LOCATION"]}`}
               </Text>
             </View>
             <View
@@ -492,8 +502,11 @@ class PostPreview extends React.Component {
           </DropdownAlert>
           <ActionSheet
             ref={o => (this._actionSheet = o)}
-            title={i18n.t("DISCARD_TITLE")}
-            options={[`${i18n.t("DISCARD")}`, `${i18n.t("CANCEL")}`]}
+            title={locale[appLocale]["DISCARD_TITLE"]}
+            options={[
+              `${locale[appLocale]["DISCARD"]}`,
+              `${locale[appLocale]["CANCEL"]}`
+            ]}
             cancelButtonIndex={1}
             destructiveButtonIndex={0}
             onPress={index => {
@@ -516,11 +529,13 @@ class PostPreview extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 const mapDispatchToProps = dispatch => ({
   addToHomeFeed: feed => dispatch(addToHeadOfHomeFeed(feed)),
+  addToCLientProfilePost: data =>
+    dispatch(addToTopClientProfilePost(Types.CREATED_POST, data)),
   uploadingPost: () => dispatch(uploadingPost()),
   uploadedPost: () => dispatch(uploadedPost())
 });

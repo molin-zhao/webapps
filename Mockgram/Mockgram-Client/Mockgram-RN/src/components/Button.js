@@ -18,7 +18,7 @@ export default class Button extends React.Component {
       borderWidth: 1
     },
     loadingTitle: "",
-    loadingIndicator: () => <SkypeIndicator size={theme.iconSm} />,
+    loadingIndicator: () => <SkypeIndicator size={theme.iconSm} color="#fff" />,
     iconLeft: () => null,
     iconRight: () => null,
     loading: false,

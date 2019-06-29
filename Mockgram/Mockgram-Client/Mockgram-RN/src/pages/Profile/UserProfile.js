@@ -41,6 +41,12 @@ export default class UserProfile extends React.Component {
   };
 
   render() {
-    return <ProfilePage />;
+    const { navigation } = this.props;
+    return (
+      <ProfilePage
+        id={navigation.getParam("_id")}
+        username={navigation.getParam("username")}
+      />
+    );
   }
 }

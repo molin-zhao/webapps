@@ -19,10 +19,11 @@ import { withNavigation } from "react-navigation";
 import window from "../utils/getDeviceInfo";
 import baseUrl from "../common/baseUrl";
 import theme from "../common/theme";
+import * as Types from "../common/types";
 import { locale } from "../common/locale";
 import { dateConverter, numberConverter } from "../utils/unitConverter";
 import {
-  addClientProfilePosts,
+  addToTopClientProfilePost,
   removeClientProfilePost
 } from "../redux/actions/profileActions";
 
@@ -138,7 +139,7 @@ class PostCardComponent extends React.Component {
                 if (dataSource.creator !== client.user._id) {
                   // client liked other user's post, push this post to local profile
                   if (dataSource.liked) {
-                    addLikePostToProfile({ new: [dataSource] });
+                    addLikePostToProfile([dataSource]);
                   } else {
                     removeLikePostFromProfile(dataSource._id);
                   }
@@ -492,9 +493,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  addLikePostToProfile: data => dispatch(addClientProfilePosts("LIKED", data)),
+  addLikePostToProfile: data =>
+    dispatch(addToTopClientProfilePost(Types.LIKED_POST, data)),
   removeLikePostFromProfile: id =>
-    dispatch(removeClientProfilePost("LIKED", id))
+    dispatch(removeClientProfilePost(Types.LIKED_POST, id))
 });
 
 export default connect(

@@ -2,22 +2,16 @@ import React from "react";
 import { Text, View, StyleSheet, Button, TouchableOpacity } from "react-native";
 import { Permissions, ImagePicker } from "expo";
 import { connect } from "react-redux";
+
 import processImage from "../../utils/imageProcessing";
 import theme from "../../common/theme";
 import { locale } from "../../common/locale";
+import * as LocalKeys from "../../common/localKeys";
+import { updateAppPermission } from "../../redux/actions/appActions";
 
 class Camera extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      permissionAllowed: false
-    };
-  }
-  async componentWillMount() {
-    const { status } = await Permissions.getAsync(Permissions.CAMERA);
-    this.setState({
-      permissionAllowed: status === "granted" ? true : false
-    });
   }
 
   choosePhotoFromCamera = async () => {
@@ -34,10 +28,10 @@ class Camera extends React.Component {
   };
 
   render() {
-    const { appLocale } = this.props;
+    const { appLocale, cameraPermission, updateAppPermission } = this.props;
     return (
       <View style={styles.container}>
-        {this.state.permissionAllowed ? (
+        {cameraPermission ? (
           <Button
             title={`${locale[appLocale]["TAKE_A_PHOTO"]}`}
             onPress={() => {
@@ -55,9 +49,8 @@ class Camera extends React.Component {
                 const { status } = await Permissions.askAsync(
                   Permissions.CAMERA
                 );
-                this.setState({
-                  permissionAllowed: status === "granted" ? true : false
-                });
+                let val = status === "granted" ? true : false;
+                updateAppPermission(LocalKeys.PERMISSION_CAMERA, val);
               }}
             >
               <Text style={{ color: theme.primaryBlue }}>
@@ -72,12 +65,18 @@ class Camera extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  appLocale: state.app.appLocale
+  appLocale: state.app.appLocale,
+  cameraPermission: state.app.cameraPermission
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateAppPermission: (type, value) =>
+    dispatch(updateAppPermission(type, value))
 });
 
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(Camera);
 const styles = StyleSheet.create({
   container: {

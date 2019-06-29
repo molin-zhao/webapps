@@ -1,21 +1,27 @@
 import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, Platform } from "react-native";
+import { Constants } from "expo";
 import { connect } from "react-redux";
 import { withNavigation, Header } from "react-navigation";
 import { WaveIndicator } from "react-native-indicators";
 
 import CustomCarousel from "../../components/CustomCarousel";
+import Carousel from "react-native-snap-carousel";
 import RecommendUserCard from "../../components/RecommendUserCard";
 
 import baseUrl from "../../common/baseUrl";
 import config from "../../common/config";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
+import theme from "../../common/theme";
 
+const sliderHeight =
+  window.height - 2 * Header.HEIGHT - Constants.statusBarHeight;
 const carouselStyle = {
-  sliderWidth: window.width * 0.85,
-  sliderHeight: window.height * 0.65,
-  itemWidth: window.width * 0.7,
-  itemHeight: window.height * 0.5
+  sliderWidth: Math.floor(window.width),
+  sliderHeight: Math.floor(sliderHeight),
+  itemWidth: Math.floor(window.width * 0.7),
+  itemHeight: Math.floor(window.height * 0.5)
 };
 
 class UserRecommend extends React.Component {
@@ -30,6 +36,7 @@ class UserRecommend extends React.Component {
   componentDidMount() {
     this.fetchUserList();
   }
+
   fetchUserList = () => {
     const { client, navigation } = this.props;
     if (client && client.token) {
@@ -84,6 +91,7 @@ class UserRecommend extends React.Component {
   _renderItem = ({ item, index }) => {
     return (
       <RecommendUserCard
+        key={index}
         dataSource={item}
         itemWidth={carouselStyle.itemWidth}
         itemHeight={carouselStyle.itemHeight}
@@ -91,51 +99,88 @@ class UserRecommend extends React.Component {
     );
   };
 
+  renderCarouselSlider = () => {
+    const { userList } = this.state;
+    if (Platform.OS === "android") {
+      return (
+        <Carousel
+          contentContainerCustomStyle={{
+            justifyContent: "center",
+            alignItems: "center"
+          }}
+          sliderWidth={carouselStyle.sliderWidth}
+          sliderHeight={carouselStyle.sliderHeight}
+          itemWidth={carouselStyle.itemWidth}
+          itemHeight={carouselStyle.itemHeight}
+          data={userList}
+          renderItem={({ item, index }) => {
+            return (
+              <RecommendUserCard
+                key={index}
+                dataSource={item}
+                itemWidth={carouselStyle.itemWidth}
+                itemHeight={carouselStyle.itemHeight}
+              />
+            );
+          }}
+        />
+      );
+    }
+    return (
+      <CustomCarousel
+        contentContainerCustomStyle={{
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+        sliderWidth={carouselStyle.sliderWidth}
+        sliderHeight={carouselStyle.sliderHeight}
+        itemWidth={carouselStyle.itemWidth}
+        itemHeight={carouselStyle.itemHeight}
+        data={userList}
+        renderItem={({ item, index }) => {
+          return (
+            <RecommendUserCard
+              key={index}
+              dataSource={item}
+              itemWidth={carouselStyle.itemWidth}
+              itemHeight={carouselStyle.itemHeight}
+            />
+          );
+        }}
+      />
+    );
+  };
+
   renderCarousel = () => {
     const { fetching, userList } = this.state;
-    const {} = this.props;
+    const { appLocale } = this.props;
     if (!fetching && userList.length !== 0) {
       return (
         <View
           style={{
             width: "100%",
             height: "100%",
-            justifyContent: "space-around",
+            justifyContent: "center",
             alignItems: "center"
           }}
         >
-          <View
-            style={{ justifyContent: "center", alignItems: "center", flex: 1 }}
-          >
-            <Text style={{ fontWeight: "bold", fontSize: 18 }}>
-              {`${i18n.t("FOLLOW_USER_TO_SEE_STORY")}`}
-            </Text>
-          </View>
-          <View
+          <Text
             style={{
-              justifyContent: "center",
-              alignItems: "center",
-              flex: 4
+              fontWeight: "bold",
+              fontSize: 18,
+              position: "absolute",
+              top: theme.marginTop
             }}
           >
-            <CustomCarousel
-              containerStyle={{
-                height: "90%",
-                width: "100%",
-                marginTop: "10%"
-              }}
-              sliderWidth={carouselStyle.sliderWidth}
-              sliderHeight={carouselStyle.sliderHeight}
-              itemWidth={carouselStyle.itemWidth}
-              itemHeight={carouselStyle.itemHeight}
-              data={userList}
-              renderItem={this._renderItem}
-            />
+            {`${locale[appLocale]["FOLLOW_USER_TO_SEE_STORY"]}`}
+          </Text>
+          <View style={{ width: "100%", height: "100%" }}>
+            {this.renderCarouselSlider()}
           </View>
         </View>
       );
     } else {
-      return <WaveIndicator size={30} />;
+      return <WaveIndicator size={theme.indicatorLg} />;
     }
   };
 
@@ -146,7 +191,7 @@ class UserRecommend extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  i18n: state.app.i18n
+  appLocale: state.app.appLocale
 });
 
 export default connect(mapStateToProps)(withNavigation(UserRecommend));
@@ -154,7 +199,7 @@ export default connect(mapStateToProps)(withNavigation(UserRecommend));
 const styles = StyleSheet.create({
   container: {
     width: window.width,
-    height: window.height - 2 * Header.HEIGHT,
+    height: window.height - 2 * Header.HEIGHT - Constants.statusBarHeight,
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center"

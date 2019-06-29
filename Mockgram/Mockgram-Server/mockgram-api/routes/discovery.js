@@ -151,8 +151,8 @@ router.get("/tag-topic/hot", async (req, res) => {
   let limitParam = parseInt(req.query.limit);
   let limit = limitParam ? limitParam : 10;
   try {
-    let hotTags = await Tag.getHotTags(limit);
     let hotTopics = await Tag.getHotTopics(limit);
+    let hotTags = await Tag.getHotTags(limit);
     res.json({
       status: response.SUCCESS.OK.CODE,
       msg: response.SUCCESS.OK.MSG,

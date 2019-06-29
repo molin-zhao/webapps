@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   FlatList
 } from "react-native";
+import { Constants } from "expo";
 import { SkypeIndicator } from "react-native-indicators";
 import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 import ActionSheet from "react-native-actionsheet";
 import ViewMoreText from "react-native-view-more-text";
 import PropTypes from "prop-types";
-import { withNavigation } from "react-navigation";
+import { withNavigation, Header } from "react-navigation";
 
 import PostGridViewImage from "./PostGridViewImage";
 import Button from "./Button";
@@ -38,48 +39,57 @@ class UserProfile extends React.Component {
   mounted = false;
 
   static defaultProps = {
-    clientProfile: false
+    clientProfile: false,
+    avatar: "",
+    username: ""
   };
 
   static propTypes = {
-    clientProfile: PropTypes.bool
+    clientProfile: PropTypes.bool,
+    avatar: PropTypes.string,
+    username: PropTypes.string
   };
 
   constructor(props) {
     super(props);
-    const { clientProfile, myProfile, navigation, appLocale } = this.props;
+    const {
+      clientProfile,
+      myProfile,
+      id,
+      username,
+      avatar,
+      appLocale
+    } = this.props;
     this.state = {
       profile: {
-        _id: clientProfile ? myProfile._id : navigation.getParam("id"),
-        username: clientProfile
-          ? myProfile.username
-          : navigation.getParam("username"),
-        avatar: clientProfile
-          ? myProfile.avatar
-          : navigation.getParam("avatar"),
+        _id: clientProfile ? myProfile._id : id,
+        username: clientProfile ? myProfile.username : username,
+        avatar: clientProfile ? myProfile.avatar : avatar,
         postCount: 0,
         followerCount: 0,
         followingCount: 0,
         bio: ""
       },
       activeIndex: 0,
+      refreshing: false,
+      loading: false,
+      error: null,
+      followActionProcessing: false,
       created: {
         data: [],
-        hasMore: true
+        hasMore: true,
+        loadingMore: false
       },
       mentioned: {
         data: [],
-        hasMore: true
+        hasMore: true,
+        loadingMore: false
       },
       liked: {
         data: [],
-        hasMore: true
+        hasMore: true,
+        loadingMore: false
       },
-      refreshing: false,
-      loading: false,
-      loadingMore: false,
-      error: null,
-      followActionProcessing: false,
       tabBarComponents: [
         {
           icon: {
@@ -111,12 +121,6 @@ class UserProfile extends React.Component {
 
   componentDidMount() {
     this.mounted = true;
-    const { navigation, username, clientProfile } = this.props;
-    let title = navigation.getParam("username");
-    navigation.setParams({
-      profileTitle: title ? title : username,
-      clientProfile
-    });
     this.setState(
       {
         loading: true
@@ -195,8 +199,19 @@ class UserProfile extends React.Component {
       });
   };
 
+  _loadingMore = type => {
+    const { created, mentioned, liked } = this.state;
+    switch (type) {
+      case Types.CREATED_POST:
+        return created.loadingMore;
+      case Types.LIKED_POST:
+        return liked.loadingMore;
+      case Types.MENTIONED_POST:
+        return mentioned.loadingMore;
+    }
+  };
+
   fetchUserPosts = type => {
-    const { loadingMore } = this.state;
     const {
       clientProfile,
       id,
@@ -204,6 +219,7 @@ class UserProfile extends React.Component {
       addClientProfilePosts,
       reloadClientProfilePosts
     } = this.props;
+    let loadingMore = this._loadingMore(type);
     let lastData = this._getPostsByType(type);
     let lqDataIds = loadingMore ? parseIdFromObjectArray(lastData) : [];
     let lqDataLastItem = lastData.slice(-1).pop();
@@ -225,37 +241,23 @@ class UserProfile extends React.Component {
       .then(resJson => {
         if (this.mounted) {
           if (resJson.status === 200) {
+            let hasMore =
+              resJson.data.length < config.POST_RETURN_LIMIT ? false : true;
             if (clientProfile) {
               if (loadingMore) {
-                addClientProfilePosts(
-                  type,
-                  resJson.data,
-                  (hasMore =
-                    resJson.data.length < config.POST_RETURN_LIMIT
-                      ? false
-                      : true)
-                );
+                addClientProfilePosts(type, resJson.data, hasMore);
               } else {
-                reloadClientProfilePosts(type, resJson.data);
+                reloadClientProfilePosts(type, resJson.data, hasMore);
               }
             } else {
-              this._updatePostsByType(type, resJson.data, loadingMore);
+              this._updatePostsByType(type, resJson.data);
             }
           } else {
-            // error
+            // error resJson status !== 200
             this.setState({
               error: resJson.msg
             });
           }
-        }
-      })
-      .then(() => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            loadingMore: false,
-            refreshing: false
-          });
         }
       })
       .catch(err => {
@@ -276,45 +278,53 @@ class UserProfile extends React.Component {
         if (clientProfile) return myCreated.data;
         return created.data;
       case Types.MENTIONED_POST:
-        if (clientProfile) return myLiked.data;
-        return liked.data;
-      case Types.LIKED_POST:
         if (clientProfile) return myMentioned.data;
         return mentioned.data;
+      case Types.LIKED_POST:
+        if (clientProfile) return myLiked.data;
+        return liked.data;
     }
   };
 
-  _updatePostsByType = (type, data, loadingMore) => {
+  _updatePostsByType = (type, data) => {
+    const { loading, refreshing, created, liked, mentioned } = this.state;
+    let shouldReloadData = loading || refreshing;
     switch (type) {
       case Types.CREATED_POST:
-        return this.setState({
+        this.setState({
           created: {
-            data: loadingMore
-              ? data.new.concat(this.state.created.data).concat(data.old)
-              : data.old,
+            data:
+              created && !shouldReloadData
+                ? data.new.concat(this.state.created.data).concat(data.old)
+                : data.old,
             hasMore: data.length < config.POST_RETURN_LIMIT ? false : true
           }
         });
+        break;
       case Types.MENTIONED_POST:
-        return this.setState({
-          created: {
-            data: loadingMore
-              ? data.new.concat(this.state.mentioned.data).concat(data.old)
-              : data.old,
+        this.setState({
+          mentioned: {
+            data:
+              mentioned && !shouldReloadData
+                ? data.new.concat(this.state.mentioned.data).concat(data.old)
+                : data.old,
             hasMore: data.length < config.POST_RETURN_LIMIT ? false : true
           }
         });
+        break;
       case Types.LIKED_POST:
-        return this.setState({
-          created: {
-            data: loadingMore
-              ? data.new.concat(this.state.liked.data).concat(data.old)
-              : data.old,
+        this.setState({
+          liked: {
+            data:
+              liked && !shouldReloadData
+                ? data.new.concat(this.state.liked.data).concat(data.old)
+                : data.old,
             hasMore: data.length < config.POST_RETURN_LIMIT ? false : true
           }
         });
+        break;
       default:
-        return;
+        break;
     }
   };
 
@@ -373,51 +383,95 @@ class UserProfile extends React.Component {
   };
 
   onEndReached = () => {
-    const { activeIndex, created, liked, mentioned, loadingMore } = this.state;
+    const { activeIndex, created, liked, mentioned } = this.state;
     const { clientProfile, myCreated, myLiked, myMentioned } = this.props;
-    if (loadingMore) {
-      return;
-    }
-
-    if (activeIndex === 0) {
-      if (
-        (clientProfile && myCreated.hasMore) ||
-        (!clientProfile && created.hasMore)
-      )
-        return this.setState(
-          {
-            loadingMore: true
-          },
-          () => {
-            this.fetchUserPosts(Types.CREATED_POST);
-          }
-        );
-    } else if (activeIndex === 1) {
-      if (
-        (clientProfile && myLiked.hasMore) ||
-        (!clientProfile && liked.hasMore)
-      )
-        return this.setState(
-          {
-            loadingMore: true
-          },
-          () => {
-            this.fetchUserPosts(Types.LIKED_POST);
-          }
-        );
-    } else {
-      if (
-        (clientProfile && myMentioned.hasMore) ||
-        (!clientProfile && mentioned.hasMore)
-      )
-        return this.setState(
-          {
-            loadingMore: true
-          },
-          () => {
-            this.fetchUserPosts(Types.MENTIONED_POST);
-          }
-        );
+    switch (activeIndex) {
+      case 0:
+        if (created.loadingMore) return;
+        if (
+          (clientProfile && myCreated.hasMore) ||
+          (!clientProfile && created.hasMore)
+        ) {
+          this.setState(
+            {
+              created: {
+                ...created,
+                loadingMore: true
+              }
+            },
+            async () => {
+              await this.fetchUserPosts(Types.CREATED_POST);
+              if (this.mounted) {
+                this.setState({
+                  created: {
+                    ...created,
+                    loadingMore: false
+                  }
+                });
+              }
+            }
+          );
+          break;
+        }
+        break;
+      case 1:
+        if (liked.loadingMore) return;
+        if (
+          (clientProfile && myLiked.hasMore) ||
+          (!clientProfile && liked.hasMore)
+        ) {
+          this.setState(
+            {
+              liked: {
+                ...liked,
+                loadingMore: true
+              }
+            },
+            async () => {
+              await this.fetchUserPosts(Types.LIKED_POST);
+              if (this.mounted) {
+                this.setState({
+                  liked: {
+                    ...liked,
+                    loadingMore: false
+                  }
+                });
+              }
+            }
+          );
+          break;
+        }
+        break;
+      case 2:
+        if (mentioned.loadingMore) return;
+        if (
+          (clientProfile && myMentioned.hasMore) ||
+          (!clientProfile && mentioned.hasMore)
+        ) {
+          this.setState(
+            {
+              mentioned: {
+                ...mentioned,
+                loadingMore: true
+              }
+            },
+            async () => {
+              await this.fetchUserPosts(Types.MENTIONED_POST);
+              if (this.mounted) {
+                this.setState({
+                  mentioned: {
+                    ...mentioned,
+                    loadingMore: true
+                  }
+                });
+              }
+            }
+          );
+          break;
+        }
+        break;
+      default:
+        break;
     }
   };
 
@@ -432,9 +486,11 @@ class UserProfile extends React.Component {
           await this.fetchUserPosts(Types.CREATED_POST);
           await this.fetchUserPosts(Types.LIKED_POST);
           await this.fetchUserPosts(Types.MENTIONED_POST);
-          this.setState({
-            refreshing: false
-          });
+          if (this.mounted) {
+            this.setState({
+              refreshing: false
+            });
+          }
         }
       );
     }
@@ -447,27 +503,25 @@ class UserProfile extends React.Component {
       return null;
     }
     let followStyle = {
-      backgroundColor: theme.primaryColor
+      backgroundColor: theme.primaryColor,
+      height: 40,
+      width: 120
     };
     let followingStyle = {
       backgroundColor: "lightgrey",
-      borderColor: "black"
+      height: 40,
+      width: 120
     };
     return (
       <View
         style={{
-          marginTop: 15,
+          marginTop: theme.marginTop,
           justifyContent: "center",
-          alignItems: "center",
-          height: 50,
-          width: "80%"
+          alignItems: "center"
         }}
       >
         <Button
-          containerStyle={
-            ({ width: "90%", height: 40 },
-            profile.followed ? followingStyle : followStyle)
-          }
+          containerStyle={profile.followed ? followingStyle : followStyle}
           loading={this.state.followActionProcessing}
           disabled={this.state.followActionProcessing}
           titleStyle={{ fontSize: 14, color: "#fff", marginRight: 10 }}
@@ -651,8 +705,60 @@ class UserProfile extends React.Component {
     );
   };
 
+  _renderFooterContent = () => {
+    const { appLocale } = this.props;
+    return (
+      <View style={styles.footer}>
+        <Text style={{ color: "lightgrey", fontSize: 12 }}>
+          {`- ${locale[appLocale]["NO_MORE_POSTS"]} -`}
+        </Text>
+      </View>
+    );
+  };
+
+  renderFooter = () => {
+    const { created, liked, mentioned, loading, activeIndex } = this.state;
+    const { myCreated, myLiked, myMentioned, clientProfile } = this.props;
+    if (loading) return null;
+    if (clientProfile) {
+      switch (activeIndex) {
+        case 0:
+          if (myCreated.data.length > 0 && !myCreated.hasMore)
+            return this._renderFooterContent();
+          return null;
+        case 1:
+          if (myLiked.data.length > 0 && !myLiked.hasMore)
+            return this._renderFooterContent();
+          return null;
+        case 2:
+          if (myMentioned.data.length > 0 && !myMentioned.hasMore)
+            return this._renderFooterContent();
+          return null;
+        default:
+          return null;
+      }
+    } else {
+      switch (activeIndex) {
+        case 0:
+          if (created.data.length > 0 && !created.hasMore)
+            return this._renderFooterContent();
+          return null;
+        case 1:
+          if (liked.data.length > 0 && !liked.hasMore)
+            return this._renderFooterContent();
+          return null;
+        case 2:
+          if (mentioned.data.length > 0 && !mentioned.hasMore)
+            return this._renderFooterContent();
+          return null;
+        default:
+          return null;
+      }
+    }
+  };
+
   renderEmpty = () => {
-    const { activeIndex, created, liked, mentioned } = this.state;
+    const { activeIndex, created, liked, mentioned, loading } = this.state;
     const {
       clientProfile,
       myCreated,
@@ -660,6 +766,7 @@ class UserProfile extends React.Component {
       myMentioned,
       appLocale
     } = this.props;
+    if (loading) return null;
     switch (activeIndex) {
       case 0:
         if (
@@ -732,95 +839,100 @@ class UserProfile extends React.Component {
     if ((clientProfile && !myProfile) || loading) {
       return <SkypeIndicator size={theme.indicatorLg} />;
     }
+    let _created = clientProfile ? myCreated.data : created.data;
+    let _liked = clientProfile ? myLiked.data : liked.data;
+    let _mentioned = clientProfile ? myMentioned.data : mentioned.data;
     return (
       <View
         style={{
-          flex: 1,
+          width: "100%",
+          height: "100%",
           backgroundColor: "#fff",
           alignItems: "center",
           justifyContent: "flex-start"
         }}
       >
         <FlatList
-          extraData={this.state}
-          data={normalizeData(
-            clientProfile ? myCreated.data : created.data,
-            numColumns
-          )}
-          numColumns={numColumns}
+          extraData={clientProfile ? this.props : this.state}
+          data={normalizeData(_mentioned, numColumns)}
           refreshing={this.state.refreshing}
           onRefresh={this.onRefresh}
-          onEndReached={this.onEndReached}
-          onEndReachedThreshold={0.1}
+          numColumns={numColumns}
           style={{
             position: "absolute",
             top: 0,
-            backgroundColor: "#fff",
-            width: "100%",
-            flex: 1,
-            zIndex: this.activeIndex(1)
+            bottom: 0,
+            backgroundColor: "transparent",
+            width: window.width,
+            zIndex: this.activeIndex(2),
+            elevation: this.activeIndex(2),
+            opacity: this.activeIndex(2)
           }}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={0.1}
           ListHeaderComponent={this.renderContentHeader}
-          // ListFooterComponent={this.renderFooter}
+          ListFooterComponent={this.renderFooter}
           ListEmptyComponent={this.renderEmpty}
           keyExtractor={item => item._id}
           renderItem={({ item }) => (
             <PostGridViewImage dataSource={item} numColumns={numColumns} />
           )}
+          contentContainerStyle={{ backgroundColor: "#fff" }}
         />
         <FlatList
-          extraData={this.state}
-          refreshing={this.state.refreshing}
-          onRefresh={this.onRefresh}
-          onEndReached={this.onEndReached}
-          onEndReachedThreshold={0.1}
-          data={normalizeData(
-            clientProfile ? myLiked.data : liked.data,
-            numColumns
-          )}
+          data={normalizeData(_liked, numColumns)}
+          extraData={clientProfile ? this.props : this.state}
           numColumns={numColumns}
           style={{
+            width: window.width,
             position: "absolute",
             top: 0,
-            backgroundColor: "#fff",
-            width: "100%",
-            flex: 1,
-            zIndex: this.activeIndex(1)
+            bottom: 0,
+            backgroundColor: "transparent",
+            zIndex: this.activeIndex(1),
+            elevation: this.activeIndex(1),
+            opacity: this.activeIndex(1)
           }}
           ListHeaderComponent={this.renderContentHeader}
-          // ListFooterComponent={this.renderFooter}
+          ListFooterComponent={this.renderFooter}
           ListEmptyComponent={this.renderEmpty}
           keyExtractor={item => item._id}
           renderItem={({ item }) => (
             <PostGridViewImage dataSource={item} numColumns={numColumns} />
           )}
+          contentContainerStyle={{ backgroundColor: "#fff" }}
+          refreshing={this.state.refreshing}
+          onRefresh={this.onRefresh}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={0.1}
         />
+
         <FlatList
-          extraData={this.state}
+          data={normalizeData(_created, numColumns)}
+          extraData={clientProfile ? this.props : this.state}
+          numColumns={numColumns}
           refreshing={this.state.refreshing}
           onRefresh={this.onRefresh}
-          data={normalizeData(
-            clientProfile ? myMentioned.data : mentioned.data,
-            numColumns
-          )}
-          numColumns={numColumns}
-          style={{
-            position: "absolute",
-            top: 0,
-            backgroundColor: "#fff",
-            width: "100%",
-            flex: 1,
-            zIndex: this.activeIndex(2)
-          }}
           onEndReached={this.onEndReached}
           onEndReachedThreshold={0.1}
+          style={{
+            width: window.width,
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            backgroundColor: "transparent",
+            zIndex: this.activeIndex(0),
+            elevation: this.activeIndex(0),
+            opacity: this.activeIndex(0)
+          }}
           ListHeaderComponent={this.renderContentHeader}
-          // ListFooterComponent={this.renderFooter}
+          ListFooterComponent={this.renderFooter}
           ListEmptyComponent={this.renderEmpty}
           keyExtractor={item => item._id}
           renderItem={({ item }) => (
             <PostGridViewImage dataSource={item} numColumns={numColumns} />
           )}
+          contentContainerStyle={{ backgroundColor: "#fff" }}
         />
       </View>
     );
@@ -865,8 +977,8 @@ const mapDispatchToProps = dispatch => ({
   fetchClientProfile: token => dispatch(getClientProfile(token)),
   addClientProfilePosts: (type, data, hasMore) =>
     dispatch(addClientProfilePosts(type, data, hasMore)),
-  reloadClientProfilePosts: (type, data) =>
-    dispatch(reloadClientProfilePosts(type, data))
+  reloadClientProfilePosts: (type, data, hasMore) =>
+    dispatch(reloadClientProfilePosts(type, data, hasMore))
 });
 
 export default connect(
@@ -876,7 +988,8 @@ export default connect(
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: window.width,
+    height: window.height - Header.HEIGHT - Constants.statusBarHeight,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "flex-start"
@@ -916,9 +1029,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: "#eae5e5",
+    borderTopColor: theme.primaryGrey,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#eae5e5"
+    borderBottomColor: theme.primaryGrey,
+    zIndex: 1,
+    elevation: 1
   },
   tabCell: {
     flexDirection: "column",
@@ -942,7 +1057,6 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   footer: {
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     height: 60

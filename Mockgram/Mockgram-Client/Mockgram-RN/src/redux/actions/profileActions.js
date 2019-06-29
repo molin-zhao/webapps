@@ -50,11 +50,16 @@ export const removeClientProfilePost = (type, data) => ({
   payload: { type, data }
 });
 
-export const reloadClientProfilePosts = (type, data) => ({
+export const reloadClientProfilePosts = (type, data, hasMore) => ({
   type: ActionTypes.RELOAD_CLIENT_PROFILE_POST,
-  payload: { type, data }
+  payload: { type, data, hasMore }
 });
 
 export const removeClientProfileAvatar = () => ({
   type: ActionTypes.REMOVE_CLIENT_PROFILE_AVATAR
+});
+
+export const addToTopClientProfilePost = (type, data) => ({
+  type: ActionTypes.ADD_TO_TOP_CLIENT_PROFILE_POST,
+  payload: { type, data }
 });

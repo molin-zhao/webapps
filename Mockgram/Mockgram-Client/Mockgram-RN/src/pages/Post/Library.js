@@ -4,22 +4,14 @@ import { Permissions, ImagePicker } from "expo";
 import { connect } from "react-redux";
 import processImage from "../../utils/imageProcessing";
 
+import { updateAppPermission } from "../../redux/actions/appActions";
+import * as LocalKeys from "../../common/localKeys";
 import theme from "../../common/theme";
 import { locale } from "../../common/locale";
 
 class Libray extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      permissionAllowed: false
-    };
-  }
-
-  async componentWillMount() {
-    const { status } = await Permissions.getAsync(Permissions.CAMERA_ROLL);
-    this.setState({
-      permissionAllowed: status === "granted" ? true : false
-    });
   }
 
   choosePhotoFromLibrary = async () => {
@@ -36,10 +28,10 @@ class Libray extends React.Component {
     }
   };
   render() {
-    const { appLocale } = this.props;
+    const { appLocale, libraryPermission, updateAppPermission } = this.props;
     return (
       <View style={styles.container}>
-        {this.state.permissionAllowed ? (
+        {libraryPermission ? (
           <Button
             title={`${locale[appLocale]["CHOOSE_A_PHOTO"]}`}
             onPress={() => {
@@ -57,9 +49,8 @@ class Libray extends React.Component {
                 const { status } = await Permissions.askAsync(
                   Permissions.CAMERA_ROLL
                 );
-                this.setState({
-                  permissionAllowed: status === "granted" ? true : false
-                });
+                let val = status === "granted" ? true : false;
+                updateAppPermission(LocalKeys.PERMISSION_LIBRARY, val);
               }}
             >
               <Text style={{ color: theme.primaryBlue }}>
@@ -74,12 +65,18 @@ class Libray extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  appLocale: state.app.appLocale
+  appLocale: state.app.appLocale,
+  libraryPermission: state.app.libraryPermission
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateAppPermission: (type, value) =>
+    dispatch(updateAppPermission(type, value))
 });
 
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(Libray);
 const styles = StyleSheet.create({
   container: {

@@ -9,6 +9,7 @@ import { parseIdFromObjectArray } from "../../utils/idParser";
 import FollowingMessageListCell from "../../components/FollowingMessageUserListCell";
 import { Header, withNavigation } from "react-navigation";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
 class Following extends React.Component {
   constructor(props) {
@@ -107,6 +108,7 @@ class Following extends React.Component {
   };
 
   renderEmpty = () => {
+    const { appLocale } = this.props;
     if (this.state.error) {
       return (
         <View style={styles.messageContainer}>
@@ -116,13 +118,14 @@ class Following extends React.Component {
     }
     return (
       <View style={styles.messageContainer}>
-        <Text>{`- No following messages -`}</Text>
+        <Text>{`- ${locale[appLocale]["NO_FOLLOWING_MESSAGES"]} -`}</Text>
       </View>
     );
   };
 
   renderFooter = () => {
     const { hasMore } = this.state;
+    const { appLocale } = this.props;
     if (hasMore) {
       return (
         <View style={styles.listFooter}>
@@ -133,8 +136,7 @@ class Following extends React.Component {
     return (
       <View style={styles.listFooter}>
         <Text style={{ color: "grey", fontSize: 12 }}>
-          {" "}
-          - No more followings -{" "}
+          {`- ${locale[appLocale]["NO_MORE_FOLLOWING_MESSAGES"]} -`}
         </Text>
       </View>
     );
@@ -169,7 +171,8 @@ class Following extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  client: state.client.client
+  client: state.client.client,
+  appLocale: state.app.appLocale
 });
 
 export default connect(
@@ -185,9 +188,8 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   messageContainer: {
-    marginTop: -50,
     backgroundColor: "#fff",
-    height: window.height - Header.HEIGHT,
+    height: window.height - 2 * Header.HEIGHT,
     width: "100%",
     alignItems: "center",
     justifyContent: "center"

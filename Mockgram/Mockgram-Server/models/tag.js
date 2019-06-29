@@ -72,7 +72,7 @@ TagSchema.statics.updateCounts = function(tagIds, userId) {
 };
 
 TagSchema.statics.getHotTopics = function(limit) {
-  new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     return this.aggregate([
       {
         $match: {
@@ -95,6 +95,7 @@ TagSchema.statics.getHotTopics = function(limit) {
           participantsCount: {
             $size: "$participants"
           },
+          type: 1,
           name: 1,
           creator: {
             _id: 1,
@@ -151,6 +152,7 @@ TagSchema.statics.getHotTags = function(limit) {
           participantsCount: {
             $size: "$participants"
           },
+          type: 1,
           name: 1,
           creator: {
             _id: 1,

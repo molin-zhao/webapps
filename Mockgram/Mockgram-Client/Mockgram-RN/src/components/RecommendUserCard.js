@@ -102,21 +102,18 @@ class RecommendUserCard extends React.Component {
   renderButton = () => {
     const { dataSource } = this.state;
     const { appLocale } = this.props;
-    let followStyle = {
-      backgroundColor: theme.primaryColor
-    };
-    let followingStyle = {
-      backgroundColor: "lightgrey",
-      borderColor: "black"
-    };
     return (
       <Button
-        containerStyle={[
-          { width: 80, height: 40 },
-          dataSource.followed ? followingStyle : followStyle
-        ]}
+        containerStyle={{
+          width: 90,
+          height: 40,
+          backgroundColor: dataSource.followed
+            ? "lightgrey"
+            : theme.primaryColor,
+          borderColor: dataSource.followed ? "black" : null
+        }}
         loading={this.state.loading}
-        titleStyle={[{ fontSize: 14, color: "#fff" }]}
+        titleStyle={{ fontSize: 14, color: "#fff" }}
         iconRight={() => {
           if (dataSource.followed) {
             return <Ionicons name="md-checkmark" color="#fff" size={18} />;
@@ -142,7 +139,13 @@ class RecommendUserCard extends React.Component {
     const { itemWidth, itemHeight, appLocale } = this.props;
     return (
       <View
-        style={[styles.container, { width: itemWidth, height: itemHeight }]}
+        style={[
+          styles.container,
+          {
+            width: itemWidth,
+            height: itemHeight
+          }
+        ]}
       >
         <View style={styles.userDescription}>
           <View
@@ -175,7 +178,7 @@ class RecommendUserCard extends React.Component {
           </View>
         </View>
         <View style={styles.userPost}>{this.renderPosts()}</View>
-        <View style={styles.userFollowButton}>
+        <View style={styles.userFollowButton} pointerEvents="auto">
           <Text>{`${locale[appLocale]["FOLLOWER"]}: ${
             dataSource.followerCount
           }`}</Text>
@@ -225,7 +228,7 @@ const styles = StyleSheet.create({
   },
   userDescription: {
     width: "100%",
-    height: "30%",
+    height: "20%",
     justifyContent: "flex-start",
     alignItems: "center",
     flexDirection: "row"
@@ -240,7 +243,7 @@ const styles = StyleSheet.create({
   },
   userFollowButton: {
     width: "100%",
-    height: "20%",
+    height: "30%",
     justifyContent: "space-around",
     alignItems: "center"
   }

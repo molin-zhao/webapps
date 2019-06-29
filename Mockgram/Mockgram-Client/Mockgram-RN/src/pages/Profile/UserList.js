@@ -8,14 +8,17 @@ import {
 } from "react-native";
 import { SkypeIndicator } from "react-native-indicators";
 import { FontAwesome } from "@expo/vector-icons";
+import { connect } from "react-redux";
 
 import UserListCell from "../../components/UserListCell";
 import baseURL from "../../common/baseUrl";
 import config from "../../common/config";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import window from "../../utils/getDeviceInfo";
+import { locale } from "../../common/locale";
 
-export default class UserList extends React.Component {
+class UserList extends React.Component {
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -45,6 +48,7 @@ export default class UserList extends React.Component {
   });
 
   componentDidMount() {
+    this.mounted = true;
     const { userId, type } = this.state;
     let limit = config.USER_RETURN_LIMIT;
     this.setState(
@@ -55,6 +59,10 @@ export default class UserList extends React.Component {
         this.fetchUsers(userId, type, limit);
       }
     );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   fetchUsers = (userId, type, limit) => {
@@ -75,37 +83,52 @@ export default class UserList extends React.Component {
     })
       .then(res => res.json())
       .then(res => {
-        if (res.status === 200) {
-          this.setState({
-            data: this.state.loadingMore
-              ? this.state.data.concat(res.data)
-              : res.data,
-            hasMore: res.data.length < limit ? false : true
-          });
-        } else {
-          this.setState({
-            error: res.msg
-          });
+        if (this.mounted) {
+          if (res.status === 200) {
+            this.setState({
+              data: this.state.loadingMore
+                ? this.state.data.concat(res.data)
+                : res.data,
+              hasMore: res.data.length < limit ? false : true
+            });
+          } else {
+            this.setState({
+              error: res.msg
+            });
+          }
         }
       })
       .then(() => {
-        this.setState({
-          loading: false,
-          refreshing: false,
-          loadingMore: false
-        });
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            refreshing: false,
+            loadingMore: false
+          });
+        }
       })
       .catch(err => {
         console.log(err);
+        if (this.mounted) {
+          this.setState({
+            error: err
+          });
+        }
       });
   };
 
   listEmpty = () => {
+    const { appLocale } = this.props;
+    const { type } = this.state;
     return (
       <View style={styles.listEmpty}>
-        <Text style={{ fontSize: 12, marginTop: 20 }}>{` - No ${
-          this.state.type
-        }s - `}</Text>
+        <Text style={{ fontSize: 12, marginTop: 20 }}>{`- ${locale[appLocale][
+          "NO_MORE_VALUE"
+        ](
+          type === "Follower"
+            ? locale[appLocale]["FOLLOWER"]
+            : locale[appLocale]["FOLLOWING"]
+        )} -`}</Text>
       </View>
     );
   };
@@ -154,6 +177,7 @@ export default class UserList extends React.Component {
       hasMore,
       type
     } = this.state;
+    const { appLocale } = this.props;
     if (!loading && !loadingMore && !refreshing && data.length === 0) {
       return null;
     }
@@ -170,9 +194,13 @@ export default class UserList extends React.Component {
         {hasMore ? (
           <SkypeIndicator size={25} />
         ) : (
-          <Text
-            style={{ color: "grey", fontSize: 12 }}
-          >{`- No more ${type}s -`}</Text>
+          <Text style={{ color: "grey", fontSize: 12 }}>{`- ${locale[appLocale][
+            "NO_MORE_VALUE"
+          ](
+            type === "Follower"
+              ? locale[appLocale]["FOLLOWER"]
+              : locale[appLocale]["FOLLOWING"]
+          )} -`}</Text>
         )}
       </View>
     );
@@ -198,6 +226,15 @@ export default class UserList extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  appLocale: state.app.appLocale
+});
+
+export default connect(
+  mapStateToProps,
+  null
+)(UserList);
 
 const styles = StyleSheet.create({
   container: {
