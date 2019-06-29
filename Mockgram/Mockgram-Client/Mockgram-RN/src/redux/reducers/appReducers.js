@@ -29,6 +29,13 @@ export const app = (
         default:
           return { ...state };
       }
+    case ActionTypes.UPDATE_APP_PERMISSIONS_INIT:
+      return {
+        ...state,
+        cameraPermission: action.payload.cameraPermission,
+        libraryPermission: action.payload.libraryPermission,
+        locationPermission: action.payload.locationPermission
+      };
     default:
       return state;
   }
