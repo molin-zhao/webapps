@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multipart = require("connect-multiparty");
 const agent = require("superagent");
-const ObjectId = require("mongoose").Types.ObjectId;
+const gm = require("gm");
 
 // models
 const User = require("../../models/user");
@@ -35,19 +35,17 @@ router.post(
     let file = req.files.post;
     let dest = image.post;
     let limit = image.limit;
-    const result = await getFileName(dest, file);
-    if (result.err) {
-      return handleError(res, result.err);
-    }
-    let fileName = result.fileName;
-    let fileLocation = result.fileLocation;
+    const { err, fileName, fileLocation } = await getFileName(dest, file);
+    if (err) return handleError(res, result.err);
     let imagePersistencePath = `${image.postQuery}${fileName}`;
+    let imageThumbnailPath = `${image.thumbnailQuery}${fileName}`;
     let location = JSON.parse(req.body.location);
     let mentioned = convertStringArrToObjectIdArr(JSON.parse(req.body.mention));
     let tags = convertStringArrToObjectIdArr(JSON.parse(req.body.tags));
     let post = {
       creator: req.user._id,
       image: imagePersistencePath,
+      thumbnail: imageThumbnailPath,
       description: req.body.description,
       location,
       tags,
@@ -87,11 +85,18 @@ router.post(
           if (err) return handleError(res, err);
           uploadImage(limit, fileLocation, file, err => {
             if (err) return handleError(res, err);
-            return res.json({
-              status: response.SUCCESS.OK.CODE,
-              msg: response.SUCCESS.OK.MSG,
-              data: result
-            });
+            // generate thumbnail for post image
+            let thumbnailLocation = `${image.thumbnail}${fileName}`;
+            gm(fileLocation)
+              .resize(image.thumbnailSize, image.thumbnailSize)
+              .write(thumbnailLocation, err => {
+                if (err) return handleError(res, err);
+                return res.json({
+                  status: response.SUCCESS.OK.CODE,
+                  msg: response.SUCCESS.OK.MSG,
+                  data: result
+                });
+              });
           });
         });
     } catch (err) {
@@ -262,5 +267,20 @@ router.get(
       });
   }
 );
+
+router.get("/post/thumbnail", (req, res) => {
+  let imageName = req.query.name;
+  let imagePath = `${image.post}${imageName}`;
+  let thumbnailPath = `${image.thumbnail}${imageName}`;
+  gm(imagePath)
+    .resize(40, 40)
+    .write(thumbnailPath, err => {
+      if (err) return handleError(res, err);
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG
+      });
+    });
+});
 
 module.exports = router;
