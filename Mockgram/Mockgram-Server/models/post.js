@@ -4,7 +4,24 @@ const Schema = mongoose.Schema;
 const PostSchema = new Schema(
   {
     image: {
-      type: String,
+      /**
+       * image: {
+       *   file: 'https://image.mockgram.molinz.com/post/',
+       *   thumbnail: 'https://image.mockgram.molinz.com/thumbnail/'
+       * }
+       */
+      type: [
+        {
+          file: {
+            type: String,
+            required: true
+          },
+          thumbnail: {
+            type: String,
+            required: true
+          }
+        }
+      ],
       required: true
     },
     tags: {

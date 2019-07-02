@@ -1,17 +1,11 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Share
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Share } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ViewMoreText from "react-native-view-more-text";
 import ActionSheet from "react-native-actionsheet";
 
 import Thumbnail from "./Thumbnail";
+import ProgressiveImage from "./ProgressiveImage";
 
 import { connect } from "react-redux";
 import { withNavigation } from "react-navigation";
@@ -337,8 +331,9 @@ class PostCardComponent extends React.Component {
           </TouchableOpacity>
         </CardItemRow>
         <CardBody>
-          <Image
-            source={{ uri: dataSource.image }}
+          <ProgressiveImage
+            thumbnailSource={{ uri: dataSource.image.thumbnail }}
+            source={{ uri: dataSource.image.file }}
             style={{
               height: window.width,
               width: window.width,

@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Image, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { withNavigation } from "react-navigation";
 import { Ionicons } from "@expo/vector-icons";
+
+import ProgressiveImage from "./ProgressiveImage";
 
 import window from "../utils/getDeviceInfo";
 import { numberConverter } from "../utils/unitConverter";
@@ -48,7 +50,7 @@ class RecommendGridViewImage extends React.Component {
           alignItems: "center"
         }}
       >
-        <Image
+        <ProgressiveImage
           source={{ uri: dataSource.image }}
           style={{
             width: "95%",

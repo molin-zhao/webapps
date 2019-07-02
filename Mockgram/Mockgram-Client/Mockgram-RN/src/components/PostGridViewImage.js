@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Image, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { withNavigation } from "react-navigation";
 import { Ionicons } from "@expo/vector-icons";
+
+import ProgressiveImage from "./ProgressiveImage";
 
 import window from "../utils/getDeviceInfo";
 import { numberConverter } from "../utils/unitConverter";
@@ -47,8 +49,9 @@ class PostGridViewImage extends React.Component {
           alignItems: "center"
         }}
       >
-        <Image
-          source={{ uri: dataSource.image }}
+        <ProgressiveImage
+          thumbnailSource={{ uri: dataSource.image.thumbnail }}
+          source={{ uri: dataSource.image.file }}
           style={{
             width: "95%",
             height: "95%",
