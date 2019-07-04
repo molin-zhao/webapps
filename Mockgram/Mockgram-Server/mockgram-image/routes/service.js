@@ -3,7 +3,7 @@ const multipart = require("connect-multiparty");
 const cors = require("cors");
 const agent = require("superagent");
 const {
-  deteleFileAsync,
+  deleteFileAsync,
   getFileName,
   uploadImage
 } = require("../../utils/fileUpload");
@@ -26,9 +26,9 @@ router.post("/object-detection", cors(), multipart(), async (req, res) => {
       .get(`${serverNodes.mlServer}/object-detection?image=${imageQueryPath}`)
       .set("Accept", "application/json")
       .end(async (err, resp) => {
-        if (err) return handleError(res, err);
+        if (err) throw new Error(err);
         try {
-          await deteleFileAsync(fileLocation);
+          await deleteFileAsync(fileLocation);
           let djangoRes = JSON.parse(resp.text);
           if (djangoRes.status !== 200) {
             return res.json({
