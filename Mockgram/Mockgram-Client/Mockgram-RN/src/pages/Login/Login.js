@@ -19,7 +19,6 @@ import {
   oAuthLogin
 } from "../../redux/actions/clientActions";
 
-import SocialIcon from "../../components/SocialIcon";
 import CheckBox from "../../components/CheckBox";
 import IconInput from "../../components/IconInput";
 import Button from "../../components/Button";

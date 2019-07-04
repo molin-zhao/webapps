@@ -1,12 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Share } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Share,
+  Image
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ViewMoreText from "react-native-view-more-text";
 import ActionSheet from "react-native-actionsheet";
-import {
-  ParallaxSwiper,
-  ParallaxSwiperPage
-} from "react-native-parallax-swiper";
+import Carousel from "react-native-banner-carousel";
 
 import Thumbnail from "./Thumbnail";
 import ProgressiveImage from "./ProgressiveImage";
@@ -287,31 +291,42 @@ class PostCardComponent extends React.Component {
     if (dataSource.image.length > 1) {
       // use banner to show images
       return (
-        <ParallaxSwiper
-          speed={0.75}
-          backgroundColor="#fff"
-          dividerWidth={0}
-          onMomentumScrollEnd={index => this.setState({ activeIndex: index })}
-          showsHorizontalScrollIndicator={true}
+        <View
+          style={{
+            width: window.width,
+            height: window.width,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#fff"
+          }}
         >
-          {dataSource.image.map((img, index) => (
-            <ParallaxSwiperPage
-              key={index}
-              BackgroundComponent={
-                <ProgressiveImage
-                  thumbnailSource={{ uri: img.thumbnail }}
-                  source={{ uri: img.file }}
-                  style={{
-                    height: window.width,
-                    width: window.width,
-                    backgroundColor: theme.primaryGrey
-                  }}
-                  resizeMode="cover"
-                />
-              }
-            />
-          ))}
-        </ParallaxSwiper>
+          <Carousel
+            activePageIndicatorStyle={{ backgroundColor: theme.primaryColor }}
+            pageIndicatorStyle={{ backgroundColor: "lightgrey" }}
+            pageSize={window.width}
+            loop={false}
+            autoplay={false}
+            onPageChanged={index => {
+              this.setState({
+                activeIndex: index
+              });
+            }}
+          >
+            {dataSource.image.map((img, index) => (
+              <ProgressiveImage
+                key={index}
+                thumbnailSource={{ uri: img.thumbnail }}
+                source={{ uri: img.file }}
+                style={{
+                  height: window.width,
+                  width: window.width,
+                  backgroundColor: theme.primaryGrey
+                }}
+                resizeMode="cover"
+              />
+            ))}
+          </Carousel>
+        </View>
       );
     }
     let image = dataSource.image[0];
@@ -335,32 +350,26 @@ class PostCardComponent extends React.Component {
       return (
         <View
           style={{
+            width: "30%",
+            height: "100%",
             alignSelf: "center",
-            justifyContent: "space-evenly",
+            justifyContent: "center",
             alignItems: "center",
             flexDirection: "row"
           }}
         >
           {images.map((img, index) => {
-            if (index === activeIndex) {
-              return (
-                <View
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: 3,
-                    backgroundColor: theme.primaryColor
-                  }}
-                />
-              );
-            }
             return (
               <View
+                key={index}
                 style={{
-                  width: 4,
-                  height: 4,
-                  borderRadius: 2,
-                  backgroundColor: theme.primaryGrey
+                  marginLeft: 1,
+                  marginRight: 1,
+                  width: index === activeIndex ? 8 : 6,
+                  height: index === activeIndex ? 8 : 6,
+                  borderRadius: index === activeIndex ? 4 : 3,
+                  backgroundColor:
+                    index === activeIndex ? theme.primaryColor : "lightgrey"
                 }}
               />
             );
@@ -426,7 +435,13 @@ class PostCardComponent extends React.Component {
         </CardItemRow>
         <CardBody>{this.renderImage()}</CardBody>
         <CardItemRow
-          style={[styles.cardItemRow, { marginTop: 10, height: 50 }]}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+            marginTop: 10,
+            height: 50
+          }}
         >
           <Left>
             <View style={styles.cardLabels}>
@@ -479,7 +494,7 @@ class PostCardComponent extends React.Component {
               </View>
             </View>
           </Left>
-          {this.renderPagination()}
+          {/* {this.renderPagination()} */}
         </CardItemRow>
         <CardItemCol style={styles.cardItemCol}>
           <ViewMoreText

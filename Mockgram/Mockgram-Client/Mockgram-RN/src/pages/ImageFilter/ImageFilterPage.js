@@ -14,7 +14,7 @@ import { Surface } from "gl-react-expo";
 import GLImage from "gl-react-image";
 import { Header } from "react-navigation";
 import { SkypeIndicator, BallIndicator } from "react-native-indicators";
-import { takeSnapshotAsync, FileSystem } from "expo";
+import { takeSnapshotAsync, FileSystem, Constants } from "expo";
 import { connect } from "react-redux";
 
 import { addAImage } from "../../redux/actions/feedActions";
@@ -96,20 +96,6 @@ class ImageFilterPage extends React.Component {
             backgroundColor: "transparent"
           }}
         >
-          {/* <Image
-            source={{ uri: imageUri.uri }}
-            style={[
-              {
-                position: "absolute",
-                top: 0,
-                width: "100%",
-                height: "100%",
-                zIndex: 1
-              },
-              { opacity: filterSelection === shaderNames.Normal ? 1 : 0 }
-            ]}
-            resizeMode="center"
-          /> */}
           <Surface
             style={{
               position: "absolute",
@@ -551,9 +537,15 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent"
   },
   mainImage: {
-    marginTop: (window.height * 0.9 - 200 - window.width * 0.85) / 2,
-    width: window.width * 0.85,
-    height: window.width * 0.85,
+    marginTop:
+      (window.height -
+        Constants.statusBarHeight -
+        Header.HEIGHT -
+        modalStyle.height -
+        window.width) /
+      2,
+    width: window.width,
+    height: window.width,
     justifyContent: "center",
     alignItems: "center"
   },

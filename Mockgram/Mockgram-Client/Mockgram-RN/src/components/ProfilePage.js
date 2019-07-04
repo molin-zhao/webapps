@@ -200,7 +200,8 @@ class UserProfile extends React.Component {
   };
 
   _loadingMore = type => {
-    const { created, mentioned, liked } = this.state;
+    const { created, mentioned, liked, loading, refreshing } = this.state;
+    if (loading || refreshing) return false;
     switch (type) {
       case Types.CREATED_POST:
         return created.loadingMore;
@@ -208,6 +209,8 @@ class UserProfile extends React.Component {
         return liked.loadingMore;
       case Types.MENTIONED_POST:
         return mentioned.loadingMore;
+      default:
+        return false;
     }
   };
 
@@ -222,20 +225,21 @@ class UserProfile extends React.Component {
     let loadingMore = this._loadingMore(type);
     let lastData = this._getPostsByType(type);
     let lqDataIds = loadingMore ? parseIdFromObjectArray(lastData) : [];
-    let lqDataLastItem = lastData.slice(-1).pop();
+    let lqDataLastItem = loadingMore ? lastData.slice(-1).pop() : null;
+    let body = JSON.stringify({
+      limit: config.POST_RETURN_LIMIT,
+      userId: clientProfile ? client.user._id : id,
+      lastQueryDataIds: lqDataIds,
+      type,
+      lastQueryDataLastItem: lqDataLastItem
+    });
     return fetch(`${baseUrl.api}/profile/post`, {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        limit: config.POST_RETURN_LIMIT,
-        userId: clientProfile ? client.user._id : id,
-        lastQueryDataIds: lqDataIds,
-        type,
-        lastQueryDataLastItem: lqDataLastItem
-      })
+      body
     })
       .then(res => res.json())
       .then(resJson => {

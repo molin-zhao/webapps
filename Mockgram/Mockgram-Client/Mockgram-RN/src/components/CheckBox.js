@@ -74,7 +74,13 @@ class CheckBox extends React.Component {
       >
         {this.renderLeftIonicons()}
         <View style={[styles.titleContainerStyle, titleContainerStyle]}>
-          <Text style={[styles.titleStyle, titleStyle]}>{title}</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[styles.titleStyle, titleStyle]}
+          >
+            {title}
+          </Text>
         </View>
         {this.renderRightIonicons()}
       </TouchableOpacity>
@@ -95,7 +101,7 @@ const styles = StyleSheet.create({
     marginRight: 10
   },
   titleStyle: {
-    fontSize: 14,
+    fontSize: 12,
     color: "grey"
   }
 });

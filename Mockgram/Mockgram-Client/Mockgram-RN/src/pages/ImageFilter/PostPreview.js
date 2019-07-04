@@ -142,7 +142,7 @@ class PostPreview extends React.Component {
         () => {
           uploadingPost();
           let url = `${baseUrl.upload}/upload/post`;
-          fetch("http://localhost:3032/upload/post", {
+          fetch(url, {
             method: "POST",
             headers: {
               Accept: "application/json",
@@ -344,16 +344,16 @@ class PostPreview extends React.Component {
                 height: "90%",
                 borderRadius: 5,
                 borderWidth: 1,
-                borderColor: 1
+                borderColor: "black"
               }}
             />
-            {index > 1 ? (
+            {index > 0 ? (
               <FontAwesome
                 style={{
                   position: "absolute",
                   top: 0,
                   right: 0,
-                  backgroundColor: "#fff"
+                  backgroundColor: "transparent"
                 }}
                 size={theme.iconSm}
                 name="times"

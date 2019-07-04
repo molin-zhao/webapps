@@ -16,6 +16,7 @@ import config from "../../common/config";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import window from "../../utils/getDeviceInfo";
 import { locale } from "../../common/locale";
+import theme from "../../common/theme";
 
 class UserList extends React.Component {
   mounted = false;
@@ -56,7 +57,12 @@ class UserList extends React.Component {
         loading: true
       },
       () => {
-        this.fetchUsers(userId, type, limit);
+        await this.fetchUsers(userId, type, limit);
+        if(this.mounted){
+          this.setState({
+            laoding: false
+          })
+        }
       }
     );
   }
@@ -98,15 +104,6 @@ class UserList extends React.Component {
           }
         }
       })
-      .then(() => {
-        if (this.mounted) {
-          this.setState({
-            loading: false,
-            refreshing: false,
-            loadingMore: false
-          });
-        }
-      })
       .catch(err => {
         console.log(err);
         if (this.mounted) {
@@ -119,7 +116,8 @@ class UserList extends React.Component {
 
   listEmpty = () => {
     const { appLocale } = this.props;
-    const { type } = this.state;
+    const { type, loading, loadingMore, refreshing } = this.state;
+    if(loading || loadingMore || refreshing) return null;
     return (
       <View style={styles.listEmpty}>
         <Text style={{ fontSize: 12, marginTop: 20 }}>{`- ${locale[appLocale][
@@ -142,7 +140,12 @@ class UserList extends React.Component {
           refreshing: true
         },
         () => {
-          this.fetchUsers(userId, type, limit);
+          await this.fetchUsers(userId, type, limit);
+          if(this.mounted){
+            this.setState({
+              refreshing: false
+            })
+          }
         }
       );
     }
@@ -162,7 +165,12 @@ class UserList extends React.Component {
           loadingMore: true
         },
         () => {
-          this.fetchUsers(userId, type, limit);
+          await this.fetchUsers(userId, type, limit);
+          if(this.mounted){
+            this.setState({
+              loadingMore: true
+            })
+          }
         }
       );
     }
@@ -178,50 +186,58 @@ class UserList extends React.Component {
       type
     } = this.state;
     const { appLocale } = this.props;
-    if (!loading && !loadingMore && !refreshing && data.length === 0) {
-      return null;
+    if (!loading && !loadingMore && !refreshing && !hasMore && data.length > 0 ) {
+      return (
+        <View
+          style={{
+            backgroundColor: "#fff",
+            justifyContent: "center",
+            alignItems: "center",
+            height: window.height * 0.1,
+            width: "100%"
+          }}
+        >
+          {hasMore ? (
+            <SkypeIndicator size={25} />
+          ) : (
+            <Text style={{ color: "grey", fontSize: 12 }}>{`- ${locale[appLocale][
+              "NO_MORE_VALUE"
+            ](
+              type === "Follower"
+                ? locale[appLocale]["FOLLOWER"]
+                : locale[appLocale]["FOLLOWING"]
+            )} -`}</Text>
+          )}
+        </View>
+      );
     }
-    return (
-      <View
-        style={{
-          backgroundColor: "#fff",
-          justifyContent: "center",
-          alignItems: "center",
-          height: window.height * 0.1,
-          width: "100%"
-        }}
-      >
-        {hasMore ? (
-          <SkypeIndicator size={25} />
-        ) : (
-          <Text style={{ color: "grey", fontSize: 12 }}>{`- ${locale[appLocale][
-            "NO_MORE_VALUE"
-          ](
-            type === "Follower"
-              ? locale[appLocale]["FOLLOWER"]
-              : locale[appLocale]["FOLLOWING"]
-          )} -`}</Text>
-        )}
-      </View>
-    );
+    return null;
   };
+
+  renderContent = () => {
+    const {loading} = this.state;
+    if(loading){
+      return <SkypeIndicator size={theme.indicatorLg}/>
+    }
+    return <FlatList
+    data={this.state.data}
+    style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
+    contentContainerStyle={{ backgroundColor: "#fff" }}
+    renderItem={({ item }) => <UserListCell dataSource={item} />}
+    ListEmptyComponent={this.listEmpty}
+    keyExtractor={item => item._id}
+    onRefresh={this.handleRefresh}
+    refreshing={this.state.refreshing}
+    ListFooterComponent={this.renderFooter}
+    onEndReached={this.handleLoadMore}
+    onEndReachedThreshold={0.2}
+  />
+  }
 
   render() {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={this.state.data}
-          style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
-          contentContainerStyle={{ backgroundColor: "#fff" }}
-          renderItem={({ item }) => <UserListCell dataSource={item} />}
-          ListEmptyComponent={this.listEmpty}
-          keyExtractor={item => item._id}
-          onRefresh={this.handleRefresh}
-          refreshing={this.state.refreshing}
-          ListFooterComponent={this.renderFooter}
-          onEndReached={this.handleLoadMore}
-          onEndReachedThreshold={0.2}
-        />
+        {this.renderContent()}
       </View>
     );
   }
