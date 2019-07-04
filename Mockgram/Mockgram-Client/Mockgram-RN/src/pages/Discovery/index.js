@@ -87,6 +87,12 @@ class DiscoveryIndex extends React.Component {
     let container = navigation.getParam("container");
     if (container) {
       return {
+        headerStyle: {
+          borderBottomColor: "transparent",
+          borderBottomWidth: 0,
+          shadowColor: "transparent",
+          elevation: 0
+        },
         headerTitle: (
           <SearchBarView
             containerStyle={{ width: window.width, height: "80%" }}

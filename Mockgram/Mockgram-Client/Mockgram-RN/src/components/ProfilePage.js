@@ -130,9 +130,11 @@ class UserProfile extends React.Component {
         await this.fetchUserPosts(Types.CREATED_POST);
         await this.fetchUserPosts(Types.LIKED_POST);
         await this.fetchUserPosts(Types.MENTIONED_POST);
-        this.setState({
-          loading: false
-        });
+        if (this.mounted) {
+          this.setState({
+            loading: false
+          });
+        }
       }
     );
   }

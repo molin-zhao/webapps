@@ -10,8 +10,10 @@ import FollowingMessageListCell from "../../components/FollowingMessageUserListC
 import { Header, withNavigation } from "react-navigation";
 import window from "../../utils/getDeviceInfo";
 import { locale } from "../../common/locale";
+import theme from "../../common/theme";
 
 class Following extends React.Component {
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -25,11 +27,24 @@ class Following extends React.Component {
   }
 
   componentDidMount() {
-    const { client, navigation } = this.props;
-    if (!client) {
-      return navigation.navigate("Auth");
-    }
-    this.fetchFollowingList();
+    this.mounted = true;
+    this.setState(
+      {
+        loading: true
+      },
+      async () => {
+        await this.fetchFollowingList();
+        if (this.mounted) {
+          this.setState({
+            loading: false
+          });
+        }
+      }
+    );
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   fetchFollowingList = () => {
@@ -82,8 +97,13 @@ class Following extends React.Component {
         {
           refreshing: true
         },
-        () => {
-          this.fetchFollowingList();
+        async () => {
+          await this.fetchFollowingList();
+          if (this.mounted) {
+            this.setState({
+              refreshing: false
+            });
+          }
         }
       );
     }
@@ -100,8 +120,13 @@ class Following extends React.Component {
         {
           loadingMore: true
         },
-        () => {
-          this.fetchFollowingList();
+        async () => {
+          await this.fetchFollowingList();
+          if (this.mounted) {
+            this.setState({
+              loadingMore: false
+            });
+          }
         }
       );
     }
@@ -109,6 +134,8 @@ class Following extends React.Component {
 
   renderEmpty = () => {
     const { appLocale } = this.props;
+    const { loading, refreshing } = this.state;
+    if (loading || refreshing) return null;
     if (this.state.error) {
       return (
         <View style={styles.messageContainer}>
@@ -124,9 +151,10 @@ class Following extends React.Component {
   };
 
   renderFooter = () => {
-    const { hasMore } = this.state;
+    const { hasMore, loading, refreshing, loadingMore } = this.state;
     const { appLocale } = this.props;
-    if (hasMore) {
+    if (loading || refreshing) return null;
+    if (hasMore && loadingMore) {
       return (
         <View style={styles.listFooter}>
           <SkypeIndicator size={25} />
@@ -142,31 +170,37 @@ class Following extends React.Component {
     );
   };
 
-  render() {
+  renderContent = () => {
+    const { loading } = this.state;
+    if (loading) {
+      return <SkypeIndicator size={theme.indicatorLg} />;
+    }
     return (
-      <View style={styles.container}>
-        <FlatList
-          style={{
-            backgroundColor: "#fff",
-            width: "100%",
-            marginTop: 0,
-            flex: 1
-          }}
-          contentContainerStyle={{ flex: 1 }}
-          data={this.state.data}
-          renderItem={({ item }) => {
-            return <FollowingMessageListCell dataSource={item} />;
-          }}
-          onRefresh={this.handleRefresh}
-          refreshing={this.state.refreshing}
-          ListFooterComponent={this.renderFooter}
-          ListEmptyComponent={this.renderEmpty}
-          onEndReached={this.handleLoadMore}
-          onEndReachedThreshold={0.1}
-          keyExtractor={item => item._id}
-        />
-      </View>
+      <FlatList
+        style={{
+          backgroundColor: "#fff",
+          width: "100%",
+          marginTop: 0,
+          flex: 1
+        }}
+        contentContainerStyle={{ flex: 1 }}
+        data={this.state.data}
+        renderItem={({ item }) => {
+          return <FollowingMessageListCell dataSource={item} />;
+        }}
+        onRefresh={this.handleRefresh}
+        refreshing={this.state.refreshing}
+        ListFooterComponent={this.renderFooter}
+        ListEmptyComponent={this.renderEmpty}
+        onEndReached={this.handleLoadMore}
+        onEndReachedThreshold={0.1}
+        keyExtractor={item => item._id}
+      />
     );
+  };
+
+  render() {
+    return <View style={styles.container}>{this.renderContent()}</View>;
   }
 }
 

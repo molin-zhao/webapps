@@ -37,7 +37,10 @@ class HomeIndex extends React.Component {
     return {
       title: "Mockgram",
       headerStyle: {
-        backgroundColor: "#fff"
+        borderBottomColor: "transparent",
+        borderBottomWidth: 0,
+        shadowColor: "transparent",
+        elevation: 0
       },
       headerTitleStyle: {
         color: "black",

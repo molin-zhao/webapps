@@ -51,17 +51,16 @@ class UserList extends React.Component {
   componentDidMount() {
     this.mounted = true;
     const { userId, type } = this.state;
-    let limit = config.USER_RETURN_LIMIT;
     this.setState(
       {
         loading: true
       },
-      () => {
-        await this.fetchUsers(userId, type, limit);
-        if(this.mounted){
+      async () => {
+        await fetchUsers(userId, type, config.USER_RETURN_LIMIT);
+        if (this.mounted) {
           this.setState({
-            laoding: false
-          })
+            loading: false
+          });
         }
       }
     );
@@ -117,7 +116,7 @@ class UserList extends React.Component {
   listEmpty = () => {
     const { appLocale } = this.props;
     const { type, loading, loadingMore, refreshing } = this.state;
-    if(loading || loadingMore || refreshing) return null;
+    if (loading || loadingMore || refreshing) return null;
     return (
       <View style={styles.listEmpty}>
         <Text style={{ fontSize: 12, marginTop: 20 }}>{`- ${locale[appLocale][
@@ -139,12 +138,12 @@ class UserList extends React.Component {
         {
           refreshing: true
         },
-        () => {
+        async () => {
           await this.fetchUsers(userId, type, limit);
-          if(this.mounted){
+          if (this.mounted) {
             this.setState({
               refreshing: false
-            })
+            });
           }
         }
       );
@@ -164,12 +163,12 @@ class UserList extends React.Component {
         {
           loadingMore: true
         },
-        () => {
+        async () => {
           await this.fetchUsers(userId, type, limit);
-          if(this.mounted){
+          if (this.mounted) {
             this.setState({
               loadingMore: true
-            })
+            });
           }
         }
       );
@@ -186,7 +185,13 @@ class UserList extends React.Component {
       type
     } = this.state;
     const { appLocale } = this.props;
-    if (!loading && !loadingMore && !refreshing && !hasMore && data.length > 0 ) {
+    if (
+      !loading &&
+      !loadingMore &&
+      !refreshing &&
+      !hasMore &&
+      data.length > 0
+    ) {
       return (
         <View
           style={{
@@ -200,9 +205,9 @@ class UserList extends React.Component {
           {hasMore ? (
             <SkypeIndicator size={25} />
           ) : (
-            <Text style={{ color: "grey", fontSize: 12 }}>{`- ${locale[appLocale][
-              "NO_MORE_VALUE"
-            ](
+            <Text style={{ color: "grey", fontSize: 12 }}>{`- ${locale[
+              appLocale
+            ]["NO_MORE_VALUE"](
               type === "Follower"
                 ? locale[appLocale]["FOLLOWER"]
                 : locale[appLocale]["FOLLOWING"]
@@ -215,31 +220,29 @@ class UserList extends React.Component {
   };
 
   renderContent = () => {
-    const {loading} = this.state;
-    if(loading){
-      return <SkypeIndicator size={theme.indicatorLg}/>
+    const { loading } = this.state;
+    if (loading) {
+      return <SkypeIndicator size={theme.indicatorLg} />;
     }
-    return <FlatList
-    data={this.state.data}
-    style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
-    contentContainerStyle={{ backgroundColor: "#fff" }}
-    renderItem={({ item }) => <UserListCell dataSource={item} />}
-    ListEmptyComponent={this.listEmpty}
-    keyExtractor={item => item._id}
-    onRefresh={this.handleRefresh}
-    refreshing={this.state.refreshing}
-    ListFooterComponent={this.renderFooter}
-    onEndReached={this.handleLoadMore}
-    onEndReachedThreshold={0.2}
-  />
-  }
+    return (
+      <FlatList
+        data={this.state.data}
+        style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
+        contentContainerStyle={{ backgroundColor: "#fff" }}
+        renderItem={({ item }) => <UserListCell dataSource={item} />}
+        ListEmptyComponent={this.listEmpty}
+        keyExtractor={item => item._id}
+        onRefresh={this.handleRefresh}
+        refreshing={this.state.refreshing}
+        ListFooterComponent={this.renderFooter}
+        onEndReached={this.handleLoadMore}
+        onEndReachedThreshold={0.2}
+      />
+    );
+  };
 
   render() {
-    return (
-      <View style={styles.container}>
-        {this.renderContent()}
-      </View>
-    );
+    return <View style={styles.container}>{this.renderContent()}</View>;
   }
 }
 
