@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { withNavigation } from "react-navigation";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -49,19 +49,17 @@ class PostGridViewImage extends React.Component {
           alignItems: "center"
         }}
       >
-        <ProgressiveImage
-          thumbnailSource={{ uri: dataSource.image.thumbnail }}
-          source={{ uri: dataSource.image.file }}
+        <Image
+          source={{ uri: dataSource.image[0].file }}
           style={{
             width: "95%",
             height: "95%",
             backgroundColor: theme.primaryGrey
           }}
         />
-        {/* {
-                    dataSource.image ?
-                        this.renderMetaIonicons('ios-photos', { top: '5%', right: '5%' }) : null
-                } */}
+        {dataSource.image.length > 1
+          ? this.renderMetaIonicons("ios-photos", { top: "5%", right: "5%" })
+          : null}
         {this.renderMetaIonicons(
           "md-heart",
           { bottom: "5%", left: "5%" },

@@ -14,9 +14,10 @@ import { Surface } from "gl-react-expo";
 import GLImage from "gl-react-image";
 import { Header } from "react-navigation";
 import { SkypeIndicator, BallIndicator } from "react-native-indicators";
-import { takeSnapshotAsync } from "expo";
+import { takeSnapshotAsync, FileSystem } from "expo";
 import { connect } from "react-redux";
 
+import { addAImage } from "../../redux/actions/feedActions";
 import Modal from "../../components/Modal";
 import MyHeader from "../../components/Header";
 
@@ -442,15 +443,15 @@ class ImageFilterPage extends React.Component {
   };
 
   next = async () => {
-    const { navigation } = this.props;
+    const { navigation, addAImage } = this.props;
     const result = await takeSnapshotAsync(this._mainImageView, opt);
-    navigation.push("PostPreview", {
-      imageUri: result
-    });
+    addAImage(result);
+    navigation.navigate("PostPreview");
   };
 
   render() {
-    const { appLocale } = this.props;
+    const { appLocale, navigation } = this.props;
+    const { imageUri } = this.state;
     return (
       <View style={styles.container}>
         {this.renderImageBackground()}
@@ -479,8 +480,15 @@ class ImageFilterPage extends React.Component {
                   name="chevron-left"
                   size={theme.iconSm}
                   onPress={() => {
-                    const { navigation } = this.props;
-                    navigation.dismiss();
+                    FileSystem.deleteAsync(imageUri.uri)
+                      .then(() => {
+                        console.log(`deleted ${imageUri.uri}`);
+                      })
+                      .catch(err => {
+                        console.log(err);
+                        console.log(`cannot deleted ${imageUri.uri}`);
+                      });
+                    navigation.pop();
                   }}
                 />
               );
@@ -500,9 +508,13 @@ const mapStateToProps = state => ({
   appLocale: state.app.appLocale
 });
 
+const mapDispatchToProps = dispatch => ({
+  addAImage: uri => dispatch(addAImage(uri))
+});
+
 export default connect(
   mapStateToProps,
-  null
+  mapDispatchToProps
 )(ImageFilterPage);
 
 const styles = StyleSheet.create({

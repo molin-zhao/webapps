@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "react-native";
+import { Text, Platform } from "react-native";
 import { Localization } from "expo";
 import { connect } from "react-redux";
 import { locale } from "../common/locale";
@@ -15,6 +15,7 @@ class I18nTabBarLabel extends React.Component {
   };
   renderLabel = () => {
     const { appLocale, name } = this.props;
+    if (Platform.isPad) return null;
     if (appLocale) return `${locale[appLocale][name]}`;
     else if (locale[Localization.locale])
       return `${locale[Localization.locale][name]}`;

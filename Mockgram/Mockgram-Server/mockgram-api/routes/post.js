@@ -192,7 +192,7 @@ router.put("/comment/reply", authenticate.verifyAuthorization, (req, res) => {
             $addToSet: { replies: replyResult._id }
           }
         )
-          .then(comment => {
+          .then(async comment => {
             let message = {
               receiver: replyResult.to._id,
               sender: replyResult.from._id,
@@ -201,8 +201,8 @@ router.put("/comment/reply", authenticate.verifyAuthorization, (req, res) => {
               commentReference: comment._id,
               replyReference: replyResult._id
             };
-            return Message.createMessage(message, (err, result) => {
-              if (err) return handleError(res, err);
+            try {
+              let result = await Message.createMessage(message);
               return agent
                 .post(`${serverNodes.socketServer}/message/push`)
                 .send({
@@ -210,7 +210,7 @@ router.put("/comment/reply", authenticate.verifyAuthorization, (req, res) => {
                 })
                 .set("Accept", "application/json")
                 .end(err => {
-                  if (err) return handleError(res, err);
+                  if (err) throw new Error(err);
                   let liked = false;
                   let postId = comment.postId;
                   replyResult.liked = liked;
@@ -221,7 +221,9 @@ router.put("/comment/reply", authenticate.verifyAuthorization, (req, res) => {
                     data: replyResult
                   });
                 });
-            });
+            } catch (err) {
+              return handleError(res, err);
+            }
           })
           .catch(err => {
             return handleError(res, err);
@@ -259,7 +261,7 @@ router.put("/comment", authenticate.verifyAuthorization, (req, res) => {
           {
             $addToSet: { comments: commentResult._id }
           }
-        ).then(post => {
+        ).then(async post => {
           let message = {
             receiver: post.creator,
             sender: commentBy,
@@ -267,8 +269,8 @@ router.put("/comment", authenticate.verifyAuthorization, (req, res) => {
             postReference: post._id,
             commentReference: commentResult._id
           };
-          return Message.createMessage(message, (err, result) => {
-            if (err) return handleError(res, err);
+          try {
+            let result = await Message.createMessage(message);
             return agent
               .post(`${serverNodes.socketServer}/message/push`)
               .send({
@@ -276,7 +278,7 @@ router.put("/comment", authenticate.verifyAuthorization, (req, res) => {
               })
               .set("Accept", "application/json")
               .end(err => {
-                if (err) return handleError(res, err);
+                if (err) throw new Error(err);
                 let commentByPostCreator =
                   post.creator === commentBy ? true : false;
                 let liked = false;
@@ -288,7 +290,9 @@ router.put("/comment", authenticate.verifyAuthorization, (req, res) => {
                   data: commentResult
                 });
               });
-          });
+          } catch (err) {
+            return handleError(res, err);
+          }
         });
       } else {
         return handleError(res, err, response.ERROR.SERVER_ERROR);
@@ -309,7 +313,7 @@ router.put("/liked", authenticate.verifyAuthorization, (req, res) => {
   let update = addLike
     ? { $addToSet: { likes: userId } }
     : { $pull: { likes: userId } };
-  Post.findOneAndUpdate({ _id: postId }, update).exec((err, post) => {
+  Post.findOneAndUpdate({ _id: postId }, update).exec(async (err, post) => {
     if (err) handleError(res, err);
     /**
      * if user like the post, create a message and send it to socket server for notification
@@ -322,53 +326,43 @@ router.put("/liked", authenticate.verifyAuthorization, (req, res) => {
       postReference: post._id
     };
     if (addLike) {
-      return Message.createMessage(message, (err, msg) => {
-        if (err) return handleError(res, err);
-        if (msg) {
-          agent
-            .post(`${serverNodes.socketServer}/message/push`)
-            .send({
-              message: msg
-            })
-            .set("Accept", "application/json")
-            .end(err => {
-              if (err) return handleError(res, err);
-              return res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG
-              });
+      try {
+        let msg = await Message.createMessage(message);
+        return agent
+          .post(`${serverNodes.socketServer}/message/push`)
+          .send({
+            message: msg
+          })
+          .set("Accept", "application/json")
+          .end(err => {
+            if (err) throw new Error(err);
+            return res.json({
+              status: response.SUCCESS.OK.CODE,
+              msg: response.SUCCESS.OK.MSG
             });
-        } else {
-          return res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG
           });
-        }
-      });
+      } catch (err) {
+        return handleError(res, err);
+      }
     } else {
-      return Message.deleteMessage(message, (err, msg) => {
-        if (err) return handleError(res, err);
-        if (msg) {
-          agent
-            .post(`${serverNodes.socketServer}/message/recall`)
-            .send({
-              message: msg
-            })
-            .set("Accept", "application/json")
-            .end(err => {
-              if (err) return handleError(res, err);
-              return res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG
-              });
+      try {
+        let msg = await Message.deleteMessage(message);
+        return agent
+          .post(`${serverNodes.socketServer}/message/recall`)
+          .send({
+            message: msg
+          })
+          .set("Accept", "application/json")
+          .end(err => {
+            if (err) throw new Error(err);
+            return res.json({
+              status: response.SUCCESS.OK.CODE,
+              msg: response.SUCCESS.OK.MSG
             });
-        } else {
-          return res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG
           });
-        }
-      });
+      } catch (err) {
+        return handleError(res, err);
+      }
     }
   });
 });
@@ -387,7 +381,7 @@ router.put("/shared", authenticate.verifyAuthorization, (req, res) => {
       Post.findOneAndUpdate(
         { _id: postId },
         { $addToSet: { shared: userId } }
-      ).exec((err, post) => {
+      ).exec(async (err, post) => {
         if (err) return handleError(res, err);
         let message = {
           receiver: post.creator,
@@ -395,29 +389,24 @@ router.put("/shared", authenticate.verifyAuthorization, (req, res) => {
           messageType: "SharePost",
           postReference: post._id
         };
-        return Message.createMessage(message, (err, msg) => {
-          if (err) return handleError(res, err);
-          if (msg) {
-            agent
-              .post(`${serverNodes.socketServer}/message/push`)
-              .send({
-                message: msg
-              })
-              .set("Accept", "application/json")
-              .end(err => {
-                if (err) return handleError(res, err);
-                return res.json({
-                  status: response.SUCCESS.OK.CODE,
-                  msg: response.SUCCESS.OK.MSG
-                });
+        try {
+          let msg = await Message.createMessage(message);
+          return agent
+            .post(`${serverNodes.socketServer}/message/push`)
+            .send({
+              message: msg
+            })
+            .set("Accept", "application/json")
+            .end(err => {
+              if (err) throw new Error(err);
+              return res.json({
+                status: response.SUCCESS.OK.CODE,
+                msg: response.SUCCESS.OK.MSG
               });
-          } else {
-            return res.json({
-              status: response.SUCCESS.OK.CODE,
-              msg: response.SUCCESS.OK.MSG
             });
-          }
-        });
+        } catch (err) {
+          return handleError(res, err);
+        }
       });
     }
   });
@@ -434,7 +423,7 @@ router.put("/comment/liked", authenticate.verifyAuthorization, (req, res) => {
     ? { $addToSet: { likes: userId } }
     : { $pull: { likes: userId } };
   CommentModel.findOneAndUpdate({ _id: commentId }, update).exec(
-    (err, comment) => {
+    async (err, comment) => {
       if (err) handleError(res, err);
       let message = {
         receiver: comment.commentBy,
@@ -444,8 +433,8 @@ router.put("/comment/liked", authenticate.verifyAuthorization, (req, res) => {
         commentReference: comment._id
       };
       if (addLike) {
-        return Message.createMessage(message, (err, result) => {
-          if (err) return handleError(res, err);
+        try {
+          let result = await Message.createMessage(message);
           return agent
             .post(`${serverNodes.socketServer}/message/push`)
             .send({
@@ -453,16 +442,18 @@ router.put("/comment/liked", authenticate.verifyAuthorization, (req, res) => {
             })
             .set("Accept", "application/json")
             .end(err => {
-              if (err) return handleError(res, err);
+              if (err) throw new Error(err);
               return res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG
               });
             });
-        });
+        } catch (err) {
+          return handleError(res, err);
+        }
       } else {
-        return Message.deleteMessage(message, (err, result) => {
-          if (err) return handleError(res, err);
+        try {
+          let result = await Message.deleteMessage(message);
           return agent
             .post(`${serverNodes.socketServer}/message/recall`)
             .send({
@@ -470,13 +461,15 @@ router.put("/comment/liked", authenticate.verifyAuthorization, (req, res) => {
             })
             .set("Accept", "application/json")
             .end(err => {
-              if (err) return handleError(res, err);
+              if (err) throw new Error(err);
               return res.json({
                 status: response.SUCCESS.OK.CODE,
                 msg: response.SUCCESS.OK.MSG
               });
             });
-        });
+        } catch (err) {
+          return handleError(res, err);
+        }
       }
     }
   );
@@ -496,53 +489,59 @@ router.put(
     let update = addLike
       ? { $addToSet: { likes: userId } }
       : { $pull: { likes: userId } };
-    Reply.findOneAndUpdate({ _id: replyId }, update).exec((err, reply) => {
-      if (err) handleError(res, err);
-      let commentId = reply.commentId;
-      let message = {
-        receiver: reply.from,
-        sender: userId,
-        messageType: "LikeReply",
-        commentReference: commentId,
-        replyReference: reply._id,
-        postReference: postId
-      };
-      if (addLike) {
-        return Message.createMessage(message, (err, result) => {
-          if (err) return handleError(res, err);
-          return agent
-            .post(`${serverNodes.socketServer}/message/push`)
-            .send({
-              message: result
-            })
-            .set("Accept", "application/json")
-            .end(err => {
-              if (err) return handleError(res, err);
-              return res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG
+    Reply.findOneAndUpdate({ _id: replyId }, update).exec(
+      async (err, reply) => {
+        if (err) handleError(res, err);
+        let commentId = reply.commentId;
+        let message = {
+          receiver: reply.from,
+          sender: userId,
+          messageType: "LikeReply",
+          commentReference: commentId,
+          replyReference: reply._id,
+          postReference: postId
+        };
+        if (addLike) {
+          try {
+            let result = await Message.createMessage(message);
+            return agent
+              .post(`${serverNodes.socketServer}/message/push`)
+              .send({
+                message: result
+              })
+              .set("Accept", "application/json")
+              .end(err => {
+                if (err) throw new Error(err);
+                return res.json({
+                  status: response.SUCCESS.OK.CODE,
+                  msg: response.SUCCESS.OK.MSG
+                });
               });
-            });
-        });
-      } else {
-        return Message.deleteMessage(message, (err, result) => {
-          if (err) return handleError(res, err);
-          return agent
-            .post(`${serverNodes.socketServer}/message/recall`)
-            .send({
-              message: result
-            })
-            .set("Accept", "application/json")
-            .end(err => {
-              if (err) return handleError(res, err);
-              return res.json({
-                status: response.SUCCESS.OK.CODE,
-                msg: response.SUCCESS.OK.MSG
+          } catch (err) {
+            return handleError(res, err);
+          }
+        } else {
+          try {
+            let result = await Message.deleteMessage(message);
+            return agent
+              .post(`${serverNodes.socketServer}/message/recall`)
+              .send({
+                message: result
+              })
+              .set("Accept", "application/json")
+              .end(err => {
+                if (err) throw new Error(err);
+                return res.json({
+                  status: response.SUCCESS.OK.CODE,
+                  msg: response.SUCCESS.OK.MSG
+                });
               });
-            });
-        });
+          } catch (err) {
+            return handleError(res, err);
+          }
+        }
       }
-    });
+    );
   }
 );
 

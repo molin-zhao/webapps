@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const path = require("path");
 const fs = require("fs");
 const response = require("./response");
+const gm = require("gm");
 
 checkImageType = file => {
   const filetypes = /jpeg|jpg|png|gif/;
@@ -16,71 +17,57 @@ checkImageType = file => {
   }
 };
 
-exports.getFileName = (dest, file) => {
+exports.getFileName = file => {
   return new Promise((resolve, reject) => {
     crypto.pseudoRandomBytes(16, (err, raw) => {
-      if (err) return reject({ err });
-      if (typeof dest === "string") {
-        let fileName =
-          Date.now() +
-          "-" +
-          raw.toString("hex") +
-          path.extname(file.originalFilename);
-        let fileLocation = `${dest}${fileName}`;
-        return resolve({
-          fileName,
-          fileLocation
-        });
-      }
-      return reject({
-        err: "file destination expected a string"
-      });
+      if (err) return reject(err);
+      let fileName =
+        Date.now() +
+        "-" +
+        raw.toString("hex") +
+        path.extname(file.originalFilename);
+      return resolve(fileName);
     });
   });
 };
 
-exports.getFileBaseName = (dest, file) => {
+exports.getFileBaseName = file => {
+  return { fileName: path.basename(file.originalFilename) };
+};
+
+exports.uploadImage = (limit, fileLocation, file) => {
   return new Promise((resolve, reject) => {
-    if (typeof dest === "string") {
-      let fileName = path.basename(file.originalFilename);
-      let fileLocation = `${dest}${fileName}`;
-      return resolve({
-        fileName,
-        fileLocation
-      });
-    }
-    return reject({
-      err: "file destination must be a string"
-    });
-  });
-};
-
-exports.uploadImage = (limit, fileLocation, file, cb) => {
-  if (file) {
+    if (!file) return reject(response.ERROR.NO_IMAGE_PROVIDED);
     if (checkImageType(file)) {
-      if (file.size > limit) return cb(response.ERROR.FILE_SIZE_EXCEEDED);
+      if (file.size > limit) return reject(response.ERROR.FILE_SIZE_EXCEEDED);
       // connect-multiparty will creates temp files on server
       // we should manually clean it after saving file to target path
       let tmpPath = file.path;
       fs.rename(tmpPath, fileLocation, err => {
-        if (err) {
-          console.log(err);
-          return cb(response.ERROR.SAVING_FILE_ERROR);
-        }
+        if (err) return reject(response.ERROR.SAVING_FILE_ERROR);
         try {
           fs.unlinkSync(tmpPath);
         } catch (e) {
           //pass
         } finally {
-          return cb(null);
+          return resolve(`saved file to ${fileLocation}`);
         }
       });
     } else {
-      return cb(response.ERROR.FILE_TYPE_ERROR);
+      return reject(response.ERROR.FILE_TYPE_ERROR);
     }
-  } else {
-    return cb(response.ERROR.NO_IMAGE_PROVIDED);
-  }
+  });
+};
+
+exports.uploadImageThumbnail = (fileLocation, thumbnailLocation, size) => {
+  return new Promise((resolve, reject) => {
+    return gm(fileLocation)
+      .resize(size, size)
+      .write(thumbnailLocation, err => {
+        if (err) return reject({ error: err });
+        return resolve(`saved thumbnail to ${thumbnailLocation}`);
+      });
+  });
 };
 
 exports.getFileAsync = async path => {

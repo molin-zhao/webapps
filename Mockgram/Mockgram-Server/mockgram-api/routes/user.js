@@ -179,7 +179,7 @@ router.put("/follow", authenticate.verifyAuthorization, (req, res) => {
       .then(msg => {
         if (msg.nModified === 1 && msg.ok === 1) {
           User.updateOne({ _id: followerId }, followerUpdate)
-            .then(msg => {
+            .then(async msg => {
               if (msg.nModified === 1 && msg.ok === 1) {
                 /**
                  * create message after both accounts have been updated successfully
@@ -189,41 +189,40 @@ router.put("/follow", authenticate.verifyAuthorization, (req, res) => {
                   receiver: followingId,
                   messageType: "Follow"
                 };
-                if (type === "Follow") {
-                  return Message.createMessage(message, (err, msg) => {
-                    if (err) return handleError(res, err);
-                    if (msg) {
-                      agent
-                        .post(`${serverNodes.socketServer}/message/push`)
-                        .send({
-                          message: msg
-                        })
-                        .set("Accept", "application/json")
-                        .end(err => {
-                          if (err) return handleError(res, err);
-                          return res.json({
-                            status: response.SUCCESS.OK.CODE,
-                            msg: response.SUCCESS.OK.MSG
-                          });
+                try {
+                  if (type === "Follow") {
+                    let msg = await Message.createMessage(message);
+                    return agent
+                      .post(`${serverNodes.socketServer}/message/push`)
+                      .send({
+                        message: msg
+                      })
+                      .set("Accept", "application/json")
+                      .end(err => {
+                        if (err) throw new Error(err);
+                        return res.json({
+                          status: response.SUCCESS.OK.CODE,
+                          msg: response.SUCCESS.OK.MSG
                         });
-                    } else {
-                      return res.json({
-                        status: response.SUCCESS.OK.CODE,
-                        msg: response.SUCCESS.OK.MSG
                       });
-                    }
-                  });
-                } else {
-                  return Message.deleteOne(message)
-                    .then(() => {
-                      return res.json({
-                        status: response.SUCCESS.OK.CODE,
-                        msg: response.SUCCESS.OK.MSG
+                  } else {
+                    let msg = await Message.deleteMessage(message);
+                    return agent
+                      .post(`${serverNodes.socketServer}/message/recall`)
+                      .send({
+                        message: msg
+                      })
+                      .set("Accept", "application/json")
+                      .end(err => {
+                        if (err) throw new Error(err);
+                        return res.json({
+                          status: response.SUCCESS.OK.CODE,
+                          msg: response.SUCCESS.OK.MSG
+                        });
                       });
-                    })
-                    .catch(err => {
-                      return handleError(res, err);
-                    });
+                  }
+                } catch (err) {
+                  return handleError(res, err);
                 }
               } else {
                 return res.json({

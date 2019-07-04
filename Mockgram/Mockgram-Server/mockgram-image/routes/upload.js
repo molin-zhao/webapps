@@ -15,7 +15,8 @@ const Message = require("../../models/message");
 const {
   uploadImage,
   getFileName,
-  deleteFileAsync
+  deleteFileAsync,
+  uploadImageThumbnail
 } = require("../../utils/fileUpload");
 const authenticate = require("../../utils/authenticate")(User);
 const response = require("../../utils/response");
@@ -32,41 +33,43 @@ router.post(
   authenticate.verifyAuthorization,
   multipart(),
   async (req, res) => {
-    let file = req.files.post;
-    let dest = image.post;
+    let files = req.files.post;
     let limit = image.limit;
-    const { err, fileName, fileLocation } = await getFileName(dest, file);
-    if (err) return handleError(res, result.err);
-    let imagePersistencePath = `${image.postQuery}${fileName}`;
-    let imageThumbnailPath = `${image.thumbnailQuery}${fileName}`;
-    let location = JSON.parse(req.body.location);
-    let mentioned = convertStringArrToObjectIdArr(JSON.parse(req.body.mention));
-    let tags = convertStringArrToObjectIdArr(JSON.parse(req.body.tags));
-    let post = {
-      creator: req.user._id,
-      image: imagePersistencePath,
-      thumbnail: imageThumbnailPath,
-      description: req.body.description,
-      location,
-      tags,
-      mentioned
-    };
     try {
+      let fileNamePromises = files.map(async file => {
+        try {
+          const fileName = await getFileName(file);
+          return fileName;
+        } catch (err) {
+          throw new Error(err);
+        }
+      });
+      let fileNames = await Promise.all(fileNamePromises);
+      let queryPathPromises = fileNames.map(fileName => ({
+        file: `${image.postQuery}${fileName}`,
+        thumbnail: `${image.thumbnailQuery}${fileName}`
+      }));
+      let queryPaths = await Promise.all(queryPathPromises);
+      let location = JSON.parse(req.body.location);
+      let tags = convertStringArrToObjectIdArr(JSON.parse(req.body.tags));
+      let creator = convertStringToObjectId(req.user._id);
+      let post = {
+        image: queryPaths,
+        description: req.body.description,
+        mentioned: convertStringArrToObjectIdArr(JSON.parse(req.body.mention)),
+        creator,
+        location,
+        tags
+      };
+      await Tag.updateCounts(tags, creator);
+      await Location.updateCount(location, creator);
       let result = await Post.createPost(post);
-      if (!result) {
+      if (!result)
         return res.json({
           status: response.SUCCESS.ACCEPTED.CODE,
           msg: response.SUCCESS.ACCEPTED.MSG
         });
-      }
-      let tagUpdateRes = await Tag.updateCounts(tags, result.creator);
-      let locationUpdateRes = await Location.updateCount(
-        result.location._id,
-        result.creator
-      );
-      console.log(tagUpdateRes);
-      console.log(locationUpdateRes);
-      let msgObjs = result.mentioned.map(mentionedUser => {
+      let msgObjs = result[0].mentioned.map(mentionedUser => {
         return {
           receiver: mentionedUser._id,
           sender: result.creator,
@@ -74,31 +77,37 @@ router.post(
           postReference: result._id
         };
       });
-      let msgs = await Message.createMessages(msgObjs);
-      agent
-        .post(`${serverNodes.socketServer}/message/push/batch`)
-        .send({
-          messages: msgs
-        })
-        .set("Accept", "application/json")
-        .end(err => {
-          if (err) return handleError(res, err);
-          uploadImage(limit, fileLocation, file, err => {
-            if (err) return handleError(res, err);
-            // generate thumbnail for post image
-            let thumbnailLocation = `${image.thumbnail}${fileName}`;
-            gm(fileLocation)
-              .resize(image.thumbnailSize, image.thumbnailSize)
-              .write(thumbnailLocation, err => {
-                if (err) return handleError(res, err);
-                return res.json({
-                  status: response.SUCCESS.OK.CODE,
-                  msg: response.SUCCESS.OK.MSG,
-                  data: result
-                });
-              });
+      if (msgObjs.length > 0) {
+        let msgs = await Message.createMessages(msgObjs);
+        agent
+          .post(`${serverNodes.socketServer}/message/push/batch`)
+          .send({
+            messages: msgs
+          })
+          .set("Accept", "application/json")
+          .end((err, res) => {
+            if (err) console.log(err);
+            console.log(res);
           });
-        });
+      }
+      let saveResultPromises = fileNames.map(async (fileName, index) => {
+        let fileLocation = `${image.post}${fileName}`;
+        let thumbnailLocation = `${image.thumbnail}${fileName}`;
+        await uploadImage(limit, fileLocation, files[index]);
+        await uploadImageThumbnail(
+          fileLocation,
+          thumbnailLocation,
+          image.thumbnailSize
+        );
+        return response.SUCCESS.OK;
+      });
+      let saveResults = await Promise.all(saveResultPromises);
+      console.log(saveResults);
+      return res.json({
+        status: response.SUCCESS.OK.CODE,
+        msg: response.SUCCESS.OK.MSG,
+        data: result
+      });
     } catch (err) {
       return handleError(res, err);
     }
@@ -111,97 +120,93 @@ router.post(
   multipart(),
   async (req, res) => {
     let avatar = req.files.avatar;
-    let dest = image.avatar;
     let limit = image.limit;
     let bio = req.body.bio;
     let nickname = req.body.nickname;
     let userId = convertStringToObjectId(req.user._id);
     if (avatar) {
-      const result = await getFileName(dest, avatar);
-      if (result.err) return handleError(res, result.err);
-      let fileName = result.fileName;
-      let fileLocation = result.fileLocation;
-      let imageQueryPath = `${image.avatarQuery}${fileName}`;
-      User.findOne({ _id: userId })
-        .select("avatar")
-        .exec((err, user) => {
-          if (err) return handleError(res, err);
-          if (!user) return handleError(res, response.ERROR.NOT_FOUND);
-          let originalAvatar = user.avatar;
-          if (originalAvatar) {
-            // original avatar is not null
-            // remove avatar file and update
-            let originalAvatarFileName = originalAvatar.split("/").pop();
-            let originalAvatarFilePath = `${dest}${originalAvatarFileName}`;
-            try {
-              deleteFileAsync(originalAvatarFilePath);
-            } catch (err) {
-              console.log(err);
-              return handleError(res, err);
+      try {
+        let fileName = await getFileName(avatar);
+        let fileLocation = `${image.avatar}${fileName}`;
+        let imageQueryPath = `${image.avatarQuery}${fileName}`;
+        User.findOne({ _id: userId })
+          .select("avatar")
+          .exec((err, user) => {
+            if (err) throw new Error(err);
+            if (!user) throw new Error(response.ERROR.NOT_FOUND);
+            let originalAvatar = user.avatar;
+            if (originalAvatar) {
+              // original avatar is not null
+              // remove avatar file and update
+              let originalAvatarFileName = originalAvatar.split("/").pop();
+              let originalAvatarFilePath = `${dest}${originalAvatarFileName}`;
+              try {
+                deleteFileAsync(originalAvatarFilePath);
+              } catch (err) {
+                throw new Error(err);
+              }
             }
-          }
-          User.findOneAndUpdate(
-            { _id: userId },
-            {
-              $set: {
-                avatar: imageQueryPath,
-                bio,
-                nickname
-              }
-            },
-            {
-              new: true,
-              select: {
-                avatar: 1,
-                nickname: 1,
-                bio: 1
-              }
-            },
-            (err, user) => {
-              if (err)
-                return handleError(
-                  res,
-                  err,
-                  response.ERROR.DATA_PERSISTENCE_ERROR
-                );
-              return uploadImage(limit, fileLocation, imageFile, err => {
-                if (err) return handleError(res, err);
+            User.findOneAndUpdate(
+              { _id: userId },
+              {
+                $set: {
+                  avatar: imageQueryPath,
+                  bio,
+                  nickname
+                }
+              },
+              {
+                new: true,
+                select: {
+                  avatar: 1,
+                  nickname: 1,
+                  bio: 1
+                }
+              },
+              async (err, user) => {
+                if (err) throw new Error(response.ERROR.DATA_PERSISTENCE_ERROR);
+                await uploadImage(limit, fileLocation, imageFile);
                 return res.json({
                   status: response.SUCCESS.OK.CODE,
                   msg: response.SUCCESS.OK.MSG,
                   data: user
                 });
-              });
-            }
-          );
-        });
-    } else {
-      User.findOneAndUpdate(
-        { _id: userId },
-        {
-          $set: {
-            nickname,
-            bio
-          }
-        },
-        {
-          new: true,
-          select: {
-            avatar: 1,
-            nickname: 1,
-            bio: 1
-          }
-        },
-        (err, user) => {
-          if (err)
-            return handleError(res, err, response.ERROR.DATA_PERSISTENCE_ERROR);
-          return res.json({
-            status: response.SUCCESS.OK.CODE,
-            msg: response.SUCCESS.OK.MSG,
-            data: user
+              }
+            );
           });
-        }
-      );
+      } catch (err) {
+        return handleError(res, err);
+      }
+    } else {
+      try {
+        User.findOneAndUpdate(
+          { _id: userId },
+          {
+            $set: {
+              nickname,
+              bio
+            }
+          },
+          {
+            new: true,
+            select: {
+              avatar: 1,
+              nickname: 1,
+              bio: 1
+            }
+          },
+          (err, user) => {
+            if (err) throw new Error(response.ERROR.DATA_PERSISTENCE_ERROR);
+            return res.json({
+              status: response.SUCCESS.OK.CODE,
+              msg: response.SUCCESS.OK.MSG,
+              data: user
+            });
+          }
+        );
+      } catch (err) {
+        return handleError(res, err);
+      }
     }
   }
 );
@@ -267,20 +272,5 @@ router.get(
       });
   }
 );
-
-router.get("/post/thumbnail", (req, res) => {
-  let imageName = req.query.name;
-  let imagePath = `${image.post}${imageName}`;
-  let thumbnailPath = `${image.thumbnail}${imageName}`;
-  gm(imagePath)
-    .resize(40, 40)
-    .write(thumbnailPath, err => {
-      if (err) return handleError(res, err);
-      return res.json({
-        status: response.SUCCESS.OK.CODE,
-        msg: response.SUCCESS.OK.MSG
-      });
-    });
-});
 
 module.exports = router;

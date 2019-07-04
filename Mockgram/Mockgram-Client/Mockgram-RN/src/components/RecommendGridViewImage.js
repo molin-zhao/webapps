@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { withNavigation } from "react-navigation";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -50,8 +50,9 @@ class RecommendGridViewImage extends React.Component {
           alignItems: "center"
         }}
       >
-        <ProgressiveImage
-          source={{ uri: dataSource.image }}
+        <Image
+          // thumbnailSource={{ uri: dataSource.image[0].thumbnail }}
+          source={{ uri: dataSource.image[0].file }}
           style={{
             width: "95%",
             height: "95%",
@@ -59,20 +60,9 @@ class RecommendGridViewImage extends React.Component {
             backgroundColor: theme.primaryGrey
           }}
         />
-        {/* {
-                    dataSource.image ?
-                        this.renderMetaIonicons('ios-photos', { top: '5%', right: '5%' }) : null
-                } */}
-        {/* {this.renderMetaIonicons(
-          "md-heart",
-          { bottom: "5%", left: "5%" },
-          numberConverter(dataSource.likeCount)
-        )}
-        {this.renderMetaIonicons(
-          "ios-chatbubbles",
-          { bottom: "5%", right: "5%" },
-          numberConverter(dataSource.commentCount)
-        )} */}
+        {dataSource.image.length > 1
+          ? this.renderMetaIonicons("ios-photos", { top: "5%", right: "5%" })
+          : null}
       </TouchableOpacity>
     );
   };

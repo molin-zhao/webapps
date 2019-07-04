@@ -475,112 +475,111 @@ PostSchema.statics.getAllComment = function(
 
 PostSchema.statics.createPost = function(post) {
   return new Promise((resolve, reject) => {
-    return this.findOne(post).exec((err, doc) => {
-      if (err) return reject(err);
-      if (doc) return resolve(null);
-      return this.create(post)
-        .then(doc => {
-          let postId = doc._id;
-          return this.aggregate([
-            {
-              $match: {
-                _id: postId
-              }
-            },
-            {
-              $lookup: {
-                from: "users",
-                localField: "creator",
-                foreignField: "_id",
-                as: "postUser"
-              }
-            },
-            {
-              $unwind: "$postUser"
-            },
-            {
-              $lookup: {
-                from: "users",
-                localField: "mentioned",
-                foreignField: "_id",
-                as: "mentioned"
-              }
-            },
-            {
-              $lookup: {
-                from: "tags",
-                localField: "tags",
-                foreignField: "_id",
-                as: "tags"
-              }
-            },
-            {
-              $lookup: {
-                from: "locations",
-                localField: "location",
-                foreignField: "_id",
-                as: "location"
-              }
-            },
-            {
-              $unwind: "$location"
-            },
-            {
-              $project: {
-                liked: {
-                  $in: ["$creator", "$likes"]
-                },
-                likeCount: {
-                  $size: "$likes"
-                },
-                commentCount: {
-                  $size: "$comments"
-                },
-                sharedCount: {
-                  $size: "$shared"
-                },
-                image: 1,
-                description: 1,
-                location: 1,
-                createdAt: 1,
-                creator: 1,
-                postUser: {
-                  _id: 1,
-                  username: 1,
-                  avatar: 1
-                },
-                tags: {
-                  _id: 1,
-                  name: 1,
-                  type: 1
-                },
-                mentioned: {
-                  _id: 1,
-                  avatar: 1,
-                  username: 1,
-                  nickname: 1,
-                  gender: 1
-                },
-                location: {
-                  _id: 1,
-                  name: 1,
-                  address: 1,
-                  meta: 1
-                }
+    return this.create(post)
+      .then(doc => {
+        let postId = doc._id;
+        return this.aggregate([
+          {
+            $match: {
+              _id: postId
+            }
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "creator",
+              foreignField: "_id",
+              as: "postUser"
+            }
+          },
+          {
+            $unwind: "$postUser"
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "mentioned",
+              foreignField: "_id",
+              as: "mentioned"
+            }
+          },
+          {
+            $lookup: {
+              from: "tags",
+              localField: "tags",
+              foreignField: "_id",
+              as: "tags"
+            }
+          },
+          {
+            $lookup: {
+              from: "locations",
+              localField: "location",
+              foreignField: "_id",
+              as: "location"
+            }
+          },
+          {
+            $unwind: {
+              path: "$location",
+              preserveNullAndEmptyArrays: true
+            }
+          },
+          {
+            $project: {
+              liked: {
+                $in: ["$creator", "$likes"]
+              },
+              likeCount: {
+                $size: "$likes"
+              },
+              commentCount: {
+                $size: "$comments"
+              },
+              sharedCount: {
+                $size: "$shared"
+              },
+              image: 1,
+              description: 1,
+              location: 1,
+              createdAt: 1,
+              creator: 1,
+              postUser: {
+                _id: 1,
+                username: 1,
+                avatar: 1
+              },
+              tags: {
+                _id: 1,
+                name: 1,
+                type: 1
+              },
+              mentioned: {
+                _id: 1,
+                avatar: 1,
+                username: 1,
+                nickname: 1,
+                gender: 1
+              },
+              location: {
+                _id: 1,
+                name: 1,
+                address: 1,
+                meta: 1
               }
             }
-          ])
-            .then(res => {
-              return resolve(res[0]);
-            })
-            .catch(err => {
-              return reject(err);
-            });
-        })
-        .catch(err => {
-          return reject(err);
-        });
-    });
+          }
+        ])
+          .then(res => {
+            return resolve(res);
+          })
+          .catch(err => {
+            return reject(err);
+          });
+      })
+      .catch(err => {
+        return reject(err);
+      });
   });
 };
 

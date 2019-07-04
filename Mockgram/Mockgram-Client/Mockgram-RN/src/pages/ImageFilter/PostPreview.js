@@ -10,14 +10,21 @@ import {
   Keyboard
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import { Location, Permissions, FileSystem } from "expo";
+import {
+  Location,
+  Permissions,
+  FileSystem,
+  ImagePicker,
+  MediaLibrary
+} from "expo";
 import { createStackNavigator } from "react-navigation";
 import { connect } from "react-redux";
 import ActionSheet from "react-native-actionsheet";
 import {
   addToHeadOfHomeFeed,
   uploadingPost,
-  uploadedPost
+  uploadedPost,
+  removeAImage
 } from "../../redux/actions/feedActions";
 import { addToTopClientProfilePost } from "../../redux/actions/profileActions";
 
@@ -32,12 +39,16 @@ import baseUrl from "../../common/baseUrl";
 import theme from "../../common/theme";
 import { locale } from "../../common/locale";
 import * as Types from "../../common/types";
+import config from "../../common/config";
+import processImage from "../../utils/imageProcessing";
+
+const imageThumbnailWidth = Math.round(window.width * 0.32);
+const imageThumbnailMargin = Math.floor(window.width * 0.01);
 
 class PostPreview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      imageUri: this.props.navigation.getParam("imageUri", null),
       description: "",
       location: null,
       selectedTags: {},
@@ -96,13 +107,7 @@ class PostPreview extends React.Component {
   };
 
   makePost = () => {
-    const {
-      imageUri,
-      description,
-      selectedTags,
-      mentionedUsers,
-      location
-    } = this.state;
+    const { description, selectedTags, mentionedUsers, location } = this.state;
     const {
       client,
       navigation,
@@ -110,18 +115,21 @@ class PostPreview extends React.Component {
       addToCLientProfilePost,
       uploadingPost,
       uploadedPost,
-      appLocale
+      appLocale,
+      uploadImages
     } = this.props;
-    let fileName = imageUri.split("/").pop();
-    let match = /\.(\w+)$/.exec(fileName);
-    let type = match ? `image/${match[1]}` : `image`;
-
-    let formData = new FormData();
-    formData.append("post", {
-      uri: imageUri,
-      name: fileName,
-      type: type
+    let images = uploadImages.map(img => {
+      let fileName = img.split("/").pop();
+      let match = /\.(\w+)$/.exec(fileName);
+      let type = match ? `image/${match[1]}` : `image`;
+      return {
+        uri: img,
+        name: fileName,
+        type
+      };
     });
+    let formData = new FormData();
+    images.forEach(img => formData.append("post", img));
     formData.append("description", description);
     formData.append("tags", JSON.stringify(Object.keys(selectedTags)));
     formData.append("mention", JSON.stringify(Object.keys(mentionedUsers)));
@@ -133,7 +141,8 @@ class PostPreview extends React.Component {
         },
         () => {
           uploadingPost();
-          fetch(`${baseUrl.upload}/upload/post`, {
+          let url = `${baseUrl.upload}/upload/post`;
+          fetch("http://localhost:3032/upload/post", {
             method: "POST",
             headers: {
               Accept: "application/json",
@@ -144,9 +153,10 @@ class PostPreview extends React.Component {
           })
             .then(res => res.json())
             .then(resJson => {
+              console.log(resJson);
               if (resJson.status === 200) {
-                addToHomeFeed([resJson.data]);
-                addToCLientProfilePost([resJson.data]);
+                addToHomeFeed(resJson.data);
+                addToCLientProfilePost(resJson.data);
                 setTimeout(() => {
                   navigation.navigate("Home");
                 }, 4000);
@@ -303,9 +313,94 @@ class PostPreview extends React.Component {
     );
   };
 
+  renderImages = () => {
+    const { uploadImages, removeAImage, navigation } = this.props;
+    return (
+      <View
+        style={{
+          width: "100%",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "flex-start",
+          alignItems: "flex-start"
+        }}
+      >
+        {uploadImages.map((img, index) => (
+          <View
+            key={index}
+            style={{
+              width: imageThumbnailWidth,
+              height: imageThumbnailWidth,
+              marginLeft: (index + 1) % 3 === 0 ? imageThumbnailMargin : 0,
+              marginRight: (index + 1) % 3 === 0 ? imageThumbnailMargin : 0,
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <Image
+              source={{ uri: img }}
+              style={{
+                width: "90%",
+                height: "90%",
+                borderRadius: 5,
+                borderWidth: 1,
+                borderColor: 1
+              }}
+            />
+            {index > 1 ? (
+              <FontAwesome
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  backgroundColor: "#fff"
+                }}
+                size={theme.iconSm}
+                name="times"
+                onPress={() => {
+                  removeAImage(img);
+                }}
+              />
+            ) : null}
+          </View>
+        ))}
+        {uploadImages.length < config.MAX_COUNT_UPLOAD ? (
+          <TouchableOpacity
+            style={{
+              width: imageThumbnailWidth,
+              height: imageThumbnailWidth,
+              marginLeft:
+                (uploadImages.length - 1) % 3 === 0 ? imageThumbnailMargin : 0,
+              marginRight:
+                (uploadImages.length - 1) % 3 === 0 ? imageThumbnailMargin : 0,
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+            onPress={() => {
+              this._addImageSheet.show();
+            }}
+          >
+            <View
+              style={{
+                width: "90%",
+                height: "90%",
+                borderRadius: 5,
+                backgroundColor: theme.primaryGrey,
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              <Ionicons size={theme.iconLg} name="md-add" />
+            </View>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    );
+  };
+
   render() {
-    const { imageUri, selectedTags, mentionedUsers, location } = this.state;
-    const { navigation, appLocale } = this.props;
+    const { selectedTags, mentionedUsers, location } = this.state;
+    const { navigation, appLocale, uploadImages } = this.props;
     return (
       <TouchableWithoutFeedback
         onPress={() => {
@@ -313,24 +408,15 @@ class PostPreview extends React.Component {
         }}
       >
         <View style={styles.container}>
+          {this.renderImages()}
           <View style={styles.descriptionView}>
-            <Image
-              source={{ uri: imageUri }}
-              style={{
-                marginLeft: 5,
-                width: window.width * 0.25,
-                height: window.width * 0.25
-              }}
-            />
             <TextInput
               multiline={true}
               numberOfLines={4}
-              placeholder="Write a description"
+              placeholder={`${locale[appLocale]["WRITE_A_DES"]}`}
               style={{
-                marginLeft: 20,
-                marginRight: 5,
-                height: window.width * 0.25,
-                width: window.width * 0.65,
+                height: "95%",
+                width: "100%",
                 borderColor: null,
                 borderWidth: 0,
                 backgroundColor: "#fff"
@@ -509,15 +595,72 @@ class PostPreview extends React.Component {
             ]}
             cancelButtonIndex={1}
             destructiveButtonIndex={0}
-            onPress={index => {
+            onPress={async index => {
               if (index === 0) {
-                const { imageUri } = this.state;
-                FileSystem.deleteAsync(imageUri)
-                  .then(() => navigation.navigate("Home"))
-                  .catch(err => {
-                    console.log(err);
-                    navigation.navigate("Home");
-                  });
+                uploadImages.map(img => {
+                  FileSystem.deleteAsync(img)
+                    .then(() => {
+                      console.log(`deleted file: ${img}`);
+                    })
+                    .catch(err => {
+                      console.log(err);
+                      console.log(`cannot delete file: ${img}`);
+                    });
+                });
+                navigation.navigate("Home");
+              }
+            }}
+          />
+          <ActionSheet
+            ref={o => (this._addImageSheet = o)}
+            options={[
+              `${locale[appLocale]["CHOOSE_A_PHOTO"]}`,
+              `${locale[appLocale]["TAKE_A_PHOTO"]}`,
+              `${locale[appLocale]["CANCEL"]}`
+            ]}
+            cancelButtonIndex={2}
+            onPress={async index => {
+              switch (index) {
+                case 0:
+                  const resLib = await Permissions.getAsync(
+                    Permissions.CAMERA_ROLL
+                  );
+                  if (resLib.status === "granted") {
+                    let capturedImage = await ImagePicker.launchImageLibraryAsync(
+                      {
+                        allowsEditing: true,
+                        aspect: [1, 1]
+                      }
+                    );
+                    if (!capturedImage.cancelled) {
+                      let processedImage = await processImage(
+                        capturedImage.uri
+                      );
+                      navigation.push("ImageFilter", {
+                        image: processedImage
+                      });
+                    }
+                  }
+                  break;
+                case 1:
+                  const resCam = await Permissions.getAsync(Permissions.CAMERA);
+                  if (resCam.status === "granted") {
+                    let capturedImage = await ImagePicker.launchCameraAsync({
+                      allowsEditing: true,
+                      aspect: [1, 1]
+                    });
+                    if (!capturedImage.cancelled) {
+                      let processedImage = await processImage(
+                        capturedImage.uri
+                      );
+                      navigation.push("ImageFilter", {
+                        image: processedImage
+                      });
+                    }
+                  }
+                  break;
+                default:
+                  return;
               }
             }}
           />
@@ -529,7 +672,8 @@ class PostPreview extends React.Component {
 
 const mapStateToProps = state => ({
   client: state.client.client,
-  appLocale: state.app.appLocale
+  appLocale: state.app.appLocale,
+  uploadImages: state.feed.uploadImages
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -537,7 +681,8 @@ const mapDispatchToProps = dispatch => ({
   addToCLientProfilePost: data =>
     dispatch(addToTopClientProfilePost(Types.CREATED_POST, data)),
   uploadingPost: () => dispatch(uploadingPost()),
-  uploadedPost: () => dispatch(uploadedPost())
+  uploadedPost: () => dispatch(uploadedPost()),
+  removeAImage: uri => dispatch(removeAImage(uri))
 });
 
 export default createStackNavigator(
@@ -581,9 +726,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start"
   },
   descriptionView: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     height: window.width * 0.3,
     width: "95%",
     borderBottomWidth: 1,

@@ -3,6 +3,7 @@ import * as ActionTypes from "../actions/ActionTypes";
 export const feed = (
   state = {
     homeFeed: [],
+    uploadImages: [],
     uploading: false
   },
   action
@@ -18,6 +19,19 @@ export const feed = (
       return { ...state, uploading: true };
     case ActionTypes.UPLOADED_POST:
       return { ...state, uploading: false };
+
+    case ActionTypes.ADD_A_IMAGE:
+      return {
+        ...state,
+        uploadImages: state.uploadImages.concat(action.payload)
+      };
+    case ActionTypes.REMOVE_A_IMAGE:
+      return {
+        ...state,
+        uploadImages: state.uploadImages.filter(
+          imgUri => imgUri !== action.payload
+        )
+      };
     default:
       return state;
   }

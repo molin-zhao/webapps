@@ -15,15 +15,13 @@ const router = express.Router();
 
 router.post("/object-detection", cors(), multipart(), async (req, res) => {
   let imageFile = req.files.image;
-  let dest = image.tmp;
   let limit = image.limit;
-  const result = await getFileName(dest, imageFile);
-  if (result.err) return handleError(res, result.err);
-  let fileName = result.fileName;
-  let fileLocation = result.fileLocation;
-  let imageQueryPath = `${image.tmpQuery}${fileName}`;
-  uploadImage(limit, fileLocation, imageFile, err => {
-    if (err) return handleError(res, err);
+  try {
+    let fileName = await getFileName(imageFile);
+    let fileLocation = `${image.tmp}${fileName}`;
+    let imageQueryPath = `${image.tmpQuery}${fileName}`;
+    let saveRes = await uploadImage(limit, fileLocation, imageFile);
+    console.log(saveRes);
     return agent
       .get(`${serverNodes.mlServer}/object-detection?image=${imageQueryPath}`)
       .set("Accept", "application/json")
@@ -44,10 +42,11 @@ router.post("/object-detection", cors(), multipart(), async (req, res) => {
             data: djangoRes.data
           });
         } catch (err) {
-          console.log(err);
-          return handleError(res, err);
+          throw new Error(err);
         }
       });
-  });
+  } catch (err) {
+    return handleError(res, err);
+  }
 });
 module.exports = router;

@@ -166,18 +166,17 @@ LocationSchema.statics.searchLocationsByName = function(
   ]);
 };
 
-LocationSchema.statics.updateCount = function(locationId, userId) {
+LocationSchema.statics.updateCount = function(location, userId) {
   return new Promise((resolve, reject) => {
     return this.updateOne(
-      { _id: locationId },
+      { _id: location ? location._id : null },
       {
         $addToSet: { participants: userId },
         $inc: { quotedCount: 1 }
       }
     ).exec((err, res) => {
-      if (err) return reject(`location ${locationId} was not updated`);
-      console.log(res);
-      return resolve(`location ${locationId} updated`);
+      if (err) return reject(err);
+      return resolve(res);
     });
   });
 };

@@ -325,7 +325,9 @@ class PostRecommend extends React.Component {
           // ListHeaderComponent={this.renderHeader}
           // stickyHeaderIndices={[0]}
           style={{ marginTop: 0, width: "100%", backgroundColor: "#fff" }}
-          contentContainerStyle={{ backgroundColor: "#fff" }}
+          contentContainerStyle={{
+            backgroundColor: "#fff"
+          }}
           data={normalizeData(data, numColumns)}
           renderItem={({ item }) => (
             <RecommendGridViewImage dataSource={item} numColumns={numColumns} />

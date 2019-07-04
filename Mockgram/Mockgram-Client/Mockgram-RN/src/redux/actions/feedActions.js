@@ -1,5 +1,14 @@
 import * as ActionTypes from "./ActionTypes";
 
+export const addAImage = imageUri => ({
+  type: ActionTypes.ADD_A_IMAGE,
+  payload: imageUri
+});
+
+export const removeAImage = uri => ({
+  type: ActionTypes.REMOVE_A_IMAGE,
+  payload: uri
+});
 export const reloadHomeFeed = feeds => ({
   type: ActionTypes.RELOAD_HOME_FEED,
   payload: feeds

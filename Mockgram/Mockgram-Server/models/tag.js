@@ -48,9 +48,8 @@ TagSchema.statics.updateCount = function(tagId, userId) {
       { _id: tagId },
       { $addToSet: { participants: userId }, $inc: { quotedCount: 1 } }
     ).exec((err, res) => {
-      if (err) return reject(`tag ${tagId} was not updated`);
-      console.log(res);
-      return resolve(`tag ${tagId} updated`);
+      if (err) return reject(err);
+      return resolve(res);
     });
   });
 };
@@ -64,9 +63,8 @@ TagSchema.statics.updateCounts = function(tagIds, userId) {
         $inc: { quotedCount: 1 }
       }
     ).exec((err, res) => {
-      if (err) reject(`tags ${tagIds} were not updated`);
-      console.log(res);
-      return resolve(`tags ${tagIds} updated`);
+      if (err) reject(err);
+      return resolve(res);
     });
   });
 };

@@ -43,3 +43,5 @@ export const UPDATE_HOME_FEED = "UPDATE_HOME_FEED";
 export const ADD_TO_HEAD_HOME_FEED = "ADD_TO_HEAD_HOME_FEED";
 export const UPLOADING_POST = "UPLOADING_POST";
 export const UPLOADED_POST = "UPLOADED_POST";
+export const ADD_A_IMAGE = "ADD_A_IMAGE";
+export const REMOVE_A_IMAGE = "REMOVE_A_IMAGE";

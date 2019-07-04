@@ -34,7 +34,7 @@ class ProgressiveImage extends React.Component {
         <Animated.Image
           {...props}
           source={source}
-          style={[styles.imageOverlay, { opacity: this.imageAnimated }, style]}
+          style={[style, styles.imageOverlay, { opacity: this.imageAnimated }]}
           onLoad={this.onImageLoad}
         />
       </View>

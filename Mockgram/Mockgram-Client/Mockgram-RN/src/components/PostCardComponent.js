@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Share } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ViewMoreText from "react-native-view-more-text";
 import ActionSheet from "react-native-actionsheet";
+import {
+  ParallaxSwiper,
+  ParallaxSwiperPage
+} from "react-native-parallax-swiper";
 
 import Thumbnail from "./Thumbnail";
 import ProgressiveImage from "./ProgressiveImage";
@@ -88,7 +92,8 @@ class PostCardComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataSource: this.props.dataSource
+      dataSource: this.props.dataSource,
+      activeIndex: 0
     };
   }
 
@@ -276,6 +281,95 @@ class PostCardComponent extends React.Component {
       </View>
     );
   };
+
+  renderImage = () => {
+    const { dataSource } = this.state;
+    if (dataSource.image.length > 1) {
+      // use banner to show images
+      return (
+        <ParallaxSwiper
+          speed={0.75}
+          backgroundColor="#fff"
+          dividerWidth={0}
+          onMomentumScrollEnd={index => this.setState({ activeIndex: index })}
+          showsHorizontalScrollIndicator={true}
+        >
+          {dataSource.image.map((img, index) => (
+            <ParallaxSwiperPage
+              key={index}
+              BackgroundComponent={
+                <ProgressiveImage
+                  thumbnailSource={{ uri: img.thumbnail }}
+                  source={{ uri: img.file }}
+                  style={{
+                    height: window.width,
+                    width: window.width,
+                    backgroundColor: theme.primaryGrey
+                  }}
+                  resizeMode="cover"
+                />
+              }
+            />
+          ))}
+        </ParallaxSwiper>
+      );
+    }
+    let image = dataSource.image[0];
+    return (
+      <ProgressiveImage
+        thumbnailSource={{ uri: image.thumbnail }}
+        source={{ uri: image.file }}
+        style={{
+          height: window.width,
+          width: window.width
+        }}
+        resizeMode="cover"
+      />
+    );
+  };
+
+  renderPagination = () => {
+    const { dataSource, activeIndex } = this.state;
+    let images = dataSource.image;
+    if (images.length > 1) {
+      return (
+        <View
+          style={{
+            alignSelf: "center",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            flexDirection: "row"
+          }}
+        >
+          {images.map((img, index) => {
+            if (index === activeIndex) {
+              return (
+                <View
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    backgroundColor: theme.primaryColor
+                  }}
+                />
+              );
+            }
+            return (
+              <View
+                style={{
+                  width: 4,
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: theme.primaryGrey
+                }}
+              />
+            );
+          })}
+        </View>
+      );
+    }
+    return null;
+  };
   /**
    * if you need to update some components of the dataSource,
    * you should declare another variable object to hold the reference of the dataSource,
@@ -330,18 +424,7 @@ class PostCardComponent extends React.Component {
             <Ionicons name="md-more" style={{ fontSize: 20 }} />
           </TouchableOpacity>
         </CardItemRow>
-        <CardBody>
-          <ProgressiveImage
-            thumbnailSource={{ uri: dataSource.image.thumbnail }}
-            source={{ uri: dataSource.image.file }}
-            style={{
-              height: window.width,
-              width: window.width,
-              backgroundColor: theme.primaryGrey
-            }}
-            resizeMode="cover"
-          />
-        </CardBody>
+        <CardBody>{this.renderImage()}</CardBody>
         <CardItemRow
           style={[styles.cardItemRow, { marginTop: 10, height: 50 }]}
         >
@@ -396,6 +479,7 @@ class PostCardComponent extends React.Component {
               </View>
             </View>
           </Left>
+          {this.renderPagination()}
         </CardItemRow>
         <CardItemCol style={styles.cardItemCol}>
           <ViewMoreText

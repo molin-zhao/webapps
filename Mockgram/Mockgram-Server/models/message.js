@@ -48,124 +48,120 @@ const MessageSchema = new Schema(
   }
 );
 
-MessageSchema.statics.createMessage = function(message, callback) {
-  return this.findOne(message).exec((err, doc) => {
-    if (err) return callback(err, null);
-    if (!doc) {
-      return this.create(message)
-        .then(doc => {
-          return this.aggregate([
-            {
-              $match: {
-                _id: doc._id
-              }
-            },
-            {
-              $lookup: {
-                from: "users",
-                localField: "sender",
-                foreignField: "_id",
-                as: "sender"
-              }
-            },
-            {
-              $unwind: "$sender"
-            },
-            {
-              $lookup: {
-                from: "users",
-                localField: "receiver",
-                foreignField: "_id",
-                as: "receiver"
-              }
-            },
-            {
-              $unwind: "$receiver"
-            },
-            {
-              $lookup: {
-                from: "posts",
-                localField: "postReference",
-                foreignField: "_id",
-                as: "postReference"
-              }
-            },
-            {
-              $unwind: {
-                path: "$postReference",
-                preserveNullAndEmptyArrays: true
-              }
-            },
-            {
-              $lookup: {
-                from: "comments",
-                localField: "commentReference",
-                foreignField: "_id",
-                as: "commentReference"
-              }
-            },
-            {
-              $unwind: {
-                path: "$commentReference",
-                preserveNullAndEmptyArrays: true
-              }
-            },
-            {
-              $lookup: {
-                from: "replies",
-                localField: "replyReference",
-                foreignField: "_id",
-                as: "replyReference"
-              }
-            },
-            {
-              $unwind: {
-                path: "$replyReference",
-                preserveNullAndEmptyArrays: true
-              }
-            },
-            {
-              $project: {
+MessageSchema.statics.createMessage = function(message) {
+  return new Promise((resolve, reject) => {
+    return this.create(message)
+      .then(msg => {
+        return this.aggregate([
+          {
+            $match: {
+              _id: msg._id
+            }
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "sender",
+              foreignField: "_id",
+              as: "sender"
+            }
+          },
+          {
+            $unwind: "$sender"
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "receiver",
+              foreignField: "_id",
+              as: "receiver"
+            }
+          },
+          {
+            $unwind: "$receiver"
+          },
+          {
+            $lookup: {
+              from: "posts",
+              localField: "postReference",
+              foreignField: "_id",
+              as: "postReference"
+            }
+          },
+          {
+            $unwind: {
+              path: "$postReference",
+              preserveNullAndEmptyArrays: true
+            }
+          },
+          {
+            $lookup: {
+              from: "comments",
+              localField: "commentReference",
+              foreignField: "_id",
+              as: "commentReference"
+            }
+          },
+          {
+            $unwind: {
+              path: "$commentReference",
+              preserveNullAndEmptyArrays: true
+            }
+          },
+          {
+            $lookup: {
+              from: "replies",
+              localField: "replyReference",
+              foreignField: "_id",
+              as: "replyReference"
+            }
+          },
+          {
+            $unwind: {
+              path: "$replyReference",
+              preserveNullAndEmptyArrays: true
+            }
+          },
+          {
+            $project: {
+              _id: 1,
+              messageType: 1,
+              createdAt: 1,
+              sender: {
                 _id: 1,
-                messageType: 1,
-                createdAt: 1,
-                sender: {
-                  _id: 1,
-                  username: 1,
-                  avatar: 1
-                },
-                receiver: {
-                  _id: 1,
-                  username: 1,
-                  avatar: 1
-                },
-                postReference: {
-                  _id: 1,
-                  image: 1
-                },
-                commentReference: {
-                  _id: 1,
-                  content: 1
-                },
-                replyReference: {
-                  _id: 1,
-                  content: 1
-                }
+                username: 1,
+                avatar: 1
+              },
+              receiver: {
+                _id: 1,
+                username: 1,
+                avatar: 1
+              },
+              postReference: {
+                _id: 1,
+                image: 1
+              },
+              commentReference: {
+                _id: 1,
+                content: 1
+              },
+              replyReference: {
+                _id: 1,
+                content: 1
               }
             }
-          ])
-            .then(msg => {
-              return callback(null, msg);
-            })
-            .catch(err => {
-              return callback(err, null);
-            });
-        })
-        .catch(err => {
-          return callback(err, null);
-        });
-    }
-    return callback(null, null);
+          }
+        ])
+          .then(res => {
+            return resolve(res);
+          })
+          .catch(err => {
+            return reject(err);
+          });
+      })
+      .catch(err => {
+        return reject(err);
+      });
   });
 };
 
@@ -280,27 +276,22 @@ MessageSchema.statics.createMessages = function(messages) {
   });
 };
 
-MessageSchema.statics.deleteMessage = function(message, callback) {
-  return this.findOne(message)
-    .then(msg => {
-      if (msg) {
-        return this.deleteOne(message)
+MessageSchema.statics.deleteMessage = function(message) {
+  return new Promise((resolve, reject) => {
+    return this.findOne(message)
+      .then(msg => {
+        return this.deleteOne(msg)
           .then(result => {
-            if (result.n && result.ok) {
-              return callback(null, msg);
-            }
-            return callback(null, null);
+            return resolve(result);
           })
           .catch(err => {
-            return callback(err, null);
+            return reject(err);
           });
-      } else {
-        return callback(null, null);
-      }
-    })
-    .catch(err => {
-      return callback(err, null);
-    });
+      })
+      .catch(err => {
+        return reject(err);
+      });
+  });
 };
 
 MessageSchema.statics.getNewMessage = function(receiver, receivedMessages) {
@@ -768,4 +759,5 @@ MessageSchema.statics.getRecentMessage = function(sender, limit = 1) {
     }
   ]);
 };
+
 module.exports = mongoose.model("Message", MessageSchema);

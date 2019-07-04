@@ -21,7 +21,7 @@ class Camera extends React.Component {
     });
     if (!capturedImage.cancelled) {
       let processedImage = await processImage(capturedImage.uri);
-      this.props.navigation.navigate("ImageFilter", {
+      this.props.navigation.push("ImageFilter", {
         image: processedImage
       });
     }
