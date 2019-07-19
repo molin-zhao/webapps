@@ -320,7 +320,7 @@ class ProfileSetting extends React.Component {
 const mapStateToProps = state => ({
   client: state.client.client,
   profile: state.profile.profile,
-  locale: state.app.locale
+  appLocale: state.app.appLocale
 });
 
 const mapDispatchToProps = dispatch => ({

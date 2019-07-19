@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 
 import ProfilePage from "../../components/ProfilePage";
 
@@ -34,7 +34,7 @@ export default class UserProfile extends React.Component {
             navigation.goBack();
           }}
         >
-          <FontAwesome name="chevron-left" size={theme.iconSm} />
+          <Ionicons name="ios-arrow-back" size={theme.iconSm} />
         </TouchableOpacity>
       )
     };

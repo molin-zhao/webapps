@@ -112,23 +112,24 @@
 
 
 
-  <meta name="description" content="记录与分享">
-<meta property="og:type" content="website">
-<meta property="og:title" content="沫霖的小站">
-<meta property="og:url" content="https://molinz.com/index.html">
+  <meta name="description" content="本文介绍Nginx在Ubuntu18.04上的安装，以及使用Certbot配置HTTPS。 安装Nginx12$ sudo apt update$ sudo apt install nginx Ngnix相关命令12345678910111213# 开始nginx服务$ sudo systemctl start nginx# 停止nginx服务$ sudo systemctl stop nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx以及certbot在Ubuntu18.04上的部署">
+<meta property="og:url" content="https://molinz.com/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/index.html">
 <meta property="og:site_name" content="沫霖的小站">
-<meta property="og:description" content="记录与分享">
+<meta property="og:description" content="本文介绍Nginx在Ubuntu18.04上的安装，以及使用Certbot配置HTTPS。 安装Nginx12$ sudo apt update$ sudo apt install nginx Ngnix相关命令12345678910111213# 开始nginx服务$ sudo systemctl start nginx# 停止nginx服务$ sudo systemctl stop nginx">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-19T06:19:31.114Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="沫霖的小站">
-<meta name="twitter:description" content="记录与分享">
+<meta name="twitter:title" content="nginx以及certbot在Ubuntu18.04上的部署">
+<meta name="twitter:description" content="本文介绍Nginx在Ubuntu18.04上的安装，以及使用Certbot配置HTTPS。 安装Nginx12$ sudo apt update$ sudo apt install nginx Ngnix相关命令12345678910111213# 开始nginx服务$ sudo systemctl start nginx# 停止nginx服务$ sudo systemctl stop nginx">
 
 
 
 
 
 
-  <link rel="canonical" href="https://molinz.com/"/>
+  <link rel="canonical" href="https://molinz.com/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/"/>
 
 
 
@@ -138,7 +139,7 @@
   };
 </script>
 
-  <title>沫霖的小站</title>
+  <title>nginx以及certbot在Ubuntu18.04上的部署 | 沫霖的小站</title>
   
 
 
@@ -185,8 +186,7 @@
     
   
 
-  <div class="container sidebar-position-right 
-  page-home">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -223,7 +223,7 @@
         
         
           
-          <li class="menu-item menu-item-home menu-item-active">
+          <li class="menu-item menu-item-home">
     <a href="/" rel="section">
       <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
   </li>
@@ -291,9 +291,9 @@
           
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -325,11 +325,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/" itemprop="url">
-                  nginx以及certbot在Ubuntu18.04上的部署
-                </a>
+          <h1 class="post-title" itemprop="name headline">nginx以及certbot在Ubuntu18.04上的部署
               
             
           </h1>
@@ -392,9 +388,7 @@
       
 
       
-        
-          
-            <p>本文介绍Nginx在Ubuntu18.04上的安装，以及使用Certbot配置HTTPS。</p>
+        <p>本文介绍Nginx在Ubuntu18.04上的安装，以及使用Certbot配置HTTPS。</p>
 <h3 id="安装Nginx"><a href="#安装Nginx" class="headerlink" title="安装Nginx"></a>安装Nginx</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt update</span><br><span class="line">$ sudo apt install nginx</span><br></pre></td></tr></table></figure>
 <h3 id="Ngnix相关命令"><a href="#Ngnix相关命令" class="headerlink" title="Ngnix相关命令"></a>Ngnix相关命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开始nginx服务</span></span><br><span class="line">$ sudo systemctl start nginx</span><br><span class="line"><span class="comment"># 停止nginx服务</span></span><br><span class="line">$ sudo systemctl stop nginx</span><br><span class="line"><span class="comment"># 重启nginx服务，一般用于修改nginx配置文件后</span></span><br><span class="line">$ sudo systemctl restart nginx</span><br><span class="line">$ sudo nginx -s reload</span><br><span class="line"><span class="comment"># 默认情况下nginx开机启动，如果禁止开机启动，可以使用如下命令</span></span><br><span class="line">$ sudo systemctl <span class="built_in">disable</span> nginx</span><br><span class="line"><span class="comment"># 开启开机自动启动nginx</span></span><br><span class="line">$ sudo systemctl <span class="built_in">enable</span> nginx</span><br><span class="line"><span class="comment"># 检查nginx配置文件语法（配置信息通常在文件 /etc/nginx/nginx.conf 或者 /etc/nginx/sites-available/default 当中配置）</span></span><br><span class="line">$ sudo nginx -t</span><br></pre></td></tr></table></figure>
 <h3 id="安装Certbot"><a href="#安装Certbot" class="headerlink" title="安装Certbot"></a>安装Certbot</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo add-apt-repository ppa:certbot/certbot</span><br><span class="line">$ sudo apt install python-certbot-nginx</span><br></pre></td></tr></table></figure>
@@ -405,179 +399,73 @@
 </em>/etc/nginx/nginx.conf<em> <strong>nginx默认的配置文件</strong>
 </em>/etc/nginx/sites-available/<em> <strong>默认配置文件为default，可以手动添加和修改文件，此文件夹的内容与</strong> </em>/etc/nginx/sites-enabled/* <strong>下内容关联</strong></p>
 
-          
-        
       
     </div>
 
     
+      
 
-    
-    
-    
-
-    
 
     
 
+    
+    
+    
+
+    
+      <div>
+        <div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/wxqcode.jpeg" alt="Molin wechat" style="width: 200px; max-width: 100%;"/>
+    <div>微信关注</div>
+</div>
+
+      </div>
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Molin</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://molinz.com/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/" title="nginx以及certbot在Ubuntu18.04上的部署">https://molinz.com/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
     
 
     <footer class="post-footer">
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://molinz.com/2018/09/21/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Molin">
-      <meta itemprop="description" content="记录与分享">
-      <meta itemprop="image" content="/images/icon.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="沫霖的小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/21/hello-world/" itemprop="url">
-                  使用hexo建立静态博客
-                </a>
-              
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
+              <a href="/2018/09/21/hello-world/" rel="next" title="使用hexo建立静态博客">
+                <i class="fa fa-chevron-left"></i> 使用hexo建立静态博客
+              </a>
             
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-09-21 09:36:01 / 修改时间：13:18:09" itemprop="dateCreated datePublished" datetime="2018-09-21T09:36:01+08:00">2018-09-21</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <p>hexo是一款基于nodejs的静态博客框架，使用Markdown语言编写博客，配置信息包含在yml文件当中。</p>
-<h2 id="项目准备"><a href="#项目准备" class="headerlink" title="项目准备"></a>项目准备</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-cli -g</span><br><span class="line">$ hexo init blog</span><br><span class="line">$ <span class="built_in">cd</span> blog</span><br><span class="line">$ npm install</span><br><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<h3 id="建立一个新页面"><a href="#建立一个新页面" class="headerlink" title="建立一个新页面"></a>建立一个新页面</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"你的新博客名称"</span></span><br></pre></td></tr></table></figure>
-<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<h3 id="构建静态资源"><a href="#构建静态资源" class="headerlink" title="构建静态资源"></a>构建静态资源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>所有静态资源生成在项目根路径下public文件夹</p>
-<h3 id="远程部署"><a href="#远程部署" class="headerlink" title="远程部署"></a>远程部署</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -587,14 +475,15 @@
   </article>
 
 
-    
-  </section>
-
-  
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -615,8 +504,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -684,6 +582,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Nginx"><span class="nav-number">1.</span> <span class="nav-text">安装Nginx</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ngnix相关命令"><span class="nav-number">2.</span> <span class="nav-text">Ngnix相关命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Certbot"><span class="nav-number">3.</span> <span class="nav-text">安装Certbot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Certbot获取免费SSL证书"><span class="nav-number">4.</span> <span class="nav-text">使用Certbot获取免费SSL证书</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#证书自动重申"><span class="nav-number">5.</span> <span class="nav-text">证书自动重申</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nginx相关配置文件目录和日志目录"><span class="nav-number">6.</span> <span class="nav-text">Nginx相关配置文件目录和日志目录</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -810,6 +724,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.4.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.4.1"></script>
+
+
 
   
 

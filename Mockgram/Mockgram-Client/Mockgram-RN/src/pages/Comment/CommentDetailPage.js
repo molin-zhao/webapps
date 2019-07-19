@@ -21,6 +21,7 @@ import config from "../../common/config";
 import baseUrl from "../../common/baseUrl";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import { locale } from "../../common/locale";
+import theme from "../../common/theme";
 
 class CommentDetailPage extends React.Component {
   constructor(props) {
@@ -207,14 +208,12 @@ class CommentDetailPage extends React.Component {
       <View style={styles.container}>
         <Header
           headerTitle={`${locale[appLocale]["COMMENTS"]}`}
-          rightIoniconsButton={
-            <Ionicons name="md-close" style={{ fontSize: 24 }} />
-          }
+          rightIoniconsButton={<Ionicons name="md-close" size={theme.iconMd} />}
           rightButtonOnPress={() => {
             navigation.dismiss();
           }}
           leftIoniconsButton={
-            <Ionicons name="md-arrow-back" style={{ fontSize: 24 }} />
+            <Ionicons name="ios-arrow-back" size={theme.iconMd} />
           }
           leftButtonOnPress={() => {
             navigation.goBack();

@@ -29,7 +29,7 @@ export const feed = (
       return {
         ...state,
         uploadImages: state.uploadImages.filter(
-          imgUri => imgUri !== action.payload
+          imgUri => imgUri.uri !== action.payload.uri
         )
       };
     default:

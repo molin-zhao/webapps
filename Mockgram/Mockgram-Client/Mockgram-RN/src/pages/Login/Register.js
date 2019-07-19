@@ -1,6 +1,14 @@
 import React from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
-import { FontAwesome } from "@expo/vector-icons";
+import {
+  View,
+  StyleSheet,
+  Text,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  TouchableOpacity
+} from "react-native";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { SkypeIndicator } from "react-native-indicators";
 import { connect } from "react-redux";
 
@@ -59,22 +67,22 @@ class Register extends React.Component {
       },
       headerRight: (
         <TouchableOpacity
-          style={{ marginRight: 20 }}
+          style={{ marginRight: theme.headerIconMargin }}
           onPress={() => {
             navigation.dismiss();
           }}
         >
-          <FontAwesome name="times" size={24} />
+          <Ionicons name="md-close" size={theme.iconMd} />
         </TouchableOpacity>
       ),
       headerLeft: (
         <TouchableOpacity
-          style={{ marginLeft: 20 }}
+          style={{ marginLeft: theme.headerIconMargin }}
           onPress={() => {
             navigation.goBack();
           }}
         >
-          <FontAwesome name="chevron-left" size={20} />
+          <Ionicons name="ios-arrow-back" size={theme.iconMd} />
         </TouchableOpacity>
       )
     };
@@ -163,123 +171,125 @@ class Register extends React.Component {
   render() {
     const { appLocale } = this.props;
     return (
-      <View style={styles.container}>
-        <KeyboardAvoidingView
-          style={{
-            flex: 1,
-            justifyContent: "flex-start",
-            alignItems: "center"
-          }}
-        >
-          <IconInput
-            icon={() => <FontAwesome name="envelope" size={20} />}
-            placeholder={`${locale[appLocale]["EMAIL"]}`}
-            onChangeText={email => {
-              this.setState({ email });
-              formValidation(
-                this,
-                this.state.errors.email,
-                "Email",
-                email,
-                "isEmail",
-                null
-              );
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <View style={styles.container}>
+          <KeyboardAvoidingView
+            style={{
+              flex: 1,
+              justifyContent: "flex-start",
+              alignItems: "center"
             }}
-            value={this.state.email}
-          />
-          <Text style={styles.formValidationMessage}>
-            {this.state.errors.email.status
-              ? this.state.errors.email.message
-              : null}
-          </Text>
-          <IconInput
-            icon={() => <FontAwesome name="user" size={20} />}
-            placeholder={`${locale[appLocale]["USERNAME"]}`}
-            onChangeText={username => {
-              this.setState({ username });
-              formValidation(
-                this,
-                this.state.errors.username,
-                "Username",
-                username,
-                "isAlphanumberic",
-                null
-              );
-            }}
-            value={this.state.username}
-          />
-          <Text style={styles.formValidationMessage}>
-            {this.state.errors.username.status
-              ? this.state.errors.username.message
-              : null}
-          </Text>
-          <IconInput
-            icon={() => <FontAwesome name="key" size={20} />}
-            placeholder={`${locale[appLocale]["PASSWORD"]}`}
-            onChangeText={password => {
-              this.setState({ password });
-              formValidation(
-                this,
-                this.state.errors.password,
-                "Password",
-                password,
-                "isPassword",
-                null
-              );
-            }}
-            value={this.state.password}
-            secureTextEntry={true}
-          />
-          <Text style={styles.formValidationMessage}>
-            {this.state.errors.password.status
-              ? this.state.errors.password.message
-              : null}
-          </Text>
-          <IconInput
-            icon={() => <FontAwesome name="lock" size={20} />}
-            placeholder={`${locale[appLocale]["CONFIRM_PASSWORD"]}`}
-            onChangeText={confirmPassword => {
-              this.setState({ confirmPassword });
-              formValidation(
-                this,
-                this.state.errors.confirmPassword,
-                "Confirm password",
-                confirmPassword,
-                "isConfirmPassword",
-                this.state.password
-              );
-            }}
-            value={this.state.confirmPassword}
-            secureTextEntry={true}
-          />
-          <Text style={styles.formValidationMessage}>
-            {this.state.errors.confirmPassword.status
-              ? this.state.errors.confirmPassword.message
-              : null}
-          </Text>
-          {this.renderRegisterError(`${locale[appLocale]["REGISTER_ERROR"]}`)}
-          <Button
-            loading={this.state.processing}
-            title={`${locale[appLocale]["REGISTER"]}`}
-            titleStyle={{ color: "#fff", fontSize: 14, fontWeight: "bold" }}
-            disabled={!this.state.valid || !this.allTouched()}
-            onPress={() => {
-              this.setState(
-                {
-                  processing: true
-                },
-                () => {
-                  this.register();
-                }
-              );
-            }}
-            containerStyle={StyleSheet.flatten(styles.registerBtn)}
-            loadingIndicator={() => (
-              <SkypeIndicator size={theme.iconSm} color={theme.primaryGrey} />
-            )}
-          />
-        </KeyboardAvoidingView>
-      </View>
+          >
+            <IconInput
+              icon={() => <FontAwesome name="envelope" size={20} />}
+              placeholder={`${locale[appLocale]["EMAIL"]}`}
+              onChangeText={email => {
+                this.setState({ email });
+                formValidation(
+                  this,
+                  this.state.errors.email,
+                  "Email",
+                  email,
+                  "isEmail",
+                  null
+                );
+              }}
+              value={this.state.email}
+            />
+            <Text style={styles.formValidationMessage}>
+              {this.state.errors.email.status
+                ? this.state.errors.email.message
+                : null}
+            </Text>
+            <IconInput
+              icon={() => <FontAwesome name="user" size={20} />}
+              placeholder={`${locale[appLocale]["USERNAME"]}`}
+              onChangeText={username => {
+                this.setState({ username });
+                formValidation(
+                  this,
+                  this.state.errors.username,
+                  "Username",
+                  username,
+                  "isAlphanumberic",
+                  null
+                );
+              }}
+              value={this.state.username}
+            />
+            <Text style={styles.formValidationMessage}>
+              {this.state.errors.username.status
+                ? this.state.errors.username.message
+                : null}
+            </Text>
+            <IconInput
+              icon={() => <FontAwesome name="key" size={20} />}
+              placeholder={`${locale[appLocale]["PASSWORD"]}`}
+              onChangeText={password => {
+                this.setState({ password });
+                formValidation(
+                  this,
+                  this.state.errors.password,
+                  "Password",
+                  password,
+                  "isPassword",
+                  null
+                );
+              }}
+              value={this.state.password}
+              secureTextEntry={true}
+            />
+            <Text style={styles.formValidationMessage}>
+              {this.state.errors.password.status
+                ? this.state.errors.password.message
+                : null}
+            </Text>
+            <IconInput
+              icon={() => <FontAwesome name="lock" size={20} />}
+              placeholder={`${locale[appLocale]["CONFIRM_PASSWORD"]}`}
+              onChangeText={confirmPassword => {
+                this.setState({ confirmPassword });
+                formValidation(
+                  this,
+                  this.state.errors.confirmPassword,
+                  "Confirm password",
+                  confirmPassword,
+                  "isConfirmPassword",
+                  this.state.password
+                );
+              }}
+              value={this.state.confirmPassword}
+              secureTextEntry={true}
+            />
+            <Text style={styles.formValidationMessage}>
+              {this.state.errors.confirmPassword.status
+                ? this.state.errors.confirmPassword.message
+                : null}
+            </Text>
+            {this.renderRegisterError(`${locale[appLocale]["REGISTER_ERROR"]}`)}
+            <Button
+              loading={this.state.processing}
+              title={`${locale[appLocale]["REGISTER"]}`}
+              titleStyle={{ color: "#fff", fontSize: 14, fontWeight: "bold" }}
+              disabled={!this.state.valid || !this.allTouched()}
+              onPress={() => {
+                this.setState(
+                  {
+                    processing: true
+                  },
+                  () => {
+                    this.register();
+                  }
+                );
+              }}
+              containerStyle={StyleSheet.flatten(styles.registerBtn)}
+              loadingIndicator={() => (
+                <SkypeIndicator size={theme.iconSm} color={theme.primaryGrey} />
+              )}
+            />
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

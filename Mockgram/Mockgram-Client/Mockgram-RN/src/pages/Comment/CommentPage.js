@@ -7,7 +7,7 @@ import {
   FlatList,
   TouchableWithoutFeedback
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { SkypeIndicator, BallIndicator } from "react-native-indicators";
 import { connect } from "react-redux";
 
@@ -20,8 +20,10 @@ import baseUrl from "../../common/baseUrl";
 import { parseIdFromObjectArray } from "../../utils/idParser";
 import window from "../../utils/getDeviceInfo";
 import { locale } from "../../common/locale";
+import theme from "../../common/theme";
 
 class CommentPage extends React.Component {
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -38,13 +40,18 @@ class CommentPage extends React.Component {
   }
 
   componentDidMount() {
+    this.mounted = true;
     this.setState(
       {
-        loading: true,
-        data: []
+        loading: true
       },
-      () => {
-        this.fetchComment();
+      async () => {
+        await this.fetchComment();
+        if (this.mounted) {
+          this.setState({
+            loading: false
+          });
+        }
       }
     );
   }
@@ -82,36 +89,41 @@ class CommentPage extends React.Component {
         })
           .then(res => res.json())
           .then(res => {
-            if (this.state.interrupt) {
-              this.setState({
-                interrupt: false
-              });
-            } else {
-              this.setState({
-                data:
-                  this.state.loadingMore === true
-                    ? [...this.state.data, ...res.data]
-                    : res.data,
-                error: res.status === 200 ? null : res.msg,
-                hasMore:
-                  res.data.length < config.COMMENT_RETURN_LIMIT ? false : true
-              });
+            if (this.mounted) {
+              if (this.state.interrupt) {
+                this.setState({
+                  interrupt: false
+                });
+              } else {
+                this.setState({
+                  data:
+                    this.state.loadingMore === true
+                      ? [...this.state.data, ...res.data]
+                      : res.data,
+                  error: res.status === 200 ? null : res.msg,
+                  hasMore:
+                    res.data.length < config.COMMENT_RETURN_LIMIT ? false : true
+                });
+              }
             }
           })
           .then(() => {
-            this.setState({
-              loading: false,
-              loadingMore: false,
-              fetching: false
-            });
+            if (this.mounted) {
+              this.setState({
+                fetching: false
+              });
+            }
           })
           .catch(error => {
-            this.setState({
-              error: error,
-              loading: false,
-              loadingMore: false,
-              fetching: false
-            });
+            if (this.mounted) {
+              this.setState({
+                error: error,
+                fetching: false,
+                loading: false,
+                loadingMore: false,
+                interrupt: false
+              });
+            }
           });
       }
     );
@@ -128,8 +140,13 @@ class CommentPage extends React.Component {
         loading: true,
         loadingMore: false
       },
-      () => {
-        this.fetchComment();
+      async () => {
+        await this.fetchComment();
+        if (this.mounted) {
+          this.setState({
+            loading: false
+          });
+        }
       }
     );
   };
@@ -140,8 +157,13 @@ class CommentPage extends React.Component {
         {
           loadingMore: true
         },
-        () => {
-          this.fetchComment();
+        async () => {
+          await this.fetchComment();
+          if (this.mounted) {
+            this.setState({
+              loadingMore: false
+            });
+          }
         }
       );
     }
@@ -227,10 +249,10 @@ class CommentPage extends React.Component {
       <View style={styles.container}>
         <Header
           headerTitle={`${locale[appLocale]["COMMENTS"]}`}
-          rightIoniconsButton={() => (
+          rightIconButton={() => (
             <Ionicons
               name="md-close"
-              style={{ fontSize: 24 }}
+              size={theme.iconMd}
               onPress={() => {
                 navigation.dismiss();
               }}

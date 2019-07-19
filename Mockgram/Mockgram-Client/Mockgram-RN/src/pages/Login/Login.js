@@ -58,7 +58,7 @@ class Login extends React.Component {
             navigation.dismiss();
           }}
         >
-          <FontAwesome name="times" size={theme.iconMd} />
+          <Ionicons name="md-close" size={theme.iconMd} />
         </TouchableOpacity>
       )
     };

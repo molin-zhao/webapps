@@ -53,7 +53,7 @@ class CreateTopic extends React.Component {
             navigation.goBack();
           }}
         >
-          <FontAwesome name="chevron-left" size={20} />
+          <Ionicons name="ios-arrow-back" size={theme.iconMd} />
         </TouchableOpacity>
       )
     };
@@ -62,7 +62,7 @@ class CreateTopic extends React.Component {
   componentDidMount() {
     const { navigation, appLocale } = this.props;
     navigation.setParams({
-      CreateTopicTitle: `${locale[appLocale]["CREAT_TITLE"](
+      CreateTopicTitle: `${locale[appLocale]["CREATE_TITLE"](
         locale[appLocale]["TOPIC"]
       )}`
     });

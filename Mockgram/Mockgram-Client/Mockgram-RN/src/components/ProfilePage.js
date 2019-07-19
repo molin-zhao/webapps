@@ -96,7 +96,7 @@ class UserProfile extends React.Component {
             name: "md-images"
           },
           text: {
-            title: `${locale[appLocale]["POSTS"]}`
+            title: "POSTS"
           }
         },
         {
@@ -104,7 +104,7 @@ class UserProfile extends React.Component {
             name: "md-heart"
           },
           text: {
-            title: `${locale[appLocale]["LIKED"]}`
+            title: "LIKED"
           }
         },
         {
@@ -112,7 +112,7 @@ class UserProfile extends React.Component {
             name: "ios-people"
           },
           text: {
-            title: `${locale[appLocale]["MENTIONED"]}`
+            title: "MENTIONED"
           }
         }
       ]
@@ -563,6 +563,7 @@ class UserProfile extends React.Component {
   };
 
   renderTabs = tabBarComponents => {
+    const { appLocale } = this.props;
     return tabBarComponents.map((tabComponent, index) => {
       return (
         <TouchableOpacity
@@ -589,7 +590,7 @@ class UserProfile extends React.Component {
                 tabComponent.text.style
               ]}
             >
-              {tabComponent.text.title}
+              {`${locale[appLocale][tabComponent.text.title]}`}
             </Text>
           ) : null}
         </TouchableOpacity>
@@ -598,7 +599,7 @@ class UserProfile extends React.Component {
   };
 
   renderContentHeader = () => {
-    const { profile } = this.state;
+    const { profile, tabBarComponents } = this.state;
     const { clientProfile, myProfile, navigation, appLocale } = this.props;
     let _profile = clientProfile ? myProfile : profile;
     return (
@@ -704,9 +705,7 @@ class UserProfile extends React.Component {
           </ViewMoreText>
         </View>
         {this.renderButton()}
-        <View style={styles.tab}>
-          {this.renderTabs(this.state.tabBarComponents)}
-        </View>
+        <View style={styles.tab}>{this.renderTabs(tabBarComponents)}</View>
       </View>
     );
   };
@@ -995,7 +994,7 @@ export default connect(
 const styles = StyleSheet.create({
   container: {
     width: window.width,
-    height: window.height - Header.HEIGHT - Constants.statusBarHeight,
+    height: window.height - Header.HEIGHT,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "flex-start"

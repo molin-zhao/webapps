@@ -63,12 +63,12 @@ class Tag extends React.Component {
       },
       headerLeft: (
         <TouchableOpacity
-          style={{ marginLeft: 20 }}
+          style={{ marginLeft: theme.headerIconMargin }}
           onPress={() => {
             navigation.popToTop();
           }}
         >
-          <FontAwesome name="chevron-left" size={20} />
+          <Ionicons name="ios-arrow-back" size={theme.iconMd} />
         </TouchableOpacity>
       ),
       headerRight: (

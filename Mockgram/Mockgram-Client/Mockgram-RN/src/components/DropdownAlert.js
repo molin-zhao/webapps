@@ -3,6 +3,7 @@ import { Animated, StyleSheet } from "react-native";
 import PropTypes from "prop-types";
 import { Constants } from "expo";
 import window from "../utils/getDeviceInfo";
+import theme from "../common/theme";
 
 const ANIMATION_DIRECTION = {
   SLIDE_IN_DOWN: "SlideInDown",

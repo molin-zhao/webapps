@@ -394,7 +394,7 @@ class TextInputBox extends React.Component {
       currentMessageReceiver,
       updateMessageReceiver
     } = this.state;
-    const { profile, style } = this.props;
+    const { profile, style, appLocale } = this.props;
     return (
       <View
         style={{
@@ -568,6 +568,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -40,
     zIndex: 1,
+    elevation: 1,
     backgroundColor: theme.primaryGrey,
     height: window.height * 0.035,
     width: window.width * 0.98,

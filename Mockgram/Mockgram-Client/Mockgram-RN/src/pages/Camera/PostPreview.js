@@ -10,13 +10,7 @@ import {
   Keyboard
 } from "react-native";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
-import {
-  Location,
-  Permissions,
-  FileSystem,
-  ImagePicker,
-  MediaLibrary
-} from "expo";
+import { Location, Permissions, FileSystem, ImagePicker, Video } from "expo";
 import { createStackNavigator } from "react-navigation";
 import { connect } from "react-redux";
 import ActionSheet from "react-native-actionsheet";
@@ -77,7 +71,7 @@ class PostPreview extends React.Component {
           return previewDismiss();
         }}
       >
-        <FontAwesome name="chevron-left" size={theme.iconSm} />
+        <Ionicons name="ios-arrow-back" size={theme.iconMd} />
       </TouchableOpacity>
     ),
     headerRight: (
@@ -119,11 +113,16 @@ class PostPreview extends React.Component {
       uploadImages
     } = this.props;
     let images = uploadImages.map(img => {
-      let fileName = img.split("/").pop();
+      let fileName = img.uri.split("/").pop();
       let match = /\.(\w+)$/.exec(fileName);
-      let type = match ? `image/${match[1]}` : `image`;
+      let type = null;
+      if (img.type === Types.PHOTO) {
+        type = match ? `image/${match[1]}` : `image`;
+      } else {
+        type = match ? `video/${match[1]}` : `video`;
+      }
       return {
-        uri: img,
+        uri: img.uri,
         name: fileName,
         type
       };
@@ -134,73 +133,66 @@ class PostPreview extends React.Component {
     formData.append("tags", JSON.stringify(Object.keys(selectedTags)));
     formData.append("mention", JSON.stringify(Object.keys(mentionedUsers)));
     formData.append("location", JSON.stringify(location));
-    if (client) {
-      this.setState(
-        {
-          error: null
-        },
-        () => {
-          uploadingPost();
-          let url = `${baseUrl.upload}/upload/post`;
-          fetch(url, {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "multipart/form-data",
-              Authorization: client.token
+    if (!client) return navigation.navigate("Auth");
+    this.setState({
+      error: null
+    });
+    uploadingPost();
+    let url = `${baseUrl.upload}/upload/post`;
+    fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "multipart/form-data",
+        Authorization: client.token
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(resJson => {
+        console.log(resJson);
+        if (resJson.status === 200) {
+          addToHomeFeed(resJson.data);
+          addToCLientProfilePost(resJson.data);
+          setTimeout(() => {
+            navigation.navigate("Home");
+          }, 4000);
+          this.setState(
+            {
+              info: `${locale[appLocale]["UPLOAD_POST_SUCCESS"]}`,
+              error: null
             },
-            body: formData
-          })
-            .then(res => res.json())
-            .then(resJson => {
-              console.log(resJson);
-              if (resJson.status === 200) {
-                addToHomeFeed(resJson.data);
-                addToCLientProfilePost(resJson.data);
-                setTimeout(() => {
-                  navigation.navigate("Home");
-                }, 4000);
-                this.setState(
-                  {
-                    info: `${locale[appLocale]["UPLOAD_POST_SUCCESS"]}`,
-                    error: null
-                  },
-                  () => {
-                    this._dropdown.show();
-                    uploadedPost();
-                  }
-                );
-              } else {
-                this.setState(
-                  {
-                    info: null,
-                    error: `${locale[appLocale]["UPLOAD_POST_ERROR"]}`
-                  },
-                  () => {
-                    this._dropdown.show();
-                    uploadedPost();
-                  }
-                );
-              }
-            })
-            .catch(err => {
-              console.log(err);
-              this.setState(
-                {
-                  info: null,
-                  error: `${locale[appLocale]["NETWORK_REQUEST_ERROR"]}`
-                },
-                () => {
-                  this._dropdown.show();
-                  uploadedPost();
-                }
-              );
-            });
+            () => {
+              this._dropdown.show();
+              uploadedPost();
+            }
+          );
+        } else {
+          this.setState(
+            {
+              info: null,
+              error: `${locale[appLocale]["UPLOAD_POST_ERROR"]}`
+            },
+            () => {
+              this._dropdown.show();
+              uploadedPost();
+            }
+          );
         }
-      );
-    } else {
-      navigation.navigate("Auth");
-    }
+      })
+      .catch(err => {
+        console.log(err);
+        this.setState(
+          {
+            info: null,
+            error: `${locale[appLocale]["NETWORK_REQUEST_ERROR"]}`
+          },
+          () => {
+            this._dropdown.show();
+            uploadedPost();
+          }
+        );
+      });
   };
 
   generateLocation = (coords, address) => {
@@ -251,7 +243,7 @@ class PostPreview extends React.Component {
     const { error, info } = this.state;
     if (!error) {
       return (
-        <View style={[styles.dropdown, { borderColor: theme.primaryGreen }]}>
+        <View style={[styles.dropdown]}>
           <View
             style={{
               marginLeft: theme.paddingToWindow,
@@ -314,7 +306,7 @@ class PostPreview extends React.Component {
   };
 
   renderImages = () => {
-    const { uploadImages, removeAImage, navigation } = this.props;
+    const { uploadImages, removeAImage } = this.props;
     return (
       <View
         style={{
@@ -337,16 +329,30 @@ class PostPreview extends React.Component {
               alignItems: "center"
             }}
           >
-            <Image
-              source={{ uri: img }}
-              style={{
-                width: "90%",
-                height: "90%",
-                borderRadius: 5,
-                borderWidth: 1,
-                borderColor: "black"
-              }}
-            />
+            {img.type === Types.PHOTO ? (
+              <Image
+                source={{ uri: img.uri }}
+                style={{
+                  width: "90%",
+                  height: "90%",
+                  borderRadius: 5
+                }}
+              />
+            ) : (
+              <Video
+                source={{ uri: img.uri }}
+                style={{
+                  width: "90%",
+                  height: "90%",
+                  borderRadius: 5
+                }}
+                shouldPlay
+                isLooping
+                isMuted
+                resizeMode="cover"
+              />
+            )}
+
             {index > 0 ? (
               <FontAwesome
                 style={{
@@ -598,13 +604,13 @@ class PostPreview extends React.Component {
             onPress={async index => {
               if (index === 0) {
                 uploadImages.map(img => {
-                  FileSystem.deleteAsync(img)
+                  FileSystem.deleteAsync(img.uri)
                     .then(() => {
-                      console.log(`deleted file: ${img}`);
+                      console.log(`deleted file: ${img.uri}`);
                     })
                     .catch(err => {
                       console.log(err);
-                      console.log(`cannot delete file: ${img}`);
+                      console.log(`cannot delete file: ${img.uri}`);
                     });
                 });
                 navigation.navigate("Home");
@@ -643,21 +649,7 @@ class PostPreview extends React.Component {
                   }
                   break;
                 case 1:
-                  const resCam = await Permissions.getAsync(Permissions.CAMERA);
-                  if (resCam.status === "granted") {
-                    let capturedImage = await ImagePicker.launchCameraAsync({
-                      allowsEditing: true,
-                      aspect: [1, 1]
-                    });
-                    if (!capturedImage.cancelled) {
-                      let processedImage = await processImage(
-                        capturedImage.uri
-                      );
-                      navigation.push("ImageFilter", {
-                        image: processedImage
-                      });
-                    }
-                  }
+                  navigation.push("Camera");
                   break;
                 default:
                   return;
@@ -757,6 +749,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     zIndex: 1,
+    elevation: 1,
     backgroundColor: "#fff"
   }
 });

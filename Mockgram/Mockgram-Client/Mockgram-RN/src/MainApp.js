@@ -6,13 +6,13 @@ import {
 } from "react-navigation";
 import { connect } from "react-redux";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import { Permissions } from "expo";
 
 // sreens
 import Home from "./screens/Home";
 import Discovery from "./screens/Discovery";
 import Message from "./screens/Message";
 import Profile from "./screens/Profile";
-import Post from "./screens/Post";
 
 // pages
 import UserList from "./pages/Profile/UserList";
@@ -21,7 +21,7 @@ import PostDetail from "./pages/Profile/PostDetail";
 import InitPage from "./pages/InitPage";
 import CommentPage from "./pages/Comment";
 import Login from "./pages/Login";
-import ImageFilter from "./pages/ImageFilter";
+import Camera from "./pages/Camera";
 
 // components
 import MessageBadgeIcon from "./components/MessageBadgeIcon";
@@ -31,11 +31,7 @@ import I18nTabBarLabel from "./components/I18nTabBarLabel";
 import store from "./redux";
 import { getClientInfo } from "./redux/actions/clientActions";
 import { getClientProfile } from "./redux/actions/profileActions";
-import {
-  finishAppInitialize,
-  getAppLocale,
-  getAppPermissions
-} from "./redux/actions/appActions";
+import { finishAppInitialize, getAppLocale } from "./redux/actions/appActions";
 import { updateLastMessageId } from "./redux/actions/messageActions";
 import {
   getMessage,
@@ -84,15 +80,25 @@ const MainAppTabNavigator = createBottomTabNavigator(
       }
     },
     Post: {
-      screen: Post,
+      screen: () => null,
       navigationOptions: {
         tabBarIcon: ({ tintColor }) => (
           <Ionicons name="ios-add-circle-outline" color={tintColor} size={28} />
         ),
-        tabBarOnPress: ({ navigation, defaultHandler }) => {
+        tabBarOnPress: async ({ navigation }) => {
           const client = store.getState().client.client;
           if (client) {
-            defaultHandler();
+            let cmpmsn = await Permissions.getAsync(Permissions.CAMERA);
+            if (cmpmsn.status === "granted") {
+              navigation.navigate("Camera");
+            } else {
+              let askpmsn = await Permissions.askAsync(Permissions.CAMERA);
+              if (askpmsn.status === "granted") {
+                navigation.navigate("Camera");
+              } else {
+                return;
+              }
+            }
           } else {
             navigation.navigate("Auth");
           }
@@ -239,8 +245,8 @@ const RootNavigator = createStackNavigator(
     Main: MainAppStackNavigator,
     Comment: CommentPage,
     Auth: Login,
-    InitPage: InitPage,
-    ImageFilter: ImageFilter
+    InitPage,
+    Camera
   },
   {
     mode: "modal",
@@ -265,7 +271,6 @@ class MainApp extends React.Component {
       await this.props.getAppLocale();
       await this.props.getClientInfo();
       await this.props.finishAppInitialize();
-      await this.props.getAppPermissions();
       console.log(`app starts`);
     } catch (err) {
       console.log(err);
@@ -347,7 +352,6 @@ const mapDispatchToProps = dispatch => ({
   getClientInfo: () => dispatch(getClientInfo()),
   getClientProfile: token => dispatch(getClientProfile(token)),
   getAppLocale: () => dispatch(getAppLocale()),
-  getAppPermissions: () => dispatch(getAppPermissions()),
   getMessage: token => dispatch(getMessage(token)),
   finishAppInitialize: () => dispatch(finishAppInitialize()),
   addMessage: messages => dispatch(addMessage(messages)),

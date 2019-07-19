@@ -7,7 +7,7 @@ import {
   Text
 } from "react-native";
 import { SkypeIndicator } from "react-native-indicators";
-import { FontAwesome } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { connect } from "react-redux";
 
 import UserListCell from "../../components/UserListCell";
@@ -43,7 +43,7 @@ class UserList extends React.Component {
           navigation.goBack();
         }}
       >
-        <FontAwesome name="chevron-left" size={20} />
+        <Ionicons name="ios-arrow-back" size={theme.iconMd} />
       </TouchableOpacity>
     )
   });

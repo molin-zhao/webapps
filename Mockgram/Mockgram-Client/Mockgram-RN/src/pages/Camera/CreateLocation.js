@@ -1,10 +1,11 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { connect } from "react-redux";
-import { FontAwesome } from "@expo/vector-icons";
 
 import PolygonCreator from "../../components/PolygonCreator";
 import { locale } from "../../common/locale";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import theme from "../../common/theme";
 
 class CreateLocation extends React.Component {
   static navigationOptions = ({ navigation }) => {
@@ -26,7 +27,7 @@ class CreateLocation extends React.Component {
             navigation.popToTop();
           }}
         >
-          <FontAwesome name="chevron-left" size={20} />
+          <Ionicons name="ios-arrow-back" size={theme.iconMd} />
         </TouchableOpacity>
       )
     };

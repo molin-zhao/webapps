@@ -494,7 +494,6 @@ class PostCardComponent extends React.Component {
               </View>
             </View>
           </Left>
-          {/* {this.renderPagination()} */}
         </CardItemRow>
         <CardItemCol style={styles.cardItemCol}>
           <ViewMoreText
@@ -606,11 +605,10 @@ const styles = StyleSheet.create({
   },
   cardLabels: {
     marginRight: 15,
-    flexDirection: "column",
     justifyContent: "flex-start",
     alignItems: "center",
-    height: 40,
-    width: 30
+    height: Math.floor(window.height * 0.06),
+    width: Math.floor(window.width * 0.08)
   },
   cardLabelIonicons: {
     height: "70%",

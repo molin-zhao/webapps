@@ -51,7 +51,7 @@ class CreateTag extends React.Component {
             navigation.goBack();
           }}
         >
-          <FontAwesome name="chevron-left" size={20} />
+          <Ionicons name="ios-arrow-back" size={theme.iconMd} />
         </TouchableOpacity>
       )
     };
