@@ -3,56 +3,60 @@ const path = require("path");
 const fs = require("fs");
 const response = require("./response");
 const gm = require("gm");
+const ffmpeg = require("fluent-ffmpeg");
+const config = require("../config");
 
 checkImageType = file => {
-  const filetypes = /jpeg|jpg|png|gif/;
+  const filetypes = /jpeg|jpg|png|gif|mov|mp4/;
   const extname = filetypes.test(
     path.extname(file.originalFilename).toLowerCase()
   );
   const mimetype = filetypes.test(file.type);
-  if (mimetype && extname) {
-    return true;
-  } else {
-    return false;
-  }
+  return mimetype && extname;
 };
 
-exports.getFileName = file => {
+exports.getFileName = () => {
   return new Promise((resolve, reject) => {
     crypto.pseudoRandomBytes(16, (err, raw) => {
       if (err) return reject(err);
-      let fileName =
-        Date.now() +
-        "-" +
-        raw.toString("hex") +
-        path.extname(file.originalFilename);
+      let fileName = Date.now() + "-" + raw.toString("hex");
       return resolve(fileName);
     });
   });
 };
 
-exports.getFileBaseName = file => {
-  return { fileName: path.basename(file.originalFilename) };
-};
-
-exports.uploadImage = (limit, fileLocation, file) => {
+exports.uploadImage = (fileDest, file) => {
   return new Promise((resolve, reject) => {
     if (!file) return reject(response.ERROR.NO_IMAGE_PROVIDED);
     if (checkImageType(file)) {
-      if (file.size > limit) return reject(response.ERROR.FILE_SIZE_EXCEEDED);
+      let ftype = file.type.split("/")[0];
+      if (ftype === "image" && file.size > config.image.limit)
+        return reject(response.ERROR.FILE_SIZE_EXCEEDED);
       // connect-multiparty will creates temp files on server
       // we should manually clean it after saving file to target path
-      let tmpPath = file.path;
-      fs.rename(tmpPath, fileLocation, err => {
-        if (err) return reject(response.ERROR.SAVING_FILE_ERROR);
-        try {
+      try {
+        let tmpPath = file.path;
+        if (
+          ftype === "video" &&
+          path.extname(file.originalFilename) !== ".mp4"
+        ) {
+          // convert other video format to .mp4
+          ffmpeg(tmpPath)
+            .format("mp4")
+            .save(fileDest)
+            .on("end", () => {
+              fs.unlinkSync(tmpPath);
+            });
+        } else {
+          fs.renameSync(tmpPath, fileDest);
           fs.unlinkSync(tmpPath);
-        } catch (e) {
-          //pass
-        } finally {
-          return resolve(`saved file to ${fileLocation}`);
         }
-      });
+      } catch (err) {
+        console.log(err);
+        throw new Error(response.ERROR.SAVING_FILE_ERROR.MSG);
+      } finally {
+        return resolve(`saved file to ${fileLocation}`);
+      }
     } else {
       return reject(response.ERROR.FILE_TYPE_ERROR);
     }
@@ -76,4 +80,8 @@ exports.getFileAsync = async path => {
 
 exports.deleteFileAsync = async path => {
   return await fs.unlinkSync(path);
+};
+
+exports.getFileBaseName = file => {
+  return { fileName: path.basename(file.originalFilename) };
 };

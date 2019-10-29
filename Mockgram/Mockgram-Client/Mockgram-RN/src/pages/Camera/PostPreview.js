@@ -138,7 +138,8 @@ class PostPreview extends React.Component {
       error: null
     });
     uploadingPost();
-    let url = `${baseUrl.upload}/upload/post`;
+    // let url = `${baseUrl.upload}/upload/post`;
+    let url = `http://10.1.3.33:3032/upload/post`;
     fetch(url, {
       method: "POST",
       headers: {
@@ -357,11 +358,11 @@ class PostPreview extends React.Component {
               <FontAwesome
                 style={{
                   position: "absolute",
-                  top: 0,
-                  right: 0,
+                  top: -2,
+                  right: -2,
                   backgroundColor: "transparent"
                 }}
-                size={theme.iconSm}
+                size={theme.iconLg}
                 name="times"
                 onPress={() => {
                   removeAImage(img);

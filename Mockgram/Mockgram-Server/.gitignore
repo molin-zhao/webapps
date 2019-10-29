@@ -7,5 +7,5 @@ package-lock.json
 #system files
 .DS_STORE
 .vscode/
-
+test/
 config.js

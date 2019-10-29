@@ -30,40 +30,45 @@ const { serverNodes } = require("../../config");
 
 router.post(
   "/post",
-  authenticate.verifyAuthorization,
+  // authenticate.verifyAuthorization,
   multipart(),
   async (req, res) => {
-    let files = req.files.post;
-    let limit = image.limit;
+    /**
+     * post is file array
+     */
     try {
+      let files = req.files.post;
       let fileNamePromises = files.map(async file => {
-        try {
-          const fileName = await getFileName(file);
-          return fileName;
-        } catch (err) {
-          throw new Error(err);
-        }
+        const fileName = await getFileName();
+        return { name: fileName, type: file.type.split("/")[0] };
       });
-      let fileNames = await Promise.all(fileNamePromises);
-      let queryPathPromises = fileNames.map(fileName => ({
-        file: `${image.postQuery}${fileName}`,
-        thumbnail: `${image.thumbnailQuery}${fileName}`
-      }));
-      let queryPaths = await Promise.all(queryPathPromises);
+      let fileInfo = await Promise.all(fileNamePromises);
       let location = JSON.parse(req.body.location);
       let tags = convertStringArrToObjectIdArr(JSON.parse(req.body.tags));
       let creator = convertStringToObjectId(req.user._id);
-      let post = {
+      await Tag.updateCounts(tags, creator);
+      await Location.updateCount(location, creator);
+      let saveResultPromises = fileInfo.map(async (info, index) => {
+        let fname = info.name;
+        let fdest = `${image.post}${fname}`;
+        await uploadImage(fdest, files[index]);
+      });
+      let saveResults = await Promise.all(saveResultPromises);
+      console.log(saveResults);
+      let queryPathPromises = fileInfo.map(info => ({
+        file: `${image.postQuery}${info.fullName}`,
+        thumbnail: `${image.thumbnailQuery}${info.fullName}`,
+        type: info.type
+      }));
+      let queryPaths = await Promise.all(queryPathPromises);
+      let result = await Post.createPost({
         image: queryPaths,
         description: req.body.description,
         mentioned: convertStringArrToObjectIdArr(JSON.parse(req.body.mention)),
         creator,
         location,
         tags
-      };
-      await Tag.updateCounts(tags, creator);
-      await Location.updateCount(location, creator);
-      let result = await Post.createPost(post);
+      });
       if (!result)
         return res.json({
           status: response.SUCCESS.ACCEPTED.CODE,
@@ -90,19 +95,6 @@ router.post(
             console.log(res);
           });
       }
-      let saveResultPromises = fileNames.map(async (fileName, index) => {
-        let fileLocation = `${image.post}${fileName}`;
-        let thumbnailLocation = `${image.thumbnail}${fileName}`;
-        await uploadImage(limit, fileLocation, files[index]);
-        await uploadImageThumbnail(
-          fileLocation,
-          thumbnailLocation,
-          image.thumbnailSize
-        );
-        return response.SUCCESS.OK;
-      });
-      let saveResults = await Promise.all(saveResultPromises);
-      console.log(saveResults);
       return res.json({
         status: response.SUCCESS.OK.CODE,
         msg: response.SUCCESS.OK.MSG,

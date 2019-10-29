@@ -477,20 +477,21 @@ class Location extends React.Component {
   };
 
   renderNearbyEmpty = () => {
-    const {appLocale} = this.props;
+    const { appLocale } = this.props;
     return (
-      <TouchableOpacity 
-      activeOpacity={0.8}
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-        <Ionicons name='ios-add-circle-outline' size={theme.iconLg}/>
-        <Text>{`${locale[appLocale]['NO_NEARBY_LOCATIONS']}`}</Text>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+      >
+        <Ionicons name="ios-add-circle-outline" size={theme.iconLg} />
+        <Text>{`${locale[appLocale]["NO_NEARBY_LOCATIONS"]}`}</Text>
       </TouchableOpacity>
     );
-  }
+  };
 
   renderLocationList = () => {
     const { searchedLocations, searchValue, nearbyLocations } = this.state;
@@ -515,7 +516,7 @@ class Location extends React.Component {
         stickyHeaderIndices={[0]}
         style={{ backgroundColor: "#fff", width: "100%" }}
         data={nearbyLocations}
-        ListEmptyComponent={}
+        ListEmptyComponent={this.renderNearbyEmpty}
         extraData={this.state}
         keyExtractor={item => item._id}
         renderItem={({ item, index }) =>
@@ -607,8 +608,8 @@ class Location extends React.Component {
       return (
         <View
           style={{
-            width: '100%',
-            height: '100%',
+            width: "100%",
+            height: "100%",
             justifyContent: "center",
             alignItems: "center"
           }}
