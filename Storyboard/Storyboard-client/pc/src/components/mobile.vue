@@ -1,6 +1,6 @@
 <template>
     <div>
-
+        <h1>This is mobile</h1>
     </div>
 </template>
 

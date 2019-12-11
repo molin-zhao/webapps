@@ -22,30 +22,32 @@
             aria-haspopup="true"
             aria-expanded="false"
           >
+            <icon name="lang" style="color: white" />
             {{ $t("LANGUAGE") }}
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item" @click="changeLocale('en-US')">{{
-              $t("EN_US")
-            }} {{renderCurrentLocale('en-US')}}</a>
-            <a class="dropdown-item" @click="changeLocale('zh-CN')">{{
-              $t("ZH_CN")
-            }} {{renderCurrentLocale('zh-CN')}}</a>
+          <div
+            class="dropdown-menu dropdown-menu-right"
+            aria-labelledby="navbarDropdownMenuLink"
+          >
+            <a class="dropdown-item" @click="changeLocale('en-US')"
+              >{{ $t("EN_US") }} {{ renderCurrentLocale("en-US") }}</a
+            >
+            <a class="dropdown-item" @click="changeLocale('zh-CN')"
+              >{{ $t("ZH_CN") }} {{ renderCurrentLocale("zh-CN") }}</a
+            >
           </div>
         </li>
-        <li class="nav-item active">
+        <li v-if="!isMobile" class="nav-item active">
           <a class="nav-link nav-title" href="#"
-            >{{$t('REGISTER')}} <span class="sr-only">(current)</span></a
+            >{{ $t("REGISTER") }} <span class="sr-only">(current)</span></a
           >
         </li>
-        <li class="nav-item active">
-          <a class="nav-link nav-title" href="#"
-            >|</a
-          >
+        <li v-if="!isMobile" class="nav-item active">
+          <a class="nav-link nav-title">|</a>
         </li>
-        <li class="nav-item active">
+        <li v-if="!isMobile" class="nav-item active">
           <a class="nav-link nav-title" href="#"
-            >{{$t('LOGIN')}} <span class="sr-only">(current)</span></a
+            >{{ $t("LOGIN") }} <span class="sr-only">(current)</span></a
           >
         </li>
       </ul>
@@ -55,18 +57,23 @@
 
 <script>
 export default {
-
+  computed: {
+    isMobile() {
+      let pathLastValue = this.$route.path.split("/").pop();
+      return pathLastValue === "mobile" ? true : false;
+    }
+  },
   methods: {
     changeLocale(localeId) {
       if (this.$i18n.locale !== localeId) {
         this.$i18n.locale = localeId;
       }
     },
-    renderCurrentLocale(localeId){
-            if(this.$i18n.locale === localeId){
-                return '✔'
-            }
-        }
+    renderCurrentLocale(localeId) {
+      if (this.$i18n.locale === localeId) {
+        return "✔";
+      }
+    }
   }
 };
 </script>
@@ -77,7 +84,7 @@ export default {
   top: 0;
   height: 5vh;
   width: 100%;
-  background-color: indigo;
+  background-color: #090723;
   nav {
     height: 100%;
     width: 100%;

@@ -26,7 +26,6 @@ export default {
   justify-content: center;
   align-items: center;
   background-color: lightgrey;
-  opacity: 0.5;
   span {
     display: inline-block;
     vertical-align: middle;

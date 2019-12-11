@@ -1,8 +1,6 @@
 <template>
   <div class="content">
-    <div style=" margin-top:100px">
-      <icon name="bell" style="height: 50px; width: 50px; color: green"/>
-    </div>
+    <router-view />
   </div>
 </template>
 
@@ -12,8 +10,13 @@ export default {};
 
 <style lang="scss" scoped>
 .content {
+  width: 100%;
   min-height: 100%;
   margin-bottom: -5vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .content::after {
   content: "";
