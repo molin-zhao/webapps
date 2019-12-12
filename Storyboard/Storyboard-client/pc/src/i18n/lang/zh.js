@@ -8,7 +8,7 @@ export default{
     HIGH: '高',
     MEDIUM: '中',
     LOW: '低',
-    DASHBOARD: '仪表盘',
+    STORYBOARD: '任务板',
     OWNER: '所有者',
     STATUS: '状态',
     DUE_DATE: '截止日期',

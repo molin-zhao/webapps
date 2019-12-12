@@ -8,7 +8,7 @@ export default {
     HIGH: 'High',
     MEDIUM: 'Medium',
     LOW: 'Low',
-    DASHBOARD: 'Dashboard',
+    STORYBOARD: 'Storyboard',
     OWNER: 'Owner',
     STATUS: 'Status',
     DUE_DATE: 'Due Date',

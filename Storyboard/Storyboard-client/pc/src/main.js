@@ -7,8 +7,9 @@ import App from "./App";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 
-// icons
+// custom elements
 import "@/assets/icon";
+import "@/assets/loading";
 
 import store from "./store";
 import router from "./router";

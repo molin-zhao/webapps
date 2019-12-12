@@ -3,7 +3,7 @@
     <nav class="navbar navbar-expand-lg">
       <a class="navbar-brand nav-title" href="#">
         <img
-          src="@/assets/logo.png"
+          src="/static/logo.png"
           width="30"
           height="30"
           class="d-inline-block align-top"
@@ -28,6 +28,7 @@
           <div
             class="dropdown-menu dropdown-menu-right"
             aria-labelledby="navbarDropdownMenuLink"
+            style="position: absolute; top: 5vh"
           >
             <a class="dropdown-item" @click="changeLocale('en-US')"
               >{{ $t("EN_US") }} {{ renderCurrentLocale("en-US") }}</a

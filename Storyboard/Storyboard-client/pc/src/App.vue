@@ -1,17 +1,12 @@
 <template>
   <div id="app">
     <router-view></router-view>
-    <!-- <home></home> -->
   </div>
 </template>
 
 <script>
-import home from "@/pages/home";
 export default {
   name: "Storyboard-App",
-  components: {
-    home
-  },
   mounted() {
     // check if the client requested from a mobile device
     let isMobile = navigator.userAgent.match(
@@ -24,6 +19,7 @@ export default {
 </script>
 
 <style>
+@import './assets/font/font.css';
 html,
 body {
   width: 100%;

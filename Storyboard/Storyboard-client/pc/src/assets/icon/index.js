@@ -1,4 +1,3 @@
-// index.js  文件
 import Vue from 'vue'
 import icon from '@/components/icon'// svg组件
 
