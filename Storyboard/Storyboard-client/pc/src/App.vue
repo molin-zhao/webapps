@@ -12,18 +12,19 @@ export default {
     let isMobile = navigator.userAgent.match(
       /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
     );
-    let currentNavStackIsMobile = this.$route.path.split('/').pop() === 'mobile'? true: false;
+    let currentNavStackIsMobile =
+      this.$route.path.split("/").pop() === "mobile" ? true : false;
     if (isMobile && !currentNavStackIsMobile) this.$router.replace("/mobile");
   }
 };
 </script>
 
 <style>
-@import './assets/font/font.css';
+@import "./assets/font/font.css";
 html,
 body {
-  width: 100%;
-  height: 100%;
+  /* width: 100vw;
+  height: 100vh; */
   margin: 0;
 }
 #app {
@@ -32,7 +33,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
 }
 </style>

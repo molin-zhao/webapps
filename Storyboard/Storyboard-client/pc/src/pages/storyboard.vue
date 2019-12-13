@@ -12,11 +12,22 @@
         <img src="/static/logo.png" style="width: 4vw; height: 4vw" />
         <div class="menubar-empty"></div>
         <div class="menubar-setting-wrapper">
-          <icon name="lang" style="width: 1.5vw; height: 1.5vw; color: white"/>
-          <icon name="bell" style="width: 2vw; height: 2vw; color: white" />
-          <img
+          <badgeIcon
+            wrapperStyle="width: 100%; height: 4vw"
+            iconStyle="width: 1.5vw; height: 1.5vw"
+            name="lang"
+          />
+          <badgeIcon
+            wrapperStyle="width: 100%; height: 4vw"
+            iconStyle="width: 2vw; height: 2vw;"
+            badgeClass="badge-danger"
+            name="bell"
+            :number="90"
+          />
+          <imageBtn
             src="/static/image/user_m_3.png"
-            style="width: 4vw; height: 4vw"
+            wrapperStyle="width: 100%; height: 4.5vw"
+            imgStyle="width: 4vw; height: 4vw; border-radius: 2vw"
           />
         </div>
       </div>
@@ -36,7 +47,13 @@
 </template>
 
 <script>
+import badgeIcon from "@/components/badgeIcon";
+import imageBtn from "@/components/imageBtn";
 export default {
+  components: {
+    badgeIcon,
+    imageBtn
+  },
   data() {
     return {
       storyboardLoading: true
@@ -59,6 +76,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 0;
 }
 .storyboard {
   width: 100%;
@@ -81,7 +99,6 @@ export default {
     .menubar-setting-wrapper {
       width: 100%;
       flex: 1;
-      background-color: aquamarine;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
@@ -131,5 +148,10 @@ export default {
     width: 75%;
     background-color: lightgoldenrodyellow;
   }
+}
+.test {
+  border-width: 10px;
+  border-color: green;
+  border-style: solid;
 }
 </style>

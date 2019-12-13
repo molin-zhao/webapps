@@ -1,3 +1,27 @@
-.color-primary{
-    background-color: #090723;
+.color-primary {
+  background-color: #090723;
+}
+
+.icon-default {
+  color: grey;
+}
+
+.icon-default-dark {
+  color: black;
+}
+
+.icon-mouseover-light {
+  color: white;
+}
+
+.icon-mouseover-dark {
+  color: grey;
+}
+
+.img-mouseover-light {
+  border: 2px solid white;
+}
+
+.img-mouseover-dark {
+  border: 2px solid black;
 }
