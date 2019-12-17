@@ -6,3 +6,16 @@
     width: 100%;
     height: 100%;
 }
+.sidebar-default{
+    height: 100vh;
+    width: 25vw;
+    right: -5px;
+    top: 0;
+}
+
+.display-only{
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none; 
+}

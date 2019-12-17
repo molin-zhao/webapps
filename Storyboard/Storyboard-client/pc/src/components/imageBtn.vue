@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" :style="wrapperStyle">
+  <div class="wrapper display-only" :style="wrapperStyle">
     <img
       :src="src"
       :class="imgBorder"
@@ -7,6 +7,7 @@
       @mouseover="onMouseover()"
       @mouseleave="onMouseleave()"
     />
+    <slot></slot>
   </div>
 </template>
 
@@ -52,6 +53,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "../common/theme/color.css";
+@import "../common/theme/container.css";
 .wrapper {
   display: flex;
   flex-direction: column;

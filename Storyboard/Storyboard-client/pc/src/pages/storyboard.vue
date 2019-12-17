@@ -16,32 +16,67 @@
             wrapperStyle="width: 100%; height: 4vw"
             iconStyle="width: 1.5vw; height: 1.5vw"
             name="lang"
-          />
+            @click.native="mouseclick('sidebar')"
+          >
+            <tooltips style="left: 5.2vw; bottom: 0">
+              <div
+                style="width: 200px; height: 200px; background-color: red"
+              ></div>
+            </tooltips>
+          </badgeIcon>
           <badgeIcon
             wrapperStyle="width: 100%; height: 4vw"
             iconStyle="width: 2vw; height: 2vw;"
             badgeClass="badge-danger"
             name="bell"
             :number="90"
-          />
+            @mouseover.native="mouseover('bell')"
+            @mouseleave.native="mouseleave('bell')"
+          >
+            <tooltips ref="bell" style="left: 5vw; bottom: 0">
+              <div
+                style="width: 200px; height: 200px; background-color: red"
+              ></div>
+            </tooltips>
+          </badgeIcon>
           <imageBtn
             src="/static/image/user_m_3.png"
             wrapperStyle="width: 100%; height: 4.5vw"
             imgStyle="width: 4vw; height: 4vw; border-radius: 2vw"
-          />
+            @mouseover.native="mouseover('avatar')"
+            @mouseleave.native="mouseleave('avatar')"
+          >
+            <tooltips ref="avatar" style="left: 5vw; bottom: 0">
+              <div
+                style="width: 200px; height: 200px; background-color: yellow"
+              ></div>
+            </tooltips>
+          </imageBtn>
         </div>
       </div>
 
       <!-- taskbar -->
       <div class="taskbar">
         <div class="taskbar-item-wrapper">
-          <h2 style="font-family: kai">{{ $t("STORYBOARD") }}</h2>
+          <h2 class="display-only" style="font-family: kai">
+            {{ $t("STORYBOARD") }}
+          </h2>
         </div>
         <div class="ad"></div>
       </div>
 
       <!-- storyboard -->
-      <div class="storyboard"></div>
+      <div class="storyboard">
+        <router-view></router-view>
+      </div>
+
+      <!-- sidebar -->
+      <sidebar 
+      ref="sidebar"
+      sidebarStyle="box-shadow: -5px 2px 5px lightgrey"
+      >
+        <div class="sidebar-content"></div>
+      </sidebar>
     </div>
   </div>
 </template>
@@ -49,10 +84,14 @@
 <script>
 import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
+import tooltips from "@/components/tooltips";
+import sidebar from "@/components/sidebar";
 export default {
   components: {
     badgeIcon,
-    imageBtn
+    imageBtn,
+    tooltips,
+    sidebar
   },
   data() {
     return {
@@ -63,12 +102,30 @@ export default {
     setTimeout(() => {
       this.storyboardLoading = false;
     }, 3000);
+  },
+  methods: {
+    mouseover(ref) {
+      let refCpnt = this.$refs[ref];
+      if (refCpnt && refCpnt.show) return refCpnt.show();
+    },
+    mouseleave(ref) {
+      let refCpnt = this.$refs[ref];
+      if (refCpnt && refCpnt.hide) return refCpnt.hide();
+    },
+    mouseclick(ref) {
+      let refCpnt = this.$refs[ref];
+      if (refCpnt) {
+        if (refCpnt.visible && refCpnt.hide) return refCpnt.hide();
+        if (!refCpnt.visible && refCpnt.show) return refCpnt.show();
+      }
+    }
   }
 };
 </script>
 
 <style lang="scss" scoped>
 @import "../common/theme/color.css";
+@import "../common/theme/container.css";
 .storyboard-container {
   width: 100%;
   height: 100%;
@@ -127,7 +184,6 @@ export default {
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-      background-color: red;
     }
     .ad {
       width: 100%;
@@ -149,9 +205,13 @@ export default {
     background-color: lightgoldenrodyellow;
   }
 }
-.test {
-  border-width: 10px;
-  border-color: green;
-  border-style: solid;
+.sidebar-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color:white;
 }
 </style>

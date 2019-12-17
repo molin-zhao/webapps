@@ -7,8 +7,6 @@
       `
     "
     aria-hidden="true"
-    @mouseover="onMouseover()"
-    @mouseleave="onMouseleave()"
   >
     <use :xlink:href="iconName" />
   </svg>
@@ -17,15 +15,14 @@
 <script>
 export default {
   name: "icon",
-  data() {
-    return {
-      mouseover: false
-    };
-  },
   props: {
     name: {
       type: String,
       required: true
+    },
+    mouseover: {
+      type: Boolean,
+      default: false
     },
     mouseoverClass: {
       type: String,
@@ -39,14 +36,6 @@ export default {
   computed: {
     iconName() {
       return `#icon-${this.name}`;
-    }
-  },
-  methods: {
-    onMouseover() {
-      this.mouseover = true;
-    },
-    onMouseleave() {
-      this.mouseover = false;
     }
   }
 };

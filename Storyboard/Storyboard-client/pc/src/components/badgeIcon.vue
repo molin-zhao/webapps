@@ -1,19 +1,31 @@
 <template>
-  <div class="wrapper" :style="wrapperStyle">
+  <div
+   :class="wrapperClass" 
+   :style="wrapperStyle" ref="icon"
+   @mouseover="checkMouseover"
+   @mouseleave="checkMouseleave">
     <icon
       :name="name"
       :defaultClass="defaultClass"
       :mouseoverClass="mouseoverClass"
       :style="iconStyle"
+      :mouseover="this.mouseover"
     />
-    <span :class="`badge ${badgeClass}`" :style="badgeStyle">{{
+    <span :class="`display-only badge ${badgeClass}`" :style="badgeStyle">{{
       badgeNumber
     }}</span>
+    <slot></slot>
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      clicked: false,
+      mouseover: false
+    };
+  },
   props: {
     name: {
       type: String,
@@ -24,6 +36,9 @@ export default {
       default: 0
     },
     wrapperStyle: {
+      type: String
+    },
+    wrapperActiveClass: {
       type: String
     },
     defaultClass: {
@@ -40,19 +55,55 @@ export default {
     },
     badgeStyle: {
       type: String
+    },
+    onClick: {
+      type: Function
+    },
+    onFinish: {
+      type: Function
     }
   },
   computed: {
+    wrapperClass() {
+      if (this.clicked && this.wrapperActiveClass)
+        return `wrapper ${this.wrapperActiveClass}`;
+      return "wrapper";
+    },
     badgeNumber() {
       if (this.number > 99) return "99+";
       else if (this.number === 0) return "";
       else return `${this.number}`;
     }
+  },
+  created() {
+    document.addEventListener("click", this.checkMouseClick);
+  },
+  beforeDestroy() {
+    document.removeEventListener("click", this.checkMouseClick);
+  },
+  methods: {
+    checkMouseClick(event) {
+      const e = event || window.event;
+      let { type, target } = e;
+      if (this.$refs.icon && !this.$refs.icon.contains(target)) {
+        if (!this.clicked) this.clicked = true;
+        if (this.onClick) this.onClick();
+      } else {
+        if (this.clicked) this.clicked = false;
+      }
+    },
+    checkMouseover(){
+      if(!this.mouseover) this.mouseover = true;
+    },
+    checkMouseleave(){
+      if(this.mouseover) this.mouseover = false;
+    },
   }
 };
 </script>
 
 <style lang="scss" scoped>
+@import "../common/theme/container.css";
 .wrapper {
   display: flex;
   flex-direction: column;
