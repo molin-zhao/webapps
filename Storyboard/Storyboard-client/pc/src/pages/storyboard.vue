@@ -14,8 +14,8 @@
         <div class="menubar-setting-wrapper">
           <badgeIcon
             wrapperStyle="width: 100%; height: 4vw"
-            iconStyle="width: 1.5vw; height: 1.5vw"
-            name="lang"
+            iconStyle="width: 2vw; height: 2vw"
+            name="color"
             @click.native="mouseclick('sidebar')"
           >
             <tooltips style="left: 5.2vw; bottom: 0">
@@ -61,6 +61,9 @@
           <h2 class="display-only" style="font-family: kai">
             {{ $t("STORYBOARD") }}
           </h2>
+          <div>
+            
+          </div>
         </div>
         <div class="ad"></div>
       </div>
@@ -86,6 +89,7 @@ import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
 import tooltips from "@/components/tooltips";
 import sidebar from "@/components/sidebar";
+import {mapState} from 'vuex';
 export default {
   components: {
     badgeIcon,
@@ -95,11 +99,15 @@ export default {
   },
   data() {
     return {
-      storyboardLoading: true
+      storyboardLoading: true,
     };
+  },
+  computed: {
+    projects(){}
   },
   mounted() {
     setTimeout(() => {
+      console.log(this.$store.state);
       this.storyboardLoading = false;
     }, 3000);
   },
