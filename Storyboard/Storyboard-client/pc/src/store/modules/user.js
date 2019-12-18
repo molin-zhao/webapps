@@ -1,20 +1,33 @@
-import {projects} from '../../mock/task';
+import { projects } from "../../mock/task";
 const state = {
-    projects: []
-}
+  projects: []
+};
 const getters = {
-    getProjects: state => state.projects
-}
-const actions = {}
+  get_projects: state => state.projects
+};
+const actions = {
+  fetch_projects: async ({ commit }) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        commit("reload_projects", projects);
+        return resolve("good");
+      }, 3000);
+    });
+  }
+};
 const mutations = {
-    add_project(state, payload){
-        state.projects = state.project.concat(payload)
-    }
-}
+  add_projects(state, payload) {
+    state.projects = state.projects.concat(payload);
+  },
+  reload_projects(state, payload) {
+    state.projects = payload;
+  }
+};
 
 export default {
-    state,
-    getters,
-    actions,
-    mutations
-}
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations
+};

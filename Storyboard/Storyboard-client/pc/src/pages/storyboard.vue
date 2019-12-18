@@ -61,8 +61,29 @@
           <h2 class="display-only" style="font-family: kai">
             {{ $t("STORYBOARD") }}
           </h2>
-          <div>
-            
+          <div class="project-wrapper">
+            <span class="display-only" style="font-family: kai">{{
+              $t("PROJECTS")
+            }}</span>
+            <div class="list-group list-group-flush project-list display-only">
+              <a
+                style="font-family: kai; border: none; border-radius: 5px; padding: 5px"
+                @click="projectLabelClick(index)"
+                v-for="(item, index) in projects"
+                :key="index"
+                :class="projectLabel(index)"
+                >{{ item.name }}</a
+              >
+            </div>
+            <a
+              id="create-project-btn"
+              class="list-group-item list-group-item-dark display-only"
+              style="width: 100%; margin-top: 5px; font-family: kai; border-radius: 5px; padding: 5px; text-align: left"
+              @click="createNewProject"
+            >
+              {{ `+ ${$t("CREATE_PROJECT")}` }}
+            </a>
+            <div></div>
           </div>
         </div>
         <div class="ad"></div>
@@ -74,10 +95,7 @@
       </div>
 
       <!-- sidebar -->
-      <sidebar 
-      ref="sidebar"
-      sidebarStyle="box-shadow: -5px 2px 5px lightgrey"
-      >
+      <sidebar ref="sidebar" sidebarStyle="box-shadow: -5px 2px 5px lightgrey">
         <div class="sidebar-content"></div>
       </sidebar>
     </div>
@@ -89,7 +107,7 @@ import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
 import tooltips from "@/components/tooltips";
 import sidebar from "@/components/sidebar";
-import {mapState} from 'vuex';
+import { mapState, mapActions } from "vuex";
 export default {
   components: {
     badgeIcon,
@@ -100,18 +118,29 @@ export default {
   data() {
     return {
       storyboardLoading: true,
+      projectSelectedIndex: 0
     };
   },
   computed: {
-    projects(){}
+    ...mapState("user", ["projects"]),
+    projectLabel() {
+      return function(index) {
+        if (index === this.projectSelectedIndex) {
+          return "list-group-item list-group-item-primary";
+        }
+        return "list-group-item list-group-item-action";
+      };
+    }
   },
   mounted() {
-    setTimeout(() => {
-      console.log(this.$store.state);
+    this.fetch_projects().then(() => {
       this.storyboardLoading = false;
-    }, 3000);
+    });
   },
   methods: {
+    ...mapActions({
+      fetch_projects: "user/fetch_projects"
+    }),
     mouseover(ref) {
       let refCpnt = this.$refs[ref];
       if (refCpnt && refCpnt.show) return refCpnt.show();
@@ -126,6 +155,12 @@ export default {
         if (refCpnt.visible && refCpnt.hide) return refCpnt.hide();
         if (!refCpnt.visible && refCpnt.show) return refCpnt.show();
       }
+    },
+    projectLabelClick(index) {
+      this.projectSelectedIndex = index;
+    },
+    createNewProject() {
+      console.log("create new project");
     }
   }
 };
@@ -180,7 +215,7 @@ export default {
     height: 100%;
     width: 20%;
     border-top-left-radius: 2vw;
-    background-color: lightgoldenrodyellow;
+    background-color: white;
     border-right-width: 2px;
     border-right-color: lightgray;
     border-right-style: dashed;
@@ -210,7 +245,7 @@ export default {
     align-items: center;
     height: 100%;
     width: 75%;
-    background-color: lightgoldenrodyellow;
+    background-color: white;
   }
 }
 .sidebar-content {
@@ -220,6 +255,34 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color:white;
+  background-color: white;
+}
+.project-wrapper {
+  width: 90%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  .project-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    a {
+      width: 100%;
+      text-align: left;
+    }
+    a:hover {
+      color: black;
+    }
+    a.list-group-item-primary {
+      color: dodgerblue;
+    }
+  }
+}
+#create-project-btn:active {
+  background-color: lightgray;
 }
 </style>
