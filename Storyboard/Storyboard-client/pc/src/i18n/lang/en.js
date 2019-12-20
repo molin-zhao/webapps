@@ -17,6 +17,9 @@ export default {
   EN_US: "English-US",
   ZH_CN: "Chinese-China(Mainland)",
   PROJECTS: "My project(s):",
+  NEW_PROJECT: "New project",
+  CREATE: "Create",
+  DONE: "Done!",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

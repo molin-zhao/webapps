@@ -1,9 +1,11 @@
 <template>
   <div
-   :class="wrapperClass" 
-   :style="wrapperStyle" ref="icon"
-   @mouseover="checkMouseover"
-   @mouseleave="checkMouseleave">
+    class="wrapper"
+    :style="computedWrapperStyle"
+    ref="icon"
+    @mouseover="checkMouseover"
+    @mouseleave="checkMouseleave"
+  >
     <icon
       :name="name"
       :defaultClass="defaultClass"
@@ -38,7 +40,10 @@ export default {
     wrapperStyle: {
       type: String
     },
-    wrapperActiveClass: {
+    wrapperActiveStyle: {
+      type: String
+    },
+    wrapperHoverStyle: {
       type: String
     },
     defaultClass: {
@@ -64,15 +69,17 @@ export default {
     }
   },
   computed: {
-    wrapperClass() {
-      if (this.clicked && this.wrapperActiveClass)
-        return `wrapper ${this.wrapperActiveClass}`;
-      return "wrapper";
-    },
     badgeNumber() {
       if (this.number > 99) return "99+";
       else if (this.number === 0) return "";
       else return `${this.number}`;
+    },
+    computedWrapperStyle() {
+      if (this.clicked && this.wrapperActiveStyle)
+        return `${this.wrapperStyle}; ${this.wrapperActiveStyle}`;
+      else if (this.mouseover && this.wrapperHoverStyle)
+        return `${this.wrapperStyle}; ${this.wrapperHoverStyle}`;
+      else return `${this.wrapperStyle}`;
     }
   },
   created() {
@@ -85,19 +92,19 @@ export default {
     checkMouseClick(event) {
       const e = event || window.event;
       let { type, target } = e;
-      if (this.$refs.icon && !this.$refs.icon.contains(target)) {
+      if (this.$refs.icon && this.$refs.icon.contains(target)) {
         if (!this.clicked) this.clicked = true;
         if (this.onClick) this.onClick();
       } else {
         if (this.clicked) this.clicked = false;
       }
     },
-    checkMouseover(){
-      if(!this.mouseover) this.mouseover = true;
+    checkMouseover() {
+      if (!this.mouseover) this.mouseover = true;
     },
-    checkMouseleave(){
-      if(this.mouseover) this.mouseover = false;
-    },
+    checkMouseleave() {
+      if (this.mouseover) this.mouseover = false;
+    }
   }
 };
 </script>

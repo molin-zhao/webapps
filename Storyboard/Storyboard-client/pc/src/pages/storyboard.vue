@@ -16,7 +16,6 @@
             wrapperStyle="width: 100%; height: 4vw"
             iconStyle="width: 2vw; height: 2vw"
             name="color"
-            @click.native="mouseclick('sidebar')"
           >
             <tooltips style="left: 5.2vw; bottom: 0">
               <div
@@ -79,7 +78,8 @@
               id="create-project-btn"
               class="list-group-item list-group-item-dark display-only"
               style="width: 100%; margin-top: 5px; font-family: kai; border-radius: 5px; padding: 5px; text-align: left"
-              @click="createNewProject"
+              data-toggle="modal"
+              data-target="#modal-create-project"
             >
               {{ `+ ${$t("CREATE_PROJECT")}` }}
             </a>
@@ -91,14 +91,62 @@
 
       <!-- storyboard -->
       <div class="storyboard">
+        <mainboard :index="projectSelectedIndex" />
         <router-view></router-view>
       </div>
-
-      <!-- sidebar -->
-      <sidebar ref="sidebar" sidebarStyle="box-shadow: -5px 2px 5px lightgrey">
-        <div class="sidebar-content"></div>
-      </sidebar>
     </div>
+
+    <!-- modals -->
+    <div id="modal-create-project" class="modal fade" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title display-only" style="font-family: kai">
+              {{ $t("CREATE_PROJECT") }}
+            </h5>
+            <a
+              style="font-size: 20px"
+              class="display-only"
+              aria-hidden="true"
+              aria-label="Close"
+              data-target="#modal-create-project"
+              data-dismiss="modal"
+              >&times;</a
+            >
+          </div>
+          <div class="modal-body">
+            <p>body</p>
+          </div>
+          <div class="modal-footer">
+            <button
+              v-if="projectCreating"
+              class="btn btn-sm btn-primary create-btn"
+              disabled
+            >
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+            </button>
+            <button
+              v-else
+              @click="createNewProject"
+              type="button"
+              class="btn btn-sm btn-primary create-btn"
+            >
+              {{ $t("CREATE") }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- alerts -->
+    <alert ref="alert"
+      ><strong>Holy guacamole!</strong> You should check in on some of those
+      fields below.
+    </alert>
   </div>
 </template>
 
@@ -106,18 +154,23 @@
 import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
 import tooltips from "@/components/tooltips";
-import sidebar from "@/components/sidebar";
+import alert from "@/components/alert";
+import mainboard from "@/components/mainboard";
 import { mapState, mapActions } from "vuex";
+import mouse from "@/common/utils/mouse";
 export default {
   components: {
     badgeIcon,
     imageBtn,
     tooltips,
-    sidebar
+    alert,
+    mainboard
   },
   data() {
     return {
       storyboardLoading: true,
+      projectCreating: false,
+      projectCreated: false,
       projectSelectedIndex: 0
     };
   },
@@ -141,26 +194,18 @@ export default {
     ...mapActions({
       fetch_projects: "user/fetch_projects"
     }),
-    mouseover(ref) {
-      let refCpnt = this.$refs[ref];
-      if (refCpnt && refCpnt.show) return refCpnt.show();
-    },
-    mouseleave(ref) {
-      let refCpnt = this.$refs[ref];
-      if (refCpnt && refCpnt.hide) return refCpnt.hide();
-    },
-    mouseclick(ref) {
-      let refCpnt = this.$refs[ref];
-      if (refCpnt) {
-        if (refCpnt.visible && refCpnt.hide) return refCpnt.hide();
-        if (!refCpnt.visible && refCpnt.show) return refCpnt.show();
-      }
-    },
+    ...mouse,
     projectLabelClick(index) {
       this.projectSelectedIndex = index;
     },
     createNewProject() {
-      console.log("create new project");
+      this.projectCreated = false;
+      this.projectCreating = true;
+      setTimeout(() => {
+        this.projectCreating = false;
+        this.projectCreated = true;
+        this.$refs["alert"].alert("warning");
+      }, 3000);
     }
   }
 };
@@ -248,15 +293,6 @@ export default {
     background-color: white;
   }
 }
-.sidebar-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  background-color: white;
-}
 .project-wrapper {
   width: 90%;
   height: 90%;
@@ -284,5 +320,15 @@ export default {
 }
 #create-project-btn:active {
   background-color: lightgray;
+}
+.create-btn {
+  height: 30px;
+  width: 70px;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: kai;
 }
 </style>

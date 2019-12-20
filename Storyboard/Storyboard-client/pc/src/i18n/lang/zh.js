@@ -17,6 +17,9 @@ export default {
   EN_US: "英语-美国",
   ZH_CN: "中文-简体",
   PROJECTS: "我的项目:",
+  NEW_PROJECT: "新建项目",
+  CREATE: "创建",
+  DONE: "完成!",
 
   // actions
   ADD_DESCRIPTION: "添加描述",
