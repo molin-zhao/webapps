@@ -24,18 +24,11 @@
       <div class="mainboard-info">
         <editableText
           style="width: 30%; height: 100%; padding: 1px"
-          default="add a description"
+          defaultValue="ADD_DESCRIPTION"
           :value="decription"
-          :textStyle="
-            `font-family: kai; font-size: 2vh; display: block; width: 100%; text-align: left`
-          "
-        >
-          <textarea
-            :placeholder="decription"
-            v-model="decription"
-            style="width: 100%; height: 100%; background-color: none; padding: 1px; font-family: kai; font-size: 2vh; display: block"
-          ></textarea>
-        </editableText>
+          fontStyle="font-family: kai; font-size: 2vh;"
+          :row="3"
+        />
       </div>
       <div class="mainboard-phrases"></div>
     </div>
@@ -137,7 +130,6 @@ export default {
 .mainboard-info {
   height: 10%;
   width: 100%;
-  background-color: yellowgreen;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
