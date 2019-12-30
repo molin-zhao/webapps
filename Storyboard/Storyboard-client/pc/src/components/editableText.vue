@@ -42,12 +42,15 @@ export default {
     fontStyle: {
       type: String,
       default: ""
+    },
+    bindChange: {
+      type: Function
     }
   },
   data() {
     return {
       editing: false,
-      inputValue: this.$props.value
+      inputValue: this.value
     };
   },
   computed: {
@@ -57,9 +60,6 @@ export default {
         return this.$t(`${this.defaultValue}`);
       return this.defaultValue;
     },
-    // computedTextLabelStyle() {
-    //   return `display: block; width: 100%; text-align: left; ${this.fontStyle}`;
-    // },
     computedTextLabelStyle() {
       if (this.row === 1) {
         // single line input
@@ -109,8 +109,18 @@ export default {
           });
         }
       } else {
-        if (this.editing) this.editing = false;
+        if (this.editing) {
+          // editing state changed
+          this.editing = false;
+          if (this.value !== this.inputValue) {
+            // props value does not match input value, emit change event
+            this.$emit("change", this.inputValue);
+          }
+        }
       }
+    },
+    getValue() {
+      return this.inputValue;
     }
   }
 };

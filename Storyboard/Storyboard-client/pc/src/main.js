@@ -10,12 +10,14 @@ import "bootstrap/dist/js/bootstrap.min.js";
 // custom elements
 import "@/assets/icon";
 import "@/assets/loading";
+import Alert from "@/plugins/alert";
 
 import store from "./store";
 import router from "./router";
 import i18n from "./i18n";
 
 Vue.config.productionTip = false;
+Vue.use(Alert);
 
 /* eslint-disable no-new */
 new Vue({

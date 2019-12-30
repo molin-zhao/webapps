@@ -23,25 +23,33 @@ export default {
   data() {
     return {
       show: false,
-      type: "secondary",
-      message: "",
       dismissTimer: null
     };
   },
   props: {
+    type: {
+      type: String,
+      default: "secondary"
+    },
+    message: {
+      type: String,
+      default: "message"
+    },
     interval: {
       type: Number,
       default: 3000
     }
   },
   methods: {
-    alert(type, message) {
-      this.type = type;
-      this.message = message;
+    alert() {
       this.show = true;
       this.dismissTimer = setTimeout(() => {
-        this.resetTimer();
-        this.show = false;
+        // automatically close alert
+        if (this) {
+          this.show = false;
+          this.resetTimer();
+          // this.destory();
+        }
       }, this.interval);
     },
     dismiss() {
@@ -51,6 +59,12 @@ export default {
       if (this.dismissTimer) clearTimeout(this.dismissTimer);
       this.dismissTimer = null;
     }
+    // destory() {
+    //   if (this) {
+    //     this.$destroy();
+    //     document.body.removeChild(this.$el);
+    //   }
+    // }
   }
 };
 </script>
@@ -60,6 +74,8 @@ export default {
 div.alert {
   position: absolute;
   top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10050 !important;
 }
 </style>

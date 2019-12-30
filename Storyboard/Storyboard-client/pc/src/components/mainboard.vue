@@ -6,7 +6,7 @@
           {{ projects[index].name }}
         </h1>
         <div class="mainboard-title-right">
-          <badgeIcon
+          <badge-icon
             wrapperStyle="width: 4vh; height: 4vh; border-radius: 2vh"
             wrapperHoverStyle="background-color: lightgrey"
             iconStyle="width: 2vw; height: 2vw"
@@ -18,16 +18,17 @@
                 style="width: 200px; height: 200px; background-color: red"
               ></div>
             </tooltip>
-          </badgeIcon>
+          </badge-icon>
         </div>
       </div>
       <div class="mainboard-info">
-        <editableText
+        <editable-text
           style="width: 30%; height: 100%; padding: 1px"
           defaultValue="ADD_DESCRIPTION"
-          :value="decription"
+          :value="description"
           fontStyle="font-family: kai; font-size: 2vh;"
           :row="3"
+          @change="descriptionChange"
         />
       </div>
       <div class="mainboard-phrases"></div>
@@ -54,7 +55,7 @@ import { mapState, mapActions } from "vuex";
 export default {
   data() {
     return {
-      decription: ""
+      description: ""
     };
   },
   components: {
@@ -77,7 +78,15 @@ export default {
     }
   },
   methods: {
-    ...mouse
+    ...mouse,
+    descriptionChange(val) {
+      this.description = val;
+    }
+  },
+  watch: {
+    description(val) {
+      console.log(val);
+    }
   }
 };
 </script>

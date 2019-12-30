@@ -1,6 +1,7 @@
 <template>
   <transition name="show">
-    <div ref="tooltips" v-if="visible" class="tooltips">
+    <div ref="tooltips" v-show="visible" class="tooltips">
+      <div class="arrow" v-if="showPopupArrow" :style="computedArrowStyle" />
       <slot></slot>
     </div>
   </transition>
@@ -20,6 +21,25 @@ export default {
     },
     onFinish: {
       type: Function
+    },
+    showPopupArrow: {
+      type: Boolean,
+      default: false
+    },
+    popupArrowStyle: {
+      type: String
+    },
+    popupArrowColor: {
+      type: String,
+      default: "black"
+    },
+    popupArrowPosition: {
+      type: String,
+      default: "right"
+    },
+    popupArrowSize: {
+      type: String,
+      default: "0.5vw"
     }
   },
   created() {
@@ -27,6 +47,28 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener("click", this.checkClicked);
+  },
+  computed: {
+    computedArrowStyle() {
+      let borderWidth = `border-width: ${this.popupArrowSize}`;
+      let borderColor;
+      switch (this.popupArrowPosition) {
+        case "top":
+          borderColor = `border-color: ${this.popupArrowColor} transparent transparent transparent`;
+          break;
+        case "right":
+          borderColor = `border-color: transparent ${this.popupArrowColor} transparent transparent`;
+          break;
+        case "bottom":
+          borderColor = `border-color: transparent transparent ${this.popupArrowColor} transparent`;
+          break;
+        default:
+          // left
+          borderColor = `transparent transparent transparent ${this.popupArrowColor}`;
+          break;
+      }
+      return `${borderWidth}; ${borderColor}; ${this.popupArrowStyle}`;
+    }
   },
   methods: {
     checkClicked(event) {
@@ -51,6 +93,12 @@ export default {
 <style lang="scss" scoped>
 .tooltips {
   position: absolute;
+  .arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
 }
 .show-enter-active,
 .show-leave-active {

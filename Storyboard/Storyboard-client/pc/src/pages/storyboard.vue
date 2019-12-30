@@ -17,7 +17,7 @@
             iconStyle="width: 2vw; height: 2vw"
             name="color"
           >
-            <tooltips style="left: 5.2vw; bottom: 0">
+            <tooltips tooltipStyle="left: 5.2vw; bottom: 0">
               <div
                 style="width: 200px; height: 200px; background-color: red"
               ></div>
@@ -33,12 +33,10 @@
             @mouseleave.native="mouseleave('bell')"
           >
             <tooltips ref="bell" style="left: 5vw; bottom: 0">
-              <div
-                style="width: 200px; height: 200px; background-color: red"
-              ></div>
+              <div style="width: 200px; height: 200px; background-color: red" />
             </tooltips>
           </badgeIcon>
-          <imageBtn
+          <image-btn
             src="/static/image/user_m_3.png"
             wrapperStyle="width: 100%; height: 4.5vw"
             imgStyle="width: 4vw; height: 4vw; border-radius: 2vw"
@@ -46,11 +44,9 @@
             @mouseleave.native="mouseleave('avatar')"
           >
             <tooltips ref="avatar" style="left: 5vw; bottom: 0">
-              <div
-                style="width: 200px; height: 200px; background-color: yellow"
-              ></div>
+              <div style="width: 200px; height: 200px"></div>
             </tooltips>
-          </imageBtn>
+          </image-btn>
         </div>
       </div>
 
@@ -141,12 +137,6 @@
         </div>
       </div>
     </div>
-
-    <!-- alerts -->
-    <alert ref="alert"
-      ><strong>Holy guacamole!</strong> You should check in on some of those
-      fields below.
-    </alert>
   </div>
 </template>
 
@@ -154,7 +144,6 @@
 import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
 import tooltips from "@/components/tooltips";
-import alert from "@/components/alert";
 import mainboard from "@/components/mainboard";
 import { mapState, mapActions } from "vuex";
 import mouse from "@/common/utils/mouse";
@@ -163,7 +152,6 @@ export default {
     badgeIcon,
     imageBtn,
     tooltips,
-    alert,
     mainboard
   },
   data() {
@@ -204,7 +192,12 @@ export default {
       setTimeout(() => {
         this.projectCreating = false;
         this.projectCreated = true;
-        this.$refs["alert"].alert("warning");
+        this.$alert.show({
+          type: "warning",
+          message:
+            "Holy guacamole!You should check in on some of those fields below.",
+          interval: 5000
+        });
       }, 3000);
     }
   }
@@ -280,7 +273,6 @@ export default {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      background-color: lightgray;
     }
   }
   .storyboard {
