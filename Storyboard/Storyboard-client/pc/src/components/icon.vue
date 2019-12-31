@@ -1,13 +1,5 @@
 <template>
-  <svg
-    :class="
-      `svg-icon
-      ${this.mouseover ? this.mouseoverClass : ''}
-      ${this.defaultClass}
-      `
-    "
-    aria-hidden="true"
-  >
+  <svg class="svg-icon" aria-hidden="true">
     <use :xlink:href="iconName" />
   </svg>
 </template>
@@ -19,18 +11,6 @@ export default {
     name: {
       type: String,
       required: true
-    },
-    mouseover: {
-      type: Boolean,
-      default: false
-    },
-    mouseoverClass: {
-      type: String,
-      default: "icon-mouseover-light"
-    },
-    defaultClass: {
-      type: String,
-      default: "icon-default"
     }
   },
   computed: {
@@ -42,7 +22,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../common/theme/color.css";
 .svg-icon {
   width: 1em;
   height: 1em;

@@ -1,7 +1,7 @@
 <template>
   <transition name="show">
-    <div ref="tooltips" v-show="visible" class="tooltips">
-      <div class="arrow" v-if="showPopupArrow" :style="computedArrowStyle" />
+    <div ref="popover" v-show="visible" class="my-popover">
+      <div class="arrow" v-show="showPopupArrow" :style="computedArrowStyle" />
       <slot></slot>
     </div>
   </transition>
@@ -73,7 +73,7 @@ export default {
   methods: {
     checkClicked(event) {
       const e = event || window.event;
-      if (this.$refs.tooltips && !this.$refs.tooltips.contains(e.target)) {
+      if (this.$refs["popover"] && !this.$refs["popover"].contains(e.target)) {
         this.clicked = true;
         if (this.onClick) this.onClick();
       } else {
@@ -91,7 +91,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.tooltips {
+.my-popover {
   position: absolute;
   .arrow {
     position: absolute;

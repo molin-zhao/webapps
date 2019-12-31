@@ -12,30 +12,19 @@
         <img src="/static/logo.png" style="width: 4vw; height: 4vw" />
         <div class="menubar-empty"></div>
         <div class="menubar-setting-wrapper">
-          <badgeIcon
-            wrapper-style="width: 100%; height: 4vw"
-            icon-style="width: 2vw; height: 2vw"
-            name="color"
-          >
-            <tooltips style="left: 5.2vw; bottom: 0">
-              <div
-                style="width: 200px; height: 200px; background-color: red"
-              ></div>
-            </tooltips>
-          </badgeIcon>
-          <badgeIcon
-            wrapper-style="width: 100%; height: 4vw"
-            icon-style="width: 2vw; height: 2vw;"
+          <badge-icon
+            :wrapper-style="bell.wrapperStyle"
+            :icon-style="bell.iconStyle"
             badge-class="badge-danger"
-            name="bell"
+            :icon-name="bell.iconName"
             :number="90"
             @mouseover.native="mouseover('bell')"
             @mouseleave.native="mouseleave('bell')"
           >
-            <tooltips ref="bell" style="left: 5vw; bottom: 0">
+            <popover ref="bell" style="left: 5vw; bottom: 0">
               <div style="width: 200px; height: 200px; background-color: red" />
-            </tooltips>
-          </badgeIcon>
+            </popover>
+          </badge-icon>
           <image-btn
             src="/static/image/user_m_3.png"
             wrapper-style="width: 100%; height: 4.5vw"
@@ -43,9 +32,9 @@
             @mouseover.native="mouseover('avatar')"
             @mouseleave.native="mouseleave('avatar')"
           >
-            <tooltips ref="avatar" style="left: 5vw; bottom: 0">
+            <popover ref="avatar" style="left: 5vw; bottom: 0">
               <div style="width: 200px; height: 200px"></div>
-            </tooltips>
+            </popover>
           </image-btn>
         </div>
       </div>
@@ -143,15 +132,16 @@
 <script>
 import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
-import tooltips from "@/components/tooltips";
+import popover from "@/components/popover";
 import mainboard from "@/components/mainboard";
+import { bell } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 import mouse from "@/common/utils/mouse";
 export default {
   components: {
     badgeIcon,
     imageBtn,
-    tooltips,
+    popover,
     mainboard
   },
   data() {
@@ -159,7 +149,8 @@ export default {
       storyboardLoading: true,
       projectCreating: false,
       projectCreated: false,
-      projectSelectedIndex: 0
+      projectSelectedIndex: 0,
+      bell
     };
   },
   computed: {

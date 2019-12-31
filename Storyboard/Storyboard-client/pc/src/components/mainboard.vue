@@ -7,17 +7,16 @@
         </h1>
         <div class="mainboard-title-right">
           <badge-icon
-            wrapper-style="width: 4vh; height: 4vh; border-radius: 2vh"
-            wrapper-hover-style="background-color: lightgrey"
-            icon-style="width: 2vw; height: 2vw"
-            name="more"
+            :wrapper-style="group.wrapperStyle"
+            :icon-style="group.iconStyle"
+            :icon-name="group.iconName"
+          ></badge-icon>
+          <badge-icon
+            :wrapper-style="more.wrapperStyle"
+            :icon-style="more.iconStyle"
+            :icon-name="more.iconName"
             @click.native="mouseclick('sidebar')"
           >
-            <tooltip style="top:0 ; right: 0">
-              <div
-                style="width: 200px; height: 200px; background-color: red"
-              ></div>
-            </tooltip>
           </badge-icon>
         </div>
       </div>
@@ -47,20 +46,25 @@
 
 <script>
 import badgeIcon from "@/components/badgeIcon";
-import tooltip from "@/components/tooltips";
+import popover from "@/components/popover";
 import sidebar from "@/components/sidebar";
 import editableText from "@/components/editableText";
 import mouse from "@/common/utils/mouse";
+import { group, more } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 export default {
   data() {
     return {
+      // component style
+      group,
+      more,
+      // self data
       description: ""
     };
   },
   components: {
     badgeIcon,
-    tooltip,
+    popover,
     sidebar,
     editableText
   },

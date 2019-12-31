@@ -6,15 +6,9 @@
     @mouseover="checkMouseover"
     @mouseleave="checkMouseleave"
   >
-    <icon
-      :name="name"
-      :default-class="defaultClass"
-      :mouseover-class="mouseoverClass"
-      :style="iconStyle"
-      :mouseover="this.mouseover"
-    />
+    <icon :name="computedIconName" :style="computedIconStyle" />
     <span :class="`display-only badge ${badgeClass}`" :style="badgeStyle">{{
-      badgeNumber
+      computedBadgeNumber
     }}</span>
     <slot></slot>
   </div>
@@ -29,57 +23,65 @@ export default {
     };
   },
   props: {
-    name: {
-      type: String,
-      required: true
-    },
     number: {
       type: Number,
       default: 0
     },
     wrapperStyle: {
-      type: String
-    },
-    wrapperActiveStyle: {
-      type: String
-    },
-    wrapperHoverStyle: {
-      type: String
-    },
-    defaultClass: {
-      type: String
-    },
-    mouseoverClass: {
-      type: String
+      type: Object,
+      default: {
+        plain: "",
+        active: "",
+        hover: ""
+      }
     },
     iconStyle: {
-      type: String
+      type: Object,
+      default: {
+        plain: "",
+        active: "",
+        hover: ""
+      }
+    },
+    iconName: {
+      type: Object,
+      required: true,
+      default: {
+        plain: "",
+        active: "",
+        hover: ""
+      }
     },
     badgeClass: {
       type: String
     },
     badgeStyle: {
       type: String
-    },
-    onClick: {
-      type: Function
-    },
-    onFinish: {
-      type: Function
     }
   },
   computed: {
-    badgeNumber() {
+    computedBadgeNumber() {
       if (this.number > 99) return "99+";
       else if (this.number === 0) return "";
       else return `${this.number}`;
     },
     computedWrapperStyle() {
-      if (this.clicked && this.wrapperActiveStyle)
-        return `${this.wrapperStyle}; ${this.wrapperActiveStyle}`;
-      else if (this.mouseover && this.wrapperHoverStyle)
-        return `${this.wrapperStyle}; ${this.wrapperHoverStyle}`;
-      else return `${this.wrapperStyle}`;
+      const { plain, active, hover } = this.wrapperStyle;
+      if (this.clicked && active) return `${plain}; ${active}`;
+      else if (this.mouseover && hover) return `${plain}; ${hover}`;
+      else return `${plain}`;
+    },
+    computedIconName() {
+      const { plain, active, hover } = this.iconName;
+      if (this.clicked && active) return `${active}`;
+      else if (this.mouseover && hover) return `${hover}`;
+      else return `${plain}`;
+    },
+    computedIconStyle() {
+      const { plain, active, hover } = this.iconStyle;
+      if (this.clicked && active) return `${plain}; ${active}`;
+      else if (this.mouseover && hover) return `${plain}; ${hover}`;
+      else return `${plain}`;
     }
   },
   created() {
@@ -94,7 +96,6 @@ export default {
       let { type, target } = e;
       if (this.$refs.icon && this.$refs.icon.contains(target)) {
         if (!this.clicked) this.clicked = true;
-        if (this.onClick) this.onClick();
       } else {
         if (this.clicked) this.clicked = false;
       }
