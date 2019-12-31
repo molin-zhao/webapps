@@ -13,20 +13,20 @@
         <div class="menubar-empty"></div>
         <div class="menubar-setting-wrapper">
           <badgeIcon
-            wrapperStyle="width: 100%; height: 4vw"
-            iconStyle="width: 2vw; height: 2vw"
+            wrapper-style="width: 100%; height: 4vw"
+            icon-style="width: 2vw; height: 2vw"
             name="color"
           >
-            <tooltips tooltipStyle="left: 5.2vw; bottom: 0">
+            <tooltips style="left: 5.2vw; bottom: 0">
               <div
                 style="width: 200px; height: 200px; background-color: red"
               ></div>
             </tooltips>
           </badgeIcon>
           <badgeIcon
-            wrapperStyle="width: 100%; height: 4vw"
-            iconStyle="width: 2vw; height: 2vw;"
-            badgeClass="badge-danger"
+            wrapper-style="width: 100%; height: 4vw"
+            icon-style="width: 2vw; height: 2vw;"
+            badge-class="badge-danger"
             name="bell"
             :number="90"
             @mouseover.native="mouseover('bell')"
@@ -38,8 +38,8 @@
           </badgeIcon>
           <image-btn
             src="/static/image/user_m_3.png"
-            wrapperStyle="width: 100%; height: 4.5vw"
-            imgStyle="width: 4vw; height: 4vw; border-radius: 2vw"
+            wrapper-style="width: 100%; height: 4.5vw"
+            img-style="width: 4vw; height: 4vw; border-radius: 2vw"
             @mouseover.native="mouseover('avatar')"
             @mouseleave.native="mouseleave('avatar')"
           >

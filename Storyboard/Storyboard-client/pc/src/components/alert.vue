@@ -6,13 +6,7 @@
   >
     <span v-if="message" class="display-only">{{ message }}</span>
     <slot v-else></slot>
-    <button
-      @click="resetTimer"
-      type="button"
-      class="close"
-      data-dismiss="alert"
-      aria-label="Close"
-    >
+    <button @click="resetTimer" class="close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -40,6 +34,11 @@ export default {
       default: 3000
     }
   },
+  // watch: {
+  //   show(val) {
+  //     console.log(val);
+  //   }
+  // },
   methods: {
     alert() {
       this.show = true;
@@ -48,7 +47,6 @@ export default {
         if (this) {
           this.show = false;
           this.resetTimer();
-          // this.destory();
         }
       }, this.interval);
     },
@@ -56,15 +54,10 @@ export default {
       this.show = false;
     },
     resetTimer() {
+      if (this.show) this.show = false;
       if (this.dismissTimer) clearTimeout(this.dismissTimer);
       this.dismissTimer = null;
     }
-    // destory() {
-    //   if (this) {
-    //     this.$destroy();
-    //     document.body.removeChild(this.$el);
-    //   }
-    // }
   }
 };
 </script>

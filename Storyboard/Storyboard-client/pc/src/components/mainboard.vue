@@ -7,9 +7,9 @@
         </h1>
         <div class="mainboard-title-right">
           <badge-icon
-            wrapperStyle="width: 4vh; height: 4vh; border-radius: 2vh"
-            wrapperHoverStyle="background-color: lightgrey"
-            iconStyle="width: 2vw; height: 2vw"
+            wrapper-style="width: 4vh; height: 4vh; border-radius: 2vh"
+            wrapper-hover-style="background-color: lightgrey"
+            icon-style="width: 2vw; height: 2vw"
             name="more"
             @click.native="mouseclick('sidebar')"
           >
@@ -24,9 +24,9 @@
       <div class="mainboard-info">
         <editable-text
           style="width: 30%; height: 100%; padding: 1px"
-          defaultValue="ADD_DESCRIPTION"
+          default-value="ADD_DESCRIPTION"
           :value="description"
-          fontStyle="font-family: kai; font-size: 2vh;"
+          font-style="font-family: kai; font-size: 2vh;"
           :row="3"
           @change="descriptionChange"
         />

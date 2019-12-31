@@ -8,8 +8,8 @@
   >
     <icon
       :name="name"
-      :defaultClass="defaultClass"
-      :mouseoverClass="mouseoverClass"
+      :default-class="defaultClass"
+      :mouseover-class="mouseoverClass"
       :style="iconStyle"
       :mouseover="this.mouseover"
     />
