@@ -1,7 +1,6 @@
 export const group = {
   wrapperStyle: {
-    plain:
-      "width: 4vw; height: 4vw; border-radius: 0.5vw; border: lightgrey solid 1px;"
+    plain: "width: 3vw; height: 4vw;"
   },
   iconName: {
     plain: "group"
@@ -26,10 +25,12 @@ export const more = {
 
 export const bell = {
   wrapperStyle: {
-    plain: "width: 100%; height: 4vw"
+    plain: "width: 100%; height: 4vw",
+    hover: "background-color: black;"
   },
   iconStyle: {
-    plain: "width: 2vw; height: 2vw;"
+    plain: "width: 2vw; height: 2vw; color: grey;",
+    hover: "color: white;"
   },
   iconName: {
     plain: "bell"

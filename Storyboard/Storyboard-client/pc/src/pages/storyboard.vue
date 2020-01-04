@@ -21,8 +21,13 @@
             @mouseover.native="mouseover('bell')"
             @mouseleave.native="mouseleave('bell')"
           >
-            <popover ref="bell" style="left: 5vw; bottom: 0">
-              <div style="width: 200px; height: 200px; background-color: red" />
+            <popover ref="bell" style="left: 6vw; bottom: 0">
+              <tooltip
+                content-style="width: 200px; height: 200px"
+                arrow-placement="left"
+                arrow-position="bottom: 1.5vw"
+              >
+              </tooltip>
             </popover>
           </badge-icon>
           <image-btn
@@ -32,9 +37,7 @@
             @mouseover.native="mouseover('avatar')"
             @mouseleave.native="mouseleave('avatar')"
           >
-            <popover ref="avatar" style="left: 5vw; bottom: 0">
-              <div style="width: 200px; height: 200px"></div>
-            </popover>
+            <popover ref="avatar" style="left: 5vw; bottom: 0"> </popover>
           </image-btn>
         </div>
       </div>
@@ -133,6 +136,7 @@
 import badgeIcon from "@/components/badgeIcon";
 import imageBtn from "@/components/imageBtn";
 import popover from "@/components/popover";
+import tooltip from "@/components/tooltip";
 import mainboard from "@/components/mainboard";
 import { bell } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
@@ -142,7 +146,8 @@ export default {
     badgeIcon,
     imageBtn,
     popover,
-    mainboard
+    mainboard,
+    tooltip
   },
   data() {
     return {

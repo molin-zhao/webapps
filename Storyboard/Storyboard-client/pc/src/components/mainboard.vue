@@ -6,11 +6,21 @@
           {{ projects[index].name }}
         </h1>
         <div class="mainboard-title-right">
-          <badge-icon
-            :wrapper-style="group.wrapperStyle"
-            :icon-style="group.iconStyle"
-            :icon-name="group.iconName"
-          ></badge-icon>
+          <div
+            class="online-user"
+            data-toggle="tooltip"
+            data-placement="bottom"
+            :title="$t('ONLINE_MEMBER')"
+          >
+            <badge-icon
+              :wrapper-style="group.wrapperStyle"
+              :icon-style="group.iconStyle"
+              :icon-name="group.iconName"
+            />
+            <span class="online-user-count display-only">{{
+              onlineUsers
+            }}</span>
+          </div>
           <badge-icon
             :wrapper-style="more.wrapperStyle"
             :icon-style="more.iconStyle"
@@ -47,8 +57,10 @@
 <script>
 import badgeIcon from "@/components/badgeIcon";
 import popover from "@/components/popover";
+import tooltip from "@/components/tooltip";
 import sidebar from "@/components/sidebar";
 import editableText from "@/components/editableText";
+import datepicker from "@/components/datepicker";
 import mouse from "@/common/utils/mouse";
 import { group, more } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
@@ -59,14 +71,17 @@ export default {
       group,
       more,
       // self data
-      description: ""
+      description: "",
+      onlineUsers: 1
     };
   },
   components: {
     badgeIcon,
     popover,
     sidebar,
-    editableText
+    editableText,
+    tooltip,
+    datepicker
   },
   props: {
     index: {
@@ -91,6 +106,11 @@ export default {
     description(val) {
       console.log(val);
     }
+  },
+  mounted() {
+    $(document).ready(function() {
+      $('[data-toggle="tooltip"]').tooltip();
+    });
   }
 };
 </script>
@@ -156,5 +176,25 @@ export default {
   justify-content: flex-start;
   align-items: center;
   background-color: lightblue;
+}
+.online-user {
+  margin-right: 2vw;
+  width: 6vw;
+  height: 3vw;
+  border-radius: 1vw;
+  border: lightgrey solid 1px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  .online-user-count {
+    width: 3vw;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-left: lightgrey solid 1px;
+  }
 }
 </style>
