@@ -1,6 +1,10 @@
 <template>
   <div ref="editableText" class="wrapper">
-    <span v-show="!editing" :style="computedTextLabelStyle">
+    <span
+      class="display-only"
+      v-show="!editing"
+      :style="computedTextLabelStyle"
+    >
       {{ computedValue }}</span
     >
     <div v-show="editing" class="input-wrapper">
@@ -127,6 +131,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../common/theme/container.css";
 .input-wrapper {
   position: absolute;
   width: 100%;

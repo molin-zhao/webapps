@@ -5,6 +5,7 @@ export const projects = [
     phases: [
       {
         id: "1",
+        name: "第一部分，原型设计",
         tasks: [
           {
             id: "0",
@@ -32,6 +33,7 @@ export const projects = [
       },
       {
         id: "2",
+        name: "开发部分",
         tasks: [
           {
             id: "0",
@@ -65,6 +67,7 @@ export const projects = [
     phases: [
       {
         id: "1",
+        name: "flutter的初步了解",
         tasks: [
           {
             id: "0",
@@ -92,6 +95,7 @@ export const projects = [
       },
       {
         id: "2",
+        name: "软件和服务器的架构设计与优化部分",
         tasks: [
           {
             id: "0",

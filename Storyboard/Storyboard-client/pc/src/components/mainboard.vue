@@ -40,7 +40,9 @@
           @change="descriptionChange"
         />
       </div>
-      <div class="mainboard-phrases"></div>
+      <div class="mainboard-phrases">
+        <phase :index="index" />
+      </div>
     </div>
     <div v-else class="mainboard"></div>
 
@@ -61,6 +63,7 @@ import tooltip from "@/components/tooltip";
 import sidebar from "@/components/sidebar";
 import editableText from "@/components/editableText";
 import datepicker from "@/components/datepicker";
+import phase from "@/components/phase";
 import mouse from "@/common/utils/mouse";
 import { group, more } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
@@ -81,7 +84,8 @@ export default {
     sidebar,
     editableText,
     tooltip,
-    datepicker
+    datepicker,
+    phase
   },
   props: {
     index: {
@@ -121,7 +125,7 @@ export default {
   width: 100%;
   height: 100%;
   .mainboard {
-    padding: 10px;
+    padding: 10px 10px 0 10px; // padding bottom 0px
     width: 100%;
     height: 100%;
     display: flex;
@@ -175,7 +179,6 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: lightblue;
 }
 .online-user {
   margin-right: 2vw;
