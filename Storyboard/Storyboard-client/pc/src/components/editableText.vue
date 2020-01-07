@@ -82,7 +82,8 @@ export default {
         -webkit-box-orient: vertical; 
         -webkit-line-clamp: ${this.row}; 
         text-overflow: ellipsis; 
-        word-wrap: break-word; 
+        word-wrap: normal; 
+        word-break: normal;
         ${this.fontStyle}`;
       }
     }

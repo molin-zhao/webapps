@@ -14,13 +14,21 @@
         <icon name="add" style="width: 25px; height: 25px; color: grey" />
       </div>
     </div>
-    <div class="phase-body"></div>
+    <div class="phase-body">
+      <task-group :index="index" :phaseId="selectedPhase"></task-group>
+    </div>
   </div>
 </template>
 
 <script>
+import waveBtn from "@/components/waveBtn";
+import taskGroup from "@/components/taskGroup";
 import { mapState, mapActions } from "vuex";
 export default {
+  components: {
+    waveBtn,
+    taskGroup
+  },
   data() {
     return {
       selectedPhase: 0
@@ -106,11 +114,12 @@ export default {
     }
   }
   .phase-body {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background-color: lightblue;
   }
 }
 </style>

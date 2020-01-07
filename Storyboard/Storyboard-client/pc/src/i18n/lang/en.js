@@ -40,6 +40,12 @@ export default {
   OCT: "October",
   NOV: "November",
   DEC: "December",
+  TITLE_NAME: "Task(s) to do",
+  TITLE_STATUS: "Status",
+  TITLE_MEMBER: "Member(s)",
+  TITLE_DUEDATE: "Due date",
+  TITLE_INITDATE: "Start Date",
+  TITLE_PRIORITY: "Priority",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

@@ -40,6 +40,12 @@ export default {
   OCT: "十月",
   NOV: "十一月",
   DEC: "十二月",
+  TITLE_NAME: "任务名称",
+  TITLE_STATUS: "状态",
+  TITLE_MEMBER: "人员",
+  TITLE_DUEDATE: "截止日",
+  TITLE_INITDATE: "起始日",
+  TITLE_PRIORITY: "优先级",
 
   // actions
   ADD_DESCRIPTION: "添加描述",

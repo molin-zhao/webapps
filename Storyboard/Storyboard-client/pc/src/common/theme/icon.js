@@ -1,6 +1,6 @@
 export const group = {
   wrapperStyle: {
-    plain: "width: 3vw; height: 4vw;"
+    plain: "width: 3vw; height: 3vw;"
   },
   iconName: {
     plain: "group"
