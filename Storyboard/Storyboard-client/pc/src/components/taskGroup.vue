@@ -1,37 +1,76 @@
 <template>
   <div class="task-group-wrapper">
-    <transition-group class="group-title">
-      <cell-title
-        v-for="(item, index) in titles"
-        :item="item"
-        :key="item.name"
-        :title="$t(item.name)"
-        :default-style="`height: 100%; background-color: white`"
-        :resizer="index < titles.length - 1 ? true : false"
-        :sibling-resizing="titleResizing"
-        @on-drag-start="onTitleDragStart"
-        @on-drag-end="onTitleDragEnd"
-        @on-drag-enter="onTitleDragEnter"
-        @on-resizing="onTitleResizing(arguments)"
-        @on-resizing-end="onTitleResizingEnd"
-      />
-    </transition-group>
-    <div
-      class="group-cell"
-      v-for="(item, index) in projects[index].phases[phaseId].tasks"
-      :key="index"
-    >
-      {{ item.name }}
+    <div class="group-setting">
+      <div class="setting-btn">
+        <badge-icon
+          :wrapper-style="triangledownfill.wrapperStyle"
+          :icon-style="triangledownfill.iconStyle"
+          :icon-name="triangledownfill.iconName"
+          :reverse="true"
+          @click.native="collapseGroup"
+        />
+      </div>
+      <div class="setting-group-label"></div>
+    </div>
+    <div class="collapse show" id="collapseExample" style="width: 100%">
+      <div class="group-body">
+        <transition-group class="group-title">
+          <group-title
+            v-for="(item, index) in titles"
+            :item="item"
+            :key="item.name"
+            :title="$t(item.name)"
+            :default-style="
+              `
+          height: 100%; 
+          background-color: white; 
+          ${index === 0 ? 'border-top-left-radius: 10px;' : null};
+          ${
+            index === titles.length - 1
+              ? 'border-top-right-radius: 10px;'
+              : null
+          }
+          `
+            "
+            :resizer="index < titles.length - 1 ? true : false"
+            :sibling-resizing="titleResizing"
+            @on-drag-start="onTitleDragStart"
+            @on-drag-end="onTitleDragEnd"
+            @on-drag-enter="onTitleDragEnter"
+            @on-resizing="onTitleResizing(arguments)"
+            @on-resizing-end="onTitleResizingEnd"
+          />
+        </transition-group>
+        <div
+          class="group-cell"
+          v-for="(item, index) in projects[index].phases[phaseId].tasks"
+          :key="index"
+        >
+          <!-- nested v-for rendering different type of cells -->
+          <group-row
+            v-for="title in titles"
+            :key="title.name"
+            :title="title"
+            :task="item"
+            style="border-right: 1px solid white;"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import cellTitle from "@/components/cellTitle";
+import groupRow from "@/components/groupRow";
+import groupTitle from "@/components/groupTitle";
+import badgeIcon from "@/components/badgeIcon";
+import { triangledownfill } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 export default {
   components: {
-    cellTitle
+    groupTitle,
+    groupRow,
+    badgeIcon
   },
   computed: {
     ...mapState("user", ["projects"])
@@ -50,6 +89,7 @@ export default {
   },
   data() {
     return {
+      triangledownfill,
       titles: [
         { name: "TITLE_NAME", init_w: "25%", offset_w: 0 },
         { name: "TITLE_STATUS", init_w: "15%", offset_w: 0 },
@@ -59,7 +99,8 @@ export default {
         { name: "TITLE_INITDATE", init_w: "15%", offset_w: 0 }
       ],
       dragging: null,
-      titleResizing: false
+      titleResizing: false,
+      collapsed: false
     };
   },
   methods: {
@@ -91,6 +132,26 @@ export default {
     },
     onTitleResizingEnd() {
       if (this.titleResizing) this.titleResizing = false;
+    },
+    collapseGroup() {
+      this.collapsed = !this.collapsed;
+      if (this.collapsed) {
+        $("#collapseExample").collapse("show");
+      } else {
+        $("#collapseExample").collapse("hide");
+      }
+    },
+    showGroup() {
+      if (this.collapsed) {
+        this.collapsed = false;
+      }
+    },
+    mounted() {
+      $(document).ready(function() {
+        $("#groupCollapseBody").collapse({
+          toggle: true
+        });
+      });
     }
   }
 };
@@ -104,12 +165,37 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  background-color: lightcyan;
+  .group-setting {
+    width: 100%;
+    height: 10%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    .setting-btn {
+      width: 4%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .setting-group-label {
+      width: 16%;
+      height: 100%;
+      background-color: red;
+    }
+  }
+  .group-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+  }
   .group-title {
-    width: 95%;
+    width: 96%;
     height: 40px;
-    background-color: yellowgreen;
-    margin-top: 40px;
     margin-bottom: 2px;
     display: flex;
     flex-direction: row;
@@ -118,10 +204,14 @@ export default {
     flex-wrap: nowrap;
   }
   .group-cell {
-    width: 95%;
+    width: 96%;
     height: 40px;
-    background-color: lightcoral;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
   }
 }
 </style>

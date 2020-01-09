@@ -40,7 +40,7 @@
           @change="descriptionChange"
         />
       </div>
-      <div class="mainboard-phrases">
+      <div class="mainboard-phases">
         <phase :index="index" />
       </div>
     </div>
@@ -49,7 +49,13 @@
     <!-- sidebar -->
     <sidebar
       ref="sidebar"
-      sidebarStyle="height: 100vh; width: 25vw; box-shadow: -5px 2px 5px lightgrey; right: -5px; top: 0"
+      sidebarStyle="
+      height: 100vh; 
+      width: 25vw; 
+      box-shadow: -5px 2px 5px lightgrey; 
+      right: -5px; 
+      top: 0;
+      "
     >
       <div class="sidebar-content"></div>
     </sidebar>
@@ -172,7 +178,7 @@ export default {
   justify-content: flex-start;
   align-items: center;
 }
-.mainboard-phrases {
+.mainboard-phases {
   height: 80%;
   width: 100%;
   display: flex;

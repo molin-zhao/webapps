@@ -37,9 +37,14 @@ export default {
   },
   computed: {
     computedStyle() {
-      return `transition: all ${this.interval}s ease; transform: ${
-        this.visible ? this.positionVisible : this.positionInvisible
-      }; ${this.sidebarStyle}`;
+      const { visible, positionVisible, positionInvisible, interval } = this;
+      return `
+      transition: all ${interval}s ease; 
+      -moz-transition: all ${interval}s ease;
+      -webkit-transition: all ${interval}s ease;
+      -o-transition: all ${interval}s ease; 
+      transform: ${visible ? positionVisible : positionInvisible}; 
+      ${this.sidebarStyle}`;
     }
   },
   created() {

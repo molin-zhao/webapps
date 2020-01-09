@@ -57,6 +57,10 @@ export default {
     },
     badgeStyle: {
       type: String
+    },
+    reverse: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -95,7 +99,11 @@ export default {
       const e = event || window.event;
       let { type, target } = e;
       if (this.$refs.icon && this.$refs.icon.contains(target)) {
-        if (!this.clicked) this.clicked = true;
+        if (this.reverse) {
+          this.clicked = !this.clicked;
+        } else {
+          if (!this.clicked) this.clicked = true;
+        }
       } else {
         if (this.clicked) this.clicked = false;
       }
@@ -117,7 +125,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2px;
+  padding: 0;
   position: relative;
   span {
     position: absolute;

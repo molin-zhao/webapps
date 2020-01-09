@@ -1,6 +1,8 @@
 import { projects } from "../../mock/task";
 const state = {
-  projects: []
+  projects: [],
+  id: null,
+  token: null
 };
 const getters = {
   get_projects: state => state.projects

@@ -13,7 +13,16 @@ export const projects = [
             description: "",
             due_date: "20191220",
             priority: "high",
-            members: [],
+            members: [
+              {
+                id: "123",
+                avatar: "/static/image/user_m_3.png"
+              },
+              {
+                id: "124",
+                avatar: "/static/image/user_f_2.png"
+              }
+            ],
             detail: {
               announcement: "这部分是公告"
             }
@@ -24,7 +33,12 @@ export const projects = [
             description: "",
             due_date: "20191220",
             priority: "medium",
-            members: [],
+            members: [
+              {
+                id: "666",
+                avatar: "/static/image/user_m_1.png"
+              }
+            ],
             detail: {
               announcement: "小程序的页面设计仅包含UI部分"
             }
@@ -41,7 +55,12 @@ export const projects = [
             description: "",
             due_date: "20191230",
             priority: "high",
-            members: [],
+            members: [
+              {
+                id: "777",
+                avatar: "/static/image/user_f_1.png"
+              }
+            ],
             detail: {
               announcement: "优化包括数据库的优化"
             }
@@ -52,7 +71,20 @@ export const projects = [
             description: "",
             due_date: "20191220",
             priority: "medium",
-            members: [],
+            members: [
+              {
+                id: "987",
+                avatar: "/static/image/user_m_4.png"
+              },
+              {
+                id: "897",
+                avatar: "/static/image/user_f_3.png"
+              },
+              {
+                id: "798",
+                avatar: "/static/image/user_m_1.png"
+              }
+            ],
             detail: {
               announcement: "后期服务的费用需要包含在维护费当中"
             }

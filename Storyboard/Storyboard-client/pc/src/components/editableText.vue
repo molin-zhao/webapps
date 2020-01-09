@@ -1,5 +1,5 @@
 <template>
-  <div ref="editableText" class="wrapper">
+  <div ref="editableText" class="wrapper" :style="computedWrapperStyle">
     <span
       class="display-only"
       v-show="!editing"
@@ -7,7 +7,7 @@
     >
       {{ computedValue }}</span
     >
-    <div v-show="editing" class="input-wrapper">
+    <div v-show="editing && editable" class="input-wrapper">
       <input
         ref="input"
         v-if="row === 1"
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import en from "@/i18n/lang/en.js";
 export default {
   props: {
     value: {
@@ -47,8 +48,9 @@ export default {
       type: String,
       default: ""
     },
-    bindChange: {
-      type: Function
+    editable: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -60,14 +62,29 @@ export default {
   computed: {
     computedValue() {
       if (this.inputValue) return this.inputValue;
-      else if (this.$t(`${this.defaultValue}`))
-        return this.$t(`${this.defaultValue}`);
+      else if (en[this.defaultValue]) return this.$t(`${this.defaultValue}`);
       return this.defaultValue;
+    },
+    computedWrapperStyle() {
+      if (this.row === 1) {
+        return `
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: nowrap;
+        `;
+      } else {
+        return `
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        `;
+      }
     },
     computedTextLabelStyle() {
       if (this.row === 1) {
         // single line input
-        return `width: 100%; 
+        return `
+        width: 100%;
         overflow: hidden; 
         text-align: left; 
         text-overflow: ellipsis; 
@@ -75,7 +92,8 @@ export default {
         ${this.fontStyle}`;
       } else {
         // multiple lines textarea
-        return `width: 100%; 
+        return `
+        width: 100%; 
         overflow: hidden; 
         text-align: left; 
         display: -webkit-box; 
@@ -119,7 +137,7 @@ export default {
           this.editing = false;
           if (this.value !== this.inputValue) {
             // props value does not match input value, emit change event
-            this.$emit("change", this.inputValue);
+            this.$emit("input-change", this.inputValue);
           }
         }
       }
@@ -150,19 +168,14 @@ export default {
 .wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
   position: relative;
-  flex-wrap: wrap;
-  word-break: break-all;
-  text-overflow: ellipsis;
 }
 .wrapper:hover {
   cursor: pointer;
 }
 .input {
   width: 100%;
-  // height: 100%;
+  height: 100%;
   background-color: none;
   display: block；;
   border-radius: 4px;
