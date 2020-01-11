@@ -46,6 +46,8 @@ export default {
   TITLE_DUEDATE: "Due date",
   TITLE_INITDATE: "Start Date",
   TITLE_PRIORITY: "Priority",
+  TITLE_PROGRESS: "Progress",
+  TITLE_TIMELINE: "Timeline",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

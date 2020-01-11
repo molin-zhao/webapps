@@ -9,15 +9,15 @@ export default {
   props: {
     waveColor: {
       type: String,
-      default: "#426fc5"
+      default: "#426fc5cc"
     },
-    waveOpacity: {
-      type: Number,
-      default: 0.5
+    btnColor: {
+      type: String,
+      default: "#426fc599"
     },
     btnStyle: {
       type: String,
-      default: "width: 100px; height: 40px; border-radius: 20px"
+      default: "width: 100px; height: 40px"
     },
     title: {
       type: String,
@@ -32,7 +32,6 @@ export default {
       let div = document.createElement("div");
       div.className = "effect";
       this.$refs.wavesbtn.appendChild(div);
-
       let top = e.pageY - (position.top + window.pageYOffset) - doc.clientTop;
       let left =
         e.pageX - (position.left + window.pageXOffset) - doc.clientLeft;
@@ -76,9 +75,7 @@ export default {
 span {
   width: 100%;
   z-index: 1;
-  font-family: kai;
 }
-
 .wavesbtn {
   width: 100%;
   height: 100%;
@@ -94,7 +91,6 @@ span {
   height: 20px;
   border-radius: 50%;
   transition: all 0.7s ease-out;
-  opacity: 0.5;
   transform: scale(0);
   transition-property: transform, opacity, -webkit-transform;
   pointer-events: none;

@@ -2,6 +2,7 @@
   <div class="name-cell-wrapper">
     <editable-text
       :row="1"
+      :value="value"
       :editable="editable"
       :default-value="defaultValue"
       @input-change="inputChange"
