@@ -4,24 +4,24 @@
       <name
         :editable="true"
         :value="task.name"
-        :default-value="task.id"
+        :default-value="task.name"
         @name-change="taskNameChange"
       />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_STATUS')">
-      <status :editable="true" :status="task.status" />
+      <status :status="task.status" :editable="true" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_MEMBER')">
       <member :member="task.members" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_PRIORITY')">
-      <priority />
+      <priority :priority="task.priority" :editable="true" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_TIMELINE')">
-      <timeline />
+      <timeline :editable="true" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_PROGRESS')">
-      <task-progress />
+      <task-progress :editable="true" />
     </div>
     <div v-else></div>
   </div>
@@ -30,18 +30,19 @@
 <script>
 import name from "@/components/cell/name";
 import member from "@/components/cell/member";
-import status from "@/components/cell/status";
-import taskProgress from "@/components/cell/taskProgress";
-import timeline from "@/components/cell/timeline";
+
 import priority from "@/components/cell/priority";
+import status from "@/components/cell/status";
+import timeline from "@/components/cell/timeline";
+import taskProgress from "@/components/cell/progress";
 export default {
   components: {
     name,
     member,
+    priority,
     status,
-    taskProgress,
     timeline,
-    priority
+    taskProgress
   },
   props: {
     title: {

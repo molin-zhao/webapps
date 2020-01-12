@@ -61,8 +61,7 @@ export default {
   },
   computed: {
     computedValue() {
-      if (this.inputValue) return this.inputValue;
-      else if (en[this.defaultValue]) return this.$t(`${this.defaultValue}`);
+      if (en[this.defaultValue]) return this.$t(`${this.defaultValue}`);
       return this.defaultValue;
     },
     computedWrapperStyle() {
@@ -135,15 +134,15 @@ export default {
         if (this.editing) {
           // editing state changed
           this.editing = false;
-          if (this.value !== this.inputValue) {
+          if (
+            this.inputValue !== this.value &&
+            this.inputValue !== this.computedValue
+          ) {
             // props value does not match input value, emit change event
             this.$emit("input-change", this.inputValue);
           }
         }
       }
-    },
-    getValue() {
-      return this.inputValue;
     }
   }
 };

@@ -8,10 +8,15 @@
 
 <script>
 export default {
+  props: {
+    autoHide: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
-      visible: false,
-      clicked: false
+      visible: false
     };
   },
   created() {
@@ -20,16 +25,15 @@ export default {
   beforeDestroy() {
     document.removeEventListener("click", this.checkClicked);
   },
-  computed: {
-    computedArrowStyle() {}
-  },
   methods: {
     checkClicked(event) {
       const e = event || window.event;
-      if (this.$refs["popover"] && !this.$refs["popover"].contains(e.target)) {
-        this.clicked = true;
-      } else {
-        this.clicked = false;
+      const popover = this.$refs["popover"];
+      const { autoHide, visible } = this;
+      if (!popover) return;
+      if (!popover.contains(e.target) && this.autoHide) {
+        // clicked outside and autoHide
+        // if (visible) return this.hide();
       }
     },
     show() {

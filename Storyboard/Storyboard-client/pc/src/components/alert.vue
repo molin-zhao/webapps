@@ -34,11 +34,6 @@ export default {
       default: 3000
     }
   },
-  // watch: {
-  //   show(val) {
-  //     console.log(val);
-  //   }
-  // },
   methods: {
     alert() {
       this.show = true;
