@@ -92,11 +92,11 @@ export default {
       triangledownfill,
       titles: [
         { name: "TITLE_NAME", init_w: "25%", offset_w: 0 },
-        { name: "TITLE_STATUS", init_w: "15%", offset_w: 0 },
+        { name: "TITLE_STATUS", init_w: "12%", offset_w: 0 },
         { name: "TITLE_MEMBER", init_w: "15%", offset_w: 0 },
-        { name: "TITLE_PRIORITY", init_w: "15%", offset_w: 0 },
-        { name: "TITLE_DUEDATE", init_w: "15%", offset_w: 0 },
-        { name: "TITLE_INITDATE", init_w: "15%", offset_w: 0 }
+        { name: "TITLE_PRIORITY", init_w: "12%", offset_w: 0 },
+        { name: "TITLE_TIMELINE", init_w: "21%", offset_w: 0 },
+        { name: "TITLE_PROGRESS", init_w: "15%", offset_w: 0 }
       ],
       dragging: null,
       titleResizing: false,

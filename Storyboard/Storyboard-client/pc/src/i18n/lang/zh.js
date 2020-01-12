@@ -46,7 +46,8 @@ export default {
   TITLE_DUEDATE: "截止日",
   TITLE_INITDATE: "起始日",
   TITLE_PRIORITY: "优先级",
-
+  TITLE_PROGRESS: "进度",
+  TITLE_TIMELINE: "时间线",
   // actions
   ADD_DESCRIPTION: "添加描述",
   CREATE_PROJECT: "创建新项目"

@@ -13,5 +13,13 @@ export default {
       if (refCpnt.visible && refCpnt.hide) return refCpnt.hide();
       if (!refCpnt.visible && refCpnt.show) return refCpnt.show();
     }
+  },
+  hide(ref) {
+    let refCpnt = this.$refs[ref];
+    if (refCpnt && refCpnt.visible && refCpnt.hide) return refCpnt.hide();
+  },
+  show(ref) {
+    let refCpnt = this.$refs[ref];
+    if (refCpnt && !refCpnt.visible && refCpnt.show) return refCpnt.show();
   }
 };

@@ -9,19 +9,19 @@
       />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_STATUS')">
-      status
+      <status :editable="true" :status="task.status" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_MEMBER')">
       <member :member="task.members" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_PRIORITY')">
-      priority
+      <priority />
     </div>
-    <div class="row-item" v-else-if="isType('TITLE_DUEDATE')">
-      duedate
+    <div class="row-item" v-else-if="isType('TITLE_TIMELINE')">
+      <timeline />
     </div>
-    <div class="row-item" v-else-if="isType('TITLE_INITDATE')">
-      startdate
+    <div class="row-item" v-else-if="isType('TITLE_PROGRESS')">
+      <task-progress />
     </div>
     <div v-else></div>
   </div>
@@ -30,10 +30,18 @@
 <script>
 import name from "@/components/cell/name";
 import member from "@/components/cell/member";
+import status from "@/components/cell/status";
+import taskProgress from "@/components/cell/taskProgress";
+import timeline from "@/components/cell/timeline";
+import priority from "@/components/cell/priority";
 export default {
   components: {
     name,
-    member
+    member,
+    status,
+    taskProgress,
+    timeline,
+    priority
   },
   props: {
     title: {

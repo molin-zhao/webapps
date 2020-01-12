@@ -45,6 +45,7 @@ export default {
 <style lang="scss" scoped>
 .my-popover {
   position: absolute;
+  z-index: 100;
 }
 .show-enter-active,
 .show-leave-active {

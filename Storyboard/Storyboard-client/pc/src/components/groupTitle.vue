@@ -1,5 +1,6 @@
 <template>
   <div
+    :ref="`title-${item.name}`"
     :draggable="siblingResizing || resizing ? false : true"
     @mouseover="onMouseover"
     @mouseleave="onMouseleave"
@@ -125,6 +126,9 @@ export default {
         let moveLen = resizingEndX - this.resizingStartX;
         if (this.prevMoveLen !== moveLen) {
           this.prevMoveLen = moveLen;
+          const currentEl = this.$refs[`title-${this.item.name}`];
+          const nextEl = currentEl.nextSibling;
+          console.log(currentEl.offsetWidth + " " + nextEl.offsetWidth);
           this.$emit("on-resizing", this.item, moveLen);
         }
         this.resizingStartX = resizingEndX;
