@@ -1,5 +1,5 @@
 <template>
-  <div class="storyboard-container">
+  <div class="storyboard-container" @click="resetVisibleComponents">
     <loading
       v-if="storyboardLoading"
       :active="true"
@@ -142,6 +142,7 @@ import imageBtn from "@/components/imageBtn";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
 import mainboard from "@/components/mainboard";
+import { eventBus } from "@/common/utils/eventBus";
 import { bell } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 import mouse from "@/common/utils/mouse";
@@ -199,6 +200,9 @@ export default {
           interval: 5000
         });
       }, 3000);
+    },
+    resetVisibleComponents() {
+      return eventBus.$emit("reset-visible-component");
     }
   }
 };

@@ -1,3 +1,4 @@
+import { eventBus } from "./eventBus";
 export default {
   mouseover(ref) {
     let refCpnt = this.$refs[ref];
@@ -7,11 +8,15 @@ export default {
     let refCpnt = this.$refs[ref];
     if (refCpnt && refCpnt.hide) return refCpnt.hide();
   },
-  mouseclick(ref) {
+  mouseclick(ref, event) {
+    if (event) event.stopPropagation();
     let refCpnt = this.$refs[ref];
     if (refCpnt) {
       if (refCpnt.visible && refCpnt.hide) return refCpnt.hide();
-      if (!refCpnt.visible && refCpnt.show) return refCpnt.show();
+      if (!refCpnt.visible && refCpnt.show) {
+        eventBus.$emit("reset-visible-component");
+        return refCpnt.show();
+      }
     }
   },
   hide(ref) {

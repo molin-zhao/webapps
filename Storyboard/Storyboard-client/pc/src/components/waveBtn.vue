@@ -1,5 +1,5 @@
 <template>
-  <div class="button" @click="wavesEffect" :style="btnStyle">
+  <div class="button" @click="wavesEffect" :style="computedBtnStyle">
     <span class="display-only">{{ title }}</span>
     <div class="wavesbtn" ref="wavesbtn"></div>
   </div>
@@ -22,6 +22,12 @@ export default {
     title: {
       type: String,
       default: "button"
+    }
+  },
+  computed: {
+    computedBtnStyle() {
+      const { btnStyle, style, btnColor } = this;
+      return `${btnStyle}; ${style}; background-color: ${btnColor}`;
     }
   },
   methods: {

@@ -10,7 +10,7 @@
       />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_STATUS')">
-      <status :status="task.status" :editable="true" />
+      <status :status="task.status" :editable="true" :index="task.id" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_MEMBER')">
       <member :member="task.member" />

@@ -1,11 +1,17 @@
 <template>
-  <div ref="container" class="status-wrapper">
+  <div
+    :ref="`status-wrapper-${index}`"
+    class="status-wrapper"
+    @click="mouseclick(`status-popover-${index}`, $event)"
+  >
     <wave-btn
       class="status-btn"
-      btn-style="width: 100%; height: 100%;"
-      @click.native.stop="mouseclick('status')"
+      btn-style="width: 100%; height: 100%; color: white;"
+      :btn-color="`${computedColor}e6`"
+      :wave-color="`${computedColor}ff`"
+      :title="$t(computedTitle)"
     />
-    <popover ref="status" style="top: calc(100% + 10px);">
+    <popover :ref="`status-popover-${index}`" style="top: calc(100% + 10px);">
       <tooltip
         content-style="width: 200px; height: 200px"
         arrow-placement="top"
@@ -20,6 +26,7 @@ import waveBtn from "@/components/waveBtn";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
 import mouse from "@/common/utils/mouse";
+import { eventBus } from "@/common/utils/eventBus";
 export default {
   components: {
     waveBtn,
@@ -34,38 +41,65 @@ export default {
     editable: {
       type: Boolean,
       default: true
+    },
+    index: {
+      type: [Number, String],
+      default: 0
     }
   },
   computed: {
-    computedBtnStyle() {
+    computedColor() {
       switch (this.status) {
-        case "planned":
         case "working":
+          return "#6495ed";
+          break;
+        case "planned":
+          return "#d3d3d3";
+          break;
         case "stuck":
+          return "#ffa500";
+          break;
         case "done":
+          return "#7cfc00";
+          break;
         case "defer":
+          return "#ff0000";
+          break;
+        default:
+          return "#000000";
+          break;
+      }
+    },
+    computedTitle() {
+      switch (this.status) {
+        case "working":
+          return "STATUS_WORKING";
+          break;
+        case "planned":
+          return "STATUS_PLANNED";
+          break;
+        case "stuck":
+          return "STATUS_STUCK";
+          break;
+        case "done":
+          return "STATUS_DONE";
+          break;
+        case "defer":
+          return "STATUS_DEFER";
+          break;
+        default:
+          return "";
           break;
       }
     }
   },
-  created() {
-    document.addEventListener("click", this.checkMouseClick);
-  },
-  beforeDestroy() {
-    document.removeEventListener("click", this.checkMouseClick);
-  },
   methods: {
-    ...mouse,
-    checkMouseClick(event) {
-      const e = event || window.event;
-      const { type, target } = e;
-      const containerEl = this.$refs["container"];
-      if (containerEl && !containerEl.contains(target)) {
-        this.hide("status");
-      } else {
-        this.show("status");
-      }
-    }
+    ...mouse
+  },
+  mounted() {
+    eventBus.$on("reset-visible-component", () => {
+      this.hide(`status-popover-${this.index}`);
+    });
   }
 };
 </script>
@@ -83,8 +117,5 @@ export default {
 .status-btn {
   width: 100%;
   height: 100%;
-}
-.status-btn:hover {
-  background-color: #426fc5b3;
 }
 </style>

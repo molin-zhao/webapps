@@ -50,6 +50,12 @@ export default {
   TITLE_TIMELINE: "Timeline",
   GROUP_TITLE: "Group title",
 
+  STATUS_PLANNED: "Planned",
+  STATUS_WORKING: "Working",
+  STATUS_STUCK: "Stuck!",
+  STATUS_DEFER: "Defered!",
+  STATUS_DONE: "Done",
+
   // actions
   ADD_DESCRIPTION: "Add a description",
   CREATE_PROJECT: "Create new project"

@@ -58,7 +58,7 @@ export const projects = [
             color: "LightCoral",
             task: [
               {
-                id: "0",
+                id: "00",
                 name: "人员系统的设计和性能优化",
                 description: "",
                 due_date: "20191230",
@@ -75,7 +75,7 @@ export const projects = [
                 }
               },
               {
-                id: "1",
+                id: "11",
                 name: "发布小程序上线，搭建HTTPS服务器一台",
                 description: "",
                 due_date: "20191220",

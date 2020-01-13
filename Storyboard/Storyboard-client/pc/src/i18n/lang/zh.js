@@ -49,6 +49,12 @@ export default {
   TITLE_PROGRESS: "进度",
   TITLE_TIMELINE: "时间线",
   GROUP_TITLE: "组名",
+
+  STATUS_PLANNED: "计划中",
+  STATUS_WORKING: "进行中",
+  STATUS_STUCK: "受阻!",
+  STATUS_DEFER: "延期!",
+  STATUS_DONE: "已完成",
   // actions
   ADD_DESCRIPTION: "添加描述",
   CREATE_PROJECT: "创建新项目"

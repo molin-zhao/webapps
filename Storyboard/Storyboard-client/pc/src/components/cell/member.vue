@@ -52,7 +52,7 @@ export default {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  background-color: lightgreen;
+  background-color: whitesmoke;
   .member-avatar {
     width: 30px;
     height: 30px;
