@@ -80,7 +80,6 @@ export default {
       let computedWidth = `width: calc(${item.init_w} + ${item.offset_w}px)`;
       let hasSiblingResizing = siblingResizing ^ resizing; // only difference results in 1
       let criteria = (mouseover && !hasSiblingResizing) || resizing;
-      //   console.log(this.item.name + " " + criteria + " " + resizing);
       if (criteria) return `${defaultStyle}; ${hoverStyle}; ${computedWidth};`;
       else return `${defaultStyle}; ${computedWidth};`;
     },
@@ -118,7 +117,8 @@ export default {
     },
     onResizerMousemove(e) {
       const { clientX, currentTarget, target } = e;
-      if (this.resizing) {
+      const { resizing } = this;
+      if (resizing) {
         let resizingEndX = clientX;
         // (endX - startX) = move length
         // if move left, move length is negative
@@ -128,8 +128,15 @@ export default {
           this.prevMoveLen = moveLen;
           const currentEl = this.$refs[`title-${this.item.name}`];
           const nextEl = currentEl.nextSibling;
-          console.log(currentEl.offsetWidth + " " + nextEl.offsetWidth);
-          this.$emit("on-resizing", this.item, moveLen);
+          const crntElOffsetWd = currentEl.offsetWidth;
+          const nxtElOffsetWd = nextEl.offsetWidth;
+          this.$emit(
+            "on-resizing",
+            this.item,
+            moveLen,
+            crntElOffsetWd,
+            nxtElOffsetWd
+          );
         }
         this.resizingStartX = resizingEndX;
       }

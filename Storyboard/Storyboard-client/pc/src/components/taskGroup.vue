@@ -91,12 +91,12 @@ export default {
     return {
       triangledownfill,
       titles: [
-        { name: "TITLE_NAME", init_w: "25%", offset_w: 0 },
-        { name: "TITLE_STATUS", init_w: "12%", offset_w: 0 },
-        { name: "TITLE_MEMBER", init_w: "15%", offset_w: 0 },
-        { name: "TITLE_PRIORITY", init_w: "12%", offset_w: 0 },
-        { name: "TITLE_TIMELINE", init_w: "21%", offset_w: 0 },
-        { name: "TITLE_PROGRESS", init_w: "15%", offset_w: 0 }
+        { name: "TITLE_NAME", init_w: "25%", offset_w: 0, min_w: 300 },
+        { name: "TITLE_STATUS", init_w: "12%", offset_w: 0, min_w: 100 },
+        { name: "TITLE_MEMBER", init_w: "15%", offset_w: 0, min_w: 100 },
+        { name: "TITLE_PRIORITY", init_w: "12%", offset_w: 0, min_w: 100 },
+        { name: "TITLE_TIMELINE", init_w: "21%", offset_w: 0, min_w: 150 },
+        { name: "TITLE_PROGRESS", init_w: "15%", offset_w: 0, min_w: 100 }
       ],
       dragging: null,
       titleResizing: false,
@@ -122,13 +122,21 @@ export default {
       if (!this.titleResizing) this.titleResizing = true;
       let currentElement = args[0];
       let moveLen = args[1];
-      let prevOffsetWOfCurrentElement = currentElement.offset_w;
-      currentElement.offset_w = prevOffsetWOfCurrentElement + moveLen;
+      let crntEleOffsetWd = args[2];
+      let nxtEleOffsetWd = args[3];
+
       let nextSiblingIndex = this.titles.indexOf(currentElement) + 1;
       if (nextSiblingIndex > this.titles.length - 1) return;
       let nextElement = this.titles[nextSiblingIndex];
-      let prevOffsetWOfNextElement = nextElement.offset_w;
-      nextElement.offset_w = prevOffsetWOfNextElement - moveLen;
+
+      let crntElMinWd = currentElement.min_w;
+      let nxtElMinWd = nextElement.min_w;
+      let crntThreshold = crntEleOffsetWd + moveLen;
+      let nxtThreshold = nxtEleOffsetWd - moveLen;
+      if (crntThreshold > crntElMinWd && nxtThreshold > nxtElMinWd) {
+        currentElement.offset_w = currentElement.offset_w + moveLen;
+        nextElement.offset_w = nextElement.offset_w - moveLen;
+      }
     },
     onTitleResizingEnd() {
       if (this.titleResizing) this.titleResizing = false;
