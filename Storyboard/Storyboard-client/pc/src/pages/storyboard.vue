@@ -45,16 +45,14 @@
       <!-- taskbar -->
       <div class="taskbar">
         <div class="taskbar-item-wrapper">
-          <h2 class="display-only" style="font-family: kai">
+          <h2 class="display-only">
             {{ $t("STORYBOARD") }}
           </h2>
           <div class="project-wrapper">
-            <span class="display-only" style="font-family: kai">{{
-              $t("PROJECTS")
-            }}</span>
+            <span class="display-only">{{ $t("PROJECTS") }}</span>
             <div class="list-group list-group-flush project-list display-only">
               <a
-                style="font-family: kai; border: none; border-radius: 5px; padding: 5px"
+                style="border: none; border-radius: 5px; padding: 5px"
                 @click="projectLabelClick(index)"
                 v-for="(item, index) in projects"
                 :key="index"
@@ -64,8 +62,14 @@
             </div>
             <a
               id="create-project-btn"
-              class="list-group-item list-group-item-dark display-only"
-              style="width: 100%; margin-top: 5px; font-family: kai; border-radius: 5px; padding: 5px; text-align: left"
+              class="list-group-item display-only"
+              style="
+              width: 100%; 
+              margin-top: 5px; 
+              border-radius: 5px; 
+              padding: 5px; 
+              text-align: left; 
+              background-color: gainsboro;"
               data-toggle="modal"
               data-target="#modal-create-project"
             >
@@ -89,7 +93,7 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title display-only" style="font-family: kai">
+            <h5 class="modal-title display-only">
               {{ $t("CREATE_PROJECT") }}
             </h5>
             <a
@@ -251,7 +255,7 @@ export default {
     border-top-left-radius: 2vw;
     background-color: white;
     border-right-width: 2px;
-    border-right-color: lightgray;
+    border-right-color: whitesmoke;
     border-right-style: dashed;
     .taskbar-item-wrapper {
       width: 100%;
@@ -307,7 +311,7 @@ export default {
   }
 }
 #create-project-btn:active {
-  background-color: lightgray;
+  background-color: whitesmoke;
 }
 .create-btn {
   height: 30px;
@@ -317,6 +321,9 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-family: kai;
+}
+.list-group-item:active {
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 </style>

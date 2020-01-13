@@ -5,6 +5,7 @@
         :editable="true"
         :value="task.name"
         :default-value="task.name"
+        :color="color"
         @name-change="taskNameChange"
       />
     </div>
@@ -12,7 +13,7 @@
       <status :status="task.status" :editable="true" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_MEMBER')">
-      <member :member="task.members" />
+      <member :member="task.member" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_PRIORITY')">
       <priority :priority="task.priority" :editable="true" />
@@ -52,6 +53,10 @@ export default {
     task: {
       type: Object,
       required: true
+    },
+    color: {
+      type: String,
+      default: "gainsboro"
     }
   },
   computed: {
@@ -81,6 +86,14 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+  }
+  .row-item-name {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
     align-items: center;
   }
 }

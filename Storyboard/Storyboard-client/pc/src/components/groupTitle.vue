@@ -30,7 +30,7 @@ export default {
     },
     hoverStyle: {
       type: String,
-      default: "background-color: lightgrey"
+      default: "background-color: gainsboro"
     },
     resizer: {
       type: Boolean,

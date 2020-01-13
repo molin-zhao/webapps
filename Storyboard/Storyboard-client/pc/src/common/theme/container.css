@@ -13,3 +13,8 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+.group-color {
+  height: 100%;
+  width: 4px;
+}

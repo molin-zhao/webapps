@@ -3,10 +3,10 @@
     <div class="phase-nav">
       <div
         class="nav-link display-only"
-        v-for="(item, i) in projects[index].phases"
-        :key="i"
-        :style="navActiveStyle(i)"
-        @click="selectPhase(i)"
+        v-for="(item, index) in projects[projectId].phase"
+        :key="index"
+        :style="navActiveStyle(index)"
+        @click="selectPhase(index)"
       >
         <span>{{ item.name }}</span>
       </div>
@@ -15,7 +15,15 @@
       </div>
     </div>
     <div class="phase-body">
-      <task-group :index="index" :phaseId="selectedPhase"></task-group>
+      <task-group
+        v-for="(item, index) in projects[projectId].phase[selectedPhase]
+          .task_group"
+        :key="index"
+        :project-id="projectId"
+        :phase-id="selectedPhase"
+        :task-group-id="item.id"
+        :item="item"
+      ></task-group>
     </div>
   </div>
 </template>
@@ -35,7 +43,7 @@ export default {
     };
   },
   props: {
-    index: {
+    projectId: {
       type: Number,
       required: true,
       default: 0
@@ -46,7 +54,7 @@ export default {
     navActiveStyle() {
       return function(index) {
         return index === this.selectedPhase
-          ? "background-color: lightgrey"
+          ? "background-color: gainsboro"
           : "background-color: white";
       };
     }

@@ -1,22 +1,39 @@
 <template>
   <div class="task-group-wrapper">
     <div class="group-setting">
-      <div class="setting-btn">
-        <badge-icon
-          :wrapper-style="triangledownfill.wrapperStyle"
-          :icon-style="triangledownfill.iconStyle"
-          :icon-name="triangledownfill.iconName"
-          :reverse="true"
-          @click.native="collapseGroup"
-        />
+      <div v-if="!collapsed" class="group-setting-show">
+        <div class="setting-btn">
+          <badge-icon
+            :wrapper-style="triangledownfill.wrapperStyle"
+            :icon-style="triangledownfill.iconStyle"
+            :icon-name="triangledownfill.iconName"
+            :reverse="true"
+            @click.native="collapseGroup"
+          />
+        </div>
+        <div class="setting-group-label">
+          <div>
+            <editable-text
+              :default-value="$t('GROUP_TITLE')"
+              :value="item.name"
+              :font-style="`font-size: 18px; color: ${item.color}`"
+            />
+          </div>
+        </div>
       </div>
-      <div class="setting-group-label"></div>
+      <div v-else class="group-setting-hide" @click="collapseGroup">
+        <div class="group-color" :style="`background-color: ${item.color}`" />
+      </div>
     </div>
-    <div class="collapse show" id="collapseExample" style="width: 100%">
+    <div
+      class="collapse show"
+      :id="`collapseTask-${taskGroupId}`"
+      style="width: 100%"
+    >
       <div class="group-body">
         <transition-group class="group-title">
           <group-title
-            v-for="(item, index) in titles"
+            v-for="(item, index) in title"
             :item="item"
             :key="item.name"
             :title="$t(item.name)"
@@ -26,13 +43,11 @@
           background-color: white; 
           ${index === 0 ? 'border-top-left-radius: 10px;' : null};
           ${
-            index === titles.length - 1
-              ? 'border-top-right-radius: 10px;'
-              : null
+            index === title.length - 1 ? 'border-top-right-radius: 10px;' : null
           }
           `
             "
-            :resizer="index < titles.length - 1 ? true : false"
+            :resizer="index < title.length - 1 ? true : false"
             :sibling-resizing="titleResizing"
             @on-drag-start="onTitleDragStart"
             @on-drag-end="onTitleDragEnd"
@@ -43,15 +58,16 @@
         </transition-group>
         <div
           class="group-cell"
-          v-for="(item, index) in projects[index].phases[phaseId].tasks"
+          v-for="(taskItem, index) in item.task"
           :key="index"
         >
           <!-- nested v-for rendering different type of cells -->
           <group-row
-            v-for="title in titles"
+            v-for="title in title"
             :key="title.name"
             :title="title"
-            :task="item"
+            :task="taskItem"
+            :color="item.color"
             style="border-right: 1px solid white;"
           />
         </div>
@@ -64,39 +80,89 @@
 import groupRow from "@/components/groupRow";
 import groupTitle from "@/components/groupTitle";
 import badgeIcon from "@/components/badgeIcon";
+import editableText from "@/components/editableText";
+import popover from "@/components/popover";
+import tooltip from "@/components/tooltip";
 import { triangledownfill } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 export default {
   components: {
     groupTitle,
     groupRow,
-    badgeIcon
+    badgeIcon,
+    editableText,
+    popover,
+    tooltip
   },
   computed: {
     ...mapState("user", ["projects"])
   },
   props: {
-    index: {
-      type: Number,
+    projectId: {
+      type: [Number, String],
       required: true,
       default: 0
     },
     phaseId: {
-      type: Number,
+      type: [Number, String],
       required: true,
       default: 0
+    },
+    taskGroupId: {
+      type: [Number, String],
+      required: true,
+      default: 0
+    },
+    item: {
+      type: Object
     }
   },
   data() {
     return {
       triangledownfill,
-      titles: [
-        { name: "TITLE_NAME", init_w: "25%", offset_w: 0, min_w: 300 },
-        { name: "TITLE_STATUS", init_w: "12%", offset_w: 0, min_w: 100 },
-        { name: "TITLE_MEMBER", init_w: "15%", offset_w: 0, min_w: 100 },
-        { name: "TITLE_PRIORITY", init_w: "12%", offset_w: 0, min_w: 100 },
-        { name: "TITLE_TIMELINE", init_w: "21%", offset_w: 0, min_w: 150 },
-        { name: "TITLE_PROGRESS", init_w: "15%", offset_w: 0, min_w: 100 }
+      title: [
+        {
+          name: "TITLE_NAME",
+          init_w: "25%",
+          offset_w: 0,
+          min_w: 300,
+          draggable: false
+        },
+        {
+          name: "TITLE_STATUS",
+          init_w: "12%",
+          offset_w: 0,
+          min_w: 100,
+          draggable: true
+        },
+        {
+          name: "TITLE_MEMBER",
+          init_w: "15%",
+          offset_w: 0,
+          min_w: 100,
+          draggable: true
+        },
+        {
+          name: "TITLE_PRIORITY",
+          init_w: "12%",
+          offset_w: 0,
+          min_w: 100,
+          draggable: true
+        },
+        {
+          name: "TITLE_TIMELINE",
+          init_w: "21%",
+          offset_w: 0,
+          min_w: 150,
+          draggable: true
+        },
+        {
+          name: "TITLE_PROGRESS",
+          init_w: "15%",
+          offset_w: 0,
+          min_w: 100,
+          draggable: true
+        }
       ],
       dragging: null,
       titleResizing: false,
@@ -112,11 +178,13 @@ export default {
     },
     onTitleDragEnter(item) {
       if (item === this.dragging) return;
-      const newTitles = [...this.titles];
-      const src = newTitles.indexOf(this.dragging);
-      const dst = newTitles.indexOf(item);
-      newTitles.splice(dst, 0, ...newTitles.splice(src, 1));
-      this.titles = newTitles;
+      const newTitle = [...this.title];
+      const src = newTitle.indexOf(this.dragging);
+      const dst = newTitle.indexOf(item);
+      if (newTitle[dst].draggable && newTitle[src].draggable) {
+        newTitle.splice(dst, 0, ...newTitle.splice(src, 1));
+        this.title = newTitle;
+      }
     },
     onTitleResizing(args) {
       if (!this.titleResizing) this.titleResizing = true;
@@ -125,9 +193,9 @@ export default {
       let crntEleOffsetWd = args[2];
       let nxtEleOffsetWd = args[3];
 
-      let nextSiblingIndex = this.titles.indexOf(currentElement) + 1;
-      if (nextSiblingIndex > this.titles.length - 1) return;
-      let nextElement = this.titles[nextSiblingIndex];
+      let nextSiblingIndex = this.title.indexOf(currentElement) + 1;
+      if (nextSiblingIndex > this.title.length - 1) return;
+      let nextElement = this.title[nextSiblingIndex];
 
       let crntElMinWd = currentElement.min_w;
       let nxtElMinWd = nextElement.min_w;
@@ -142,44 +210,60 @@ export default {
       if (this.titleResizing) this.titleResizing = false;
     },
     collapseGroup() {
-      this.collapsed = !this.collapsed;
       if (this.collapsed) {
-        $("#collapseExample").collapse("show");
+        $(`#collapseTask-${this.taskGroupId}`).collapse("show");
       } else {
-        $("#collapseExample").collapse("hide");
+        $(`#collapseTask-${this.taskGroupId}`).collapse("hide");
       }
+      this.collapsed = !this.collapsed;
     },
     showGroup() {
       if (this.collapsed) {
         this.collapsed = false;
       }
-    },
-    mounted() {
-      $(document).ready(function() {
-        $("#groupCollapseBody").collapse({
-          toggle: true
-        });
-      });
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+@import "../common/theme/container.css";
 .task-group-wrapper {
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   .group-setting {
     width: 100%;
-    height: 10%;
+    height: 60px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    .group-setting-show {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .group-setting-hide {
+      width: 96%;
+      height: 60%;
+      margin-left: 4%;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      background-color: whitesmoke;
+      cursor: pointer;
+    }
+    .group-setting-hide:active {
+      -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+      box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    }
     .setting-btn {
       width: 4%;
       height: 100%;
@@ -191,7 +275,18 @@ export default {
     .setting-group-label {
       width: 16%;
       height: 100%;
-      background-color: red;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      div {
+        width: 100%;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
     }
   }
   .group-body {

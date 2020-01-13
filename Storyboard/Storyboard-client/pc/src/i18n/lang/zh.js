@@ -48,6 +48,7 @@ export default {
   TITLE_PRIORITY: "优先级",
   TITLE_PROGRESS: "进度",
   TITLE_TIMELINE: "时间线",
+  GROUP_TITLE: "组名",
   // actions
   ADD_DESCRIPTION: "添加描述",
   CREATE_PROJECT: "创建新项目"

@@ -48,6 +48,7 @@ export default {
   TITLE_PRIORITY: "Priority",
   TITLE_PROGRESS: "Progress",
   TITLE_TIMELINE: "Timeline",
+  GROUP_TITLE: "Group title",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

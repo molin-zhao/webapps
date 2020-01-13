@@ -61,7 +61,8 @@ export default {
   },
   computed: {
     computedValue() {
-      if (en[this.defaultValue]) return this.$t(`${this.defaultValue}`);
+      if (this.inputValue) return this.inputValue;
+      else if (en[this.defaultValue]) return this.$t(`${this.defaultValue}`);
       return this.defaultValue;
     },
     computedWrapperStyle() {
@@ -165,6 +166,8 @@ export default {
   overflow: hidden;
 }
 .wrapper {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -181,5 +184,9 @@ export default {
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border: 1px solid #ccc;
+}
+.input:focus {
+  border: 1px dashed gainsboro;
+  outline: none;
 }
 </style>
