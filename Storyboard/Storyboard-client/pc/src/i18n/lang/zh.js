@@ -40,6 +40,10 @@ export default {
   OCT: "十月",
   NOV: "十一月",
   DEC: "十二月",
+  TIMELINE_YEAR: "{number}年",
+  TIMELINE_DAY: "{number}天",
+  TIMELINE_WEEK: "{number}周",
+  TIMELINE_HOUR: "{number}小时",
   TITLE_NAME: "任务名称",
   TITLE_STATUS: "状态",
   TITLE_MEMBER: "人员",
@@ -59,6 +63,11 @@ export default {
   PRIORITY_HIGH: "高",
   PRIORITY_LOW: "低",
   PRIORITY_MEDIUM: "中",
+
+  PROGRESS_BEFORE: "开始于{progress}后",
+  PROGRESS_UNDERGOING: "已开始{progress}",
+  PROGRESS_DUE: "结束于{progress}后",
+  PROGRESS_DEFER: "已逾期{progress}",
   // actions
   ADD_DESCRIPTION: "添加描述",
   CREATE_PROJECT: "创建新项目"

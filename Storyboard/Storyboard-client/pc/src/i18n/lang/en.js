@@ -40,6 +40,10 @@ export default {
   OCT: "October",
   NOV: "November",
   DEC: "December",
+  TIMELINE_YEAR: "{number} y",
+  TIMELINE_DAY: "{number} d",
+  TIMELINE_WEEK: "{number} w",
+  TIMELINE_HOUR: "{number} h",
   TITLE_NAME: "Task(s) to do",
   TITLE_STATUS: "Status",
   TITLE_MEMBER: "Member(s)",
@@ -58,6 +62,11 @@ export default {
   PRIORITY_HIGH: "High",
   PRIORITY_LOW: "Low",
   PRIORITY_MEDIUM: "Medium",
+
+  PROGRESS_BEFORE: "Start in {progress}",
+  PROGRESS_UNDERGOING: "In progress {progress}",
+  PROGRESS_DUE: "Due in {progress}",
+  PROGRESS_DEFER: "Defered {progress}",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

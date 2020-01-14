@@ -19,10 +19,10 @@
       <priority :priority="task.priority" :editable="true" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_TIMELINE')">
-      <timeline :editable="true" />
+      <timeline :timeline="task.timeline" :editable="true" />
     </div>
     <div class="row-item" v-else-if="isType('TITLE_PROGRESS')">
-      <task-progress :editable="true" />
+      <task-progress :timeline="task.timeline" :editable="true" />
     </div>
     <div v-else></div>
   </div>
@@ -35,7 +35,7 @@ import member from "@/components/cell/member";
 import priority from "@/components/cell/priority";
 import status from "@/components/cell/status";
 import timeline from "@/components/cell/timeline";
-import taskProgress from "@/components/cell/progress";
+import taskProgress from "@/components/cell/taskProgress";
 export default {
   components: {
     name,

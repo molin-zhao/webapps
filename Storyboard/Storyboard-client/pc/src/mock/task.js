@@ -4,7 +4,7 @@ export const projects = [
     name: "wxmini",
     phase: [
       {
-        id: "1",
+        id: "111",
         name: "第一部分，原型设计",
         task_group: [
           {
@@ -13,12 +13,12 @@ export const projects = [
             color: "DarkOrchid",
             task: [
               {
-                id: "0",
+                id: "003",
                 name: "建立数据库",
                 description: "",
                 timeline: {
                   start_date: "2020-01-01T07:37:33.162Z",
-                  due_date: "2020-01-20T07:37:33.162Z"
+                  due_date: "2020-01-10T07:37:33.162Z"
                 },
                 priority: "high",
                 status: "working",
@@ -37,7 +37,7 @@ export const projects = [
                 }
               },
               {
-                id: "1",
+                id: "115",
                 name: "设计小程序的页面与流程设计",
                 description: "",
                 timeline: {
@@ -59,7 +59,7 @@ export const projects = [
             ]
           },
           {
-            id: "group-2",
+            id: "group-22",
             name: "第二部分",
             color: "LightCoral",
             task: [
@@ -120,14 +120,18 @@ export const projects = [
         name: "开发部分",
         task_group: [
           {
-            id: "group-1",
+            id: "group-2",
             name: "测试",
+            color: "skyblue",
             task: [
               {
-                id: "0",
+                id: "004",
                 name: "人员系统的设计和性能优化",
                 description: "",
-                due_date: "20191230",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "high",
                 status: "stuck",
                 member: [
@@ -141,10 +145,13 @@ export const projects = [
                 }
               },
               {
-                id: "1",
+                id: "112",
                 name: "发布小程序上线，搭建HTTPS服务器一台",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "medium",
                 status: "planned",
                 member: [
@@ -176,16 +183,16 @@ export const projects = [
     name: "flutter项目",
     phase: [
       {
-        id: "1",
+        id: "113",
         name: "flutter的初步了解",
         task_group: [
           {
-            id: "group-1",
+            id: "group-3",
             name: "数据库相关",
             color: "MidnightBlue",
             task: [
               {
-                id: "0",
+                id: "001",
                 name: "建立数据库",
                 description: "",
                 timeline: {
@@ -213,7 +220,7 @@ export const projects = [
                 }
               },
               {
-                id: "1",
+                id: "116",
                 name: "设计小程序的页面与流程设计",
                 description: "",
                 timeline: {
@@ -237,16 +244,16 @@ export const projects = [
         ]
       },
       {
-        id: "2",
+        id: "222",
         name: "软件和服务器的架构设计与优化部分",
         task_group: [
           {
-            id: "group-1",
+            id: "group-4",
             name: "系统设计",
             color: "PaleVioletRed",
             task: [
               {
-                id: "0",
+                id: "002",
                 name: "人员系统的设计和性能优化",
                 description: "",
                 timeline: {
@@ -266,7 +273,7 @@ export const projects = [
                 }
               },
               {
-                id: "1",
+                id: "114",
                 name: "发布小程序上线，搭建HTTPS服务器一台",
                 description: "",
                 timeline: {

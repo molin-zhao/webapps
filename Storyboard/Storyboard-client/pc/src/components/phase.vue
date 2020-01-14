@@ -16,9 +16,8 @@
     </div>
     <div class="phase-body">
       <task-group
-        v-for="(item, index) in projects[projectId].phase[selectedPhase]
-          .task_group"
-        :key="index"
+        v-for="item in projects[projectId].phase[selectedPhase].task_group"
+        :key="item.id"
         :project-id="projectId"
         :phase-id="selectedPhase"
         :task-group-id="item.id"
