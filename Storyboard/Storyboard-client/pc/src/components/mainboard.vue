@@ -25,7 +25,7 @@
             :wrapper-style="more.wrapperStyle"
             :icon-style="more.iconStyle"
             :icon-name="more.iconName"
-            @click.native="mouseclick('sidebar')"
+            @click.native="mouseclick('sidebar', $event)"
           >
           </badge-icon>
         </div>
@@ -70,7 +70,7 @@ import sidebar from "@/components/sidebar";
 import editableText from "@/components/editableText";
 import datepicker from "@/components/datepicker";
 import phase from "@/components/phase";
-import mouse from "@/common/utils/mouse";
+import { mouseclick } from "@/common/utils/mouse";
 import { group, more } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 export default {
@@ -107,7 +107,7 @@ export default {
     }
   },
   methods: {
-    ...mouse,
+    mouseclick,
     descriptionChange(val) {
       this.description = val;
     }

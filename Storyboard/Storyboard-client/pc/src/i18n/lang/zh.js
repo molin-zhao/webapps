@@ -55,6 +55,10 @@ export default {
   STATUS_STUCK: "受阻!",
   STATUS_DEFER: "延期!",
   STATUS_DONE: "已完成",
+
+  PRIORITY_HIGH: "高",
+  PRIORITY_LOW: "低",
+  PRIORITY_MEDIUM: "中",
   // actions
   ADD_DESCRIPTION: "添加描述",
   CREATE_PROJECT: "创建新项目"

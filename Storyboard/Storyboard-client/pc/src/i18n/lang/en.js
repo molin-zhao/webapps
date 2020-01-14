@@ -55,6 +55,9 @@ export default {
   STATUS_STUCK: "Stuck!",
   STATUS_DEFER: "Defered!",
   STATUS_DONE: "Done",
+  PRIORITY_HIGH: "High",
+  PRIORITY_LOW: "Low",
+  PRIORITY_MEDIUM: "Medium",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

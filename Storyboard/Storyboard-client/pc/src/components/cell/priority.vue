@@ -1,9 +1,12 @@
 <template>
-  <div ref="container" class="status-wrapper">
+  <div class="priority-wrapper">
     <wave-btn
-      class="status-btn"
-      btn-style="width: 100%; height: 100%;"
-      @click.native.stop="mouseclick('priority')"
+      class="priority-btn"
+      :btn-color="`${computedColor}e6`"
+      :wave-color="`${computedColor}ff`"
+      :title="$t(computedTitle)"
+      btn-style="width: 100%; height: 100%; color: white;"
+      @click.native="mouseclick('priority', $event)"
     />
     <popover ref="priority" style="top: calc(100% + 10px);">
       <tooltip
@@ -19,7 +22,8 @@
 import waveBtn from "@/components/waveBtn";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
-import mouse from "@/common/utils/mouse";
+import { mouseclick, hide } from "@/common/utils/mouse";
+import { eventBus } from "@/common/utils/eventBus";
 export default {
   components: {
     waveBtn,
@@ -27,7 +31,7 @@ export default {
     tooltip
   },
   props: {
-    status: {
+    priority: {
       type: String,
       default: ""
     },
@@ -37,41 +41,53 @@ export default {
     }
   },
   computed: {
-    computedBtnStyle() {
-      switch (this.status) {
-        case "planned":
-        case "working":
-        case "stuck":
-        case "done":
-        case "defer":
+    computedColor() {
+      switch (this.priority) {
+        case "medium":
+          return "#6495ed";
+          break;
+        case "low":
+          return "#d3d3d3";
+          break;
+        case "high":
+          return "#ff0000";
+          break;
+        default:
+          return "#000000";
+          break;
+      }
+    },
+    computedTitle() {
+      switch (this.priority) {
+        case "medium":
+          return "PRIORITY_MEDIUM";
+          break;
+        case "low":
+          return "PRIORITY_LOW";
+          break;
+        case "high":
+          return "PRIORITY_HIGH";
+          break;
+        default:
+          return "";
           break;
       }
     }
   },
-  created() {
-    document.addEventListener("click", this.checkMouseClick);
-  },
-  beforeDestroy() {
-    document.removeEventListener("click", this.checkMouseClick);
-  },
   methods: {
-    ...mouse,
-    checkMouseClick(event) {
-      const e = event || window.event;
-      const { type, target } = e;
-      const containerEl = this.$refs["container"];
-      if (containerEl && !containerEl.contains(target)) {
-        this.hide("priority");
-      } else {
-        this.show("priority");
-      }
-    }
+    mouseclick,
+    hide
+  },
+  mounted() {
+    eventBus.$on("reset-visible-component", () => {
+      this.hide("priority");
+    });
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.status-wrapper {
+.priority-wrapper {
   width: 100%;
   height: 100%;
   display: flex;
@@ -80,11 +96,8 @@ export default {
   align-items: center;
   position: relative;
 }
-.status-btn {
+.priority-btn {
   width: 100%;
   height: 100%;
-}
-.status-btn:hover {
-  background-color: #426fc5b3;
 }
 </style>

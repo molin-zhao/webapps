@@ -145,7 +145,7 @@ import mainboard from "@/components/mainboard";
 import { eventBus } from "@/common/utils/eventBus";
 import { bell } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
-import mouse from "@/common/utils/mouse";
+import { mouseover, mouseleave } from "@/common/utils/mouse";
 export default {
   components: {
     badgeIcon,
@@ -183,7 +183,8 @@ export default {
     ...mapActions({
       fetch_projects: "user/fetch_projects"
     }),
-    ...mouse,
+    mouseover,
+    mouseleave,
     projectLabelClick(index) {
       this.projectSelectedIndex = index;
     },

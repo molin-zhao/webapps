@@ -16,7 +16,10 @@ export const projects = [
                 id: "0",
                 name: "建立数据库",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "high",
                 status: "working",
                 member: [
@@ -37,7 +40,10 @@ export const projects = [
                 id: "1",
                 name: "设计小程序的页面与流程设计",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "medium",
                 status: "done",
                 member: [
@@ -61,7 +67,10 @@ export const projects = [
                 id: "00",
                 name: "人员系统的设计和性能优化",
                 description: "",
-                due_date: "20191230",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "high",
                 status: "stuck",
                 member: [
@@ -78,7 +87,10 @@ export const projects = [
                 id: "11",
                 name: "发布小程序上线，搭建HTTPS服务器一台",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "medium",
                 status: "planned",
                 member: [
@@ -176,7 +188,10 @@ export const projects = [
                 id: "0",
                 name: "建立数据库",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "high",
                 status: "done",
                 member: [
@@ -201,7 +216,10 @@ export const projects = [
                 id: "1",
                 name: "设计小程序的页面与流程设计",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "medium",
                 status: "stuck",
                 member: [
@@ -231,7 +249,10 @@ export const projects = [
                 id: "0",
                 name: "人员系统的设计和性能优化",
                 description: "",
-                due_date: "20191230",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "high",
                 status: "planned",
                 member: [
@@ -248,7 +269,10 @@ export const projects = [
                 id: "1",
                 name: "发布小程序上线，搭建HTTPS服务器一台",
                 description: "",
-                due_date: "20191220",
+                timeline: {
+                  start_date: "2020-01-01T07:37:33.162Z",
+                  due_date: "2020-01-20T07:37:33.162Z"
+                },
                 priority: "medium",
                 status: "working",
                 member: [

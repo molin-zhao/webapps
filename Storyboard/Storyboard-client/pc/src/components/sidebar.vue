@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import { eventBus } from "@/common/utils/eventBus";
 export default {
   data() {
     return {
@@ -47,21 +48,7 @@ export default {
       ${this.sidebarStyle}`;
     }
   },
-  created() {
-    document.addEventListener("click", this.checkMouseClick);
-  },
-  beforeDestroy() {
-    document.removeEventListener("click", this.checkMouseClick);
-  },
   methods: {
-    checkMouseClick(event) {
-      const e = event || window.event;
-      let { type, target } = e;
-      if (this.$refs["sidebar"] && !this.$refs["sidebar"].contains(target)) {
-        // click outside of sidebar
-        if (this.popup) return this.hide();
-      }
-    },
     show() {
       if (!this.visible) {
         this.visible = true;
@@ -94,6 +81,11 @@ export default {
         }, this.interval * 1000);
       }
     }
+  },
+  mounted() {
+    eventBus.$on("reset-visible-component", () => {
+      this.hide();
+    });
   }
 };
 </script>

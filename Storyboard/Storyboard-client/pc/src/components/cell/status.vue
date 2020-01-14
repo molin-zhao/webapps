@@ -1,9 +1,5 @@
 <template>
-  <div
-    :ref="`status-wrapper-${index}`"
-    class="status-wrapper"
-    @click="mouseclick(`status-popover-${index}`, $event)"
-  >
+  <div class="status-wrapper" @click="mouseclick(`status-popover`, $event)">
     <wave-btn
       class="status-btn"
       btn-style="width: 100%; height: 100%; color: white;"
@@ -11,7 +7,7 @@
       :wave-color="`${computedColor}ff`"
       :title="$t(computedTitle)"
     />
-    <popover :ref="`status-popover-${index}`" style="top: calc(100% + 10px);">
+    <popover :ref="`status-popover`" style="top: calc(100% + 10px);">
       <tooltip
         content-style="width: 200px; height: 200px"
         arrow-placement="top"
@@ -25,7 +21,7 @@
 import waveBtn from "@/components/waveBtn";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
-import mouse from "@/common/utils/mouse";
+import { mouseclick, hide } from "@/common/utils/mouse";
 import { eventBus } from "@/common/utils/eventBus";
 export default {
   components: {
@@ -94,11 +90,12 @@ export default {
     }
   },
   methods: {
-    ...mouse
+    mouseclick,
+    hide
   },
   mounted() {
     eventBus.$on("reset-visible-component", () => {
-      this.hide(`status-popover-${this.index}`);
+      this.hide(`status-popover`);
     });
   }
 };
