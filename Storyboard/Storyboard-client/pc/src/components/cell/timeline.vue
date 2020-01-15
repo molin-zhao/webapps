@@ -7,10 +7,10 @@
   >
     <wave-btn
       :class="`timeline-btn ${isHover ? 'timeline-wrapper-hover' : null}`"
-      btn-style="width: 100%; height: 100%; color: white;"
+      btn-style="width: 100%; height: 100%; color: white; font-size: 13px"
       btn-color="#000000e6"
       wave-color="#000000ff"
-      title="timeline"
+      :title="computedTitle"
     />
     <popover ref="timeline-popover" style="top: calc(100% + 10px);">
       <tooltip
@@ -28,6 +28,7 @@ import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
 import { eventBus } from "@/common/utils/eventBus";
 import { mouseclick, hide } from "@/common/utils/mouse";
+import { NOW_ISO, parseISODate } from "@/common/utils/date";
 export default {
   components: {
     waveBtn,
@@ -36,13 +37,35 @@ export default {
   },
   data() {
     return {
-      hover: false
+      hover: false,
+      month_name: [
+        "JAN",
+        "FEB",
+        "MAR",
+        "ARP",
+        "MAY",
+        "JUN",
+        "JUL",
+        "AUG",
+        "SEP",
+        "OCT",
+        "NOV",
+        "DEC"
+      ]
     };
   },
   props: {
     index: {
       type: [Number, String],
       default: 0
+    },
+    timeline: {
+      type: Object,
+      required: true,
+      default: () => ({
+        start_date: NOW_ISO,
+        due_date: NOW_ISO
+      })
     }
   },
   mounted() {
@@ -67,6 +90,19 @@ export default {
         return true;
       }
       return false;
+    },
+    computedTitle() {
+      const { start_date, due_date } = this.timeline;
+      const { month_name } = this;
+      let start = parseISODate(start_date);
+      let startMonthIndex = start.getMonth();
+      let startDate = start.getDate();
+      let end = parseISODate(due_date);
+      let endMonthIndex = end.getMonth();
+      let endDate = end.getDate();
+      let startTimeStr = `${this.$t(month_name[startMonthIndex])} ${startDate}`;
+      let endTimeStr = `${this.$t(month_name[endMonthIndex])} ${endDate}`;
+      return `${startTimeStr} - ${endTimeStr}`;
     }
   }
 };

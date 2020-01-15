@@ -4,7 +4,7 @@
       <div
         class="nav-link display-only"
         v-for="(item, index) in projects[projectId].phase"
-        :key="index"
+        :key="item.id"
         :style="navActiveStyle(index)"
         @click="selectPhase(index)"
       >
@@ -30,11 +30,13 @@
 <script>
 import waveBtn from "@/components/waveBtn";
 import taskGroup from "@/components/taskGroup";
+import test from "@/components/test";
 import { mapState, mapActions } from "vuex";
 export default {
   components: {
     waveBtn,
-    taskGroup
+    taskGroup,
+    test
   },
   data() {
     return {

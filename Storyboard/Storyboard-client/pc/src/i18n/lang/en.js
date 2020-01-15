@@ -13,6 +13,7 @@ export default {
   STATUS: "Status",
   DUE_DATE: "Due Date",
   NEW_TASK: "New Task",
+  TASK_NUMBER: "{number} task(s)",
   MOLINZ: "Molinz",
   EN_US: "English-US",
   ZH_CN: "Chinese-China(Mainland)",
@@ -67,6 +68,7 @@ export default {
   PROGRESS_UNDERGOING: "In progress {progress}",
   PROGRESS_DUE: "Due in {progress}",
   PROGRESS_DEFER: "Defered {progress}",
+  PROGRESS_DONE: "Done √",
 
   // actions
   ADD_DESCRIPTION: "Add a description",

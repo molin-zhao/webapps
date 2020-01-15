@@ -23,6 +23,10 @@
       </div>
       <div v-else class="group-setting-hide" @click="collapseGroup">
         <div class="group-color" :style="`background-color: ${item.color}`" />
+        <span :style="`color: ${item.color}`">{{ item.name }}</span>
+        <span style="position: absolute; right: 5px">{{
+          $t("TASK_NUMBER", { number: item.task.length })
+        }}</span>
       </div>
     </div>
     <div
@@ -37,16 +41,7 @@
             :item="item"
             :key="item.name"
             :title="$t(item.name)"
-            :default-style="
-              `
-          height: 100%; 
-          background-color: white; 
-          ${index === 0 ? 'border-top-left-radius: 10px;' : null};
-          ${
-            index === title.length - 1 ? 'border-top-right-radius: 10px;' : null
-          }
-          `
-            "
+            :default-style="computedTitleStyle"
             :resizer="index < title.length - 1 ? true : false"
             :sibling-resizing="titleResizing"
             @on-drag-start="onTitleDragStart"
@@ -56,12 +51,25 @@
             @on-resizing-end="onTitleResizingEnd"
           />
         </transition-group>
-        <div
+        <group-row
+          v-for="taskItem in item.task"
+          :key="taskItem.id"
+          class="group-cell"
+        >
+          <group-cell
+            v-for="title in title"
+            :key="title.name"
+            :title="title"
+            :task="taskItem"
+            :color="item.color"
+            style="border-right: 1px solid white;"
+          />
+        </group-row>
+        <!-- <div
           class="group-cell"
           v-for="(taskItem, index) in item.task"
           :key="index"
         >
-          <!-- nested v-for rendering different type of cells -->
           <group-row
             v-for="title in title"
             :key="title.name"
@@ -70,7 +78,7 @@
             :color="item.color"
             style="border-right: 1px solid white;"
           />
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -78,24 +86,51 @@
 
 <script>
 import groupRow from "@/components/groupRow";
+import groupCell from "@/components/groupCell";
 import groupTitle from "@/components/groupTitle";
 import badgeIcon from "@/components/badgeIcon";
 import editableText from "@/components/editableText";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
-import { triangledownfill } from "@/common/theme/icon";
 import { mapState, mapActions } from "vuex";
 export default {
   components: {
     groupTitle,
     groupRow,
+    groupCell,
     badgeIcon,
     editableText,
     popover,
     tooltip
   },
   computed: {
-    ...mapState("user", ["projects"])
+    ...mapState("user", ["projects"]),
+    computedTitleStyle() {
+      const { index, title } = this;
+      return `height: 100%; background-color: white; ${
+        index === 0 ? "border-top-left-radius: 10px;" : null
+      };${
+        index === title.length - 1 ? "border-top-right-radius: 10px;" : null
+      }`;
+    },
+    triangledownfill() {
+      const { color } = this.item;
+      return {
+        wrapperStyle: {
+          plain: `width: 16px; height: 16px; border-radius: 8px; background-color: ${color};`,
+          hover: "background-color: white; border: 1px solid black;",
+          active: "background-color: aliceblue;"
+        },
+        iconStyle: {
+          plain: "width: 100%; height: 100%; color: white;",
+          hover: "color: black;",
+          active: "color: cornflowerblue;"
+        },
+        iconName: {
+          plain: "triangledownfill"
+        }
+      };
+    }
   },
   props: {
     projectId: {
@@ -119,7 +154,6 @@ export default {
   },
   data() {
     return {
-      triangledownfill,
       title: [
         {
           name: "TITLE_NAME",
@@ -259,6 +293,7 @@ export default {
       align-items: center;
       background-color: whitesmoke;
       cursor: pointer;
+      position: relative;
     }
     .group-setting-hide:active {
       -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);

@@ -36,20 +36,3 @@ export const bell = {
     plain: "bell"
   }
 };
-
-export const triangledownfill = {
-  wrapperStyle: {
-    plain:
-      "width: 16px; height: 16px; border-radius: 8px; background-color: black;",
-    hover: "background-color: white; border: 1px solid black;",
-    active: "background-color: aliceblue;"
-  },
-  iconStyle: {
-    plain: "width: 100%; height: 100%; color: white;",
-    hover: "color: black;",
-    active: "color: cornflowerblue;"
-  },
-  iconName: {
-    plain: "triangledownfill"
-  }
-};

@@ -27,11 +27,17 @@ export default {
         start_date: NOW_ISO,
         due_date: NOW_ISO
       })
+    },
+    taskStatus: {
+      type: String,
+      default: ""
     }
   },
   computed: {
     computedProgress() {
       const { start_date, due_date } = this.timeline;
+      const { taskStatus } = this;
+      if (taskStatus === "done") return this.$t("PROGRESS_DONE");
       let startTimestamp = getTimestampFromISODate(start_date);
       let dueTimestamp = getTimestampFromISODate(due_date);
       let nowTimestamp = getTimestampFromDate(new Date());
@@ -77,7 +83,9 @@ export default {
       }
     },
     computedColor() {
-      const { status } = this;
+      const { status, taskStatus } = this;
+      if (taskStatus === "done")
+        return "background-color: lightgreen; color: white";
       if (status === "before") {
         return "background-color: whitesmoke; color: black";
       } else if (status === "undergoing") {
