@@ -53,6 +53,7 @@
       height: 100vh; 
       width: 25vw; 
       box-shadow: -5px 2px 5px lightgrey; 
+      -webkit-box-shadow: -5px 2px 5px lightgrey;
       right: -5px; 
       top: 0;
       "

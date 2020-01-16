@@ -1,0 +1,11 @@
+{
+  "name": "storyboard-socket",
+  "version": "1.0.0",
+  "description": "socket server for storyboard app",
+  "main": "app.js",
+  "scripts": {
+    "start": "PORT=3030 node app.js"
+  },
+  "author": "molin zhao",
+  "license": "ISC"
+}

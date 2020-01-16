@@ -32,7 +32,7 @@ export default {
   props: {
     backgroundColor: {
       type: String,
-      default: "yellowgreen"
+      default: "gainsboro"
     },
     arrowSizeNumber: {
       type: Number,

@@ -10,9 +10,18 @@
     />
     <popover ref="priority" style="top: calc(100% + 10px);">
       <tooltip
-        content-style="width: 200px; height: 200px"
+        content-style="
+        width: 150px; 
+        height: 200px; 
+        border-radius: 5px; 
+        box-shadow: -5px 2px 5px lightgrey; 
+        -webkit-box-shadow: -5px 2px 5px lightgrey;
+        border: 1px solid whitesmoke;
+        "
         arrow-placement="top"
         arrow-position="left: 50%; transform: translateX(-50%)"
+        background-color="white"
+        border-color="whitesmoke"
       />
     </popover>
   </div>
