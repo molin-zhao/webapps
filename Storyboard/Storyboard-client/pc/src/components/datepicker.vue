@@ -1,9 +1,9 @@
 <template>
   <div class="datepicker-wrapper">
     <div class="datepicker-header">
-      <a @click="prevMonth"
-        ><icon name="left" style="width: 2vw; height: 2vw; color: #A5C4EC"
-      /></a>
+      <a @click.stop="prevMonth">
+        <icon name="left" style="width: 2vw; height: 2vw; color: #A5C4EC" />
+      </a>
       <div class="display-only" style="font-family: kai">
         <transition name="fade">
           <span v-if="showMonth">{{
@@ -15,7 +15,7 @@
           <span v-if="showYear">{{ displayYear }}</span>
         </transition>
       </div>
-      <a @click="nextMonth"
+      <a @click.stop="nextMonth"
         ><icon name="right" style="width: 2vw; height: 2vw; color: #A5C4EC"
       /></a>
     </div>
@@ -38,32 +38,39 @@
           :style="computedDatepickerBodyWidthAndHeight"
           v-if="showMonth"
         >
+          <!-- paddings -->
           <span
             v-for="(item, index) in paddingDaysHead"
             :key="`padding-h-${index}`"
             :style="computedDatepickerCellWidthAndHeight"
           ></span>
+          <!-- paddings -->
+          <!-- days -->
           <span
             v-for="(item, index) in displayNumOfDaysOfMonth"
             :key="`real-${index}`"
-            :class="isCurrentDay(item)"
+            :class="computedDateClass(item)"
             :style="computedDatepickerCellWidthAndHeight"
+            @click.stop="onDayClick(item)"
           >
             {{ item }}
           </span>
+          <!-- days -->
+          <!-- paddings -->
           <span
             v-for="(item, index) in paddingDaysTail"
             :key="`padding-t-${index}`"
             :style="computedDatepickerCellWidthAndHeight"
           ></span>
+          <!-- paddings -->
         </div>
       </transition>
     </div>
-    <div class="datepicker-footer"></div>
   </div>
 </template>
 
 <script>
+import { getTimestampFromISODate } from "@/common/utils/date";
 export default {
   props: {
     cellHeight: {
@@ -77,6 +84,18 @@ export default {
     animationInterval: {
       type: Number,
       default: 0.5
+    },
+    init: {
+      type: Object,
+      default: null
+    },
+    start: {
+      type: String,
+      default: ""
+    },
+    end: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -102,7 +121,12 @@ export default {
         month: null,
         year: null
       },
-      selected: {
+      start_date: {
+        date: null,
+        month: null,
+        year: null
+      },
+      end_date: {
         date: null,
         month: null,
         year: null
@@ -112,6 +136,7 @@ export default {
       displayYear: 1970,
       showMonth: true,
       showYear: true,
+      disabled: false,
       paddingDaysHead: 0,
       paddingDaysTail: 0
     };
@@ -133,18 +158,29 @@ export default {
       return bodyWidth;
     },
     computedDatepickerCellWidthAndHeight() {
-      return `height: ${this.cellHeight}; line-height: ${this.cellHeight}; width: ${this.cellWidth}`;
+      const { cellHeight, cellWidth } = this;
+      let outlineStyle = `height: ${cellHeight}; line-height: ${cellHeight}; width: ${cellWidth}`;
+      return `${outlineStyle}`;
     },
-    isCurrentDay() {
+    computedDateClass() {
       return function(date) {
+        const { init, current, displayYear, displayMonthIndex } = this;
         if (
-          this.displayYear === this.current.year &&
-          this.displayMonthIndex === this.current.month &&
-          date === this.current.date
-        ) {
+          displayYear === current.year &&
+          displayMonthIndex === current.month &&
+          date === current.date
+        )
           return "current-day";
-        }
-        return null;
+        else if (
+          init &&
+          (displayYear < init.year ||
+            (displayYear === init.year && displayMonthIndex < init.month) ||
+            (displayYear === init.year &&
+              displayMonthIndex === init.month &&
+              date < init.date))
+        )
+          return "past-day";
+        return "future-day";
       };
     }
   },
@@ -171,9 +207,12 @@ export default {
       this.timer = setTimeout(() => {
         if (!this.showMonth) this.showMonth = true;
         if (!this.showYear) this.showYear = true;
+        if (this.disabled) this.disabled = false;
       }, 500);
     },
     prevMonth() {
+      if (this.disabled) return;
+      this.disabled = true;
       let month = this.displayMonthIndex;
       let year = this.displayYear;
       this.showMonth = false;
@@ -184,6 +223,8 @@ export default {
       return this.setDate(year, month - 1);
     },
     nextMonth() {
+      if (this.disabled) return;
+      this.disabled = true;
       let month = this.displayMonthIndex;
       let year = this.displayYear;
       this.showMonth = false;
@@ -208,6 +249,29 @@ export default {
       let lastDayStandardTime = new Date(year, month + 1, 0);
       let lastDay = lastDayStandardTime.getDay();
       return lastDay === 0 ? 0 : 7 - lastDay;
+    },
+    onDayClick(item) {
+      if (this.computedDateClass(item) === "past-day") return;
+      // can select day
+      // 1. check if the timeline already exists, if it does, compare item with start and end date
+      const { start, end } = this;
+      if (start && end) {
+        const { displayYear, displayMonthIndex } = this;
+        let selectedDateStr = `${displayYear}-${displayMonthIndex + 1}-${item}`;
+        let selectedDateTimestamp = Date.parse(selectedDateStr);
+        let startDateTimestamp = getTimestampFromISODate(start);
+        let endDateTimestamp = getTimestampFromISODate(end);
+        let selectedDateISOStr = new Date(selectedDateTimestamp).toISOString();
+        let distToStart = selectedDateTimestamp - startDateTimestamp;
+        let distToEnd = endDateTimestamp - selectedDateTimestamp;
+        if (distToStart <= distToEnd) {
+          // recalculate start date
+          return this.$emit("select-timeline", selectedDateISOStr, end);
+        }
+        return this.$emit("select-timeline", start, selectedDateISOStr);
+      } else {
+        return this.$emit("select-date", item);
+      }
     }
   }
 };
@@ -231,6 +295,8 @@ export default {
     a {
       width: 25%;
       height: 100%;
+      background-color: none;
+      border: none;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -262,8 +328,7 @@ export default {
       justify-content: flex-start;
       align-items: center;
       span {
-        height: 90%;
-        font-family: kai;
+        height: 100%;
       }
     }
     .datepicker-body-days {
@@ -273,24 +338,25 @@ export default {
       align-items: flex-start;
       flex-wrap: wrap;
       align-content: flex-start;
-      span {
-        cursor: pointer;
-        font-family: kai;
-      }
     }
   }
 }
-.datepicker-footer {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-  height: 50px;
-  background-color: blue;
-}
 .current-day {
-  background-color: lightgrey;
+  background-color: gainsboro;
+  cursor: pointer;
+}
+.past-day {
+  color: lightgrey;
+}
+
+.future-day {
+  cursor: pointer;
+}
+
+.future-day:active,
+.current-day:active {
+  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 
 // animations

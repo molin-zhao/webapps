@@ -15,8 +15,8 @@
     <popover ref="timeline-popover" style="top: calc(100% + 10px);">
       <tooltip
         content-style="
-        width: 150px; 
-        height: 200px; 
+        width: 300px; 
+        height: 450px; 
         border-radius: 5px; 
         box-shadow: -5px 2px 5px lightgrey; 
         -webkit-box-shadow: -5px 2px 5px lightgrey;
@@ -26,7 +26,18 @@
         arrow-position="left: 50%; transform: translateX(-50%)"
         background-color="white"
         border-color="whitesmoke"
-      />
+      >
+        <div class="datepicker-header"></div>
+        <div class="datepicker-body">
+          <datepicker
+            :start="timeline.start_date"
+            :end="timeline.due_date"
+            @select-date="selectDate"
+            @select-timeline="selectTimeline(arguments)"
+          />
+        </div>
+        <div class="datepicker-footer"></div>
+      </tooltip>
     </popover>
   </div>
 </template>
@@ -35,6 +46,7 @@
 import waveBtn from "@/components/waveBtn";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
+import datepicker from "@/components/datepicker";
 import { eventBus } from "@/common/utils/eventBus";
 import { mouseclick, hide } from "@/common/utils/mouse";
 import { NOW_ISO, parseISODate } from "@/common/utils/date";
@@ -42,7 +54,8 @@ export default {
   components: {
     waveBtn,
     popover,
-    tooltip
+    tooltip,
+    datepicker
   },
   data() {
     return {
@@ -90,6 +103,13 @@ export default {
     },
     mouseleave() {
       if (this.hover) this.hover = false;
+    },
+    selectDate(item) {
+      console.log(item);
+    },
+    selectTimeline(args) {
+      console.log(`start ${args[0]}`);
+      console.log(`due ${args[1]}`);
     }
   },
   computed: {
@@ -142,5 +162,24 @@ export default {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+}
+.datepicker-header {
+  height: 15%;
+  width: 100%;
+  background-color: lightblue;
+}
+.datepicker-body {
+  height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.datepicker-footer {
+  height: 15%;
+  width: 100%;
+  background-color: lightblue;
 }
 </style>

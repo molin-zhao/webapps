@@ -114,6 +114,12 @@ export default {
 .tooltip-wrapper {
   position: relative;
   .tooltip-content {
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
   }
