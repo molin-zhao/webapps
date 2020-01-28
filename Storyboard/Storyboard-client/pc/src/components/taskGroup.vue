@@ -65,20 +65,12 @@
             style="border-right: 1px solid white;"
           />
         </group-row>
-        <!-- <div
+        <!-- add a task -->
+        <addTask
+          :color="item.color"
+          :editable="true"
           class="group-cell"
-          v-for="(taskItem, index) in item.task"
-          :key="index"
-        >
-          <group-row
-            v-for="title in title"
-            :key="title.name"
-            :title="title"
-            :task="taskItem"
-            :color="item.color"
-            style="border-right: 1px solid white;"
-          />
-        </div> -->
+        ></addTask>
       </div>
     </div>
   </div>
@@ -92,6 +84,7 @@ import badgeIcon from "@/components/badgeIcon";
 import editableText from "@/components/editableText";
 import popover from "@/components/popover";
 import tooltip from "@/components/tooltip";
+import addTask from "@/components/addTask";
 import { mapState, mapActions } from "vuex";
 export default {
   components: {
@@ -101,7 +94,8 @@ export default {
     badgeIcon,
     editableText,
     popover,
-    tooltip
+    tooltip,
+    addTask
   },
   computed: {
     ...mapState("user", ["projects"]),

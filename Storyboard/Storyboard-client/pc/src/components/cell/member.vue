@@ -1,5 +1,5 @@
 <template>
-  <div class="member-wrapper">
+  <div class="member-wrapper" @click.stop="memberOnClick">
     <img
       v-for="(member, index) in computedMember"
       :key="member.id"
@@ -39,6 +39,25 @@ export default {
         }
         return `${zIndex};`;
       };
+    }
+  },
+  methods: {
+    memberOnClick() {
+      this.$confirm.show({
+        title: "hello",
+        message: "Hello, world! This is a toast message",
+        // interval: 5000
+        confirmLabel: "HELLO",
+        cancelLabel: "WORLD",
+        success: function() {
+          console.log(this);
+          console.log("confirm");
+        },
+        fail: function() {
+          console.log(this);
+          console.log("cancel");
+        }
+      });
     }
   }
 };

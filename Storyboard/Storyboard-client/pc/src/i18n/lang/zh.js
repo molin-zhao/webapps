@@ -2,7 +2,10 @@ export default {
   // labels
   LANGUAGE: "语言",
   LOGIN: "登录",
+  LOGGEDIN: "登录成功",
   REGISTER: "注册",
+  REGISTERED: "注册成功",
+  ALREADY_REGISTERED: "邮箱或者电话号已存在",
   ADD: "添加",
   PRIORITY: "优先级",
   HIGH: "高",
@@ -70,8 +73,25 @@ export default {
   PROGRESS_DUE: "结束于{progress}后",
   PROGRESS_DEFER: "已逾期{progress}",
   PROGRESS_DONE: "完成 √",
+  CANCEL: " 取消",
+  CONFIRM: "确认",
+  EMAIL_PHONE: "邮箱或电话号",
+  PASSWORD: "密码",
+  CONFIRM_PASSWORD: "确认密码",
+  SMS_CODE: "验证码",
+  REMEMBER_ME: "记住我",
+  RESEND_CODE: "重新发送",
+  SEND_CODE: "发送验证码",
+  LOGIN_PASSWORD: "通过密码登录",
+  LOGIN_SMS: "通过验证码登录",
+  LOGIN_UNMATCHED_ERROR: "邮箱或手机号与密码不匹配",
+  EMAIL_PHONE_ERROR: "邮箱或手机号格式不正确",
+  CODE_ERROR: "验证码格式不正确",
+  PASSWORD_ERROR: "密码应该必须包含字母数字和特殊符号, 长度8-16位",
+  CONFIRM_PASSWORD_ERROR: "两次输入的密码不一致",
 
   // actions
-  ADD_DESCRIPTION: "添加描述",
+  ADD_DESCRIPTION: "添加描述...",
+  ADD_TASK: "添加任务...",
   CREATE_PROJECT: "创建新项目"
 };

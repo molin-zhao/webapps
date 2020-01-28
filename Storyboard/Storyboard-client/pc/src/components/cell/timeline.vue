@@ -32,8 +32,11 @@
           <datepicker
             :start="timeline.start_date"
             :end="timeline.due_date"
+            :select-period="true"
             @select-date="selectDate"
             @select-timeline="selectTimeline(arguments)"
+            @select-start="selectStart"
+            @select-end="selectEnd"
           />
         </div>
         <div class="datepicker-footer"></div>
@@ -104,13 +107,15 @@ export default {
     mouseleave() {
       if (this.hover) this.hover = false;
     },
-    selectDate(item) {
-      console.log(item);
+    selectDate(iso) {
+      console.log(iso);
     },
     selectTimeline(args) {
       console.log(`start ${args[0]}`);
       console.log(`due ${args[1]}`);
-    }
+    },
+    selectStart(iso) {},
+    selectEnd(iso) {}
   },
   computed: {
     isHover() {

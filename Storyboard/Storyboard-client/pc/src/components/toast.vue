@@ -1,14 +1,26 @@
 <template>
   <div
-    :class="
-      `alert alert-${type} alert-dismissible fade ${visible ? 'show' : null}`
-    "
+    v-show="visible"
+    class="toast-wrapper shadow"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
   >
-    <span v-if="message" class="display-only">{{ message }}</span>
-    <slot v-else></slot>
-    <button @click="resetTimer" class="close">
-      <span aria-hidden="true">&times;</span>
-    </button>
+    <div class="toast-header">
+      <strong class="mr-auto">Bootstrap</strong>
+      <small>11 mins ago</small>
+      <button
+        @click.stop="resetTimer"
+        type="button"
+        class="ml-2 mb-1 close"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="toast-body">
+      {{ message }}
+    </div>
   </div>
 </template>
 
@@ -21,10 +33,6 @@ export default {
     };
   },
   props: {
-    type: {
-      type: String,
-      default: "secondary"
-    },
     message: {
       type: String,
       default: "message"
@@ -38,7 +46,6 @@ export default {
     show() {
       this.visible = true;
       this.dismissTimer = setTimeout(() => {
-        // automatically close alert
         if (this) {
           this.visible = false;
           this.resetTimer();
@@ -59,11 +66,13 @@ export default {
 
 <style lang="scss" scoped>
 @import "../common/theme/container.css";
-div.alert {
+.toast-wrapper {
   position: absolute;
   top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10050 !important;
+  right: 5px;
+  z-index: 10048 !important;
+  background-color: white;
+  border: whitesmoke 1px solid;
+  border-radius: 5px;
 }
 </style>

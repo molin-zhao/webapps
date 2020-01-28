@@ -8,6 +8,8 @@ import storyboard from "@/pages/storyboard";
 import index from "@/router-views/index";
 import error from "@/router-views/error";
 import mobile from "@/router-views/mobile";
+import login from "@/pages/login";
+import register from "@/pages/register";
 const router = new vueRouter({
   mode: "history",
   routes: [
@@ -26,6 +28,14 @@ const router = new vueRouter({
         {
           path: "error/:code",
           component: error
+        },
+        {
+          path: "login",
+          component: login
+        },
+        {
+          path: "register",
+          component: register
         }
       ]
     },

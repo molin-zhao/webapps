@@ -15,7 +15,7 @@ const Alert = {
       show(options) {
         if (!currentAlert) initInstance();
         Object.assign(currentAlert, options);
-        return currentAlert.alert();
+        return currentAlert.show();
       }
     };
   }

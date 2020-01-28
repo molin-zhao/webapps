@@ -2,7 +2,10 @@ export default {
   // labels
   LANGUAGE: "Language",
   LOGIN: "Login",
+  LOGGEDIN: "Logged in",
   REGISTER: "Register",
+  REGISTERED: "Registered",
+  ALREADY_REGISTERED: "Email or phone number exists",
   ADD: "Add",
   PRIORITY: "Priority",
   HIGH: "High",
@@ -69,8 +72,26 @@ export default {
   PROGRESS_DUE: "Due in {progress}",
   PROGRESS_DEFER: "Defered {progress}",
   PROGRESS_DONE: "Done √",
+  CANCEL: "Cancel",
+  CONFIRM: "Confirm",
+  EMAIL_PHONE: "Email or phone number",
+  PASSWORD: "Password",
+  CONFIRM_PASSWORD: "Confirm password",
+  SMS_CODE: "SMS code",
+  REMEMBER_ME: "Remember me",
+  RESEND_CODE: "Resend code",
+  SEND_CODE: "Send code",
+  LOGIN_PASSWORD: "Login by password",
+  LOGIN_SMS: "Login by sms code",
+  LOGIN_UNMATCHED_ERROR: "Email or phone number does not match the password",
+  EMAIL_PHONE_ERROR: "Email or phone number is invalid",
+  CODE_ERROR: "Code format is invalid",
+  PASSWORD_ERROR:
+    "Password should contain both alphanumberic characters and symbols, length 8 - 16.",
+  CONFIRM_PASSWORD_ERROR: "Entered passwords are inconsistent",
 
   // actions
-  ADD_DESCRIPTION: "Add a description",
+  ADD_DESCRIPTION: "Add a description...",
+  ADD_TASK: "Add a task...",
   CREATE_PROJECT: "Create new project"
 };

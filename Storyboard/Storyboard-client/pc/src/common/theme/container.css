@@ -18,3 +18,15 @@
   height: 100%;
   width: 4px;
 }
+
+.shadow {
+  box-shadow: -5px 2px 5px lightgrey;
+  -webkit-box-shadow: -5px 2px 5px lightgrey;
+}
+
+.btn-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

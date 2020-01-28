@@ -11,6 +11,8 @@ import "bootstrap/dist/js/bootstrap.min.js";
 import "@/assets/icon";
 import "@/assets/loading";
 import Alert from "@/plugins/alert";
+import Toast from "@/plugins/toast";
+import Confirm from "@/plugins/confirm";
 
 import store from "./store";
 import router from "./router";
@@ -18,6 +20,8 @@ import i18n from "./i18n";
 
 Vue.config.productionTip = false;
 Vue.use(Alert);
+Vue.use(Toast);
+Vue.use(Confirm);
 
 /* eslint-disable no-new */
 new Vue({

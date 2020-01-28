@@ -1,20 +1,19 @@
 <template>
   <div class="footer">
-    <span>© {{copyRight}} {{$t('MOLINZ')}}</span>
+    <span>© {{ copyRight }} {{ $t("MOLINZ") }}</span>
   </div>
 </template>
 
 <script>
-
 export default {
-    computed:{
-        copyRight: () => {
-            let date = new Date();
-            let currentYear = date.getFullYear();
-            if(currentYear>2018) return `2018-${currentYear}`;
-            else return `2018`
-        }
+  computed: {
+    copyRight: () => {
+      let date = new Date();
+      let currentYear = date.getFullYear();
+      if (currentYear > 2018) return `2018-${currentYear}`;
+      else return `2018`;
     }
+  }
 };
 </script>
 
@@ -25,13 +24,13 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: lightgrey;
+  background-color: #dcdcdc80;
   span {
     display: inline-block;
     vertical-align: middle;
     font-weight: bold;
     font-size: 15px;
-    line-height: normal
+    line-height: normal;
   }
 }
 </style>

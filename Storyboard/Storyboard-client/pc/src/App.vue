@@ -36,8 +36,20 @@ body {
   width: 100vw;
   height: 100vh;
   font-family: kai;
+  min-width: 1024px;
+  min-height: 600px;
 }
 #app::-webkit-scrollbar {
   display: none;
+}
+.btn:focus,
+.btn:active,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus {
+  outline: none;
+  box-shadow: none;
 }
 </style>

@@ -128,6 +128,7 @@ export default {
             if (this.$refs["input"] && this.$refs["input"].focus) {
               // autofocus
               this.$refs["input"].focus();
+              this.$emit("on-focus");
             }
           });
         }
@@ -135,6 +136,7 @@ export default {
         if (this.editing) {
           // editing state changed
           this.editing = false;
+          this.$emit("lost-focus");
           if (
             this.inputValue !== this.value &&
             this.inputValue !== this.computedValue

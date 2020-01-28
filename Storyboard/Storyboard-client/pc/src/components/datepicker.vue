@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import { getTimestampFromISODate } from "@/common/utils/date";
+import { getTimestampFromISODate, parseISODate } from "@/common/utils/date";
 export default {
   props: {
     cellHeight: {
@@ -96,6 +96,10 @@ export default {
     end: {
       type: String,
       default: ""
+    },
+    selectPeriod: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -164,23 +168,53 @@ export default {
     },
     computedDateClass() {
       return function(date) {
-        const { init, current, displayYear, displayMonthIndex } = this;
-        if (
+        const {
+          init,
+          current,
+          displayYear,
+          displayMonthIndex,
+          start_date,
+          end_date
+        } = this;
+        let isCurrentDay =
           displayYear === current.year &&
           displayMonthIndex === current.month &&
-          date === current.date
-        )
-          return "current-day";
-        else if (
+          date === current.date;
+        let isPastDay =
           init &&
           (displayYear < init.year ||
             (displayYear === init.year && displayMonthIndex < init.month) ||
             (displayYear === init.year &&
               displayMonthIndex === init.month &&
-              date < init.date))
-        )
-          return "past-day";
-        return "future-day";
+              date < init.date));
+        let isStartDay =
+          displayYear === start_date.year &&
+          displayMonthIndex === start_date.month &&
+          date === start_date.date;
+        let isEndDay =
+          displayYear === end_date.year &&
+          displayMonthIndex === end_date.month &&
+          date === end_date.date;
+        if (isCurrentDay) return "current-day";
+        else if (isPastDay) return "past-day";
+        else if (isStartDay) return "start-day";
+        else if (isEndDay) return "end-day";
+        else {
+          let displayTimestamp = Date.parse(
+            `${displayYear}-${displayMonthIndex + 1}-${date}`
+          );
+          let startTimestamp = Date.parse(
+            `${start_date.year}-${start_date.month + 1}-${start_date.date}`
+          );
+          let endTimestamp = Date.parse(
+            `${end_date.year}-${end_date.month + 1}-${end_date.date}`
+          );
+          let isPeriodDay =
+            displayTimestamp > startTimestamp &&
+            displayTimestamp < endTimestamp;
+          if (isPeriodDay) return "period-day";
+          return "future-day";
+        }
       };
     }
   },
@@ -192,7 +226,20 @@ export default {
     this.current.date = date;
     this.current.month = month;
     this.current.year = year;
+    const { start, end } = this;
+    this.setStart(start);
+    this.setEnd(end);
     this.setDate(year, month);
+  },
+  watch: {
+    start(newVal, oldVal) {
+      console.log("watch start");
+      this.setStart(newVal);
+    },
+    end(newVal, oldVal) {
+      console.log("watch end");
+      this.setEnd(newVal);
+    }
   },
   methods: {
     setDate(year, month) {
@@ -253,15 +300,13 @@ export default {
     onDayClick(item) {
       if (this.computedDateClass(item) === "past-day") return;
       // can select day
-      // 1. check if the timeline already exists, if it does, compare item with start and end date
-      const { start, end } = this;
+      const { start, end, selectPeriod, displayYear, displayMonthIndex } = this;
+      let selectedDateStr = `${displayYear}-${displayMonthIndex + 1}-${item}`;
+      let selectedDateTimestamp = Date.parse(selectedDateStr);
+      let selectedDateISOStr = new Date(selectedDateTimestamp).toISOString();
       if (start && end) {
-        const { displayYear, displayMonthIndex } = this;
-        let selectedDateStr = `${displayYear}-${displayMonthIndex + 1}-${item}`;
-        let selectedDateTimestamp = Date.parse(selectedDateStr);
         let startDateTimestamp = getTimestampFromISODate(start);
         let endDateTimestamp = getTimestampFromISODate(end);
-        let selectedDateISOStr = new Date(selectedDateTimestamp).toISOString();
         let distToStart = selectedDateTimestamp - startDateTimestamp;
         let distToEnd = endDateTimestamp - selectedDateTimestamp;
         if (distToStart <= distToEnd) {
@@ -270,7 +315,33 @@ export default {
         }
         return this.$emit("select-timeline", start, selectedDateISOStr);
       } else {
-        return this.$emit("select-date", item);
+        if (!selectPeriod) return this.$emit("select-date", selectedDateISOStr);
+        if (!start) return this.$emit("select-start", selectedDateISOStr);
+        return this.$emit("select-end", selectedDateISOStr);
+      }
+    },
+    setStart(isoStr) {
+      if (isoStr) {
+        let startStandardTime = parseISODate(isoStr);
+        this.start_date.date = startStandardTime.getDate();
+        this.start_date.month = startStandardTime.getMonth();
+        this.start_date.year = startStandardTime.getFullYear();
+      } else {
+        this.start_date.date = null;
+        this.start_date.month = null;
+        this.start_date.year = null;
+      }
+    },
+    setEnd(isoStr) {
+      if (isoStr) {
+        let endStandardTime = parseISODate(isoStr);
+        this.end_date.date = endStandardTime.getDate();
+        this.end_date.month = endStandardTime.getMonth();
+        this.end_date.year = endStandardTime.getFullYear();
+      } else {
+        this.end_date.date = null;
+        this.end_date.month = null;
+        this.end_date.year = null;
       }
     }
   }
@@ -346,14 +417,25 @@ export default {
   cursor: pointer;
 }
 .past-day {
+  background-color: whitesmoke;
   color: lightgrey;
 }
 
 .future-day {
   cursor: pointer;
 }
+.start-day,
+.end-day {
+  background-color: cornflowerblue;
+  color: white;
+}
+.period-day {
+  background-color: lightblue;
+  cursor: pointer;
+}
 
 .future-day:active,
+.period-day:active,
 .current-day:active {
   -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);

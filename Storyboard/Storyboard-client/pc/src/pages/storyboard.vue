@@ -124,7 +124,6 @@
             <button
               v-else
               @click="createNewProject"
-              type="button"
               class="btn btn-sm btn-primary create-btn"
             >
               {{ $t("CREATE") }}
