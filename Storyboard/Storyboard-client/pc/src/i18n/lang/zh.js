@@ -84,6 +84,7 @@ export default {
   SEND_CODE: "发送验证码",
   LOGIN_PASSWORD: "通过密码登录",
   LOGIN_SMS: "通过验证码登录",
+  LOGIN_NOW: "立即登录",
   LOGIN_UNMATCHED_ERROR: "邮箱或手机号与密码不匹配",
   EMAIL_PHONE_ERROR: "邮箱或手机号格式不正确",
   CODE_ERROR: "验证码格式不正确",

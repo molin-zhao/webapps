@@ -6,7 +6,7 @@
 export default {
   data() {
     return {
-      inputValue: "",
+      inputValue: this.initValue,
       timer: null
     };
   },
@@ -14,6 +14,10 @@ export default {
     type: {
       type: String,
       default: "text"
+    },
+    initValue: {
+      type: String,
+      default: ""
     },
     interval: {
       type: Number,

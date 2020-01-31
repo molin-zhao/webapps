@@ -84,6 +84,7 @@ export default {
   LOGIN_PASSWORD: "Login by password",
   LOGIN_SMS: "Login by sms code",
   LOGIN_UNMATCHED_ERROR: "Email or phone number does not match the password",
+  LOGIN_NOW: "Login now",
   EMAIL_PHONE_ERROR: "Email or phone number is invalid",
   CODE_ERROR: "Code format is invalid",
   PASSWORD_ERROR:

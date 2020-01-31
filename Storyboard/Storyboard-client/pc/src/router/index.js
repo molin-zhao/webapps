@@ -31,10 +31,12 @@ const router = new vueRouter({
         },
         {
           path: "login",
+          name: "login",
           component: login
         },
         {
           path: "register",
+          name: "register",
           component: register
         }
       ]

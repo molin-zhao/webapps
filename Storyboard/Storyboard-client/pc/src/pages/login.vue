@@ -8,6 +8,7 @@
             type="email"
             class="form-control"
             :style="computedInputStyle(emailOrPhoneError)"
+            :init-value="computedInitEmailOrPhoneValue"
             @on-change="checkEmailOrPhoneValue"
           />
         </div>
@@ -151,6 +152,11 @@ export default {
       return `btn ${
         this.status === "done" ? "btn-success" : "btn-primary"
       } login-btn btn-center`;
+    },
+    computedInitEmailOrPhoneValue() {
+      if (this.$route.params.emailOrPhone)
+        return this.$route.params.emailOrPhone;
+      return "";
     }
   },
   methods: {

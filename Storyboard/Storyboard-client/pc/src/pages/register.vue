@@ -8,14 +8,30 @@
             type="email"
             class="form-control"
             :style="
-              computedInputStyle(emailOrPhoneError || alreadyRegisteredError)
+              computedInputStyle(
+                emailOrPhoneError || computedAlreadyRegisterdError
+              )
             "
             @on-change="checkEmailOrPhoneValue"
           />
         </div>
-        <span class="form-text text-danger error-text">{{
-          emailOrPhoneError || alreadyRegisteredError
-        }}</span>
+        <span
+          v-if="emailOrPhoneError"
+          class="form-text text-danger error-text"
+          >{{ emailOrPhoneError }}</span
+        >
+        <span
+          class="form-text text-danger error-text"
+          v-if="computedAlreadyRegisterdError"
+          >{{ computedAlreadyRegisterdError
+          }}<router-link
+            :to="{
+              name: 'login',
+              params: { emailOrPhone: this.emailOrPhoneValue }
+            }"
+            >{{ this.$t("LOGIN_NOW") }}</router-link
+          ></span
+        >
       </div>
       <div class="form-group form-left-centered">
         <label>{{ $t("SMS_CODE") }}</label>
@@ -99,7 +115,6 @@ export default {
     return {
       status: "todo",
       sent: false,
-      alreadyRegisteredError: "",
       emailOrPhoneValue: "",
       passwordValue: "",
       codeValue: "",
@@ -110,7 +125,8 @@ export default {
       confirmPasswordError: "",
       resendTimer: null,
       resendCount: 60,
-      renderInterval: null
+      renderInterval: null,
+      registeredEmailOrPhone: []
     };
   },
   computed: {
@@ -144,10 +160,14 @@ export default {
       return `btn ${
         this.status === "done" ? "btn-success" : "btn-primary"
       } register-btn btn-center`;
+    },
+    computedAlreadyRegisterdError() {
+      const { registeredEmailOrPhone, emailOrPhoneValue } = this;
+      if (registeredEmailOrPhone.includes(emailOrPhoneValue)) {
+        return this.$t("ALREADY_REGISTERED");
+      }
+      return "";
     }
-  },
-  mounted() {
-    console.log("hello");
   },
   methods: {
     changeLoginMode() {
@@ -193,7 +213,8 @@ export default {
     register() {
       this.status = "doing";
       this.registerTimer = setTimeout(() => {
-        this.status = "done";
+        this.status = "todo";
+        this.registeredEmailOrPhone.push("844973523@qq.com");
         clearTimeout(this.registerTimer);
       }, 3000);
     }
