@@ -140,4 +140,7 @@ export default {
     font-weight: bold;
   }
 }
+a {
+  cursor: pointer;
+}
 </style>

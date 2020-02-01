@@ -16,13 +16,8 @@
           />
         </div>
         <span
-          v-if="emailOrPhoneError"
-          class="form-text text-danger error-text"
-          >{{ emailOrPhoneError }}</span
-        >
-        <span
-          class="form-text text-danger error-text"
           v-if="computedAlreadyRegisterdError"
+          class="form-text text-danger error-text"
           >{{ computedAlreadyRegisterdError
           }}<router-link
             :to="{
@@ -32,6 +27,9 @@
             >{{ this.$t("LOGIN_NOW") }}</router-link
           ></span
         >
+        <span v-else class="form-text text-danger error-text">{{
+          emailOrPhoneError
+        }}</span>
       </div>
       <div class="form-group form-left-centered">
         <label>{{ $t("SMS_CODE") }}</label>
@@ -44,12 +42,12 @@
               @on-change="checkCodeError"
             />
             <input
-              :disabled="computedBtnDisabled"
+              :disabled="computedCodeBtnDisabled"
               type="button"
               :value="computedBtnText"
               @click.stop="sendCode"
               class="input-group-append input-group-text code-btn"
-              :style="`color: ${computedBtnDisabled ? 'grey' : 'black'}`"
+              :style="`color: ${computedCodeBtnDisabled ? 'grey' : 'black'}`"
             />
           </div>
         </div>
@@ -139,6 +137,12 @@ export default {
       if (this.sent) return `${this.$t("RESEND_CODE")}(${this.resendCount}s)`;
       else return `${this.$t("SEND_CODE")}`;
     },
+    computedCodeBtnDisabled() {
+      const { sent, emailOrPhoneValue, emailOrPhoneError } = this;
+      let disabled = sent || !emailOrPhoneValue || emailOrPhoneError;
+      console.log(disabled);
+      return disabled ? true : false;
+    },
     computedBtnDisabled() {
       const {
         sent,
@@ -153,8 +157,7 @@ export default {
         emailOrPhoneError ||
         !codeValue ||
         codeError;
-      if (disabled) return true;
-      return false;
+      return disabled ? true : false;
     },
     computedRegisterBtnClass() {
       return `btn ${

@@ -1,6 +1,6 @@
 <template>
   <div class="footer">
-    <span>© {{ copyRight }} {{ $t("MOLINZ") }}</span>
+    <span class="display-only">© {{ copyRight }} {{ $t("MOLINZ") }}</span>
   </div>
 </template>
 
@@ -18,6 +18,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "../common/theme/container.css";
 .footer {
   width: 100%;
   height: 5vh;
