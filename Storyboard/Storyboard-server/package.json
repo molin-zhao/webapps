@@ -2,13 +2,16 @@
   "name": "storyboard-server",
   "version": "1.0.0",
   "description": "server for storyboard project",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "molinz",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
+    "mongoose": "^5.8.9",
+    "morgan": "^1.9.1",
+    "passport": "^0.4.1",
+    "qcloudsms_js": "^0.1.1",
     "socket.io": "^2.3.0"
   }
 }
