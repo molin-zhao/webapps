@@ -6,7 +6,7 @@ const { sendSMS } = require("../../utils");
 routers.post("/sms", (req, res) => {
   let phone = req.body.phone;
   let templateId = SMS_CONFIG.TEMPLATE.REGISTER;
-  let params = ["1234"];
+  let params = ["1234", "3"];
   sendSMS(phone, templateId, params)
     .then(resp => {
       if (resp) console.log(resp.body);
