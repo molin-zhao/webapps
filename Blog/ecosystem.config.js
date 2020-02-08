@@ -21,10 +21,10 @@ module.exports = {
   deploy: {
     production: {
       user: "root",
-      host: NODE,
+      host: NODE.BLOG_NODE,
       ref: "origin/master",
-      repo: "https://github.com/RayMoore/webapp.git",
-      path: "/home/root/app/blog",
+      repo: "https://github.com/RayMoore/webapps.git",
+      path: "/home/root/app/molinz",
       "post-deploy":
         "cd Blog/ && npm install && pm2 reload ecosystem.config.js --env production",
       env: {
