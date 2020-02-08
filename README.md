@@ -1,2 +1,5 @@
-# This repo is for web applications
+# Web applications 
 
+## Blog
+- Hexo 
+- nodejs
