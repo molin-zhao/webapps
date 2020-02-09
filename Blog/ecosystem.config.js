@@ -22,6 +22,7 @@ module.exports = {
     production: {
       user: "root",
       host: NODE.BLOG_NODE,
+      key: "~/.ssh/digital_ocean_molinz_rsa",
       ref: "origin/master",
       repo: "https://github.com/RayMoore/webapps.git",
       path: "/home/root/app/molinz",
