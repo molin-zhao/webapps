@@ -112,24 +112,24 @@
 
 
 
-  <meta name="description" content="hexo是一款基于nodejs的静态博客框架，使用Markdown语言编写博客，配置信息包含在yml文件当中。 项目准备12345$ npm install hexo-cli -g$ hexo init blog$ cd blog$ npm install$ hexo server 建立一个新页面1$ hexo new &quot;你的新博客名称&quot; 启动服务1$ hexo server 构建静态资源1$ h">
+  <meta name="description" content="一共分为四步操作1. 修改ufw的默认配置文件 vim /etc/default/ufw DEFAULT_FORWARD_POLICY=”ACCEPT”  2. 修改docker的默认配置文件 vim /etc/default/docker DOCKER_OPTS=“–dns 8.8.8.8 –dns 8.8.4.4 -iptables=false”  3. 修改/etc/ufw/before.r">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用hexo建立静态博客">
-<meta property="og:url" content="https://molinz.com/2018/09/21/hello-world/index.html">
+<meta property="og:title" content="配置ufw和docker使得防火墙端口配置适用于docker容器">
+<meta property="og:url" content="https://molinz.com/2020/02/09/配置ufw和docker使得防火墙配置适用于docker容器/index.html">
 <meta property="og:site_name" content="沫霖的小站">
-<meta property="og:description" content="hexo是一款基于nodejs的静态博客框架，使用Markdown语言编写博客，配置信息包含在yml文件当中。 项目准备12345$ npm install hexo-cli -g$ hexo init blog$ cd blog$ npm install$ hexo server 建立一个新页面1$ hexo new &quot;你的新博客名称&quot; 启动服务1$ hexo server 构建静态资源1$ h">
+<meta property="og:description" content="一共分为四步操作1. 修改ufw的默认配置文件 vim /etc/default/ufw DEFAULT_FORWARD_POLICY=”ACCEPT”  2. 修改docker的默认配置文件 vim /etc/default/docker DOCKER_OPTS=“–dns 8.8.8.8 –dns 8.8.4.4 -iptables=false”  3. 修改/etc/ufw/before.r">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-21T05:18:09.840Z">
+<meta property="og:updated_time" content="2020-02-09T15:15:13.951Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用hexo建立静态博客">
-<meta name="twitter:description" content="hexo是一款基于nodejs的静态博客框架，使用Markdown语言编写博客，配置信息包含在yml文件当中。 项目准备12345$ npm install hexo-cli -g$ hexo init blog$ cd blog$ npm install$ hexo server 建立一个新页面1$ hexo new &quot;你的新博客名称&quot; 启动服务1$ hexo server 构建静态资源1$ h">
+<meta name="twitter:title" content="配置ufw和docker使得防火墙端口配置适用于docker容器">
+<meta name="twitter:description" content="一共分为四步操作1. 修改ufw的默认配置文件 vim /etc/default/ufw DEFAULT_FORWARD_POLICY=”ACCEPT”  2. 修改docker的默认配置文件 vim /etc/default/docker DOCKER_OPTS=“–dns 8.8.8.8 –dns 8.8.4.4 -iptables=false”  3. 修改/etc/ufw/before.r">
 
 
 
 
 
 
-  <link rel="canonical" href="https://molinz.com/2018/09/21/hello-world/"/>
+  <link rel="canonical" href="https://molinz.com/2020/02/09/配置ufw和docker使得防火墙配置适用于docker容器/"/>
 
 
 
@@ -139,7 +139,7 @@
   };
 </script>
 
-  <title>使用hexo建立静态博客 | 沫霖的小站</title>
+  <title>配置ufw和docker使得防火墙端口配置适用于docker容器 | 沫霖的小站</title>
   
 
 
@@ -308,7 +308,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://molinz.com/2018/09/21/hello-world/">
+    <link itemprop="mainEntityOfPage" href="https://molinz.com/2020/02/09/配置ufw和docker使得防火墙配置适用于docker容器/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Molin">
@@ -325,7 +325,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">使用hexo建立静态博客
+          <h1 class="post-title" itemprop="name headline">配置ufw和docker使得防火墙端口配置适用于docker容器
               
             
           </h1>
@@ -350,7 +350,7 @@
                 
               
 
-              <time title="创建时间：2018-09-21 09:36:01 / 修改时间：13:18:09" itemprop="dateCreated datePublished" datetime="2018-09-21T09:36:01+08:00">2018-09-21</time>
+              <time title="创建时间：2020-02-09 22:59:30 / 修改时间：23:15:13" itemprop="dateCreated datePublished" datetime="2020-02-09T22:59:30+08:00">2020-02-09</time>
             
 
             
@@ -388,13 +388,22 @@
       
 
       
-        <p>hexo是一款基于nodejs的静态博客框架，使用Markdown语言编写博客，配置信息包含在yml文件当中。</p>
-<h2 id="项目准备"><a href="#项目准备" class="headerlink" title="项目准备"></a>项目准备</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-cli -g</span><br><span class="line">$ hexo init blog</span><br><span class="line">$ <span class="built_in">cd</span> blog</span><br><span class="line">$ npm install</span><br><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<h3 id="建立一个新页面"><a href="#建立一个新页面" class="headerlink" title="建立一个新页面"></a>建立一个新页面</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"你的新博客名称"</span></span><br></pre></td></tr></table></figure>
-<h3 id="启动服务"><a href="#启动服务" class="headerlink" title="启动服务"></a>启动服务</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<h3 id="构建静态资源"><a href="#构建静态资源" class="headerlink" title="构建静态资源"></a>构建静态资源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>所有静态资源生成在项目根路径下public文件夹</p>
-<h3 id="远程部署"><a href="#远程部署" class="headerlink" title="远程部署"></a>远程部署</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+        <h2 id="一共分为四步操作"><a href="#一共分为四步操作" class="headerlink" title="一共分为四步操作"></a>一共分为四步操作</h2><h3 id="1-修改ufw的默认配置文件"><a href="#1-修改ufw的默认配置文件" class="headerlink" title="1. 修改ufw的默认配置文件"></a>1. 修改ufw的默认配置文件</h3><ul>
+<li>vim /etc/default/ufw</li>
+<li>DEFAULT_FORWARD_POLICY=”ACCEPT”</li>
+</ul>
+<h3 id="2-修改docker的默认配置文件"><a href="#2-修改docker的默认配置文件" class="headerlink" title="2. 修改docker的默认配置文件"></a>2. 修改docker的默认配置文件</h3><ul>
+<li>vim /etc/default/docker</li>
+<li>DOCKER_OPTS=“–dns 8.8.8.8 –dns 8.8.4.4 -iptables=false”</li>
+</ul>
+<h3 id="3-修改-etc-ufw-before-rules"><a href="#3-修改-etc-ufw-before-rules" class="headerlink" title="3. 修改/etc/ufw/before.rules"></a>3. 修改/etc/ufw/before.rules</h3><ul>
+<li>vim /etc/ufw/before/rules</li>
+<li>在 ‘*filter’ 前面添加下面内容</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">*nat</span><br><span class="line">:POSTROUTING ACCEPT [0:0]</span><br><span class="line">-A POSTROUTING ! -o docker0 -s 172.17.0.0/16 -j MASQUERADE</span><br><span class="line">COMMIT</span><br></pre></td></tr></table></figure>
+<h3 id="4-新增docker配置文件daemon-json"><a href="#4-新增docker配置文件daemon-json" class="headerlink" title="4. 新增docker配置文件daemon.json"></a>4. 新增docker配置文件daemon.json</h3><ul>
+<li>vim /etc/docker/daemon.json<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;iptables&quot;: false</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
 
       
     </div>
@@ -428,7 +437,7 @@
     <strong>本文作者： </strong>Molin</li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://molinz.com/2018/09/21/hello-world/" title="使用hexo建立静态博客">https://molinz.com/2018/09/21/hello-world/</a>
+    <a href="https://molinz.com/2020/02/09/配置ufw和docker使得防火墙配置适用于docker容器/" title="配置ufw和docker使得防火墙端口配置适用于docker容器">https://molinz.com/2020/02/09/配置ufw和docker使得防火墙配置适用于docker容器/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！</li>
@@ -448,15 +457,15 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/" rel="next" title="nginx以及certbot在Ubuntu18.04上的部署">
+                <i class="fa fa-chevron-left"></i> nginx以及certbot在Ubuntu18.04上的部署
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/07/19/nginx以及certbot在Ubuntu18-04上的部署/" rel="prev" title="nginx以及certbot在Ubuntu18.04上的部署">
-                nginx以及certbot在Ubuntu18.04上的部署 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -589,7 +598,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#项目准备"><span class="nav-number">1.</span> <span class="nav-text">项目准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#建立一个新页面"><span class="nav-number">1.1.</span> <span class="nav-text">建立一个新页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#启动服务"><span class="nav-number">1.2.</span> <span class="nav-text">启动服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构建静态资源"><span class="nav-number">1.3.</span> <span class="nav-text">构建静态资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#远程部署"><span class="nav-number">1.4.</span> <span class="nav-text">远程部署</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一共分为四步操作"><span class="nav-number">1.</span> <span class="nav-text">一共分为四步操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-修改ufw的默认配置文件"><span class="nav-number">1.1.</span> <span class="nav-text">1. 修改ufw的默认配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-修改docker的默认配置文件"><span class="nav-number">1.2.</span> <span class="nav-text">2. 修改docker的默认配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-修改-etc-ufw-before-rules"><span class="nav-number">1.3.</span> <span class="nav-text">3. 修改/etc/ufw/before.rules</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-新增docker配置文件daemon-json"><span class="nav-number">1.4.</span> <span class="nav-text">4. 新增docker配置文件daemon.json</span></a></li></ol></li></ol></div>
             
 
           </div>
