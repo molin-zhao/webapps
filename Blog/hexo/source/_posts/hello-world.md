@@ -28,6 +28,7 @@ $ hexo server
 ### 构建静态资源
 
 ``` bash
+$ cd hexo/
 $ hexo generate
 ```
 
