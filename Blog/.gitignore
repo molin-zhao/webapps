@@ -7,3 +7,9 @@ node_modules/
 # config
 config.js
 
+# config.yml
+config.yml
+
+# hosts
+hosts
+
